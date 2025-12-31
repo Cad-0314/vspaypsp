@@ -17,6 +17,10 @@
             <a href="?lang=zh" class="lang-link <%= currentLang === 'zh' ? 'active' : '' %>">中文</a>
         </div>
 
+        <div class="logo-container">
+            <img src="/images/logo.png" alt="VSPAY Logo" class="logo">
+        </div>
+
         <h1>
             <%= t('header_secure') %>
         </h1>
@@ -24,49 +28,80 @@
             <%= t('subtitle_scan') %>
         </p>
 
-        <% if (typeof error !=='undefined' ) { %>
+        <% if (typeof error !=='undefined' && error) { %>
             <div class="alert alert-error">
                 <%= error %>
             </div>
             <% } %>
 
-                <div class="qr-code">
-                    <img src="<%= qr_code %>" alt="QR Code">
-                </div>
+                <% if (typeof serverTime !=='undefined' ) { %>
+                    <p style="font-size: 0.75rem; color: #6b7280; margin-bottom: 1rem;">
+                        Server Time: <%= serverTime %>
+                    </p>
+                    <% } %>
 
-                <div class="secret-container"
-                    style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 1rem;">
-                    <span class="secret-code" id="secretCode">
-                        <%= secret %>
-                    </span>
-                    <button type="button" onclick="copySecret()"
-                        style="background: none; border: 1px solid #d1d5db; padding: 0.25rem 0.5rem; border-radius: 0.25rem; cursor: pointer;">Copy</button>
-                </div>
+                        <div class="qr-code">
+                            <img src="<%= qr_code %>" alt="QR Code">
+                        </div>
 
-                <script>
-                    function copySecret() {
-                        const secret = document.getElementById('secretCode').innerText;
-                        navigator.clipboard.writeText(secret).then(() => {
-                            alert('Secret copied to clipboard!');
-                        }).catch(err => {
-                            console.error('Failed to copy text: ', err);
-                        });
-                    }
-                </script>
+                        <div class="secret-container"
+                            style="background: #f3f4f6; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0;">
+                            <p style="margin: 0 0 0.5rem 0; font-size: 0.875rem; color: #374151;">
+                                <strong>Secret Key (copy this exactly):</strong>
+                            </p>
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                <code id="secretCode"
+                                    style="background: #fff; padding: 0.5rem 1rem; border-radius: 0.25rem; font-size: 1rem; font-weight: bold; letter-spacing: 0.1em; border: 1px solid #d1d5db;"><%= secret %></code>
+                                <button type="button" onclick="copySecret()"
+                                    style="background: #3b82f6; color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.25rem; cursor: pointer; font-size: 0.875rem;">
+                                    Copy
+                                </button>
+                            </div>
+                        </div>
 
-                <form action="/auth/2fa-setup" method="POST">
-                    <div class="form-group">
-                        <label for="token">
-                            <%= t('label_code') %>
-                        </label>
-                        <input type="text" id="token" name="token" required placeholder="<%= t('ph_code') %>"
-                            autocomplete="off">
-                    </div>
-                    <button type="submit" class="btn">
-                        <%= t('btn_verify_enable') %>
-                    </button>
-                </form>
+                        <div
+                            style="background: #fef3c7; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; text-align: left;">
+                            <p style="margin: 0 0 0.5rem 0; font-weight: bold; color: #92400e;">⚠️ Important:</p>
+                            <ol style="margin: 0; padding-left: 1.25rem; color: #78350f; font-size: 0.875rem;">
+                                <li>Delete any existing "VSPAY" entry in your Authenticator</li>
+                                <li>Click "Copy" to copy the secret above</li>
+                                <li>In Authenticator: + → Enter setup key → Paste secret</li>
+                                <li>Enter the 6-digit code shown below</li>
+                            </ol>
+                        </div>
+
+                        <form action="/auth/2fa-setup" method="POST">
+                            <div class="form-group">
+                                <label for="token">
+                                    <%= t('label_code') %>
+                                </label>
+                                <input type="text" id="token" name="token" required placeholder="<%= t('ph_code') %>"
+                                    autocomplete="off" maxlength="6" pattern="[0-9]{6}" inputmode="numeric"
+                                    style="text-align: center; font-size: 1.5rem; letter-spacing: 0.5em;">
+                            </div>
+                            <button type="submit" class="btn">
+                                <%= t('btn_verify_enable') %>
+                            </button>
+                        </form>
     </div>
+
+    <script>
+        function copySecret() {
+            const secret = document.getElementById('secretCode').innerText;
+            navigator.clipboard.writeText(secret).then(() => {
+                alert('Secret copied! Now add it to your Authenticator app.');
+            }).catch(err => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = secret;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('Secret copied! Now add it to your Authenticator app.');
+            });
+        }
+    </script>
 </body>
 
 </html>
