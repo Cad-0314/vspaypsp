@@ -1,0 +1,291 @@
+VSPAY API
+
+🇺🇸
+EN
+Getting Started
+Introduction
+Authentication
+Error Codes
+Pay-In (Deposits)
+Create Order
+Query Status
+Pay-In Callback
+Pay-Out (Withdrawals)
+Bank Transfer
+USDT Transfer
+Query Status
+Payout Callback
+Utilities
+Check Balance
+Introduction
+Welcome to the VSPAY Payment Gateway API. This documentation provides a comprehensive guide to integrating our secure payment solutions.
+
+Version 2.1
+Base URL https://vspay.vip
+
+All requests must be made over HTTPS with Content-Type: application/json.
+
+Authentication
+We strictly use Header-Based Authentication using HMAC-MD5 signatures. Every request must be authenticated.
+
+Required Headers
+Header	Example Value	Description
+x-merchant-id	550e8400-e29b...	Your unique Merchant UUID.
+x-signature	A1B2C3D4E5...	The MD5 hash of your request body.
+Generating the Signature
+Formula
+1. <strong>Sort</strong> all body parameters alphabetically by key (ASCII).
+2. <strong>Remove</strong> empty values and the <code>sign</code> field (if present).
+3. <strong>Join</strong> with <code>&</code> in <code>key=value</code> format.
+4. <strong>Append</strong> <code>&secret=YOUR_MERCHANT_SECRET_KEY</code>.
+5. <strong>Hash</strong> using MD5 and convert to uppercase.
+Node.js Example
+ Copy
+const crypto = require('crypto');
+
+function generateSignature(params, secretKey) {
+    const filtered = {};
+    Object.keys(params).forEach(key => {
+        if (key !== 'sign' && params[key] !== '' && params[key] != null) {
+            filtered[key] = params[key];
+        }
+    });
+    const sorted = Object.keys(filtered).sort();
+    const query = sorted.map(k => `${k}=${filtered[k]}`).join('&');
+    const str = `${query}&secret=${secretKey}`;
+    return crypto.createHash('md5').update(str).digest('hex').toUpperCase();
+}
+PHP Example
+ Copy
+function generateSignature($params, $secretKey) {
+    $filtered = array_filter($params, fn($v) => $v !== '' && $v !== null);
+    unset($filtered['sign']);
+    ksort($filtered);
+    $parts = [];
+    foreach ($filtered as $k => $v) $parts[] = "$k=$v";
+    $str = implode('&', $parts) . "&secret=$secretKey";
+    return strtoupper(md5($str));
+}
+Error Codes
+Standard response codes returned by the API.
+
+Code	Meaning / 含义
+1	Success / 成功
+0	Failed / 失败
+-1	Invalid signature / 签名错误
+-2	Missing parameters / 缺少参数
+-3	Insufficient balance / 余额不足
+-4	Order not found / 订单不存在
+Status Values / 状态值
+Status	Meaning / 含义
+pending	Awaiting payment / 等待支付
+processing	Being processed / 处理中
+success	Completed successfully / 成功完成
+failed	Failed / 失败
+Create Order
+Generate a payment link to collect funds from a user.
+
+POST/api/payin/create
+
+Parameter	Type	Description
+orderId	String Required	Unique Order ID (Max 64 chars) / 唯一订单号
+orderAmount	Number Required	Amount to collect (Min ₹100) / 收款金额
+callbackUrl	String Required	Webhook URL for notifications / 回调通知地址
+skipUrl	String Optional	Redirect URL after payment / 支付后跳转地址
+param	String Optional	Custom data returned in callback / 自定义回传数据
+Example Request
+ Copy
+{
+    "orderId": "MC001-998877",
+    "orderAmount": 500,
+    "callbackUrl": "https://mysite.com/webhook",
+    "skipUrl": "https://mysite.com/success"
+}
+Success Response
+ Copy
+{
+    "code": 1,
+    "msg": "Order created",
+    "data": {
+        "orderId": "MC001-998877",
+        "id": "e0b5...88",
+        "orderAmount": 500,
+        "fee": 25,
+        "paymentUrl": "https://vspay.vip/pay/DF-123456",
+        "deepLinks": {
+            "upi_phonepe": "phonepe://...",
+            "upi_paytm": "paytmmp://...",
+            "upi_gpay": "tez://upi/pay?pa=...",
+            "upi_scan": "upi://pay?..."
+        }
+    }
+}
+Query Status
+Check the real-time status of a deposit.
+
+POST/api/payin/query
+
+Public Alternative: Use POST /api/payin/check with orderId and userId (no signature required).
+公开接口: 可使用 /api/payin/check，需传 orderId 和 userId（无需签名）
+Parameter	Type	Description
+orderId	String Required	Your unique Order ID / 您的订单号
+Success Response
+ Copy
+{
+    "code": 1,
+    "data": {
+        "orderId": "MC001-998877",
+        "id": "e0b5...88",
+        "status": "success",
+        "amount": 500,
+        "orderAmount": 500,
+        "fee": 25,
+        "netAmount": 475,
+        "utr": "123456789012",
+        "createdAt": "2025-01-01T12:00:00Z"
+    }
+}
+Pay-In Callback
+Webhook notification when a pay-in order status changes.
+
+Callback Parameters / 回调参数
+Field	Type	Description
+status	Number	1 = Success, 0 = Failed / 1成功 0失败
+amount	Number	Net amount after fees / 扣费后到账金额
+orderAmount	Number	Original order amount / 原始订单金额
+orderId	String	Your merchant order ID / 商户订单号
+id	String	Gateway transaction ID / 网关交易ID
+utr	String	Bank reference number / 银行流水号
+param	String	Your custom parameter / 自定义回传参数
+sign	String	MD5 signature / MD5签名
+Example Callback / 回调示例
+ Copy
+{
+    "status": 1,
+    "amount": 475.00,
+    "orderAmount": 500.00,
+    "orderId": "MC001-998877",
+    "id": "uuid-v4-string",
+    "utr": "123456789012",
+    "param": "custom-data",
+    "sign": "A1B2C3D4E5F6..."
+}
+Important / 重要: You must respond with plain text OK to acknowledge. We retry up to 5 times if not received.
+必须响应: 收到回调后需返回纯文本 OK。未收到确认将重试5次。
+Bank Transfer
+Transfer funds to a bank account via IMPS/NEFT.
+
+POST/api/payout/bank
+
+Parameter	Type	Description
+orderId	String Required	Unique transaction ID / 唯一交易号
+amount	Number Required	Amount (Min ₹100) / 金额
+account	String Required	Bank account number / 银行账号
+ifsc	String Required	IFSC code / IFSC代码
+personName	String Required	Account holder name / 收款人姓名
+callbackUrl	String Optional	Webhook URL / 回调地址
+param	String Optional	Custom data / 自定义数据
+Success Response
+ Copy
+{
+    "code": 1,
+    "msg": "Payout submitted",
+    "data": {
+        "orderId": "MC001-998877",
+        "id": "e0b5...88",
+        "amount": 500,
+        "fee": 21,
+        "status": "processing"
+    }
+}
+USDT Transfer
+Transfer funds to a crypto wallet (TRC20).
+
+POST/api/payout/usdt
+
+Parameter	Type	Description
+orderId	String Required	Unique transaction ID / 交易号
+amount	Number Required	Amount in INR (Min 500 USDT eq) / INR金额
+walletAddress	String Required	Wallet address / 钱包地址
+network	String Required	TRC20, ERC20, or BEP20 / 网络协议
+callbackUrl	String Optional	Webhook URL / 回调地址
+Success Response
+ Copy
+{
+    "code": 1,
+    "msg": "USDT payout submitted",
+    "data": {
+        "orderId": "MC001-998877",
+        "id": "e0b5...88",
+        "amount": 50000,
+        "fee": 0,
+        "status": "pending"
+    }
+}
+Query Status
+POST/api/payout/query
+
+Public Alternative: Use POST /api/payout/check with orderId and userId.
+公开接口: 可用 /api/payout/check，传 orderId 和 userId
+Parameter	Type	Description
+orderId	String Required	Payout Order ID / 代付订单号
+Success Response
+ Copy
+{
+    "code": 1,
+    "data": {
+        "orderId": "MC001-998877",
+        "id": "e0b5...88",
+        "type": "bank",
+        "status": "success",
+        "amount": 500,
+        "fee": 21,
+        "utr": "123456789012",
+        "createdAt": "2025-01-01T12:00:00Z"
+    }
+}
+Payout Callback
+Webhook notification when a payout order status changes.
+
+Callback Parameters / 回调参数
+Field	Type	Description
+status	Number	1 = Success, 0 = Failed / 1成功 0失败
+amount	Number	Payout amount / 代付金额
+orderId	String	Your merchant order ID / 商户订单号
+id	String	Gateway transaction ID / 网关交易ID
+utr	String	Bank UTR / 银行流水号
+message	String	Status message / 状态信息
+param	String	Your custom parameter / 自定义参数
+sign	String	MD5 signature / MD5签名
+Example Callback / 回调示例
+ Copy
+{
+    "status": 1,
+    "amount": 500.00,
+    "orderId": "MC001-998877",
+    "id": "uuid-v4-string",
+    "utr": "123456789012",
+    "message": "success",
+    "param": "custom-data",
+    "sign": "A1B2C3D4E5F6..."
+}
+Response Required: Return plain text OK to acknowledge.
+必须响应: 返回纯文本 OK 确认收到。
+Check Balance
+Get your current available balance.
+
+POST/api/balance/query
+
+Body: {} (Empty JSON object / 空JSON对象)
+
+Success Response
+ Copy
+{
+    "code": 1,
+    "msg": "Success",
+    "data": {
+        "availableAmount": 10050.00,
+        "pendingAmount": 0,
+        "totalAmount": 10050.00
+    }
+}
