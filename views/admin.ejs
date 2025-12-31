@@ -10,12 +10,12 @@
     <link rel="stylesheet" href="/css/style.css">
     <style>
         .dashboard {
-            max-width: 900px;
+            max-width: 1100px;
         }
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 1rem;
             margin-bottom: 2rem;
         }
@@ -23,7 +23,7 @@
         .stat-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 1.5rem;
+            padding: 1.25rem;
             border-radius: 0.75rem;
             text-align: center;
         }
@@ -36,13 +36,17 @@
             background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
         }
 
+        .stat-card.gold {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
         .stat-value {
-            font-size: 2rem;
+            font-size: 1.75rem;
             font-weight: 700;
         }
 
         .stat-label {
-            font-size: 0.875rem;
+            font-size: 0.8rem;
             opacity: 0.9;
         }
 
@@ -56,17 +60,21 @@
         .section h3 {
             margin: 0 0 1rem 0;
             color: #374151;
-            font-size: 1.125rem;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            font-size: 0.85rem;
         }
 
         th,
         td {
-            padding: 0.75rem;
+            padding: 0.6rem;
             text-align: left;
             border-bottom: 1px solid #e5e7eb;
         }
@@ -74,19 +82,16 @@
         th {
             background: #f3f4f6;
             font-weight: 600;
-            font-size: 0.875rem;
+            font-size: 0.75rem;
             color: #6b7280;
-        }
-
-        td {
-            font-size: 0.875rem;
+            text-transform: uppercase;
         }
 
         .badge {
             display: inline-block;
-            padding: 0.25rem 0.5rem;
+            padding: 0.2rem 0.5rem;
             border-radius: 1rem;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 600;
         }
 
@@ -100,8 +105,143 @@
             color: #dc2626;
         }
 
+        .badge-blue {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
         .rate {
             font-family: monospace;
+            font-size: 0.8rem;
+        }
+
+        .btn-sm {
+            padding: 0.35rem 0.6rem;
+            font-size: 0.75rem;
+            border-radius: 0.375rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-edit {
+            background: #6366f1;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #4f46e5;
+        }
+
+        .btn-add {
+            background: #10b981;
+            color: white;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .btn-add:hover {
+            background: #059669;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.25rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            font-size: 0.9rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .btn-save {
+            background: #10b981;
+            color: white;
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 0.9rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+        }
+
+        .btn-save:hover {
+            background: #059669;
+        }
+
+        .monospace {
+            font-family: monospace;
+            font-size: 0.75rem;
+        }
+
+        .text-muted {
+            color: #6b7280;
+            font-size: 0.75rem;
         }
     </style>
 </head>
@@ -126,8 +266,14 @@
 
         <!-- Stats Grid -->
         <div class="stats-grid">
+            <div class="stat-card gold">
+                <div class="stat-value" id="adminBalance">₹<%= user.balance ? parseFloat(user.balance).toLocaleString()
+                        : '0' %>
+                </div>
+                <div class="stat-label">Profit Balance / 利润余额</div>
+            </div>
             <div class="stat-card green">
-                <div class="stat-value">
+                <div class="stat-value" id="merchantCount">
                     <%= typeof merchantCount !=='undefined' ? merchantCount : 0 %>
                 </div>
                 <div class="stat-label">
@@ -152,10 +298,39 @@
             </div>
         </div>
 
-        <!-- Channels Section -->
+        <!-- Merchants Section -->
         <div class="section">
             <h3>
-                <%= t('channels') %>
+                <span>👥 Merchants / 商户</span>
+                <button class="btn-sm btn-add" onclick="openAddModal()">+ Add / 添加</button>
+            </h3>
+            <table id="merchantsTable">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>API Key</th>
+                        <th>Channel</th>
+                        <th>Rates</th>
+                        <th>Balance</th>
+                        <th>
+                            <%= t('status') %>
+                        </th>
+                        <th>
+                            <%= t('actions') %>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="merchantsBody">
+                    <tr>
+                        <td colspan="7" style="text-align:center; color:#6b7280;">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Channels Section -->
+        <div class="section">
+            <h3>📡 <%= t('channels') %>
             </h3>
             <table>
                 <thead>
@@ -201,41 +376,215 @@
                             <% }); %>
                                 <% } else { %>
                                     <tr>
-                                        <td colspan="5" style="text-align: center; color: #6b7280;">No channels
-                                            configured</td>
+                                        <td colspan="5" style="text-align: center; color: #6b7280;">No channels</td>
                                     </tr>
                                     <% } %>
                 </tbody>
             </table>
         </div>
 
-        <!-- System Status -->
-        <div class="section">
-            <h3>
-                <%= t('system_status') %>
-            </h3>
-            <p><strong>Database:</strong>
-                <%= t('db_connected') %>
-            </p>
-            <p><strong>
-                    <%= t('2fa_status') %>:
-                </strong>
-                <%= user.two_fa_enabled ? t('enabled') : t('disabled') %>
-            </p>
-        </div>
-
-        <!-- API Docs Link -->
-        <div class="section" style="text-align: center;">
-            <a href="/ourapi.txt" target="_blank" class="btn"
-                style="display: inline-block; width: auto; margin-right: 0.5rem;">
-                <%= t('view_docs') %>
-            </a>
-        </div>
-
         <a href="/auth/logout" class="btn" style="background-color: #ef4444;">
             <%= t('btn_logout') %>
         </a>
     </div>
+
+    <!-- Add/Edit Merchant Modal -->
+    <div class="modal" id="merchantModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add Merchant / 添加商户</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="merchantForm" onsubmit="saveMerchant(event)">
+                <input type="hidden" id="merchantId">
+
+                <div class="form-group">
+                    <label>Username / 用户名 *</label>
+                    <input type="text" id="username" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Password / 密码 <span id="pwdHint">(required)</span></label>
+                    <input type="password" id="password" autocomplete="new-password">
+                </div>
+
+                <div class="form-group">
+                    <label>Channel / 通道</label>
+                    <select id="assignedChannel">
+                        <% if (typeof channels !=='undefined' ) { %>
+                            <% channels.forEach(function(ch) { %>
+                                <option value="<%= ch.name %>">
+                                    <%= ch.displayName %>
+                                </option>
+                                <% }); %>
+                                    <% } %>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Payin Rate % / 收款费率</label>
+                        <input type="number" id="payinRate" step="0.01" value="5">
+                    </div>
+                    <div class="form-group">
+                        <label>Payout Rate % / 代付费率</label>
+                        <input type="number" id="payoutRate" step="0.01" value="3">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Fixed Payout ₹ / 固定费用</label>
+                        <input type="number" id="payoutFixedFee" step="0.01" value="6">
+                    </div>
+                    <div class="form-group">
+                        <label>USDT Rate % / USDT费率</label>
+                        <input type="number" id="usdtRate" step="0.01" value="0">
+                    </div>
+                </div>
+
+                <div class="form-group" id="statusGroup" style="display:none;">
+                    <label>Status / 状态</label>
+                    <select id="isActive">
+                        <option value="true">Active / 活跃</option>
+                        <option value="false">Disabled / 停用</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-save">Save / 保存</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let merchants = [];
+
+        // Load merchants on page load
+        loadMerchants();
+
+        async function loadMerchants() {
+            try {
+                const res = await fetch('/admin/api/merchants');
+                const data = await res.json();
+                if (data.success) {
+                    merchants = data.merchants;
+                    renderMerchants();
+                }
+            } catch (e) {
+                console.error('Load merchants error:', e);
+            }
+        }
+
+        function renderMerchants() {
+            const tbody = document.getElementById('merchantsBody');
+            if (merchants.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#6b7280;">No merchants yet</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = merchants.map(m => {
+                let rates = {};
+                try { rates = JSON.parse(m.channel_rates || '{}'); } catch (e) { }
+                const rateStr = `${rates.payinRate || 5}%/${rates.payoutRate || 3}%/₹${rates.payoutFixedFee || 6}`;
+
+                return `<tr>
+                    <td><strong>${m.username}</strong></td>
+                    <td class="monospace">${(m.apiKey || '').substring(0, 16)}...</td>
+                    <td><span class="badge badge-blue">${m.assignedChannel || 'hdpay'}</span></td>
+                    <td class="rate">${rateStr}</td>
+                    <td class="rate">₹${parseFloat(m.balance || 0).toLocaleString()}</td>
+                    <td><span class="badge ${m.isActive !== false ? 'badge-green' : 'badge-red'}">${m.isActive !== false ? 'Active' : 'Disabled'}</span></td>
+                    <td><button class="btn-sm btn-edit" onclick="editMerchant(${m.id})">Edit</button></td>
+                </tr>`;
+            }).join('');
+        }
+
+        function openAddModal() {
+            document.getElementById('modalTitle').textContent = 'Add Merchant / 添加商户';
+            document.getElementById('merchantId').value = '';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('password').required = true;
+            document.getElementById('pwdHint').textContent = '(required)';
+            document.getElementById('assignedChannel').value = 'hdpay';
+            document.getElementById('payinRate').value = '5';
+            document.getElementById('payoutRate').value = '3';
+            document.getElementById('payoutFixedFee').value = '6';
+            document.getElementById('usdtRate').value = '0';
+            document.getElementById('statusGroup').style.display = 'none';
+            document.getElementById('merchantModal').classList.add('active');
+        }
+
+        function editMerchant(id) {
+            const m = merchants.find(x => x.id === id);
+            if (!m) return;
+
+            let rates = {};
+            try { rates = JSON.parse(m.channel_rates || '{}'); } catch (e) { }
+
+            document.getElementById('modalTitle').textContent = 'Edit Merchant / 编辑商户';
+            document.getElementById('merchantId').value = m.id;
+            document.getElementById('username').value = m.username;
+            document.getElementById('password').value = '';
+            document.getElementById('password').required = false;
+            document.getElementById('pwdHint').textContent = '(leave blank to keep)';
+            document.getElementById('assignedChannel').value = m.assignedChannel || 'hdpay';
+            document.getElementById('payinRate').value = rates.payinRate || 5;
+            document.getElementById('payoutRate').value = rates.payoutRate || 3;
+            document.getElementById('payoutFixedFee').value = rates.payoutFixedFee || 6;
+            document.getElementById('usdtRate').value = rates.usdtRate || 0;
+            document.getElementById('isActive').value = m.isActive !== false ? 'true' : 'false';
+            document.getElementById('statusGroup').style.display = 'block';
+            document.getElementById('merchantModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('merchantModal').classList.remove('active');
+        }
+
+        async function saveMerchant(e) {
+            e.preventDefault();
+
+            const id = document.getElementById('merchantId').value;
+            const data = {
+                username: document.getElementById('username').value,
+                assignedChannel: document.getElementById('assignedChannel').value,
+                payinRate: document.getElementById('payinRate').value,
+                payoutRate: document.getElementById('payoutRate').value,
+                payoutFixedFee: document.getElementById('payoutFixedFee').value,
+                usdtRate: document.getElementById('usdtRate').value
+            };
+
+            const password = document.getElementById('password').value;
+            if (password) data.password = password;
+
+            if (id) {
+                data.isActive = document.getElementById('isActive').value === 'true';
+            }
+
+            try {
+                const url = id ? `/admin/api/merchants/${id}` : '/admin/api/merchants';
+                const method = id ? 'PUT' : 'POST';
+
+                const res = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    closeModal();
+                    loadMerchants();
+                    alert(result.message);
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (e) {
+                alert('Failed to save: ' + e.message);
+            }
+        }
+    </script>
 </body>
 
 </html>
