@@ -32,23 +32,36 @@ router.get('/:orderId', async (req, res) => {
             return res.status(410).send('Payment expired');
         }
 
-        // Check if already completed
-        if (order.status === 'success') {
-            return res.redirect('/pay/success?orderId=' + orderId);
+        // Serve the static HTML file
+        res.sendFile(path.join(__dirname, '../../public/pay.html'));
+
+    } catch (error) {
+        console.error('[Pay Page] Error:', error);
+        return res.status(500).send('Server error');
+    }
+});
+
+/**
+ * GET /pay/api/:orderId
+ * Returns payment data for the frontend
+ */
+router.get('/api/:orderId', async (req, res) => {
+    try {
+        const { orderId } = req.params;
+
+        const order = await Order.findOne({
+            where: { id: orderId, type: 'payin' }
+        });
+
+        if (!order) {
+            return res.status(404).json({ success: false, error: 'Payment not found' });
         }
 
-        if (order.status === 'failed') {
-            return res.status(400).send('Payment failed');
+        // Check if expired
+        if (order.expiresAt && new Date() > new Date(order.expiresAt)) {
+            return res.status(410).json({ success: false, error: 'Payment expired' });
         }
 
-        const channelConfig = channelRouter.getChannelConfig(order.channelName);
-
-        // If channel doesn't use custom pay page, redirect to provider URL
-        if (!channelConfig.usesCustomPayPage && order.payUrl) {
-            return res.redirect(order.payUrl);
-        }
-
-        // Prepare data for payment page
         const paymentData = {
             orderId: order.id,
             merchantOrderId: order.orderId,
@@ -60,13 +73,11 @@ router.get('/:orderId', async (req, res) => {
             skipUrl: order.skipUrl
         };
 
-        // For simplicity, send JSON that the static HTML will fetch
-        // You could also render an EJS template here
         res.json(paymentData);
 
     } catch (error) {
-        console.error('[Pay Page] Error:', error);
-        return res.status(500).send('Server error');
+        console.error('[Pay Page API] Error:', error);
+        res.status(500).json({ success: false, error: 'Internal server error' });
     }
 });
 

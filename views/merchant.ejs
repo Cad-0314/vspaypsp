@@ -689,22 +689,19 @@
                                 </div>
                                 <div>
                                     <label class="stat-label">Settlement Type</label>
-                                    <select id="s-type" class="form-control" onchange="checkSettleType()">
-                                        <option value="bank">Bank Transfer (IMPS/NEFT)</option>
+                                    <select id="s-type" class="form-control" readonly>
                                         <option value="usdt">USDT (TRC20)</option>
                                     </select>
                                     <small id="usdt-note"
-                                        style="color:var(--danger); display:none; font-size:0.75rem; margin-top:0.25rem;">Minimum
-                                        ₹100,000 for USDT settlement.</small>
+                                        style="color:var(--danger); display:block; font-size:0.75rem; margin-top:0.25rem;">Minimum
+                                        ₹100,000 for USDT settlement. Manual processing.</small>
                                 </div>
                             </div>
-                            <div style="margin-bottom: 1.5rem;">
-                                <label class="stat-label">
-                                    <%= t('notes') %>
-                                </label>
-                                <textarea id="s-notes" class="form-control" rows="3"
-                                    placeholder="Enter bank details if not saved, or USDT address for USDT settlements..."></textarea>
-                            </div>
+                            <label class="stat-label">
+                                USDT Address / Notes
+                            </label>
+                            <textarea id="s-notes" class="form-control" rows="3"
+                                placeholder="Enter your USDT (TRC20) wallet address..."></textarea>
                             <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">
                                 <%= t('btn_request_settlement') %>
                             </button>
@@ -924,9 +921,13 @@
                     </div>
                 </div>
                 <div style="margin-bottom:1.5rem;">
-                    <label class="stat-label">Bank Details / Notes</label>
+                    <label class="stat-label">Settlement Type</label>
+                    <input type="text" class="form-control" value="USDT (TRC20)" readonly style="background:#F3F4F6;">
+                </div>
+                <div style="margin-bottom:1.5rem;">
+                    <label class="stat-label">USDT Address / Notes</label>
                     <textarea id="settle-notes" class="form-control" rows="3"
-                        placeholder="Enter Account Number, IFSC, etc."></textarea>
+                        placeholder="Enter your TRC20 wallet address..."></textarea>
                 </div>
                 <div style="display: flex; gap: 1rem;">
                     <button type="submit" class="btn btn-primary" style="flex: 1; justify-content:center;">Submit
@@ -969,11 +970,6 @@
 
         let chartInstance = null;
         let successChartInstance = null;
-
-        function checkSettleType() {
-            const type = document.getElementById('s-type').value;
-            document.getElementById('usdt-note').style.display = type === 'usdt' ? 'block' : 'none';
-        }
 
         function switchTab(tab) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -1207,7 +1203,7 @@
                 const res = await fetch('/api/merchant/settlements', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ amount, notes, type: 'bank' })
+                    body: JSON.stringify({ amount, notes, type: 'usdt' })
                 });
 
                 const data = await res.json();

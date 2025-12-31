@@ -139,10 +139,10 @@ router.post('/settlements', async (req, res) => {
             return res.status(400).json({ success: false, error: 'Invalid amount' });
         }
 
-        // Enforce USDT minimum: 1 lakh (100,000) or 1 million (1,000,000)? 
-        // User said "min usdt settalement is 1 lakh inr" and then "1 million" in my plan? 
-        // Wait, user said "1 lakh inr" (100,000). Let me re-read.
-        // "usdt will be manually processed by admin min usdt settalement is 1 lakh inr"
+        if (type === 'bank') {
+            return res.status(400).json({ success: false, error: 'Bank settlements are disabled. Please use the Payout API for bank transfers.' });
+        }
+
         if (type === 'usdt' && requestAmount < 100000) {
             return res.status(400).json({ success: false, error: 'Minimum USDT settlement is ₹100,000' });
         }

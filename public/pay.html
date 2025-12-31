@@ -388,7 +388,7 @@
         // Fetch payment data
         async function loadPayment() {
             try {
-                const response = await fetch(`/pay/${orderId}`);
+                const response = await fetch(`/pay/api/${orderId}`);
                 if (!response.ok) {
                     throw new Error('Payment not found');
                 }
@@ -523,7 +523,7 @@
         // Check payment status periodically
         async function checkStatus() {
             try {
-                const response = await fetch(`/pay/${orderId}`);
+                const response = await fetch(`/pay/api/${orderId}`);
                 const data = await response.json();
                 if (data.status === 'success') {
                     const statusBadge = document.getElementById('statusBadge');
