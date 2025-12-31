@@ -50,7 +50,17 @@ router.post('/2fa-setup', async (req, res) => {
     if (!req.session.tempUser || !req.session.tempSecret) return res.redirect('/auth/login');
 
     const { token } = req.body;
+
+    // DEBUG LOGGING
+    console.log('--- 2FA DEBUG ---');
+    console.log('Server Time:', new Date().toISOString());
+    console.log('User Token:', token);
+    console.log('Session Secret:', req.session.tempSecret);
+    const expected = otplib.authenticator.generate(req.session.tempSecret);
+    console.log('Server Expected Token:', expected);
     const isValid = otplib.authenticator.check(token, req.session.tempSecret);
+    console.log('IsValid result:', isValid);
+    console.log('-----------------');
 
     if (isValid) {
         await User.update({
