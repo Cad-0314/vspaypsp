@@ -54,10 +54,15 @@ router.post('/bank', validateMerchant, async (req, res) => {
         }
 
         // Get channel rates
+        // Get channel rates with merchant override
         const channelName = merchant.assignedChannel || 'hdpay';
         let channel = await Channel.findOne({ where: { name: channelName, isActive: true } });
-        const payoutRate = channel ? parseFloat(channel.payoutRate) : 3.0;
-        const fixedFee = channel ? parseFloat(channel.payoutFixedFee) : 6.0;
+
+        let customRates = {};
+        try { customRates = JSON.parse(merchant.channel_rates || '{}'); } catch (e) { }
+
+        const payoutRate = customRates.payoutRate || (channel ? parseFloat(channel.payoutRate) : 3.0);
+        const fixedFee = customRates.payoutFixedFee || (channel ? parseFloat(channel.payoutFixedFee) : 6.0);
 
         // Calculate fee: (amount * rate%) + fixed fee
         const percentageFee = (payoutAmount * payoutRate) / 100;
@@ -211,7 +216,15 @@ router.post('/usdt', validateMerchant, async (req, res) => {
             });
         }
 
-        // USDT payout typically has no fee or different fee structure
+        // USDT Conversion Logic
+        // usdtRate is "INR per 1 USDT" (e.g., 100)
+        let customRates = {};
+        try { customRates = JSON.parse(merchant.channel_rates || '{}'); } catch (e) { }
+
+        const usdtRate = customRates.usdtRate || 100; // Default 100
+        const usdtAmount = payoutAmount / usdtRate;
+
+        // Fee is typically 0 for USDT in this model, or included in rate
         const fee = 0;
 
         // Check balance
@@ -252,7 +265,9 @@ router.post('/usdt', validateMerchant, async (req, res) => {
                 callbackUrl: callbackUrl || merchant.callbackUrl,
                 payoutDetails: {
                     walletAddress: walletAddress,
-                    network: network.toUpperCase()
+                    network: network.toUpperCase(),
+                    usdtRate: usdtRate,
+                    usdtAmount: usdtAmount
                 }
             }, { transaction: t });
 

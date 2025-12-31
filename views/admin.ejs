@@ -353,8 +353,9 @@
 
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <i class="ri-admin-line" style="font-size: 2rem; color:var(--danger)"></i>
-                <span class="logo-text">VSPAY <span style="font-weight:300; opacity:0.7">ADMIN</span></span>
+                <img src="/images/logo.png" alt="VSPAY" style="height: 40px; width:auto; border-radius:8px;">
+                <span class="logo-text">VSPAY <span
+                        style="font-weight:300; opacity:0.7; color:var(--danger)">ADMIN</span></span>
             </div>
 
             <nav class="nav-links">
@@ -450,6 +451,9 @@
                             </tbody>
                         </table>
                     </div>
+                    <div id="orders-pagination"
+                        style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1rem; align-items:center;">
+                    </div>
                 </div>
 
                 <!-- Settlements -->
@@ -474,6 +478,9 @@
                             </tbody>
                         </table>
                     </div>
+                    <div id="settlements-pagination"
+                        style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1rem; align-items:center;">
+                    </div>
                 </div>
 
                 <!-- Merchants -->
@@ -488,6 +495,11 @@
                             Merchant</button>
                     </div>
                     <div class="card">
+                        <div style="padding: 1rem; border-bottom: 1px solid #F3F4F6;">
+                            <input type="text" id="merchant-search" placeholder="Search by Username or API Key..."
+                                style="width: 100%; padding: 0.5rem; border: 1px solid #E5E7EB; border-radius: 0.5rem;"
+                                onkeyup="searchMerchants()">
+                        </div>
                         <table id="merchants-table">
                             <thead>
                                 <tr>
@@ -615,6 +627,23 @@
     </div>
 
     <script>
+        let merchantSearchTimeout = null;
+
+        function renderPagination(paging, containerId, clickActionTemplate) {
+            const container = document.getElementById(containerId);
+            if (!paging || paging.pages <= 1) { container.innerHTML = ''; return; }
+
+            const prevAction = clickActionTemplate.replace('{page}', paging.page - 1);
+            const nextAction = clickActionTemplate.replace('{page}', paging.page + 1);
+
+            container.innerHTML = `
+                <span style="font-size:0.875rem; color:grey; margin-right:auto;">Page ${paging.page} of ${paging.pages} (${paging.total} items)</span>
+                <button class="btn" style="padding:0.25rem 0.75rem; background:${paging.page > 1 ? 'white' : '#F3F4F6'}; border:1px solid #E5E7EB;" 
+                    onclick="${prevAction}" ${paging.page <= 1 ? 'disabled' : ''}><i class="ri-arrow-left-s-line"></i></button>
+                <button class="btn" style="padding:0.25rem 0.75rem; background:${paging.page < paging.pages ? 'white' : '#F3F4F6'}; border:1px solid #E5E7EB;" 
+                    onclick="${nextAction}" ${paging.page >= paging.pages ? 'disabled' : ''}><i class="ri-arrow-right-s-line"></i></button>
+            `;
+        }
         // ... Logic remains identical, just UI structure ...
         switchTab('dashboard');
         loadStats();
@@ -665,38 +694,52 @@
             } catch (e) { console.error(e); }
         }
 
-        async function loadGlobalOrders() {
+        async function loadGlobalOrders(page = 1) {
             const search = document.getElementById('order-search').value;
-            const res = await fetch(`/admin/api/orders?limit=20&search=${search}`);
+            const res = await fetch(`/admin/api/orders?limit=20&page=${page}&search=${search}`);
             const data = await res.json();
             const tbody = document.getElementById('orders-table').querySelector('tbody');
-            tbody.innerHTML = data.orders.map(o => `
-                <tr>
-                    <td style="font-family:monospace; font-weight:600;">${o.orderId.substring(0, 10)}...</td>
-                    <td>${o.merchant?.username || '-'}</td>
-                    <td>${o.type}</td>
-                    <td>₹${o.amount}</td>
-                    <td><span class="badge badge-${o.status}">${o.status}</span></td>
-                    <td>${new Date(o.createdAt).toLocaleDateString()}</td>
-                </tr>
-            `).join('');
+
+            if (data.success && data.orders.length > 0) {
+                tbody.innerHTML = data.orders.map(o => `
+                    <tr>
+                        <td style="font-family:monospace; font-weight:600;">${o.orderId.substring(0, 10)}...</td>
+                        <td>${o.merchant?.username || '-'}</td>
+                        <td>${o.type}</td>
+                        <td>₹${o.amount}</td>
+                        <td><span class="badge badge-${o.status}">${o.status}</span></td>
+                        <td>${new Date(o.createdAt).toLocaleDateString()}</td>
+                    </tr>
+                `).join('');
+                renderPagination(data.pagination, 'orders-pagination', `loadGlobalOrders({page})`);
+            } else {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #9ca3af; padding:2rem;">No orders found</td></tr>';
+                document.getElementById('orders-pagination').innerHTML = '';
+            }
         }
 
-        async function loadSettlements() {
-            const res = await fetch('/admin/api/settlements');
+        async function loadSettlements(page = 1) {
+            const res = await fetch(`/admin/api/settlements?page=${page}`);
             const data = await res.json();
             const tbody = document.getElementById('settlements-table').querySelector('tbody');
-            tbody.innerHTML = data.settlements.map(s => `
-                <tr>
-                    <td style="font-family:monospace;">${s.id.substring(0, 8)}</td>
-                    <td>${s.merchant?.username}</td>
-                    <td style="font-weight:600;">₹${s.amount}</td>
-                    <td><span class="badge badge-${s.status}">${s.status}</span></td>
-                    <td>
-                        ${s.status === 'pending' ? `<button class="btn btn-primary" onclick="openSettleAction('${s.id}')">Process</button>` : '-'}
-                    </td>
-                </tr>
-            `).join('');
+
+            if (data.success && data.settlements.length > 0) {
+                tbody.innerHTML = data.settlements.map(s => `
+                    <tr>
+                        <td style="font-family:monospace;">${s.id.substring(0, 8)}</td>
+                        <td>${s.merchant?.username}</td>
+                        <td style="font-weight:600;">₹${s.amount}</td>
+                        <td><span class="badge badge-${s.status}">${s.status}</span></td>
+                        <td>
+                            ${s.status === 'pending' ? `<button class="btn btn-primary" onclick="openSettleAction('${s.id}')">Process</button>` : '-'}
+                        </td>
+                    </tr>
+                `).join('');
+                renderPagination(data.pagination, 'settlements-pagination', `loadSettlements({page})`);
+            } else {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #9ca3af; padding:2rem;">No settlements found</td></tr>';
+                document.getElementById('settlements-pagination').innerHTML = '';
+            }
         }
 
         function openSettleAction(id) {
@@ -718,25 +761,42 @@
             loadSettlements();
         }
 
-        async function loadMerchants() {
-            const res = await fetch('/admin/api/merchants');
+        function searchMerchants() {
+            clearTimeout(merchantSearchTimeout);
+            merchantSearchTimeout = setTimeout(() => {
+                loadMerchants(1);
+            }, 300);
+        }
+
+        async function loadMerchants(page = 1) {
+            const search = document.getElementById('merchant-search').value;
+            const res = await fetch(`/admin/api/merchants?page=${page}&search=${search}`);
             const data = await res.json();
-            document.getElementById('merchants-table').querySelector('tbody').innerHTML = data.merchants.map(m => `
-                <tr>
-                    <td style="font-weight:500;">${m.username}</td>
-                    <td><small style="font-family:monospace; background:#F3F4F6; padding:2px 6px; border-radius:4px;">${m.apiKey || '-'}</small></td>
-                    <td>${m.assignedChannel}</td>
-                    <td>₹${parseFloat(m.balance).toFixed(2)}</td>
-                    <td>
-                        <!-- Simplified display -->
-                        <span style="font-size:0.75rem; color:#6B7280;">Rates info...</span>
-                    </td>
-                    <td style="display:flex; gap:0.5rem;">
-                        <button class="btn" style="padding:0.25rem 0.5rem;" onclick="editMerchant('${m.id}')"><i class="ri-edit-line"></i></button>
-                        <button class="btn btn-danger" style="padding:0.25rem 0.5rem;" onclick="deleteMerchant('${m.id}')"><i class="ri-delete-bin-line"></i></button>
-                    </td>
-                </tr>
-            `).join('');
+            const tbody = document.getElementById('merchants-table').querySelector('tbody');
+
+            if (data.success && data.merchants.length > 0) {
+                tbody.innerHTML = data.merchants.map(m => `
+                    <tr>
+                        <td style="font-weight:500;">${m.username}</td>
+                        <td><small style="font-family:monospace; background:#F3F4F6; padding:2px 6px; border-radius:4px;">${m.apiKey || '-'}</small></td>
+                        <td>${m.assignedChannel}</td>
+                        <td>₹${parseFloat(m.balance).toFixed(2)}</td>
+                        <td>
+                            <span style="font-size:0.75rem; color:#6B7280;">
+                                ${JSON.parse(m.channel_rates || '{}').usdtRate || 100} INR/USDT
+                            </span>
+                        </td>
+                        <td style="display:flex; gap:0.5rem;">
+                            <button class="btn" style="padding:0.25rem 0.5rem;" onclick="editMerchant('${m.id}')"><i class="ri-edit-line"></i></button>
+                            <button class="btn btn-danger" style="padding:0.25rem 0.5rem;" onclick="deleteMerchant('${m.id}')"><i class="ri-delete-bin-line"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
+                renderPagination(data.pagination, 'merchants-pagination', `loadMerchants({page})`);
+            } else {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #9ca3af; padding:2rem;">No merchants found</td></tr>';
+                document.getElementById('merchants-pagination').innerHTML = '';
+            }
         }
 
         function openMerchantModal() { document.getElementById('merchantModal').style.display = 'flex'; }

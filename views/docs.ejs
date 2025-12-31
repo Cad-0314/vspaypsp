@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="<%= currentLang %>">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation - VSPAY</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --bg-sidebar: #0f172a;
+            --bg-body: #f8fafc;
+            --text-body: #334155;
+            --text-heading: #0f172a;
+            --code-bg: #1e293b;
+            --code-text: #e2e8f0;
+            --border: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--bg-body);
+            color: var(--text-body);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .doc-sidebar {
+            width: 280px;
+            background: var(--bg-sidebar);
+            color: white;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #1e293b;
+            overflow-y: auto;
+        }
+
+        .brand {
+            padding: 1.5rem;
+            font-size: 1.25rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid #1e293b;
+            color: white;
+            text-decoration: none;
+        }
+
+        .nav-group {
+            padding: 1rem 0;
+        }
+
+        .nav-header {
+            padding: 0.5rem 1.5rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 0.5rem 1.5rem;
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border-left-color: var(--primary);
+        }
+
+        /* Main Content */
+        .doc-content {
+            flex: 1;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        .content-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            margin-bottom: 1rem;
+            letter-spacing: -0.025em;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-heading);
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        p {
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+
+        /* Code Blocks */
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1.25rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            margin: 1rem 0;
+            position: relative;
+        }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--primary);
+            background: #e0e7ff;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        pre code {
+            background: transparent;
+            color: inherit;
+            padding: 0;
+        }
+
+        .method {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .post {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .get {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.875rem;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: #f1f5f9;
+            font-weight: 600;
+            color: var(--text-heading);
+        }
+
+        .required {
+            color: #dc2626;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .optional {
+            color: #64748b;
+            font-size: 0.75rem;
+        }
+
+        /* Language Toggle */
+        .lang-switch {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: white;
+            padding: 0.25rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border);
+            display: flex;
+            gap: 0.25rem;
+            z-index: 50;
+        }
+
+        .lang-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            font-size: 0.875rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .lang-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="doc-sidebar">
+        <a href="/" class="brand"><i class="ri-code-s-slash-line"></i> VSPAY API</a>
+        <div class="nav-group">
+            <div class="nav-header">Getting Started</div>
+            <a href="#intro" class="nav-link active">Introduction / 介绍</a>
+            <a href="#auth" class="nav-link">Authentication / 鉴权</a>
+        </div>
+        <div class="nav-group">
+            <div class="nav-header">Pay-in (Deposit)</div>
+            <a href="#payin-create" class="nav-link">Create Order / 创建订单</a>
+            <a href="#payin-query" class="nav-link">Query Status / 查询状态</a>
+            <a href="#payin-callback" class="nav-link">Callback / 回调通知</a>
+        </div>
+        <div class="nav-group">
+            <div class="nav-header">Pay-out (Withdraw)</div>
+            <a href="#payout-bank" class="nav-link">Bank Transfer / 银行代付</a>
+            <a href="#payout-usdt" class="nav-link">USDT Transfer / USDT代付</a>
+            <a href="#payout-query" class="nav-link">Query Status / 查询状态</a>
+            <a href="#payout-callback" class="nav-link">Callback / 回调通知</a>
+        </div>
+        <div class="nav-group">
+            <div class="nav-header">Utilities</div>
+            <a href="#balance" class="nav-link">Check Balance / 查询余额</a>
+        </div>
+    </nav>
+
+    <div class="lang-switch">
+        <button class="lang-btn active" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" onclick="setLang('zh')">中文</button>
+    </div>
+
+    <main class="doc-content">
+        <div class="content-wrapper">
+
+            <!-- Intro -->
+            <section id="intro">
+                <h1>
+                    <span class="lang-en">Introduction</span>
+                    <span class="lang-zh hidden">介绍</span>
+                </h1>
+                <p class="lang-en">Welcome to the VSPAY Payment Gateway API. This documentation provides a comprehensive
+                    guide to integrating our secure payment solutions.</p>
+                <p class="lang-zh hidden">欢迎使用 VSPAY 支付网关 API。本文档提供了集成我们安全支付解决方案的综合指南。</p>
+
+                <div style="display:flex; gap:2rem; margin-top:1rem;">
+                    <div>
+                        <strong>Version:</strong> v2.1
+                    </div>
+                    <div>
+                        <strong>Base URL:</strong> <code>https://vspay.vip</code>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Auth -->
+            <section id="auth">
+                <h2>
+                    <span class="lang-en">Authentication</span>
+                    <span class="lang-zh hidden">鉴权认证</span>
+                </h2>
+                <p class="lang-en">We strictly use Header-Based Authentication using HMAC-MD5 signatures. Every request
+                    must be authenticated.</p>
+                <p class="lang-zh hidden">我们要个使用基于 HMAC-MD5 签名的头部认证。每个请求都必须经过身份验证。</p>
+
+                <h3>Required Headers</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Header</th>
+                            <th>Example</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>x-merchant-id</code></td>
+                            <td>550e8400...</td>
+                            <td>
+                                <span class="lang-en">Your unique Merchant UUID.</span>
+                                <span class="lang-zh hidden">您唯一的商户 UUID。</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code>x-signature</code></td>
+                            <td>A1B2C3...</td>
+                            <td>
+                                <span class="lang-en">The MD5 hash of your request body.</span>
+                                <span class="lang-zh hidden">请求体的 MD5 哈希值。</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>
+                    <span class="lang-en">Generating the Signature</span>
+                    <span class="lang-zh hidden">生成签名</span>
+                </h3>
+                <ol style="margin-left:1.5rem; line-height:1.8;">
+                    <li><span class="lang-en"><strong>Sort</strong> all body parameters alphabetically by key
+                            (ASCII).</span><span class="lang-zh hidden">按键名（ASCII）对所有参数进行<strong>字母排序</strong>。</span>
+                    </li>
+                    <li><span class="lang-en"><strong>Remove</strong> empty values and the <code>sign</code>
+                            field.</span><span class="lang-zh hidden"><strong>移除</strong>空值和 <code>sign</code>
+                            字段。</span></li>
+                    <li><span class="lang-en"><strong>Join</strong> with <code>&</code> in <code>key=value</code>
+                            format.</span><span class="lang-zh hidden">用 <code>&</code> 连接成 <code>key=value</code>
+                            格式。</span></li>
+                    <li><span class="lang-en"><strong>Append</strong> <code>&secret=YOUR_SECRET_KEY</code>.</span><span
+                            class="lang-zh hidden"><strong>追加</strong> <code>&secret=您的密钥</code>。</span></li>
+                    <li><span class="lang-en"><strong>Hash</strong> using MD5 and convert to uppercase.</span><span
+                            class="lang-zh hidden">使用 MD5 <strong>哈希</strong>并转换为大写。</span></li>
+                </ol>
+
+                <pre><code>// Node.js Example
+const crypto = require('crypto');
+
+function generateSignature(params, secretKey) {
+    const filtered = {};
+    Object.keys(params).forEach(key => {
+        if (key !== 'sign' && params[key] !== '' && params[key] != null) {
+            filtered[key] = params[key];
+        }
+    });
+    const sorted = Object.keys(filtered).sort();
+    const query = sorted.map(k => `${k}=${filtered[k]}`).join('&');
+    const str = `${query}&secret=${secretKey}`;
+    return crypto.createHash('md5').update(str).digest('hex').toUpperCase();
+}</code></pre>
+
+            </section>
+
+            <!-- Payin Create -->
+            <section id="payin-create">
+                <h2>
+                    <span class="lang-en">Create Order (Payin)</span>
+                    <span class="lang-zh hidden">创建订单 (代收)</span>
+                </h2>
+                <div class="method post">POST /api/payin/create</div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Param</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>orderId</td>
+                            <td>String <span class="required">*</span></td>
+                            <td>
+                                <span class="lang-en">Unique Order ID (Max 64 chars)</span>
+                                <span class="lang-zh hidden">唯一订单号 (最大 64 字符)</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>orderAmount</td>
+                            <td>Number <span class="required">*</span></td>
+                            <td>
+                                <span class="lang-en">Amount to collect (Min 100)</span>
+                                <span class="lang-zh hidden">收款金额 (最小 100)</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>callbackUrl</td>
+                            <td>String <span class="required">*</span></td>
+                            <td>Webhook URL</td>
+                        </tr>
+                        <tr>
+                            <td>skipUrl</td>
+                            <td>String</td>
+                            <td>
+                                <span class="lang-en">Redirect URL after payment</span>
+                                <span class="lang-zh hidden">支付后跳转地址</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>param</td>
+                            <td>String</td>
+                            <td>
+                                <span class="lang-en">Custom Reference Data</span>
+                                <span class="lang-zh hidden">自定义透传参数</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Payin Callback -->
+            <section id="payin-callback">
+                <h2>
+                    <span class="lang-en">Payin Callback</span>
+                    <span class="lang-zh hidden">代收回调</span>
+                </h2>
+                <p>
+                    <span class="lang-en">Server-to-server notification when status changes.</span>
+                    <span class="lang-zh hidden">状态变更时的服务器点对点通知。</span>
+                </p>
+
+                <div style="background:#fff7ed; border-left:4px solid #f97316; padding:1rem; margin:1rem 0;">
+                    <span class="lang-en"><strong>Important:</strong> You must respond with plain text <code>OK</code>
+                        to acknowledge receipt.</span>
+                    <span class="lang-zh hidden"><strong>重要：</strong>您必须返回纯文本 <code>OK</code> 以确认收到。</span>
+                </div>
+
+                <pre><code>{
+    "status": 1,              // 1 = Success, 0 = Failed
+    "amount": 475.00,         // Net amount after fees
+    "orderAmount": 500.00,    // Original amount
+    "orderId": "MC001-998",   // Your order ID
+    "id": "e0b5...",          // Gateway ID
+    "utr": "123456789012",    // Bank Ref
+    "param": "custom-data",   // Your param
+    "sign": "A1B2C3..."       // Signature
+}</code></pre>
+            </section>
+
+            <!-- Payout Bank -->
+            <section id="payout-bank">
+                <h2>
+                    <span class="lang-en">Bank Transfer (Payout)</span>
+                    <span class="lang-zh hidden">银行转账 (代付)</span>
+                </h2>
+                <div class="method post">POST /api/payout/bank</div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Param</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>orderId</td>
+                            <td>String <span class="required">*</span></td>
+                            <td>Unique ID / 唯一交易号</td>
+                        </tr>
+                        <tr>
+                            <td>amount</td>
+                            <td>Number <span class="required">*</span></td>
+                            <td>Amount / 金额</td>
+                        </tr>
+                        <tr>
+                            <td>account</td>
+                            <td>String <span class="required">*</span></td>
+                            <td>Bank Account / 银行账号</td>
+                        </tr>
+                        <tr>
+                            <td>ifsc</td>
+                            <td>String <span class="required">*</span></td>
+                            <td>IFSC Code / IFSC代码</td>
+                        </tr>
+                        <tr>
+                            <td>personName</td>
+                            <td>String <span class="required">*</span></td>
+                            <td>Account Name / 户名</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Balance -->
+            <section id="balance">
+                <h2>
+                    <span class="lang-en">Check Balance</span>
+                    <span class="lang-zh hidden">查询余额</span>
+                </h2>
+                <div class="method post">POST /api/balance/query</div>
+                <p>Body: <code>{}</code> (Empty object)</p>
+
+                <pre><code>{
+    "code": 1,
+    "msg": "Success",
+    "data": {
+        "availableAmount": 10050.00,
+        "pendingAmount": 0,
+        "totalAmount": 10050.00
+    }
+}</code></pre>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        function setLang(lang) {
+            document.documentElement.lang = lang;
+
+            // Toggle Content
+            if (lang === 'zh') {
+                document.querySelectorAll('.lang-en').forEach(el => el.classList.add('hidden'));
+                document.querySelectorAll('.lang-zh').forEach(el => el.classList.remove('hidden'));
+            } else {
+                document.querySelectorAll('.lang-zh').forEach(el => el.classList.add('hidden'));
+                document.querySelectorAll('.lang-en').forEach(el => el.classList.remove('hidden'));
+            }
+
+            // Toggle Buttons
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.lang-btn[onclick="setLang('${lang}')"]`).classList.add('active');
+
+            // Save preference (optional, but requested implicitely)
+            document.cookie = `lang=${lang}; path=/`;
+        }
+
+        // Init from URL or existing
+        const urlParams = new URLSearchParams(window.location.search);
+        const lang = urlParams.get('lang') || '<%= currentLang %>' || 'en';
+        setLang(lang);
+    </script>
+</body>
+
+</html>

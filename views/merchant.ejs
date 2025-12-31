@@ -441,7 +441,7 @@
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <i class="ri-shield-check-fill" style="font-size: 2rem;"></i>
+                <img src="/images/logo.png" alt="VSPAY" style="height: 40px; width:auto; border-radius:8px;">
                 <span class="logo-text">VSPAY <span style="font-weight:300; opacity:0.7">MERCHANT</span></span>
             </div>
 
@@ -583,6 +583,9 @@
                             </tbody>
                         </table>
                     </div>
+                    <div id="payin-pagination"
+                        style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1rem; align-items:center;">
+                    </div>
                 </div>
 
                 <!-- Payout History Tab -->
@@ -607,6 +610,9 @@
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                    <div id="payout-pagination"
+                        style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1rem; align-items:center;">
                     </div>
                 </div>
 
@@ -643,6 +649,9 @@
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                    <div id="settlements-pagination"
+                        style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1rem; align-items:center;">
                     </div>
                 </div>
 
@@ -814,7 +823,7 @@
                         style="margin-top:0.5rem; font-size:0.75rem; color:var(--text-light); display:flex; justify-content:space-between;">
                         <span>Available Balance</span>
                         <span style="font-weight:600; color:var(--success);">₹<%= parseFloat(user.balance).toFixed(2) %>
-                                </span>
+                        </span>
                     </div>
                 </div>
                 <div style="margin-bottom:1.5rem;">
@@ -834,6 +843,22 @@
     </div>
 
     <script>
+        // Pagination Helper
+        function renderPagination(paging, containerId, clickActionTemplate) {
+            const container = document.getElementById(containerId);
+            if (!paging || paging.pages <= 1) { container.innerHTML = ''; return; }
+
+            const prevAction = clickActionTemplate.replace('{page}', paging.page - 1);
+            const nextAction = clickActionTemplate.replace('{page}', paging.page + 1);
+
+            container.innerHTML = `
+                <span style="font-size:0.875rem; color:grey; margin-right:auto;">Page ${paging.page} of ${paging.pages} (${paging.total} items)</span>
+                <button class="btn" style="padding:0.25rem 0.75rem; background:${paging.page > 1 ? 'white' : '#F3F4F6'}; border:1px solid #E5E7EB;" 
+                    onclick="${prevAction}" ${paging.page <= 1 ? 'disabled' : ''}><i class="ri-arrow-left-s-line"></i></button>
+                <button class="btn" style="padding:0.25rem 0.75rem; background:${paging.page < paging.pages ? 'white' : '#F3F4F6'}; border:1px solid #E5E7EB;" 
+                    onclick="${nextAction}" ${paging.page >= paging.pages ? 'disabled' : ''}><i class="ri-arrow-right-s-line"></i></button>
+            `;
+        }
         // ... Same Logic as before, just UI structure change ...
 
         switchTab('dashboard');
@@ -901,49 +926,60 @@
             });
         }
 
-        async function loadOrders(type) {
+        async function loadOrders(type, page = 1) {
             const tbody = document.getElementById(type + '-table').querySelector('tbody');
             tbody.innerHTML = '<tr><td colspan="4"><div style="text-align:center; padding:2rem; color:grey;"><i class="ri-loader-4-line ri-spin"></i> Loading...</div></td></tr>';
 
-            const res = await fetch(`/api/merchant/orders?type=${type}`);
-            const data = await res.json();
+            try {
+                const res = await fetch(`/api/merchant/orders?type=${type}&page=${page}`);
+                const data = await res.json();
 
-            if (data.success && data.orders.length > 0) {
-                tbody.innerHTML = data.orders.map(o => `
-                    <tr>
-                        <td style="font-family:monospace; font-weight:600;">#${o.orderId.substring(0, 8)}...</td>
-                        <td>₹${o.amount}</td>
-                        <td><span class="badge badge-${o.status}">${o.status}</span></td>
-                        <td>${new Date(o.createdAt).toLocaleDateString()}</td>
-                    </tr>
-                `).join('');
-            } else {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #9ca3af; padding:2rem;">No transactions found</td></tr>';
-            }
+                if (data.success && data.orders.length > 0) {
+                    tbody.innerHTML = data.orders.map(o => `
+                        <tr>
+                            <td style="font-family:monospace; font-weight:600;">#${o.orderId.substring(0, 8)}...</td>
+                            <td>₹${o.amount}</td>
+                            <td><span class="badge badge-${o.status}">${o.status}</span></td>
+                            <td>${new Date(o.createdAt).toLocaleDateString()}</td>
+                        </tr>
+                    `).join('');
+
+                    renderPagination(data.pagination, type + '-pagination', `loadOrders('${type}', {page})`);
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #9ca3af; padding:2rem;">No transactions found</td></tr>';
+                    document.getElementById(type + '-pagination').innerHTML = '';
+                }
+            } catch (e) { console.error(e); }
         }
 
-        async function loadSettlements() {
+        async function loadSettlements(page = 1) {
             const tbody = document.getElementById('settlement-table').querySelector('tbody');
             tbody.innerHTML = '<tr><td colspan="5"><div style="text-align:center; padding:2rem; color:grey;"><i class="ri-loader-4-line ri-spin"></i> Loading...</div></td></tr>';
-            const res = await fetch('/api/merchant/settlements');
-            const data = await res.json();
 
-            if (data.success && data.settlements.length > 0) {
-                tbody.innerHTML = data.settlements.map(s => `
-                    <tr>
-                        <td style="font-family:monospace;">#${s.id.substring(0, 8)}</td>
-                        <td style="font-weight:600;">₹${s.amount}</td>
-                        <td><span class="badge badge-${s.status}">${s.status}</span></td>
-                        <td>
-                            ${s.utr ? `<div style="font-size:0.75rem; color:var(--text-light);">UTR: ${s.utr}</div>` : ''}
-                            ${s.notes ? `<div style="font-size:0.75rem;">${s.notes}</div>` : ''}
-                        </td>
-                        <td>${new Date(s.createdAt).toLocaleDateString()}</td>
-                    </tr>
-                `).join('');
-            } else {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #9ca3af; padding:2rem;">No settlements yet</td></tr>';
-            }
+            try {
+                const res = await fetch(`/api/merchant/settlements?page=${page}`);
+                const data = await res.json();
+
+                if (data.success && data.settlements.length > 0) {
+                    tbody.innerHTML = data.settlements.map(s => `
+                        <tr>
+                            <td style="font-family:monospace;">#${s.id.substring(0, 8)}</td>
+                            <td style="font-weight:600;">₹${s.amount}</td>
+                            <td><span class="badge badge-${s.status}">${s.status}</span></td>
+                            <td>
+                                ${s.utr ? `<div style="font-size:0.75rem; color:var(--text-light);">UTR: ${s.utr}</div>` : ''}
+                                ${s.notes ? `<div style="font-size:0.75rem;">${s.notes}</div>` : ''}
+                            </td>
+                            <td>${new Date(s.createdAt).toLocaleDateString()}</td>
+                        </tr>
+                    `).join('');
+
+                    renderPagination(data.pagination, 'settlements-pagination', `loadSettlements({page})`);
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #9ca3af; padding:2rem;">No settlements yet</td></tr>';
+                    document.getElementById('settlements-pagination').innerHTML = '';
+                }
+            } catch (e) { console.error(e); }
         }
 
         function openSettlementModal() {

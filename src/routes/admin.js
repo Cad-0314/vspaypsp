@@ -71,12 +71,30 @@ router.get('/chart', async (req, res) => {
 
 router.get('/merchants', async (req, res) => {
     try {
-        const merchants = await User.findAll({
-            where: { role: 'merchant' },
+        const { page = 1, limit = 10, search } = req.query;
+        const offset = (page - 1) * limit;
+        const where = { role: 'merchant' };
+
+        if (search) {
+            where[require('sequelize').Op.or] = [
+                { username: { [require('sequelize').Op.like]: `%${search}%` } },
+                { apiKey: { [require('sequelize').Op.like]: `%${search}%` } }
+            ];
+        }
+
+        const { count, rows } = await User.findAndCountAll({
+            where,
             attributes: ['id', 'username', 'apiKey', 'assignedChannel', 'balance', 'pendingBalance', 'isActive', 'channel_rates', 'createdAt'],
-            order: [['createdAt', 'DESC']]
+            order: [['createdAt', 'DESC']],
+            limit: parseInt(limit),
+            offset: parseInt(offset)
         });
-        res.json({ success: true, merchants: merchants.map(m => m.toJSON()) });
+
+        res.json({
+            success: true,
+            merchants: rows.map(m => m.toJSON()),
+            pagination: { total: count, page: parseInt(page), pages: Math.ceil(count / limit) }
+        });
     } catch (error) {
         res.status(500).json({ success: false, error: 'Failed' });
     }
@@ -95,7 +113,7 @@ router.post('/merchants', async (req, res) => {
             payinRate: parseFloat(payinRate) || 5.0,
             payoutRate: parseFloat(payoutRate) || 3.0,
             payoutFixedFee: parseFloat(payoutFixedFee) || 6.0,
-            usdtRate: parseFloat(usdtRate) || 0
+            usdtRate: parseFloat(usdtRate) || 100 // Default 100 INR/USDT
         };
 
         const merchant = await User.create({
@@ -169,11 +187,20 @@ router.post('/merchants/:id/regenerate-key', async (req, res) => {
 
 router.get('/settlements', async (req, res) => {
     try {
-        const settlements = await Settlement.findAll({
+        const { page = 1, limit = 10 } = req.query;
+        const offset = (page - 1) * limit;
+
+        const { count, rows } = await Settlement.findAndCountAll({
             include: [{ model: User, as: 'merchant', attributes: ['username'] }],
-            order: [['createdAt', 'DESC']]
+            order: [['createdAt', 'DESC']],
+            limit: parseInt(limit),
+            offset: parseInt(offset)
         });
-        res.json({ success: true, settlements });
+        res.json({
+            success: true,
+            settlements: rows,
+            pagination: { total: count, page: parseInt(page), pages: Math.ceil(count / limit) }
+        });
     } catch (error) {
         console.error('[Admin] Settlement list error:', error);
         res.status(500).json({ success: false, error: 'Failed' });

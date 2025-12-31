@@ -4,6 +4,8 @@ const passport = require('passport');
 const flash = require('connect-flash');
 const path = require('path');
 require('dotenv').config();
+const { v4: uuidv4 } = require('uuid');
+const crypto = require('crypto');
 
 // Database and Models
 const { sequelize, User, Channel, Order } = require('./src/models');
@@ -124,6 +126,10 @@ app.get('/merchant', ensureAuthenticated, async (req, res) => {
     });
 });
 
+app.get('/docs', (req, res) => {
+    res.render('docs', { currentLang: req.cookies.lang || 'en' });
+});
+
 app.get('/', (req, res) => {
     res.redirect('/auth/login');
 });
@@ -142,6 +148,20 @@ const PORT = process.env.PORT || 3000;
 
 sequelize.sync({ alter: true }).then(async () => {
     console.log('Database connected & synced');
+
+    // Backfill credentials
+    try {
+        const merchants = await User.findAll({ where: { role: 'merchant' } });
+        for (const m of merchants) {
+            let updates = {};
+            if (!m.apiKey) updates.apiKey = uuidv4();
+            if (!m.apiSecret) updates.apiSecret = crypto.randomBytes(32).toString('hex');
+            if (Object.keys(updates).length > 0) {
+                await m.update(updates);
+                console.log(`[Backfill] Updated credentials for ${m.username}`);
+            }
+        }
+    } catch (e) { console.error('Backfill error:', e); }
 
     // Run seeder to ensure channels exist
     await seedDatabase();

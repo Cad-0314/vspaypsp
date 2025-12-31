@@ -87,11 +87,25 @@ router.get('/orders', async (req, res) => {
  */
 router.get('/settlements', async (req, res) => {
     try {
-        const settlements = await Settlement.findAll({
+        const { page = 1, limit = 10 } = req.query;
+        const offset = (page - 1) * limit;
+
+        const { count, rows } = await Settlement.findAndCountAll({
             where: { merchantId: req.session.user.id },
-            order: [['createdAt', 'DESC']]
+            order: [['createdAt', 'DESC']],
+            limit: parseInt(limit),
+            offset: parseInt(offset)
         });
-        res.json({ success: true, settlements });
+
+        res.json({
+            success: true,
+            settlements: rows,
+            pagination: {
+                total: count,
+                page: parseInt(page),
+                pages: Math.ceil(count / limit)
+            }
+        });
     } catch (error) {
         console.error('[MerchantAPI] Settlements error:', error);
         res.status(500).json({ success: false, error: 'Failed to fetch settlements' });
