@@ -42,21 +42,31 @@ async function getStats(userId = null) {
     };
 
     const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setDate(today.getDate() + 1);
+
+    const todayStats = {
+        payin: await getSum('payin', today, tomorrow),
+        payout: await getSum('payout', today, tomorrow),
+        payinSuccessCount: await getCount('payin', today, tomorrow, 'success'),
+        payinFailedCount: await getCount('payin', today, tomorrow, 'failed'),
+        payinPendingCount: await getCount('payin', today, tomorrow, 'pending'),
+        payoutSuccessCount: await getCount('payout', today, tomorrow, 'success'),
+        payoutFailedCount: await getCount('payout', today, tomorrow, 'failed')
+    };
+
+    const yesterdayStats = {
+        payin: await getSum('payin', yesterday, today),
+        payout: await getSum('payout', yesterday, today),
+        payinSuccessCount: await getCount('payin', yesterday, today, 'success'),
+        payinFailedCount: await getCount('payin', yesterday, today, 'failed'),
+        payinPendingCount: await getCount('payin', yesterday, today, 'pending'),
+        payoutSuccessCount: await getCount('payout', yesterday, today, 'success'),
+        payoutFailedCount: await getCount('payout', yesterday, today, 'failed')
+    };
 
     return {
-        today: {
-            payin: await getSum('payin', today, tomorrow),
-            payout: await getSum('payout', today, tomorrow),
-            payinCount: await getCount('payin', today, tomorrow),
-            payoutCount: await getCount('payout', today, tomorrow)
-        },
-        yesterday: {
-            payin: await getSum('payin', yesterday, today),
-            payout: await getSum('payout', yesterday, today),
-            payinCount: await getCount('payin', yesterday, today),
-            payoutCount: await getCount('payout', yesterday, today)
-        }
+        today: todayStats,
+        yesterday: yesterdayStats
     };
 }
 

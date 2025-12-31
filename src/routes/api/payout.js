@@ -25,6 +25,14 @@ router.post('/bank', validateMerchant, async (req, res) => {
         const { orderId, amount, account, ifsc, personName, callbackUrl, param } = req.body;
         const merchant = req.merchant;
 
+        // Check if payout is suspended
+        if (merchant.canPayout === false) {
+            return res.json({
+                code: 0,
+                msg: 'Payout service suspended for this merchant'
+            });
+        }
+
         // Validate required fields
         if (!orderId || !amount || !account || !ifsc || !personName) {
             return res.json({
@@ -177,6 +185,14 @@ router.post('/usdt', validateMerchant, async (req, res) => {
     try {
         const { orderId, amount, walletAddress, network, callbackUrl } = req.body;
         const merchant = req.merchant;
+
+        // Check if payout is suspended
+        if (merchant.canPayout === false) {
+            return res.json({
+                code: 0,
+                msg: 'Payout service suspended for this merchant'
+            });
+        }
 
         // Validate required fields
         if (!orderId || !amount || !walletAddress || !network) {

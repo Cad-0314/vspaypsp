@@ -337,7 +337,7 @@
             outline: none;
             border-color: var(--primary);
             background: white;
-            ring: 2px solid rgba(79, 70, 229, 0.1);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
         }
 
         .btn {
@@ -547,15 +547,28 @@
                         </div>
                     </div>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title"><i class="ri-line-chart-line"></i>
-                                <%= t('volume_trends') %>
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title"><i class="ri-line-chart-line"></i>
+                                    <%= t('volume_trends') %>
+                                </div>
+                                <span class="badge" style="background:#EEF2FF; color:#4F46E5;">Last 7 Days</span>
                             </div>
-                            <span class="badge" style="background:#EEF2FF; color:#4F46E5;">Last 7 Days</span>
+                            <div style="padding: 1.5rem; height: 350px;">
+                                <canvas id="volumeChart"></canvas>
+                            </div>
                         </div>
-                        <div style="padding: 1.5rem; height: 350px;">
-                            <canvas id="volumeChart"></canvas>
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title"><i class="ri-pie-chart-line"></i>
+                                    Success Rate
+                                </div>
+                            </div>
+                            <div
+                                style="padding: 1.5rem; height: 350px; display:flex; align-items:center; justify-content:center;">
+                                <canvas id="successRateChart"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -566,6 +579,23 @@
                         <%= t('payin_history') %>
                     </h1>
                     <div class="subtitle">View all incoming payment transactions.</div>
+
+                    <div class="card"
+                        style="padding: 1.25rem; margin-bottom: 1rem; display:flex; gap:1rem; align-items:center; flex-wrap:wrap;">
+                        <input type="date" id="payin-filter-start" class="form-control" style="width: auto;">
+                        <input type="date" id="payin-filter-end" class="form-control" style="width: auto;">
+                        <select id="payin-filter-status" class="form-control" style="width: auto;">
+                            <option value="">All Status</option>
+                            <option value="success">Success</option>
+                            <option value="pending">Pending</option>
+                            <option value="failed">Failed</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="loadPayinHistory()"><i class="ri-filter-3-line"></i>
+                            Filter</button>
+                        <button class="btn" style="background:#E5E7EB;" onclick="exportOrders('payin')"><i
+                                class="ri-download-2-line"></i> Export CSV</button>
+                    </div>
+
                     <div class="card">
                         <table id="payin-table">
                             <thead>
@@ -594,6 +624,23 @@
                         <%= t('payout_history') %>
                     </h1>
                     <div class="subtitle">View transaction history for all payouts.</div>
+
+                    <div class="card"
+                        style="padding: 1.25rem; margin-bottom: 1rem; display:flex; gap:1rem; align-items:center; flex-wrap:wrap;">
+                        <input type="date" id="payout-filter-start" class="form-control" style="width: auto;">
+                        <input type="date" id="payout-filter-end" class="form-control" style="width: auto;">
+                        <select id="payout-filter-status" class="form-control" style="width: auto;">
+                            <option value="">All Status</option>
+                            <option value="success">Success</option>
+                            <option value="pending">Pending</option>
+                            <option value="failed">Failed</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="loadPayoutHistory()"><i class="ri-filter-3-line"></i>
+                            Filter</button>
+                        <button class="btn" style="background:#E5E7EB;" onclick="exportOrders('payout')"><i
+                                class="ri-download-2-line"></i> Export CSV</button>
+                    </div>
+
                     <div class="card">
                         <table id="payout-table">
                             <thead>
@@ -630,6 +677,38 @@
                             <i class="ri-add-line"></i>
                             <%= t('request_settlement') %>
                         </button>
+                    </div>
+
+                    <div class="card" style="padding: 2rem; margin-bottom: 1.5rem;">
+                        <form id="settle-form" onsubmit="requestSettlement(event)">
+                            <div
+                                style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin-bottom: 1.5rem;">
+                                <div>
+                                    <label class="stat-label">Settlement Amount (₹)</label>
+                                    <input type="number" id="s-amount" class="form-control" required min="100">
+                                </div>
+                                <div>
+                                    <label class="stat-label">Settlement Type</label>
+                                    <select id="s-type" class="form-control" onchange="checkSettleType()">
+                                        <option value="bank">Bank Transfer (IMPS/NEFT)</option>
+                                        <option value="usdt">USDT (TRC20)</option>
+                                    </select>
+                                    <small id="usdt-note"
+                                        style="color:var(--danger); display:none; font-size:0.75rem; margin-top:0.25rem;">Minimum
+                                        ₹100,000 for USDT settlement.</small>
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 1.5rem;">
+                                <label class="stat-label">
+                                    <%= t('notes') %>
+                                </label>
+                                <textarea id="s-notes" class="form-control" rows="3"
+                                    placeholder="Enter bank details if not saved, or USDT address for USDT settlements..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">
+                                <%= t('btn_request_settlement') %>
+                            </button>
+                        </form>
                     </div>
 
                     <div class="card">
@@ -797,6 +876,24 @@
                                 </div>
                         </div>
                     </div>
+
+                    <!-- Support Card -->
+                    <div class="card" style="margin-top: 1.5rem; border: 1px solid #4F46E5; background: #EEF2FF;">
+                        <div style="padding:1.5rem; display:flex; align-items:center; gap:1.5rem;">
+                            <div style="font-size:2.5rem; color:#4F46E5;">
+                                <i class="ri-customer-service-2-line"></i>
+                            </div>
+                            <div>
+                                <h3 style="color:#1E1B4B; margin-bottom: 0.25rem;">Need Assistance?</h3>
+                                <p style="color:#4338CA; font-size:0.875rem; margin-bottom:1rem;">Contact our support
+                                    team for any integration or settlement issues.</p>
+                                <a href="https://t.me/vspay_support" target="_blank" class="btn btn-primary"
+                                    style="padding: 0.5rem 1rem;">
+                                    <i class="ri-telegram-fill"></i> Contact Support
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
             </div>
@@ -805,7 +902,7 @@
 
     <!-- Settlement Modal -->
     <div id="settleModal"
-        style="display: none; position: fixed; index:100; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index:100;">
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index:100;">
         <div
             style="background: white; padding: 2rem; border-radius: 1rem; width: 90%; max-width: 450px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);">
             <div style="display:flex; justify-content:space-between; margin-bottom:1.5rem;">
@@ -871,6 +968,12 @@
         }
 
         let chartInstance = null;
+        let successChartInstance = null;
+
+        function checkSettleType() {
+            const type = document.getElementById('s-type').value;
+            document.getElementById('usdt-note').style.display = type === 'usdt' ? 'block' : 'none';
+        }
 
         function switchTab(tab) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -894,11 +997,55 @@
                 if (data.success) {
                     const s = data.stats;
                     document.getElementById('stat-today-vol').innerText = s.today.payin.toFixed(2);
-                    document.getElementById('stat-today-count').innerText = s.today.payinCount;
+                    document.getElementById('stat-today-count').innerText = s.today.payinSuccessCount;
                     document.getElementById('stat-yst-vol').innerText = s.yesterday.payin.toFixed(2);
+
+                    renderSuccessChart(s.today.payinSuccessCount, s.today.payinFailedCount + s.today.payinPendingCount);
                 }
                 loadChart();
             } catch (e) { console.error(e); }
+        }
+
+        function renderSuccessChart(success, failed) {
+            const ctx = document.getElementById('successRateChart').getContext('2d');
+            if (successChartInstance) successChartInstance.destroy();
+
+            const total = success + failed;
+            const rate = total > 0 ? ((success / total) * 100).toFixed(1) : 0;
+
+            successChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Success', 'Other'],
+                    datasets: [{
+                        data: [success, failed || 1], // dummy 1 if both 0 for visual
+                        backgroundColor: ['#10B981', '#E5E7EB'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: total > 0 }
+                    }
+                },
+                plugins: [{
+                    id: 'text',
+                    beforeDraw: function (chart) {
+                        var width = chart.width, height = chart.height, ctx = chart.ctx;
+                        ctx.restore();
+                        var fontSize = (height / 114).toFixed(2);
+                        ctx.font = fontSize + "em sans-serif";
+                        ctx.textBaseline = "middle";
+                        var text = rate + "%", textX = Math.round((width - ctx.measureText(text).width) / 2), textY = height / 2;
+                        ctx.fillText(text, textX, textY);
+                        ctx.save();
+                    }
+                }]
+            });
         }
 
         async function loadChart() {
@@ -930,15 +1077,24 @@
             const tbody = document.getElementById(type + '-table').querySelector('tbody');
             tbody.innerHTML = '<tr><td colspan="4"><div style="text-align:center; padding:2rem; color:grey;"><i class="ri-loader-4-line ri-spin"></i> Loading...</div></td></tr>';
 
+            const start = document.getElementById(type + '-filter-start').value;
+            const end = document.getElementById(type + '-filter-end').value;
+            const status = document.getElementById(type + '-filter-status').value;
+
+            let url = `/api/merchant/orders?type=${type}&page=${page}`;
+            if (start) url += `&startDate=${start}`;
+            if (end) url += `&endDate=${end}`;
+            if (status) url += `&status=${status}`;
+
             try {
-                const res = await fetch(`/api/merchant/orders?type=${type}&page=${page}`);
+                const res = await fetch(url);
                 const data = await res.json();
 
                 if (data.success && data.orders.length > 0) {
                     tbody.innerHTML = data.orders.map(o => `
                         <tr>
                             <td style="font-family:monospace; font-weight:600;">#${o.orderId.substring(0, 8)}...</td>
-                            <td>₹${o.amount}</td>
+                            <td>₹${o.amount} ${o.payoutType === 'usdt' ? '<small>(USDT)</small>' : ''}</td>
                             <td><span class="badge badge-${o.status}">${o.status}</span></td>
                             <td>${new Date(o.createdAt).toLocaleDateString()}</td>
                         </tr>
@@ -951,6 +1107,22 @@
                 }
             } catch (e) { console.error(e); }
         }
+
+        function exportOrders(type) {
+            const start = document.getElementById(type + '-filter-start').value;
+            const end = document.getElementById(type + '-filter-end').value;
+            const status = document.getElementById(type + '-filter-status').value;
+
+            let url = `/api/merchant/export/orders?type=${type}`;
+            if (start) url += `&startDate=${start}`;
+            if (end) url += `&endDate=${end}`;
+            if (status) url += `&status=${status}`;
+
+            window.location.href = url;
+        }
+
+        function loadPayinHistory(page) { loadOrders('payin', page); }
+        function loadPayoutHistory(page) { loadOrders('payout', page); }
 
         async function loadSettlements(page = 1) {
             const tbody = document.getElementById('settlement-table').querySelector('tbody');
@@ -986,6 +1158,41 @@
             document.getElementById('settleModal').style.display = 'flex';
         }
 
+        async function requestSettlement(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Processing...';
+            btn.disabled = true;
+
+            const amount = document.getElementById('s-amount').value;
+            const notes = document.getElementById('s-notes').value;
+            const type = document.getElementById('s-type').value;
+
+            try {
+                const res = await fetch('/api/merchant/settlements', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount, notes, type })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    e.target.reset();
+                    loadSettlements();
+                    // Update balance text
+                    const currentBal = parseFloat(document.getElementById('stat-balance').innerText);
+                    document.getElementById('stat-balance').innerText = (currentBal - parseFloat(amount)).toFixed(2);
+                    alert('Settlement request submitted successfully');
+                } else {
+                    alert(data.error);
+                }
+            } catch (e) { alert('Error submitting request'); }
+
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+
         async function submitSettlement(e) {
             e.preventDefault();
             const btn = e.target.querySelector('button[type="submit"]');
@@ -1000,7 +1207,7 @@
                 const res = await fetch('/api/merchant/settlements', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ amount, notes })
+                    body: JSON.stringify({ amount, notes, type: 'bank' })
                 });
 
                 const data = await res.json();

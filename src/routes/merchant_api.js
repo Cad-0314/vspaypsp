@@ -53,11 +53,18 @@ router.get('/chart', async (req, res) => {
  */
 router.get('/orders', async (req, res) => {
     try {
-        const { type, page = 1, limit = 10 } = req.query;
+        const { type, status, startDate, endDate, page = 1, limit = 10 } = req.query;
         const offset = (page - 1) * limit;
+        const { Op } = require('sequelize');
 
         const where = { merchantId: req.session.user.id };
         if (type) where.type = type;
+        if (status) where.status = status;
+        if (startDate || endDate) {
+            where.createdAt = {};
+            if (startDate) where.createdAt[Op.gte] = new Date(startDate);
+            if (endDate) where.createdAt[Op.lte] = new Date(endDate);
+        }
 
         const { count, rows } = await Order.findAndCountAll({
             where,
@@ -87,11 +94,14 @@ router.get('/orders', async (req, res) => {
  */
 router.get('/settlements', async (req, res) => {
     try {
-        const { page = 1, limit = 10 } = req.query;
+        const { status, page = 1, limit = 10 } = req.query;
         const offset = (page - 1) * limit;
 
+        const where = { merchantId: req.session.user.id };
+        if (status) where.status = status;
+
         const { count, rows } = await Settlement.findAndCountAll({
-            where: { merchantId: req.session.user.id },
+            where,
             order: [['createdAt', 'DESC']],
             limit: parseInt(limit),
             offset: parseInt(offset)
@@ -118,7 +128,7 @@ router.get('/settlements', async (req, res) => {
  */
 router.post('/settlements', async (req, res) => {
     try {
-        const { amount, notes } = req.body;
+        const { amount, notes, type = 'bank' } = req.body;
         const merchantId = req.session.user.id;
 
         // Check balance
@@ -127,6 +137,14 @@ router.post('/settlements', async (req, res) => {
 
         if (requestAmount <= 0) {
             return res.status(400).json({ success: false, error: 'Invalid amount' });
+        }
+
+        // Enforce USDT minimum: 1 lakh (100,000) or 1 million (1,000,000)? 
+        // User said "min usdt settalement is 1 lakh inr" and then "1 million" in my plan? 
+        // Wait, user said "1 lakh inr" (100,000). Let me re-read.
+        // "usdt will be manually processed by admin min usdt settalement is 1 lakh inr"
+        if (type === 'usdt' && requestAmount < 100000) {
+            return res.status(400).json({ success: false, error: 'Minimum USDT settlement is ₹100,000' });
         }
 
         if (merchant.balance < requestAmount) {
@@ -146,6 +164,7 @@ router.post('/settlements', async (req, res) => {
                 merchantId,
                 amount: requestAmount,
                 status: 'pending',
+                type,
                 notes
             }, { transaction: t });
 
@@ -171,19 +190,24 @@ router.post('/paylink', async (req, res) => {
     try {
         const { amount, customerName } = req.body;
         const merchantId = req.session.user.id;
+
+        const merchant = await User.findByPk(merchantId);
+        if (!merchant.assignedChannel) {
+            return res.status(400).json({ success: false, error: 'No channel assigned to this merchant' });
+        }
+
         const orderId = `PL${Date.now()}${Math.floor(Math.random() * 1000)}`;
 
-        // Use default stats for paylink (can be customized per user later)
         const order = await Order.create({
             id: uuidv4(),
             orderId: orderId,
             merchantId,
             amount,
-            netAmount: amount, // Fee calculated on callback usually, or predefined
+            netAmount: amount,
             fee: 0,
             status: 'pending',
             type: 'payin',
-            channel: 'hdpay' // Default channel for paylinks
+            channelName: merchant.assignedChannel
         });
 
         // Current host URL
@@ -196,6 +220,59 @@ router.post('/paylink', async (req, res) => {
     } catch (error) {
         console.error('[MerchantAPI] Paylink error:', error);
         res.status(500).json({ success: false, error: 'Failed to generate link' });
+    }
+});
+
+/**
+ * GET /api/merchant/export/orders
+ * Export orders to CSV
+ */
+router.get('/export/orders', async (req, res) => {
+    try {
+        const { type, status, startDate, endDate } = req.query;
+        const { Op } = require('sequelize');
+
+        const where = { merchantId: req.session.user.id };
+        if (type) where.type = type;
+        if (status) where.status = status;
+        if (startDate || endDate) {
+            where.createdAt = {};
+            if (startDate) where.createdAt[Op.gte] = new Date(startDate);
+            if (endDate) where.createdAt[Op.lte] = new Date(endDate);
+        }
+
+        const orders = await Order.findAll({
+            where,
+            order: [['createdAt', 'DESC']],
+            raw: true
+        });
+
+        // Generate CSV manually
+        const headers = ['Order ID', 'Merchant Order ID', 'Amount', 'Fee', 'Net Amount', 'Status', 'Type', 'UTR', 'Created At'];
+        const rows = orders.map(o => [
+            o.id,
+            o.orderId,
+            o.amount,
+            o.fee,
+            o.netAmount,
+            o.status,
+            o.type,
+            o.utr || '',
+            new Date(o.createdAt).toISOString()
+        ]);
+
+        const csvContent = [
+            headers.join(','),
+            ...rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(','))
+        ].join('\n');
+
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', `attachment; filename=orders_${Date.now()}.csv`);
+        res.send(csvContent);
+
+    } catch (error) {
+        console.error('[MerchantAPI] Export error:', error);
+        res.status(500).json({ success: false, error: 'Failed to export orders' });
     }
 });
 

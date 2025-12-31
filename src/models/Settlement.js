@@ -19,6 +19,11 @@ const Settlement = sequelize.define('Settlement', {
         type: DataTypes.ENUM('pending', 'completed', 'rejected'),
         defaultValue: 'pending'
     },
+    type: {
+        type: DataTypes.ENUM('bank', 'usdt'),
+        defaultValue: 'bank',
+        comment: 'Settlement type: bank or usdt'
+    },
     utr: {
         type: DataTypes.STRING,
         allowNull: true

@@ -71,20 +71,24 @@ router.get('/chart', async (req, res) => {
 
 router.get('/merchants', async (req, res) => {
     try {
-        const { page = 1, limit = 10, search } = req.query;
+        const { page = 1, limit = 10, search, isActive } = req.query;
         const offset = (page - 1) * limit;
+        const { Op } = require('sequelize');
         const where = { role: 'merchant' };
 
         if (search) {
-            where[require('sequelize').Op.or] = [
-                { username: { [require('sequelize').Op.like]: `%${search}%` } },
-                { apiKey: { [require('sequelize').Op.like]: `%${search}%` } }
+            where[Op.or] = [
+                { username: { [Op.like]: `%${search}%` } },
+                { apiKey: { [Op.like]: `%${search}%` } }
             ];
+        }
+        if (typeof isActive !== 'undefined') {
+            where.isActive = isActive === 'true';
         }
 
         const { count, rows } = await User.findAndCountAll({
             where,
-            attributes: ['id', 'username', 'apiKey', 'assignedChannel', 'balance', 'pendingBalance', 'isActive', 'channel_rates', 'createdAt'],
+            attributes: ['id', 'username', 'apiKey', 'assignedChannel', 'balance', 'pendingBalance', 'isActive', 'canPayin', 'canPayout', 'channel_rates', 'createdAt'],
             order: [['createdAt', 'DESC']],
             limit: parseInt(limit),
             offset: parseInt(offset)
@@ -120,10 +124,12 @@ router.post('/merchants', async (req, res) => {
             username,
             password_hash: hashedPassword,
             role: 'merchant',
-            assignedChannel: assignedChannel || 'hdpay',
+            assignedChannel: assignedChannel || null,
             channel_rates: JSON.stringify(customRates),
             apiSecret: crypto.randomBytes(32).toString('hex'),
-            isActive: true
+            isActive: true,
+            canPayin: req.body.canPayin !== undefined ? req.body.canPayin : true,
+            canPayout: req.body.canPayout !== undefined ? req.body.canPayout : true
         });
 
         res.json({ success: true, merchant: { id: merchant.id, username } });
@@ -144,15 +150,17 @@ router.get('/merchants/:id', async (req, res) => {
 
 router.put('/merchants/:id', async (req, res) => {
     try {
-        const { username, password, assignedChannel, payinRate, payoutRate, payoutFixedFee, usdtRate, isActive } = req.body;
+        const { username, password, assignedChannel, payinRate, payoutRate, payoutFixedFee, usdtRate, isActive, canPayin, canPayout } = req.body;
         const merchant = await User.findByPk(req.params.id);
         if (!merchant) return res.status(404).json({ success: false, error: 'Not found' });
 
         const updates = {};
         if (username) updates.username = username;
         if (password) updates.password_hash = await bcrypt.hash(password, 10);
-        if (assignedChannel) updates.assignedChannel = assignedChannel;
+        if (assignedChannel !== undefined) updates.assignedChannel = assignedChannel;
         if (typeof isActive === 'boolean') updates.isActive = isActive;
+        if (typeof canPayin === 'boolean') updates.canPayin = canPayin;
+        if (typeof canPayout === 'boolean') updates.canPayout = canPayout;
 
         let rates = {};
         try { rates = JSON.parse(merchant.channel_rates || '{}'); } catch (e) { }
@@ -166,6 +174,22 @@ router.put('/merchants/:id', async (req, res) => {
         res.json({ success: true, message: 'Updated' });
     } catch (error) {
         res.status(500).json({ success: false, error: 'Failed' });
+    }
+});
+
+router.delete('/merchants/:id', async (req, res) => {
+    try {
+        const merchant = await User.findByPk(req.params.id);
+        if (!merchant) return res.status(404).json({ success: false, error: 'Not found' });
+
+        // Prevent deleting admin
+        if (merchant.role === 'admin') return res.status(400).json({ success: false, error: 'Cannot delete admin' });
+
+        await merchant.destroy();
+        res.json({ success: true, message: 'Merchant deleted' });
+    } catch (error) {
+        console.error('[Admin] Delete merchant error:', error);
+        res.status(500).json({ success: false, error: 'Failed to delete merchant' });
     }
 });
 
@@ -187,10 +211,15 @@ router.post('/merchants/:id/regenerate-key', async (req, res) => {
 
 router.get('/settlements', async (req, res) => {
     try {
-        const { page = 1, limit = 10 } = req.query;
+        const { page = 1, limit = 10, status, type, merchantId } = req.query;
         const offset = (page - 1) * limit;
+        const where = {};
+        if (status) where.status = status;
+        if (type) where.type = type;
+        if (merchantId) where.merchantId = merchantId;
 
         const { count, rows } = await Settlement.findAndCountAll({
+            where,
             include: [{ model: User, as: 'merchant', attributes: ['username'] }],
             order: [['createdAt', 'DESC']],
             limit: parseInt(limit),
@@ -271,15 +300,25 @@ router.put('/channels/:id', async (req, res) => {
 
 router.get('/orders', async (req, res) => {
     try {
-        const { type, page = 1, limit = 20, search } = req.query;
+        const { type, status, merchantId, startDate, endDate, page = 1, limit = 20, search } = req.query;
         const offset = (page - 1) * limit;
+        const { Op } = require('sequelize');
         const where = {};
 
         if (type) where.type = type;
+        if (status) where.status = status;
+        if (merchantId) where.merchantId = merchantId;
+        if (startDate || endDate) {
+            where.createdAt = {};
+            if (startDate) where.createdAt[Op.gte] = new Date(startDate);
+            if (endDate) where.createdAt[Op.lte] = new Date(endDate);
+        }
+
         if (search) {
-            where[require('sequelize').Op.or] = [
-                { orderId: { [require('sequelize').Op.like]: `%${search}%` } },
-                { status: { [require('sequelize').Op.like]: `%${search}%` } }
+            where[Op.or] = [
+                { orderId: { [Op.like]: `%${search}%` } },
+                { providerOrderId: { [Op.like]: `%${search}%` } },
+                { utr: { [Op.like]: `%${search}%` } }
             ];
         }
 

@@ -426,11 +426,30 @@
                     <div class="subtitle">Search and view all platform transactions.</div>
                     <div class="card">
                         <div style="padding: 1.5rem; border-bottom: 1px solid #F3F4F6;">
-                            <div style="display:flex; gap:1rem; max-width:500px;">
-                                <input type="text" id="order-search" placeholder="Search Order ID..."
+                            <div
+                                style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:1rem;">
+                                <input type="text" id="order-search" placeholder="Search Order ID / UTR..."
                                     class="form-control"
-                                    style="background:#F9FAFB; border:1px solid #E5E7EB; padding:0.75rem; border-radius:0.5rem; width:100%;">
-                                <button onclick="loadGlobalOrders()" class="btn btn-primary">Search</button>
+                                    style="background:#F9FAFB; border:1px solid #E5E7EB; padding:0.5rem; border-radius:0.5rem;">
+                                <select id="order-filter-type" class="form-control"
+                                    style="padding:0.5rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
+                                    <option value="">All Types</option>
+                                    <option value="payin">Payin</option>
+                                    <option value="payout">Payout</option>
+                                </select>
+                                <select id="order-filter-status" class="form-control"
+                                    style="padding:0.5rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
+                                    <option value="">All Status</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="success">Success</option>
+                                    <option value="failed">Failed</option>
+                                </select>
+                                <input type="date" id="order-filter-start" class="form-control"
+                                    style="padding:0.5rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
+                                <input type="date" id="order-filter-end" class="form-control"
+                                    style="padding:0.5rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
+                                <button onclick="loadGlobalOrders()" class="btn btn-primary"
+                                    style="justify-content:center;">Filter</button>
                             </div>
                         </div>
                         <table id="orders-table">
@@ -461,11 +480,29 @@
                     <h1>Settlement Requests</h1>
                     <div class="subtitle">Pending merchant withdrawal requests.</div>
                     <div class="card">
+                        <div style="padding: 1rem; border-bottom: 1px solid #F3F4F6; display:flex; gap:1rem;">
+                            <select id="settle-filter-status" class="form-control"
+                                style="max-width:200px; padding:0.5rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
+                                <option value="">All Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="completed">Completed</option>
+                                <option value="rejected">Rejected</option>
+                            </select>
+                            <select id="settle-filter-type" class="form-control"
+                                style="max-width:200px; padding:0.5rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
+                                <option value="">All Types</option>
+                                <option value="bank">Bank</option>
+                                <option value="usdt">USDT</option>
+                            </select>
+                            <button onclick="loadSettlements()" class="btn btn-primary"
+                                style="padding:0.5rem 1rem;">Filter</button>
+                        </div>
                         <table id="settlements-table">
                             <thead>
                                 <tr>
                                     <th>ID</th>
                                     <th>Merchant</th>
+                                    <th>Type</th>
                                     <th>Amount</th>
                                     <th>Status</th>
                                     <th>Action</th>
@@ -495,10 +532,17 @@
                             Merchant</button>
                     </div>
                     <div class="card">
-                        <div style="padding: 1rem; border-bottom: 1px solid #F3F4F6;">
+                        <div style="padding: 1rem; border-bottom: 1px solid #F3F4F6; display:flex; gap:1rem;">
                             <input type="text" id="merchant-search" placeholder="Search by Username or API Key..."
-                                style="width: 100%; padding: 0.5rem; border: 1px solid #E5E7EB; border-radius: 0.5rem;"
+                                style="flex:1; padding: 0.5rem; border: 1px solid #E5E7EB; border-radius: 0.5rem;"
                                 onkeyup="searchMerchants()">
+                            <select id="merchant-filter-status"
+                                style="padding: 0.5rem; border: 1px solid #E5E7EB; border-radius: 0.5rem;"
+                                onchange="loadMerchants()">
+                                <option value="">All Status</option>
+                                <option value="true">Active Only</option>
+                                <option value="false">Inactive Only</option>
+                            </select>
                         </div>
                         <table id="merchants-table">
                             <thead>
@@ -508,6 +552,7 @@
                                     <th>Channel</th>
                                     <th>Balance</th>
                                     <th>Rates</th>
+                                    <th>Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -615,15 +660,29 @@
                     <input type="number" id="m-usdt" placeholder="USDT %" value="0"
                         style="padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
                 </div>
-                <div style="margin-top:1.5rem; display:flex; gap:1rem;">
-                    <button type="button" class="btn btn-primary" onclick="saveMerchant()"
-                        style="flex:1; justify-content:center;">Save Merchant</button>
-                    <button type="button" class="btn"
-                        onclick="document.getElementById('merchantModal').style.display='none'"
-                        style="flex:1; justify-content:center; background:#F3F4F6;">Cancel</button>
-                </div>
-            </form>
         </div>
+        <!-- Suspension & Status -->
+        <div style="margin-top:1rem; display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem;">
+            <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.875rem;">
+                <input type="checkbox" id="m-isActive" checked> Account Active
+            </label>
+            <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.875rem;">
+                <input type="checkbox" id="m-canPayin" checked> Allow Payin
+            </label>
+            <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.875rem;">
+                <input type="checkbox" id="m-canPayout" checked> Allow Payout
+            </label>
+        </div>
+        <div style="margin-top:1.5rem; display:flex; gap:1rem; flex-wrap:wrap;">
+            <button type="button" class="btn btn-primary" onclick="saveMerchant()"
+                style="flex:1; min-width:120px; justify-content:center;">Save</button>
+            <button type="button" id="btn-delete-merchant" class="btn btn-danger" onclick="deleteMerchantAction()"
+                style="flex:1; min-width:120px; justify-content:center; display:none;">Delete</button>
+            <button type="button" class="btn" onclick="document.getElementById('merchantModal').style.display='none'"
+                style="flex:1; min-width:120px; justify-content:center; background:#F3F4F6;">Cancel</button>
+        </div>
+        </form>
+    </div>
     </div>
 
     <script>
@@ -696,7 +755,18 @@
 
         async function loadGlobalOrders(page = 1) {
             const search = document.getElementById('order-search').value;
-            const res = await fetch(`/admin/api/orders?limit=20&page=${page}&search=${search}`);
+            const type = document.getElementById('order-filter-type').value;
+            const status = document.getElementById('order-filter-status').value;
+            const start = document.getElementById('order-filter-start').value;
+            const end = document.getElementById('order-filter-end').value;
+
+            let url = `/admin/api/orders?limit=20&page=${page}&search=${search}`;
+            if (type) url += `&type=${type}`;
+            if (status) url += `&status=${status}`;
+            if (start) url += `&startDate=${start}`;
+            if (end) url += `&endDate=${end}`;
+
+            const res = await fetch(url);
             const data = await res.json();
             const tbody = document.getElementById('orders-table').querySelector('tbody');
 
@@ -719,7 +789,14 @@
         }
 
         async function loadSettlements(page = 1) {
-            const res = await fetch(`/admin/api/settlements?page=${page}`);
+            const status = document.getElementById('settle-filter-status').value;
+            const type = document.getElementById('settle-filter-type').value;
+
+            let url = `/admin/api/settlements?page=${page}`;
+            if (status) url += `&status=${status}`;
+            if (type) url += `&type=${type}`;
+
+            const res = await fetch(url);
             const data = await res.json();
             const tbody = document.getElementById('settlements-table').querySelector('tbody');
 
@@ -728,6 +805,7 @@
                     <tr>
                         <td style="font-family:monospace;">${s.id.substring(0, 8)}</td>
                         <td>${s.merchant?.username}</td>
+                        <td style="text-transform:uppercase; font-size:0.75rem;">${s.type || 'bank'}</td>
                         <td style="font-weight:600;">₹${s.amount}</td>
                         <td><span class="badge badge-${s.status}">${s.status}</span></td>
                         <td>
@@ -737,7 +815,7 @@
                 `).join('');
                 renderPagination(data.pagination, 'settlements-pagination', `loadSettlements({page})`);
             } else {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #9ca3af; padding:2rem;">No settlements found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #9ca3af; padding:2rem;">No settlements found</td></tr>';
                 document.getElementById('settlements-pagination').innerHTML = '';
             }
         }
@@ -770,7 +848,12 @@
 
         async function loadMerchants(page = 1) {
             const search = document.getElementById('merchant-search').value;
-            const res = await fetch(`/admin/api/merchants?page=${page}&search=${search}`);
+            const isActive = document.getElementById('merchant-filter-status').value;
+
+            let url = `/admin/api/merchants?page=${page}&search=${search}`;
+            if (isActive) url += `&isActive=${isActive}`;
+
+            const res = await fetch(url);
             const data = await res.json();
             const tbody = document.getElementById('merchants-table').querySelector('tbody');
 
@@ -779,56 +862,110 @@
                     <tr>
                         <td style="font-weight:500;">${m.username}</td>
                         <td><small style="font-family:monospace; background:#F3F4F6; padding:2px 6px; border-radius:4px;">${m.apiKey || '-'}</small></td>
-                        <td>${m.assignedChannel}</td>
+                        <td>${m.assignedChannel || 'None'}</td>
                         <td>₹${parseFloat(m.balance).toFixed(2)}</td>
                         <td>
-                            <span style="font-size:0.75rem; color:#6B7280;">
-                                ${JSON.parse(m.channel_rates || '{}').usdtRate || 100} INR/USDT
-                            </span>
+                            <div style="font-size:0.7rem; color:#6B7280; line-height:1.2;">
+                                Payin: ${JSON.parse(m.channel_rates || '{}').payinRate || 0}%<br>
+                                Payout: ${JSON.parse(m.channel_rates || '{}').payoutRate || 0}%
+                            </div>
+                        </td>
+                        <td>
+                            <div style="display:flex; gap:0.25rem;">
+                                ${m.isActive ? '<i class="ri-checkbox-circle-fill" style="color:var(--success)" title="Account Active"></i>' : '<i class="ri-close-circle-fill" style="color:var(--danger)" title="Account Suspended"></i>'}
+                                ${m.canPayin ? '<i class="ri-arrow-left-down-line" style="color:var(--success)" title="Payin Enabled"></i>' : '<i class="ri-arrow-left-down-line" style="color:var(--danger); text-decoration:line-through" title="Payin Disabled"></i>'}
+                                ${m.canPayout ? '<i class="ri-arrow-right-up-line" style="color:var(--success)" title="Payout Enabled"></i>' : '<i class="ri-arrow-right-up-line" style="color:var(--danger); text-decoration:line-through" title="Payout Disabled"></i>'}
+                            </div>
                         </td>
                         <td style="display:flex; gap:0.5rem;">
                             <button class="btn" style="padding:0.25rem 0.5rem;" onclick="editMerchant('${m.id}')"><i class="ri-edit-line"></i></button>
-                            <button class="btn btn-danger" style="padding:0.25rem 0.5rem;" onclick="deleteMerchant('${m.id}')"><i class="ri-delete-bin-line"></i></button>
                         </td>
                     </tr>
                 `).join('');
                 renderPagination(data.pagination, 'merchants-pagination', `loadMerchants({page})`);
             } else {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #9ca3af; padding:2rem;">No merchants found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #9ca3af; padding:2rem;">No merchants found</td></tr>';
                 document.getElementById('merchants-pagination').innerHTML = '';
             }
         }
 
-        function openMerchantModal() { document.getElementById('merchantModal').style.display = 'flex'; }
+        async function editMerchant(id) {
+            const res = await fetch(`/admin/api/merchants/${id}`);
+            const data = await res.json();
+            if (!data.success) return alert('Failed to load merchant');
+
+            const m = data.merchant;
+            document.getElementById('m-id').value = m.id;
+            document.getElementById('m-username').value = m.username;
+            document.getElementById('m-password').value = '';
+            document.getElementById('m-channel').value = m.assignedChannel || '';
+
+            const rates = JSON.parse(m.channel_rates || '{}');
+            document.getElementById('m-payin').value = rates.payinRate || 5;
+            document.getElementById('m-payout').value = rates.payoutRate || 3;
+            document.getElementById('m-fixed').value = rates.payoutFixedFee || 6;
+            document.getElementById('m-usdt').value = rates.usdtRate || 100;
+
+            document.getElementById('m-isActive').checked = m.isActive;
+            document.getElementById('m-canPayin').checked = m.canPayin;
+            document.getElementById('m-canPayout').checked = m.canPayout;
+
+            document.getElementById('btn-delete-merchant').style.display = 'block';
+            openMerchantModal();
+        }
+
+        function openMerchantModal() {
+            document.getElementById('merchantModal').style.display = 'flex';
+        }
 
         async function saveMerchant() {
-            // Create Merchant Logic ...
-            // Reusing simplified logic:
-            const u = document.getElementById('m-username').value;
-            const p = document.getElementById('m-password').value;
-            // ... (assuming admin.js create logic handles the rest correctly via form submission params)
-
-            // For this demo, we'll just trigger the fetch. 
-            // Note: The previous saveMerchant implementation in Step 437 was incomplete "alert...". 
-            // I should probably implement the fetch here to make it work.
-
+            const id = document.getElementById('m-id').value;
             const body = {
-                username: u, password: p,
+                username: document.getElementById('m-username').value,
                 assignedChannel: document.getElementById('m-channel').value,
                 payinRate: document.getElementById('m-payin').value,
                 payoutRate: document.getElementById('m-payout').value,
                 payoutFixedFee: document.getElementById('m-fixed').value,
-                usdtRate: document.getElementById('m-usdt').value
+                usdtRate: document.getElementById('m-usdt').value,
+                isActive: document.getElementById('m-isActive').checked,
+                canPayin: document.getElementById('m-canPayin').checked,
+                canPayout: document.getElementById('m-canPayout').checked
             };
 
-            await fetch('/admin/api/merchants', {
-                method: 'POST', // or PUT if editing
+            const p = document.getElementById('m-password').value;
+            if (p) body.password = p;
+
+            const res = await fetch(id ? `/admin/api/merchants/${id}` : '/admin/api/merchants', {
+                method: id ? 'PUT' : 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
             });
 
-            document.getElementById('merchantModal').style.display = 'none';
-            loadMerchants();
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('merchantModal').style.display = 'none';
+                loadMerchants();
+                document.getElementById('m-id').value = '';
+                document.getElementById('merchantForm').reset();
+                document.getElementById('btn-delete-merchant').style.display = 'none';
+            } else {
+                alert(data.error || 'Failed to save');
+            }
+        }
+
+        async function deleteMerchantAction() {
+            const id = document.getElementById('m-id').value;
+            if (!id) return;
+            if (!confirm('Are you sure you want to delete this merchant? This action cannot be undone.')) return;
+
+            const res = await fetch(`/admin/api/merchants/${id}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('merchantModal').style.display = 'none';
+                loadMerchants();
+            } else {
+                alert(data.error || 'Failed to delete');
+            }
         }
 
         async function sendBroadcast() {

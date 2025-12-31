@@ -23,6 +23,14 @@ router.post('/create', validateMerchant, async (req, res) => {
         const { orderId, orderAmount, callbackUrl, skipUrl, param } = req.body;
         const merchant = req.merchant;
 
+        // Check if payin is suspended
+        if (merchant.canPayin === false) {
+            return res.json({
+                code: 0,
+                msg: 'Payin service suspended for this merchant'
+            });
+        }
+
         // Validate required fields
         if (!orderId || !orderAmount) {
             return res.json({
