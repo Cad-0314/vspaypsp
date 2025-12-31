@@ -229,7 +229,7 @@ router.post('/paylink', async (req, res) => {
         // Current host URL
         const protocol = req.protocol;
         const host = req.get('host');
-        const link = `${protocol}://${host}/pay/${orderId}`;
+        const link = `${protocol}://${host}/pay/${order.id}`;
 
         res.json({ success: true, link, orderId });
 

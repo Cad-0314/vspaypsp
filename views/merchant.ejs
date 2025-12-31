@@ -9,6 +9,8 @@
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
     <style>
         :root {
@@ -978,6 +980,22 @@
         let chartInstance = null;
         let successChartInstance = null;
 
+        function showToast(text, type = 'success') {
+            Toastify({
+                text: text,
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                stopOnFocus: true,
+                style: {
+                    background: type === 'success' ? "#10B981" : "#EF4444",
+                    borderRadius: "8px",
+                    boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)"
+                }
+            }).showToast();
+        }
+
         function switchTab(tab) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.getElementById('tab-' + tab).classList.add('active');
@@ -1190,11 +1208,11 @@
                     // Update balance text
                     const currentBal = parseFloat(document.getElementById('stat-balance').innerText);
                     document.getElementById('stat-balance').innerText = (currentBal - parseFloat(amount)).toFixed(2);
-                    alert('Settlement request submitted successfully');
+                    showToast('Settlement request submitted successfully');
                 } else {
-                    alert(data.error);
+                    showToast(data.error, 'error');
                 }
-            } catch (e) { alert('Error submitting request'); }
+            } catch (e) { showToast('Error submitting request', 'error'); }
 
             btn.innerHTML = originalText;
             btn.disabled = false;
@@ -1225,9 +1243,9 @@
                     const currentBal = parseFloat(document.getElementById('stat-balance').innerText);
                     document.getElementById('stat-balance').innerText = (currentBal - parseFloat(amount)).toFixed(2);
                 } else {
-                    alert(data.error);
+                    showToast(data.error, 'error');
                 }
-            } catch (e) { alert('Error submitting request'); }
+            } catch (e) { showToast('Error submitting request', 'error'); }
 
             btn.innerHTML = originalText;
             btn.disabled = false;
@@ -1252,7 +1270,7 @@
             const el = document.getElementById('generated-link');
             el.select();
             document.execCommand('copy');
-            alert('Copied!');
+            showToast('Copied to clipboard!');
         }
     </script>
 </body>

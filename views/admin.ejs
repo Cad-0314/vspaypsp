@@ -8,6 +8,8 @@
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <style>
         :root {
             --primary: #6366f1;
@@ -841,13 +843,23 @@
             const utr = document.getElementById('settle-utr').value;
             const notes = document.getElementById('settle-notes').value;
 
-            await fetch(`/admin/api/settlements/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status, utr, notes })
-            });
-            document.getElementById('settleActionModal').style.display = 'none';
-            loadSettlements();
+            try {
+                const res = await fetch(`/admin/api/settlements/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status, utr, notes })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast(`Settlement ${status} successfully`);
+                    document.getElementById('settleActionModal').style.display = 'none';
+                    loadSettlements();
+                } else {
+                    showToast(data.error, 'error');
+                }
+            } catch (e) {
+                showToast('Error processing settlement', 'error');
+            }
         }
 
         function searchMerchants() {
@@ -954,13 +966,14 @@
 
             const data = await res.json();
             if (data.success) {
+                showToast('Merchant saved successfully');
                 document.getElementById('merchantModal').style.display = 'none';
                 loadMerchants();
                 document.getElementById('m-id').value = '';
                 document.getElementById('merchantForm').reset();
                 document.getElementById('btn-delete-merchant').style.display = 'none';
             } else {
-                alert(data.error || 'Failed to save');
+                showToast(data.error || 'Failed to save', 'error');
             }
         }
 
@@ -972,10 +985,11 @@
             const res = await fetch(`/admin/api/merchants/${id}`, { method: 'DELETE' });
             const data = await res.json();
             if (data.success) {
+                showToast('Merchant deleted successfully');
                 document.getElementById('merchantModal').style.display = 'none';
                 loadMerchants();
             } else {
-                alert(data.error || 'Failed to delete');
+                showToast(data.error || 'Failed to delete', 'error');
             }
         }
 
@@ -986,7 +1000,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message })
             });
-            alert('Broadcast sent!');
+            showToast('Broadcast sent!');
         }
 
         async function loadChannels() {

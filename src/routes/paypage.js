@@ -19,8 +19,12 @@ router.get('/:orderId', async (req, res) => {
     try {
         const { orderId } = req.params;
 
+        const { Op } = require('sequelize');
         const order = await Order.findOne({
-            where: { id: orderId, type: 'payin' }
+            where: {
+                [Op.or]: [{ id: orderId }, { orderId: orderId }],
+                type: 'payin'
+            }
         });
 
         if (!order) {
@@ -49,8 +53,12 @@ router.get('/api/:orderId', async (req, res) => {
     try {
         const { orderId } = req.params;
 
+        const { Op } = require('sequelize');
         const order = await Order.findOne({
-            where: { id: orderId, type: 'payin' }
+            where: {
+                [Op.or]: [{ id: orderId }, { orderId: orderId }],
+                type: 'payin'
+            }
         });
 
         if (!order) {
@@ -94,8 +102,12 @@ router.post('/:orderId/utr', async (req, res) => {
             return res.json({ success: false, error: 'Invalid UTR' });
         }
 
+        const { Op } = require('sequelize');
         const order = await Order.findOne({
-            where: { id: orderId, type: 'payin' }
+            where: {
+                [Op.or]: [{ id: orderId }, { orderId: orderId }],
+                type: 'payin'
+            }
         });
 
         if (!order) {

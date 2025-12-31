@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Complete Payment | 完成支付</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <style>
         * {
             margin: 0;
@@ -330,6 +332,21 @@
     <script>
         let paymentData = null;
         let countdownInterval = null;
+
+        function showToast(text, type = 'success') {
+            Toastify({
+                text: text,
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "center",
+                stopOnFocus: true,
+                style: {
+                    background: type === 'success' ? "#10B981" : "#EF4444",
+                    borderRadius: "8px",
+                }
+            }).showToast();
+        }
         let currentLang = 'en';
 
         const translations = {
@@ -510,11 +527,9 @@
             if (!upiId) return;
 
             navigator.clipboard.writeText(upiId.textContent).then(() => {
-                const btn = document.querySelector('.copy-btn');
-                btn.textContent = t('copied');
+                showToast(t('copied'));
                 btn.classList.add('copied');
                 setTimeout(() => {
-                    btn.textContent = t('copyBtn');
                     btn.classList.remove('copied');
                 }, 2000);
             });
