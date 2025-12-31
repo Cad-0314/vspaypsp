@@ -74,11 +74,19 @@ async function createPayin({ orderId, amount, notifyUrl, name, mobile, email, de
 
         if (response.data.code === 200) {
             const data = response.data.data;
+
+            // Map single deeplink to standard format
+            const deepLinks = {};
+            if (data.deeplink) {
+                deepLinks.upi = data.deeplink;
+                deepLinks.upi_scan = data.deeplink;
+            }
+
             return {
                 success: true,
                 payUrl: data.payUrl,
                 providerOrderId: data.orderId,
-                deeplink: data.deeplink,
+                deepLinks: deepLinks,
                 channelId: data.channelId,
                 status: data.status
             };

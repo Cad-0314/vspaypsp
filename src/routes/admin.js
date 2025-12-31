@@ -10,6 +10,10 @@ const crypto = require('crypto');
 const { User, Channel, Order, Settlement, sequelize } = require('../models');
 const { getStats, getChartData } = require('../services/stats');
 const axios = require('axios');
+const otplib = require('otplib');
+
+// Configure otplib
+otplib.authenticator.options = { window: 2, step: 30 };
 
 // Middleware to ensure admin role
 function ensureAdmin(req, res, next) {
@@ -179,6 +183,14 @@ router.put('/merchants/:id', async (req, res) => {
 
 router.delete('/merchants/:id', async (req, res) => {
     try {
+        const { totpCode } = req.body;
+        if (!totpCode) return res.status(400).json({ success: false, error: 'TOTP code required' });
+
+        // Verify TOTP
+        const admin = await User.findByPk(req.session.user.id);
+        const isValid = otplib.authenticator.check(totpCode, admin.two_fa_secret);
+        if (!isValid) return res.status(400).json({ success: false, error: 'Invalid TOTP code' });
+
         const merchant = await User.findByPk(req.params.id);
         if (!merchant) return res.status(404).json({ success: false, error: 'Not found' });
 
@@ -246,7 +258,14 @@ router.get('/settlements', async (req, res) => {
 
 router.put('/settlements/:id', async (req, res) => {
     try {
-        const { status, utr, notes } = req.body; // status: 'completed' or 'rejected'
+        const { status, utr, notes, totpCode } = req.body; // status: 'completed' or 'rejected'
+        if (!totpCode) return res.status(400).json({ success: false, error: 'TOTP code required' });
+
+        // Verify TOTP
+        const admin = await User.findByPk(req.session.user.id);
+        const isValid = otplib.authenticator.check(totpCode, admin.two_fa_secret);
+        if (!isValid) return res.status(400).json({ success: false, error: 'Invalid TOTP code' });
+
         const settlement = await Settlement.findByPk(req.params.id);
 
         if (!settlement) return res.status(404).json({ success: false, error: 'Not found' });

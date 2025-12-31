@@ -99,5 +99,7 @@
     "today_volume": "Today's Volume",
     "yesterday_volume": "Yesterday's Volume",
     "volume_trends": "Volume Trends",
-    "avail_balance": "Available Balance"
+    "avail_balance": "Available Balance",
+    "nav_broadcast": "Broadcast",
+    "broadcast_panel": "Broadcast Messages"
 }

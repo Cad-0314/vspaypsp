@@ -99,5 +99,7 @@
     "today_volume": "今日交易额",
     "yesterday_volume": "昨日交易额",
     "volume_trends": "交易趋势",
-    "avail_balance": "可用余额"
+    "avail_balance": "可用余额",
+    "nav_broadcast": "广播",
+    "broadcast_panel": "广播消息"
 }

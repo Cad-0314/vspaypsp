@@ -95,22 +95,41 @@ router.post('/:channel/payin', async (req, res) => {
 
             // If success, credit merchant balance and admin profit
             if (status === 'success') {
-                // Credit merchant with net amount (amount - our fee)
+                let creditAmount = parseFloat(order.netAmount);
+                let finalFee = parseFloat(order.fee);
+
+                // Handle discrepancy if actualAmount is provided and significantly different
+                if (!isNaN(actualAmount) && actualAmount > 0 && Math.abs(actualAmount - parseFloat(order.amount)) > 0.01) {
+                    console.log(`[Callback] Discrepancy detected for order ${order.orderId}: Requested ₹${order.amount}, Paid ₹${actualAmount}`);
+
+                    // Recalculate fee based on the actual amount paid using the same rate
+                    const rate = parseFloat(order.amount) > 0 ? (parseFloat(order.fee) / parseFloat(order.amount)) : 0.05;
+                    finalFee = actualAmount * rate;
+                    creditAmount = actualAmount - finalFee;
+
+                    // Update order with actual values
+                    await order.update({
+                        amount: actualAmount,
+                        fee: finalFee,
+                        netAmount: creditAmount
+                    }, { transaction: t });
+                }
+
+                // Credit merchant with net amount
                 await User.update(
-                    { balance: sequelize.literal(`balance + ${order.netAmount}`) },
+                    { balance: sequelize.literal(`balance + ${creditAmount}`) },
                     { where: { id: order.merchantId }, transaction: t }
                 );
-                console.log(`[Callback] Credited ₹${order.netAmount} to merchant ${order.merchantId}`);
+                console.log(`[Callback] Credited ₹${creditAmount.toFixed(2)} to merchant ${order.merchantId} (Actual Paid: ₹${actualAmount || order.amount})`);
 
                 // Credit admin with the profit (our fee is our profit for payin)
-                // Admin profit = fee we charge merchant
-                const adminProfit = parseFloat(order.fee);
+                const adminProfit = finalFee;
                 if (adminProfit > 0) {
                     await User.update(
                         { balance: sequelize.literal(`balance + ${adminProfit}`) },
                         { where: { role: 'admin' }, transaction: t }
                     );
-                    console.log(`[Callback] Admin profit: ₹${adminProfit}`);
+                    console.log(`[Callback] Admin profit: ₹${adminProfit.toFixed(2)}`);
                 }
             }
 

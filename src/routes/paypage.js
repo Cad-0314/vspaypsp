@@ -12,6 +12,41 @@ const channelRouter = require('../services/channelRouter');
 const path = require('path');
 
 /**
+ * Helper to ensure an upstream order is created for dashboard-generated links
+ */
+async function ensureUpstreamOrder(order, userIp) {
+    if (order.payUrl || order.status !== 'pending') return true;
+
+    const APP_URL = process.env.APP_URL || 'https://vspay.vip';
+    const notifyUrl = `${APP_URL}/callback/${order.channelName}/payin`;
+
+    console.log(`[PayPage] Initializing upstream order for ${order.id} via ${order.channelName}`);
+    const result = await channelRouter.createPayin(order.channelName, {
+        orderId: order.orderId,
+        amount: parseFloat(order.amount),
+        notifyUrl,
+        returnUrl: order.skipUrl || `${APP_URL}/pay/success`,
+        customerName: 'Customer',
+        customerPhone: '9999999999',
+        customerEmail: 'customer@example.com',
+        customerIp: userIp || '127.0.0.1'
+    });
+
+    if (result.success) {
+        await order.update({
+            providerOrderId: result.providerOrderId,
+            payUrl: result.payUrl,
+            deepLinks: result.deepLinks || null,
+            providerResponse: JSON.stringify(result)
+        });
+        return true;
+    } else {
+        console.error(`[PayPage] Upstream initialization failed: ${result.error}`);
+        return false;
+    }
+}
+
+/**
  * GET /pay/:orderId
  * Render payment page for an order
  */
@@ -34,6 +69,17 @@ router.get('/:orderId', async (req, res) => {
         // Check if expired
         if (order.expiresAt && new Date() > new Date(order.expiresAt)) {
             return res.status(410).send('Payment expired');
+        }
+
+        // For dashboard links, ensure upstream is created before deciding redirect
+        if (!order.payUrl) {
+            await ensureUpstreamOrder(order, req.ip);
+        }
+
+        // Redirect to provider if they have their own pay page (e.g., HDPay)
+        const channelConfig = channelRouter.getChannelConfig(order.channelName);
+        if (channelConfig && !channelConfig.usesCustomPayPage && order.payUrl) {
+            return res.redirect(order.payUrl);
         }
 
         // Serve the static HTML file
@@ -68,6 +114,11 @@ router.get('/api/:orderId', async (req, res) => {
         // Check if expired
         if (order.expiresAt && new Date() > new Date(order.expiresAt)) {
             return res.status(410).json({ success: false, error: 'Payment expired' });
+        }
+
+        // Ensure upstream order exists (for API-only calls)
+        if (!order.payUrl && order.status === 'pending') {
+            await ensureUpstreamOrder(order, req.ip);
         }
 
         const paymentData = {

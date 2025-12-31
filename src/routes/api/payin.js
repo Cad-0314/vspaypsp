@@ -20,7 +20,7 @@ const APP_URL = process.env.APP_URL || 'https://vspay.vip';
  */
 router.post('/create', validateMerchant, async (req, res) => {
     try {
-        const { orderId, orderAmount, callbackUrl, skipUrl, param } = req.body;
+        const { orderId, orderAmount, callbackUrl, skipUrl, param, customerName, customerPhone, customerEmail } = req.body;
         const merchant = req.merchant;
 
         // Check if payin is suspended
@@ -105,9 +105,9 @@ router.post('/create', validateMerchant, async (req, res) => {
             amount: amount,
             notifyUrl: notifyUrl,
             returnUrl: skipUrl || `${APP_URL}/pay/success`,
-            customerName: 'Customer',
-            customerPhone: '9999999999',
-            customerEmail: 'customer@example.com',
+            customerName: customerName,
+            customerPhone: customerPhone,
+            customerEmail: customerEmail,
             customerIp: req.ip || '127.0.0.1'
         });
 

@@ -5,7 +5,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { Order, Settlement, User, sequelize } = require('../models');
+const { Order, Settlement, User, Channel, sequelize } = require('../models');
 const { getStats, getChartData } = require('../services/stats');
 const { v4: uuidv4 } = require('uuid');
 
@@ -53,7 +53,7 @@ router.get('/chart', async (req, res) => {
  */
 router.get('/orders', async (req, res) => {
     try {
-        const { type, status, startDate, endDate, page = 1, limit = 10 } = req.query;
+        const { type, status, startDate, endDate, page = 1, limit = 10, search } = req.query;
         const offset = (page - 1) * limit;
         const { Op } = require('sequelize');
 
@@ -212,15 +212,26 @@ router.post('/paylink', async (req, res) => {
             return res.status(400).json({ success: false, error: 'No channel assigned to this merchant' });
         }
 
+        const amt = parseFloat(amount);
+        if (isNaN(amt) || amt < 100) {
+            return res.status(400).json({ success: false, error: 'Invalid amount. Minimum is ₹100' });
+        }
+
+        // Get channel rates
+        const channel = await Channel.findOne({ where: { name: merchant.assignedChannel } });
+        const payinRate = channel ? parseFloat(channel.payinRate) : 5.0;
+        const fee = (amt * payinRate) / 100;
+        const netAmount = amt - fee;
+
         const orderId = `PL${Date.now()}${Math.floor(Math.random() * 1000)}`;
 
         const order = await Order.create({
             id: uuidv4(),
             orderId: orderId,
             merchantId,
-            amount,
-            netAmount: amount,
-            fee: 0,
+            amount: amt,
+            netAmount: netAmount,
+            fee: fee,
             status: 'pending',
             type: 'payin',
             channelName: merchant.assignedChannel
@@ -245,7 +256,7 @@ router.post('/paylink', async (req, res) => {
  */
 router.get('/export/orders', async (req, res) => {
     try {
-        const { type, status, startDate, endDate } = req.query;
+        const { type, status, startDate, endDate, search } = req.query;
         const { Op } = require('sequelize');
 
         const where = { merchantId: req.session.user.id };
@@ -255,6 +266,14 @@ router.get('/export/orders', async (req, res) => {
             where.createdAt = {};
             if (startDate) where.createdAt[Op.gte] = new Date(startDate);
             if (endDate) where.createdAt[Op.lte] = new Date(endDate);
+        }
+
+        if (search) {
+            where[Op.or] = [
+                { id: { [Op.like]: `%${search}%` } },
+                { orderId: { [Op.like]: `%${search}%` } },
+                { utr: { [Op.like]: `%${search}%` } }
+            ];
         }
 
         const orders = await Order.findAll({

@@ -362,14 +362,23 @@
 
             <nav class="nav-links">
                 <div class="nav-item active" onclick="switchTab('dashboard')"><i class="ri-dashboard-3-line"></i>
-                    Overview</div>
-                <div class="nav-item" onclick="switchTab('orders')"><i class="ri-file-list-3-line"></i> Transactions
+                    <%= t('nav_dashboard') %>
                 </div>
-                <div class="nav-item" onclick="switchTab('settlements')"><i class="ri-bank-card-line"></i> Settlements
+                <div class="nav-item" onclick="switchTab('orders')"><i class="ri-file-list-3-line"></i>
+                    <%= t('orders') %>
                 </div>
-                <div class="nav-item" onclick="switchTab('merchants')"><i class="ri-team-line"></i> Merchants</div>
-                <div class="nav-item" onclick="switchTab('channels')"><i class="ri-server-line"></i> Channels</div>
-                <div class="nav-item" onclick="switchTab('broadcast')"><i class="ri-broadcast-line"></i> Broadcast</div>
+                <div class="nav-item" onclick="switchTab('settlements')"><i class="ri-bank-card-line"></i>
+                    <%= t('settlements') %>
+                </div>
+                <div class="nav-item" onclick="switchTab('merchants')"><i class="ri-team-line"></i>
+                    <%= t('merchants') %>
+                </div>
+                <div class="nav-item" onclick="switchTab('channels')"><i class="ri-server-line"></i>
+                    <%= t('channels') %>
+                </div>
+                <div class="nav-item" onclick="switchTab('broadcast')"><i class="ri-broadcast-line"></i>
+                    <%= t('nav_broadcast') %>
+                </div>
             </nav>
 
             <div style="padding: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
@@ -383,7 +392,15 @@
         <main class="main-content">
             <header class="top-header">
                 <div class="mobile-toggle" onclick="toggleSidebar()"><i class="ri-menu-2-fill"></i></div>
-                <div style="font-weight:500;">Admin Panel</div>
+                <div style="font-weight:500;">
+                    <%= t('header_admin') %>
+                </div>
+                <div style="display:flex; gap:1rem; align-items:center;">
+                    <a href="?lang=en" class="badge"
+                        style="background:#f3f4f6; color:inherit; text-decoration:none;">🇬🇧 EN</a>
+                    <a href="?lang=zh" class="badge"
+                        style="background:#f3f4f6; color:inherit; text-decoration:none;">🇨🇳 CN</a>
+                </div>
             </header>
 
             <div class="content-scroll">
@@ -637,6 +654,13 @@
                 <button class="btn" onclick="document.getElementById('settleActionModal').style.display='none'"
                     style="flex: 1; justify-content:center; background:#F3F4F6;">Cancel</button>
             </div>
+            <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #F3F4F6;">
+                <label
+                    style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.875rem; color:var(--danger);">2FA
+                    TOTP Code (Required)</label>
+                <input type="text" id="settle-totp" placeholder="Enter 6-digit code"
+                    style="width: 100%; padding: 0.75rem; border: 2px solid #FEE2E2; border-radius:0.5rem; text-align:center; font-weight:bold; letter-spacing:4px;">
+            </div>
         </div>
     </div>
 
@@ -668,29 +692,42 @@
                     <input type="number" id="m-usdt" placeholder="USDT %" value="0"
                         style="padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
                 </div>
+
+                <!-- Suspension & Status -->
+                <div style="margin-top:1rem; display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem;">
+                    <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.875rem;">
+                        <input type="checkbox" id="m-isActive" checked> Account Active
+                    </label>
+                    <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.875rem;">
+                        <input type="checkbox" id="m-canPayin" checked> Allow Payin
+                    </label>
+                    <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.875rem;">
+                        <input type="checkbox" id="m-canPayout" checked> Allow Payout
+                    </label>
+                </div>
+
+                <!-- TOTP for Delete -->
+                <div id="m-totp-container"
+                    style="margin-top:1.5rem; padding-top:1rem; border-top: 1px solid #F3F4F6; display:none;">
+                    <label
+                        style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.875rem; color:var(--danger);">2FA
+                        TOTP Code (Required for Delete)</label>
+                    <input type="text" id="m-totp" placeholder="Enter 6-digit code"
+                        style="width: 100%; padding: 0.75rem; border: 2px solid #FEE2E2; border-radius:0.5rem; text-align:center; font-weight:bold; letter-spacing:4px;">
+                </div>
+
+                <div style="margin-top: 1.5rem; display:flex; gap: 1rem; flex-wrap:wrap;">
+                    <button type="button" class="btn btn-primary" onclick="saveMerchant()"
+                        style="flex:1; min-width:120px; justify-content:center;">Save</button>
+                    <button type="button" id="btn-delete-merchant" class="btn btn-danger"
+                        onclick="deleteMerchantAction()"
+                        style="flex:1; min-width:120px; justify-content:center; display:none;">Delete</button>
+                    <button type="button" class="btn"
+                        onclick="document.getElementById('merchantModal').style.display='none'"
+                        style="flex:1; min-width:120px; justify-content:center; background:#F3F4F6;">Cancel</button>
+                </div>
+            </form>
         </div>
-        <!-- Suspension & Status -->
-        <div style="margin-top:1rem; display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem;">
-            <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.875rem;">
-                <input type="checkbox" id="m-isActive" checked> Account Active
-            </label>
-            <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.875rem;">
-                <input type="checkbox" id="m-canPayin" checked> Allow Payin
-            </label>
-            <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.875rem;">
-                <input type="checkbox" id="m-canPayout" checked> Allow Payout
-            </label>
-        </div>
-        <div style="margin-top:1.5rem; display:flex; gap:1rem; flex-wrap:wrap;">
-            <button type="button" class="btn btn-primary" onclick="saveMerchant()"
-                style="flex:1; min-width:120px; justify-content:center;">Save</button>
-            <button type="button" id="btn-delete-merchant" class="btn btn-danger" onclick="deleteMerchantAction()"
-                style="flex:1; min-width:120px; justify-content:center; display:none;">Delete</button>
-            <button type="button" class="btn" onclick="document.getElementById('merchantModal').style.display='none'"
-                style="flex:1; min-width:120px; justify-content:center; background:#F3F4F6;">Cancel</button>
-        </div>
-        </form>
-    </div>
     </div>
 
     <script>
@@ -835,6 +872,7 @@
 
         function openSettleAction(id) {
             document.getElementById('settle-id').value = id;
+            document.getElementById('settle-totp').value = '';
             document.getElementById('settleActionModal').style.display = 'flex';
         }
 
@@ -843,11 +881,14 @@
             const utr = document.getElementById('settle-utr').value;
             const notes = document.getElementById('settle-notes').value;
 
+            const totpCode = document.getElementById('settle-totp').value;
+            if (!totpCode) return showToast('TOTP code required', 'error');
+
             try {
                 const res = await fetch(`/admin/api/settlements/${id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status, utr, notes })
+                    body: JSON.stringify({ status, utr, notes, totpCode })
                 });
                 const data = await res.json();
                 if (data.success) {
@@ -934,10 +975,12 @@
             document.getElementById('m-canPayout').checked = m.canPayout;
 
             document.getElementById('btn-delete-merchant').style.display = 'block';
+            document.getElementById('m-totp-container').style.display = 'block';
             openMerchantModal();
         }
 
         function openMerchantModal() {
+            document.getElementById('m-totp').value = '';
             document.getElementById('merchantModal').style.display = 'flex';
         }
 
@@ -979,10 +1022,16 @@
 
         async function deleteMerchantAction() {
             const id = document.getElementById('m-id').value;
+            const totpCode = document.getElementById('m-totp').value;
             if (!id) return;
+            if (!totpCode) return showToast('TOTP code required to delete', 'error');
             if (!confirm('Are you sure you want to delete this merchant? This action cannot be undone.')) return;
 
-            const res = await fetch(`/admin/api/merchants/${id}`, { method: 'DELETE' });
+            const res = await fetch(`/admin/api/merchants/${id}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ totpCode })
+            });
             const data = await res.json();
             if (data.success) {
                 showToast('Merchant deleted successfully');
