@@ -66,6 +66,14 @@ router.get('/orders', async (req, res) => {
             if (endDate) where.createdAt[Op.lte] = new Date(endDate);
         }
 
+        if (search) {
+            where[Op.or] = [
+                { id: { [Op.like]: `%${search}%` } },
+                { orderId: { [Op.like]: `%${search}%` } },
+                { utr: { [Op.like]: `%${search}%` } }
+            ];
+        }
+
         const { count, rows } = await Order.findAndCountAll({
             where,
             limit: parseInt(limit),
@@ -94,11 +102,19 @@ router.get('/orders', async (req, res) => {
  */
 router.get('/settlements', async (req, res) => {
     try {
-        const { status, page = 1, limit = 10 } = req.query;
+        const { status, page = 1, limit = 10, search } = req.query;
         const offset = (page - 1) * limit;
+        const { Op } = require('sequelize');
 
         const where = { merchantId: req.session.user.id };
         if (status) where.status = status;
+
+        if (search) {
+            where[Op.or] = [
+                { id: { [Op.like]: `%${search}%` } },
+                { utr: { [Op.like]: `%${search}%` } }
+            ];
+        }
 
         const { count, rows } = await Settlement.findAndCountAll({
             where,

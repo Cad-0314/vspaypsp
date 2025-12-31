@@ -582,6 +582,8 @@
 
                     <div class="card"
                         style="padding: 1.25rem; margin-bottom: 1rem; display:flex; gap:1rem; align-items:center; flex-wrap:wrap;">
+                        <input type="text" id="payin-filter-search" class="form-control"
+                            placeholder="Search Order ID, UTR..." style="flex:1; min-width:200px;">
                         <input type="date" id="payin-filter-start" class="form-control" style="width: auto;">
                         <input type="date" id="payin-filter-end" class="form-control" style="width: auto;">
                         <select id="payin-filter-status" class="form-control" style="width: auto;">
@@ -603,7 +605,8 @@
                                     <th>Order ID</th>
                                     <th>Amount</th>
                                     <th>Status</th>
-                                    <th>Date</th>
+                                    <th>Created</th>
+                                    <th>Updated</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -627,6 +630,8 @@
 
                     <div class="card"
                         style="padding: 1.25rem; margin-bottom: 1rem; display:flex; gap:1rem; align-items:center; flex-wrap:wrap;">
+                        <input type="text" id="payout-filter-search" class="form-control"
+                            placeholder="Search Order ID, UTR..." style="flex:1; min-width:200px;">
                         <input type="date" id="payout-filter-start" class="form-control" style="width: auto;">
                         <input type="date" id="payout-filter-end" class="form-control" style="width: auto;">
                         <select id="payout-filter-status" class="form-control" style="width: auto;">
@@ -648,7 +653,8 @@
                                     <th>Order ID</th>
                                     <th>Amount</th>
                                     <th>Status</th>
-                                    <th>Date</th>
+                                    <th>Created</th>
+                                    <th>Updated</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -715,13 +721,14 @@
                                     <th>ID</th>
                                     <th>Amount</th>
                                     <th>Status</th>
-                                    <th>UTR / Notes</th>
-                                    <th>Date</th>
+                                    <th>Details</th>
+                                    <th>Created</th>
+                                    <th>Updated</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td colspan="5">Loading...</td>
+                                    <td colspan="6">Loading...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1076,11 +1083,13 @@
             const start = document.getElementById(type + '-filter-start').value;
             const end = document.getElementById(type + '-filter-end').value;
             const status = document.getElementById(type + '-filter-status').value;
+            const search = document.getElementById(type + '-filter-search').value;
 
             let url = `/api/merchant/orders?type=${type}&page=${page}`;
             if (start) url += `&startDate=${start}`;
             if (end) url += `&endDate=${end}`;
             if (status) url += `&status=${status}`;
+            if (search) url += `&search=${search}`;
 
             try {
                 const res = await fetch(url);
@@ -1089,10 +1098,11 @@
                 if (data.success && data.orders.length > 0) {
                     tbody.innerHTML = data.orders.map(o => `
                         <tr>
-                            <td style="font-family:monospace; font-weight:600;">#${o.orderId.substring(0, 8)}...</td>
+                            <td style="font-family:monospace; font-weight:600;">${o.orderId}</td>
                             <td>₹${o.amount} ${o.payoutType === 'usdt' ? '<small>(USDT)</small>' : ''}</td>
                             <td><span class="badge badge-${o.status}">${o.status}</span></td>
-                            <td>${new Date(o.createdAt).toLocaleDateString()}</td>
+                            <td>${new Date(o.createdAt).toLocaleString()}</td>
+                            <td>${new Date(o.updatedAt).toLocaleString()}</td>
                         </tr>
                     `).join('');
 
@@ -1131,14 +1141,15 @@
                 if (data.success && data.settlements.length > 0) {
                     tbody.innerHTML = data.settlements.map(s => `
                         <tr>
-                            <td style="font-family:monospace;">#${s.id.substring(0, 8)}</td>
+                            <td style="font-family:monospace;">${s.id}</td>
                             <td style="font-weight:600;">₹${s.amount}</td>
                             <td><span class="badge badge-${s.status}">${s.status}</span></td>
                             <td>
                                 ${s.utr ? `<div style="font-size:0.75rem; color:var(--text-light);">UTR: ${s.utr}</div>` : ''}
                                 ${s.notes ? `<div style="font-size:0.75rem;">${s.notes}</div>` : ''}
                             </td>
-                            <td>${new Date(s.createdAt).toLocaleDateString()}</td>
+                            <td>${new Date(s.createdAt).toLocaleString()}</td>
+                            <td>${new Date(s.updatedAt).toLocaleString()}</td>
                         </tr>
                     `).join('');
 

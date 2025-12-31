@@ -211,12 +211,20 @@ router.post('/merchants/:id/regenerate-key', async (req, res) => {
 
 router.get('/settlements', async (req, res) => {
     try {
-        const { page = 1, limit = 10, status, type, merchantId } = req.query;
+        const { page = 1, limit = 10, status, type, merchantId, search } = req.query;
         const offset = (page - 1) * limit;
+        const { Op } = require('sequelize');
         const where = {};
         if (status) where.status = status;
         if (type) where.type = type;
         if (merchantId) where.merchantId = merchantId;
+
+        if (search) {
+            where[Op.or] = [
+                { id: { [Op.like]: `%${search}%` } },
+                { utr: { [Op.like]: `%${search}%` } }
+            ];
+        }
 
         const { count, rows } = await Settlement.findAndCountAll({
             where,
@@ -316,6 +324,7 @@ router.get('/orders', async (req, res) => {
 
         if (search) {
             where[Op.or] = [
+                { id: { [Op.like]: `%${search}%` } },
                 { orderId: { [Op.like]: `%${search}%` } },
                 { providerOrderId: { [Op.like]: `%${search}%` } },
                 { utr: { [Op.like]: `%${search}%` } }

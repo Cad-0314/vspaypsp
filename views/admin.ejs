@@ -452,15 +452,15 @@
                                     style="justify-content:center;">Filter</button>
                             </div>
                         </div>
-                        <table id="orders-table">
+                        <table id="global-orders-table">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
+                                    <th>Order ID</th>
                                     <th>Merchant</th>
-                                    <th>Type</th>
                                     <th>Amount</th>
                                     <th>Status</th>
-                                    <th>Date</th>
+                                    <th>Created</th>
+                                    <th>Updated</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -480,16 +480,19 @@
                     <h1>Settlement Requests</h1>
                     <div class="subtitle">Pending merchant withdrawal requests.</div>
                     <div class="card">
-                        <div style="padding: 1rem; border-bottom: 1px solid #F3F4F6; display:flex; gap:1rem;">
+                        <div
+                            style="padding: 1rem; border-bottom: 1px solid #F3F4F6; display:flex; gap:1rem; flex-wrap:wrap; align-items:center;">
+                            <input type="text" id="settle-search" placeholder="Search Settlement ID / Merchant..."
+                                style="flex:1; min-width:200px; padding:0.5rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
                             <select id="settle-filter-status" class="form-control"
-                                style="max-width:200px; padding:0.5rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
+                                style="max-width:150px; padding:0.5rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
                                 <option value="">All Status</option>
                                 <option value="pending">Pending</option>
                                 <option value="completed">Completed</option>
                                 <option value="rejected">Rejected</option>
                             </select>
                             <select id="settle-filter-type" class="form-control"
-                                style="max-width:200px; padding:0.5rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
+                                style="max-width:120px; padding:0.5rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
                                 <option value="">All Types</option>
                                 <option value="bank">Bank</option>
                                 <option value="usdt">USDT</option>
@@ -505,12 +508,14 @@
                                     <th>Type</th>
                                     <th>Amount</th>
                                     <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Updated</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td colspan="5">Loading...</td>
+                                    <td colspan="8">Loading...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -528,7 +533,8 @@
                             <h1>Merchants</h1>
                             <div class="subtitle" style="margin-bottom:0">Manage registered merchants.</div>
                         </div>
-                        <button class="btn btn-success" onclick="openMerchantModal()"><i class="ri-add-line"></i> Add
+                        <button class="btn btn-success" onclick="openMerchantModal()"><i class="ri-add-line"></i>
+                            Add
                             Merchant</button>
                     </div>
                     <div class="card">
@@ -558,7 +564,7 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td colspan="6">Loading...</td>
+                                    <td colspan="7">Loading...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -755,30 +761,29 @@
 
         async function loadGlobalOrders(page = 1) {
             const search = document.getElementById('order-search').value;
-            const type = document.getElementById('order-filter-type').value;
+            const startDate = document.getElementById('order-filter-start').value;
+            const endDate = document.getElementById('order-filter-end').value;
             const status = document.getElementById('order-filter-status').value;
-            const start = document.getElementById('order-filter-start').value;
-            const end = document.getElementById('order-filter-end').value;
 
-            let url = `/admin/api/orders?limit=20&page=${page}&search=${search}`;
-            if (type) url += `&type=${type}`;
+            let url = `/admin/api/orders?limit=20&page=${page}`;
+            if (search) url += `&search=${search}`;
             if (status) url += `&status=${status}`;
-            if (start) url += `&startDate=${start}`;
-            if (end) url += `&endDate=${end}`;
+            if (startDate) url += `&startDate=${startDate}`;
+            if (endDate) url += `&endDate=${endDate}`;
 
             const res = await fetch(url);
             const data = await res.json();
-            const tbody = document.getElementById('orders-table').querySelector('tbody');
+            const tbody = document.getElementById('global-orders-table').querySelector('tbody');
 
             if (data.success && data.orders.length > 0) {
                 tbody.innerHTML = data.orders.map(o => `
                     <tr>
-                        <td style="font-family:monospace; font-weight:600;">${o.orderId.substring(0, 10)}...</td>
-                        <td>${o.merchant?.username || '-'}</td>
-                        <td>${o.type}</td>
+                        <td title="${o.id}"><small style="font-family:monospace;">${o.orderId}</small></td>
+                        <td>${o.merchant?.username || 'N/A'}</td>
                         <td>₹${o.amount}</td>
                         <td><span class="badge badge-${o.status}">${o.status}</span></td>
-                        <td>${new Date(o.createdAt).toLocaleDateString()}</td>
+                        <td>${new Date(o.createdAt).toLocaleString()}</td>
+                        <td>${new Date(o.updatedAt).toLocaleString()}</td>
                     </tr>
                 `).join('');
                 renderPagination(data.pagination, 'orders-pagination', `loadGlobalOrders({page})`);
@@ -791,10 +796,12 @@
         async function loadSettlements(page = 1) {
             const status = document.getElementById('settle-filter-status').value;
             const type = document.getElementById('settle-filter-type').value;
+            const search = document.getElementById('settle-search').value;
 
             let url = `/admin/api/settlements?page=${page}`;
             if (status) url += `&status=${status}`;
             if (type) url += `&type=${type}`;
+            if (search) url += `&search=${search}`;
 
             const res = await fetch(url);
             const data = await res.json();
@@ -803,19 +810,23 @@
             if (data.success && data.settlements.length > 0) {
                 tbody.innerHTML = data.settlements.map(s => `
                     <tr>
-                        <td style="font-family:monospace;">${s.id.substring(0, 8)}</td>
-                        <td>${s.merchant?.username}</td>
-                        <td style="text-transform:uppercase; font-size:0.75rem;">${s.type || 'bank'}</td>
-                        <td style="font-weight:600;">₹${s.amount}</td>
+                        <td style="font-family:monospace;">${s.id}</td>
+                        <td>${s.merchant?.username || 'N/A'}</td>
+                        <td><span class="badge" style="background:#E0E7FF; color:#4338CA;">${s.type.toUpperCase()}</span></td>
+                        <td>₹${s.amount}</td>
                         <td><span class="badge badge-${s.status}">${s.status}</span></td>
+                        <td>${new Date(s.createdAt).toLocaleString()}</td>
+                        <td>${new Date(s.updatedAt).toLocaleString()}</td>
                         <td>
-                            ${s.status === 'pending' ? `<button class="btn btn-primary" onclick="openSettleAction('${s.id}')">Process</button>` : '-'}
+                            ${s.status === 'pending' ?
+                        `<button class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="openSettleAction('${s.id}')">Process</button>` :
+                        `<small style="color:grey;">Processed</small>`}
                         </td>
                     </tr>
                 `).join('');
                 renderPagination(data.pagination, 'settlements-pagination', `loadSettlements({page})`);
             } else {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #9ca3af; padding:2rem;">No settlements found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #9ca3af; padding:2rem;">No settlements found</td></tr>';
                 document.getElementById('settlements-pagination').innerHTML = '';
             }
         }
