@@ -28,31 +28,21 @@
             <%= t('subtitle_enter_code') %>
         </p>
 
-        <% if (typeof error !=='undefined' && error) { %>
-            <div class="alert alert-error">
-                <%= error %>
+
+
+        <form action="/auth/2fa-verify" method="POST">
+            <div class="form-group">
+                <label for="token">
+                    <%= t('label_code') %>
+                </label>
+                <input type="text" id="token" name="token" required placeholder="<%= t('ph_code') %>" autocomplete="off"
+                    maxlength="6" pattern="[0-9]{6}" inputmode="numeric"
+                    style="text-align: center; font-size: 1.5rem; letter-spacing: 0.5em;">
             </div>
-            <% } %>
-
-                <% if (typeof serverTime !=='undefined' ) { %>
-                    <p style="font-size: 0.75rem; color: #6b7280; margin-bottom: 1rem;">
-                        Server Time: <%= serverTime %>
-                    </p>
-                    <% } %>
-
-                        <form action="/auth/2fa-verify" method="POST">
-                            <div class="form-group">
-                                <label for="token">
-                                    <%= t('label_code') %>
-                                </label>
-                                <input type="text" id="token" name="token" required placeholder="<%= t('ph_code') %>"
-                                    autocomplete="off" maxlength="6" pattern="[0-9]{6}" inputmode="numeric"
-                                    style="text-align: center; font-size: 1.5rem; letter-spacing: 0.5em;">
-                            </div>
-                            <button type="submit" class="btn">
-                                <%= t('btn_verify') %>
-                            </button>
-                        </form>
+            <button type="submit" class="btn">
+                <%= t('btn_verify') %>
+            </button>
+        </form>
     </div>
 </body>
 

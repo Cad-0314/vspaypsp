@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Complete Payment | 完成支付</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .header .subtitle {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        .amount-section {
+            padding: 2rem 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .amount-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+        }
+
+        .amount {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .amount .currency {
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+
+        .timer {
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background: #fef3c7;
+            border-radius: 2rem;
+            display: inline-block;
+            color: #92400e;
+            font-size: 0.875rem;
+        }
+
+        .timer.warning {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .payment-methods {
+            padding: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .app-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: #1f2937;
+        }
+
+        .app-btn:hover {
+            border-color: #6366f1;
+            background: #f5f3ff;
+            transform: translateY(-2px);
+        }
+
+        .app-btn:active {
+            transform: scale(0.98);
+        }
+
+        .app-btn img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+        }
+
+        .app-btn span {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 0;
+            color: #9ca3af;
+            font-size: 0.75rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e5e7eb;
+        }
+
+        .divider span {
+            padding: 0 1rem;
+        }
+
+        .qr-section {
+            text-align: center;
+            padding: 0 1.5rem 1.5rem;
+        }
+
+        .qr-container {
+            background: #f9fafb;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            display: inline-block;
+        }
+
+        #qrCode {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto;
+        }
+
+        #qrCode img,
+        #qrCode canvas {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .upi-id-section {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: #fff;
+            border-radius: 0.5rem;
+            border: 1px solid #e5e7eb;
+        }
+
+        .upi-id-label {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+
+        .upi-id {
+            font-family: monospace;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #1f2937;
+            word-break: break-all;
+        }
+
+        .copy-btn {
+            margin-top: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #4f46e5;
+        }
+
+        .copy-btn.copied {
+            background: #10b981;
+        }
+
+        .footer {
+            padding: 1rem 1.5rem;
+            background: #f9fafb;
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
+        }
+
+        .footer p {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e5e7eb;
+            border-top-color: #6366f1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .error-state {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            color: #dc2626;
+        }
+
+        .lang-switch {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .lang-btn {
+            padding: 0.25rem 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 1rem;
+            background: transparent;
+            color: white;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .lang-btn.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="lang-switch">
+                <button class="lang-btn active" onclick="setLang('en')">English</button>
+                <button class="lang-btn" onclick="setLang('zh')">中文</button>
+            </div>
+            <h1 id="headerTitle">Complete Payment</h1>
+            <p class="subtitle" id="headerSubtitle">Select payment method</p>
+        </div>
+
+        <div id="content">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Loading payment details...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script>
+        let paymentData = null;
+        let countdownInterval = null;
+        let currentLang = 'en';
+
+        const translations = {
+            en: {
+                headerTitle: 'Complete Payment',
+                headerSubtitle: 'Select payment method',
+                amountLabel: 'Amount to Pay',
+                timeRemaining: 'Time remaining',
+                expired: 'Expired',
+                payWith: 'Pay with UPI App',
+                orScan: 'Or Scan QR Code',
+                upiId: 'UPI ID',
+                copyBtn: 'Copy UPI ID',
+                copied: 'Copied!',
+                securePayment: 'Secured by VSPAY',
+                pending: 'Awaiting Payment',
+                success: 'Payment Successful'
+            },
+            zh: {
+                headerTitle: '完成支付',
+                headerSubtitle: '选择支付方式',
+                amountLabel: '支付金额',
+                timeRemaining: '剩余时间',
+                expired: '已过期',
+                payWith: '使用UPI应用支付',
+                orScan: '或扫描二维码',
+                upiId: 'UPI ID',
+                copyBtn: '复制 UPI ID',
+                copied: '已复制!',
+                securePayment: 'VSPAY安全支付',
+                pending: '等待支付',
+                success: '支付成功'
+            }
+        };
+
+        function t(key) {
+            return translations[currentLang][key] || key;
+        }
+
+        function setLang(lang) {
+            currentLang = lang;
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.includes(lang === 'en' ? 'Eng' : '中'));
+            });
+            if (paymentData) {
+                renderPayment(paymentData);
+            }
+            document.getElementById('headerTitle').textContent = t('headerTitle');
+            document.getElementById('headerSubtitle').textContent = t('headerSubtitle');
+        }
+
+        // Get order ID from URL
+        const pathParts = window.location.pathname.split('/');
+        const orderId = pathParts[pathParts.length - 1];
+
+        // Fetch payment data
+        async function loadPayment() {
+            try {
+                const response = await fetch(`/pay/${orderId}`);
+                if (!response.ok) {
+                    throw new Error('Payment not found');
+                }
+                paymentData = await response.json();
+                renderPayment(paymentData);
+                startCountdown(paymentData.expiresAt);
+            } catch (error) {
+                document.getElementById('content').innerHTML = `
+                    <div class="error-state">
+                        <p>❌ ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderPayment(data) {
+            const deepLinks = data.deepLinks || {};
+            const hasDeeplinks = Object.keys(deepLinks).length > 0;
+            const upiId = deepLinks.upi || '';
+
+            let html = `
+                <div class="amount-section">
+                    <p class="amount-label">${t('amountLabel')}</p>
+                    <p class="amount"><span class="currency">₹</span>${data.amount.toLocaleString()}</p>
+                    <div class="timer" id="timer">${t('timeRemaining')}: --:--</div>
+                    <div class="status-badge status-${data.status}" id="statusBadge">
+                        ${data.status === 'success' ? t('success') : t('pending')}
+                    </div>
+                </div>
+
+                <div class="payment-methods">
+                    <p class="section-title">${t('payWith')}</p>
+                    <div class="app-grid">
+                        <a href="${deepLinks.upi_phonepe || '#'}" class="app-btn" id="phonepeBtn">
+                            <img src="/images/phonepe.png" alt="PhonePe">
+                            <span>PhonePe</span>
+                        </a>
+                        <a href="${deepLinks.upi_gpay || '#'}" class="app-btn" id="gpayBtn">
+                            <img src="/images/gpay.png" alt="Google Pay">
+                            <span>GPay</span>
+                        </a>
+                        <a href="${deepLinks.upi_paytm || '#'}" class="app-btn" id="paytmBtn">
+                            <img src="/images/paytm.png" alt="Paytm">
+                            <span>Paytm</span>
+                        </a>
+                        <a href="${deepLinks.upi_scan || '#'}" class="app-btn" id="upiBtn">
+                            <img src="/images/upi.png" alt="Any UPI">
+                            <span>Any UPI</span>
+                        </a>
+                    </div>
+
+                    <div class="divider"><span>${t('orScan')}</span></div>
+
+                    <div class="qr-section">
+                        <div class="qr-container">
+                            <div id="qrCode"></div>
+                            ${upiId ? `
+                            <div class="upi-id-section">
+                                <p class="upi-id-label">${t('upiId')}</p>
+                                <p class="upi-id" id="upiId">${upiId}</p>
+                                <button class="copy-btn" onclick="copyUpiId()">${t('copyBtn')}</button>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="footer">
+                    <p>🔒 ${t('securePayment')}</p>
+                </div>
+            `;
+
+            document.getElementById('content').innerHTML = html;
+
+            // Generate QR code
+            const qrData = deepLinks.upi_scan || `upi://pay?pa=${upiId}&am=${data.amount}&cu=INR`;
+            if (typeof QRCode !== 'undefined' && document.getElementById('qrCode')) {
+                QRCode.toCanvas(document.getElementById('qrCode'), qrData, {
+                    width: 180,
+                    margin: 2,
+                    color: { dark: '#1f2937', light: '#ffffff' }
+                }, function (error) {
+                    if (error) console.error(error);
+                });
+            }
+        }
+
+        function startCountdown(expiresAt) {
+            if (!expiresAt) return;
+
+            if (countdownInterval) clearInterval(countdownInterval);
+
+            countdownInterval = setInterval(() => {
+                const now = Date.now();
+                const remaining = expiresAt - now;
+
+                const timerEl = document.getElementById('timer');
+                if (!timerEl) return;
+
+                if (remaining <= 0) {
+                    timerEl.textContent = t('expired');
+                    timerEl.classList.add('warning');
+                    clearInterval(countdownInterval);
+                    return;
+                }
+
+                const minutes = Math.floor(remaining / 60000);
+                const seconds = Math.floor((remaining % 60000) / 1000);
+                timerEl.textContent = `${t('timeRemaining')}: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+                if (remaining < 5 * 60000) {
+                    timerEl.classList.add('warning');
+                }
+            }, 1000);
+        }
+
+        function copyUpiId() {
+            const upiId = document.getElementById('upiId');
+            if (!upiId) return;
+
+            navigator.clipboard.writeText(upiId.textContent).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.textContent = t('copied');
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = t('copyBtn');
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        // Check payment status periodically
+        async function checkStatus() {
+            try {
+                const response = await fetch(`/pay/${orderId}`);
+                const data = await response.json();
+                if (data.status === 'success') {
+                    const statusBadge = document.getElementById('statusBadge');
+                    if (statusBadge) {
+                        statusBadge.textContent = t('success');
+                        statusBadge.className = 'status-badge status-success';
+                    }
+                    clearInterval(countdownInterval);
+                    // Redirect to success or skipUrl
+                    if (paymentData.skipUrl) {
+                        setTimeout(() => window.location.href = paymentData.skipUrl, 2000);
+                    }
+                }
+            } catch (e) {
+                // Ignore errors
+            }
+        }
+
+        // Start
+        loadPayment();
+        setInterval(checkStatus, 5000);
+    </script>
+</body>
+
+</html>

@@ -3,14 +3,29 @@ const session = require('express-session');
 const passport = require('passport');
 const flash = require('connect-flash');
 const path = require('path');
-const sequelize = require('./src/config/database');
-const authRoutes = require('./src/routes/auth');
 require('dotenv').config();
+
+// Database and Models
+const { sequelize, User, Channel, Order } = require('./src/models');
+
+// Routes
+const authRoutes = require('./src/routes/auth');
+const payinRoutes = require('./src/routes/api/payin');
+const payoutRoutes = require('./src/routes/api/payout');
+const balanceRoutes = require('./src/routes/api/balance');
+const callbackRoutes = require('./src/routes/api/callbacks');
+const paypageRoutes = require('./src/routes/paypage');
+
+// Seeder
+const seedDatabase = require('./src/seeders/init');
 
 // Passport Config
 require('./src/config/passport')(passport);
 
 const app = express();
+
+// Trust proxy for correct IP detection
+app.set('trust proxy', true);
 
 // View Engine
 app.set('view engine', 'ejs');
@@ -36,10 +51,31 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 
-// Routes
+// ============================================
+// API Routes (VSPAY Merchant API)
+// ============================================
+app.use('/api/payin', payinRoutes);
+app.use('/api/payout', payoutRoutes);
+app.use('/api/balance', balanceRoutes);
+
+// ============================================
+// Callback Routes (from upstream providers)
+// ============================================
+app.use('/callback', callbackRoutes);
+
+// ============================================
+// Payment Page Routes
+// ============================================
+app.use('/pay', paypageRoutes);
+
+// ============================================
+// Auth Routes
+// ============================================
 app.use('/auth', authRoutes);
 
+// ============================================
 // Protected Routes Middleware
+// ============================================
 function ensureAuthenticated(req, res, next) {
     if (req.session.user && req.session.user.is2faAuthenticated) {
         return next();
@@ -47,25 +83,60 @@ function ensureAuthenticated(req, res, next) {
     res.redirect('/auth/login');
 }
 
-app.get('/admin', ensureAuthenticated, (req, res) => {
+// ============================================
+// Dashboard Routes
+// ============================================
+app.get('/admin', ensureAuthenticated, async (req, res) => {
     if (req.session.user.role !== 'admin') return res.redirect('/merchant');
-    res.render('admin', { user: req.session.user });
+
+    // Fetch additional data for admin dashboard
+    const user = await User.findByPk(req.session.user.id);
+    const channels = await Channel.findAll();
+    const merchantCount = await User.count({ where: { role: 'merchant' } });
+
+    res.render('admin', {
+        user: user ? user.toJSON() : req.session.user,
+        channels,
+        merchantCount
+    });
 });
 
-app.get('/merchant', ensureAuthenticated, (req, res) => {
-    res.render('merchant', { user: req.session.user });
+app.get('/merchant', ensureAuthenticated, async (req, res) => {
+    // Fetch full merchant data including balance
+    const user = await User.findByPk(req.session.user.id);
+    const channel = await Channel.findOne({ where: { name: user.assignedChannel } });
+
+    res.render('merchant', {
+        user: user ? user.toJSON() : req.session.user,
+        channel: channel ? channel.toJSON() : null
+    });
 });
 
 app.get('/', (req, res) => {
     res.redirect('/auth/login');
 });
 
+// ============================================
+// Health Check
+// ============================================
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// ============================================
 // Database Sync & Start Server
+// ============================================
 const PORT = process.env.PORT || 3000;
 
-sequelize.sync().then(() => {
+sequelize.sync({ alter: true }).then(async () => {
     console.log('Database connected & synced');
+
+    // Run seeder to ensure channels exist
+    await seedDatabase();
+
     app.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`);
+        console.log(`API Base URL: ${process.env.APP_URL || 'http://localhost:' + PORT}`);
     });
 }).catch(err => console.log('Database connection error:', err));
+

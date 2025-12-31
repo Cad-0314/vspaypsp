@@ -1,37 +1,90 @@
-const sequelize = require('../config/database');
-const User = require('../models/User');
-const bcrypt = require('bcrypt');
-require('dotenv').config();
+/**
+ * Database Seeder
+ * Initialize channels and default admin
+ */
 
-const seed = async () => {
+const { sequelize, User, Channel } = require('../models');
+
+async function seedDatabase() {
     try {
-        await sequelize.sync({ force: true }); // Reset DB for fresh start
-        console.log('Database synced');
+        console.log('Starting database seed...');
 
-        const hashedPassword = await bcrypt.hash('password123', 10);
-
-        await User.bulkCreate([
+        // Seed Channels
+        const channels = [
             {
-                username: 'admin',
-                password_hash: hashedPassword,
-                role: 'admin',
-                two_fa_enabled: false
+                name: 'hdpay',
+                displayName: 'HDPay',
+                displayNameZh: 'HDPay',
+                provider: 'hdpay',
+                payinRate: 5.00,
+                payoutRate: 3.00,
+                payoutFixedFee: 6.00,
+                isActive: true,
+                minPayin: 100.00,
+                maxPayin: 100000.00,
+                minPayout: 100.00,
+                maxPayout: 100000.00,
+                usesCustomPayPage: false
             },
             {
-                username: 'merchant',
-                password_hash: hashedPassword,
-                role: 'merchant',
-                two_fa_enabled: false,
-                channel_rates: JSON.stringify({ hdpay: 0.05, f2pay: 0.03 })
+                name: 'x2',
+                displayName: 'X2',
+                displayNameZh: 'X2',
+                provider: 'f2pay',
+                payinRate: 5.00,
+                payoutRate: 3.00,
+                payoutFixedFee: 6.00,
+                isActive: true,
+                minPayin: 200.00, // Higher minimum for f2pay
+                maxPayin: 100000.00,
+                minPayout: 100.00,
+                maxPayout: 100000.00,
+                usesCustomPayPage: true
+            },
+            {
+                name: 'payable',
+                displayName: 'Payable',
+                displayNameZh: 'Payable',
+                provider: 'silkpay',
+                payinRate: 5.00,
+                payoutRate: 3.00,
+                payoutFixedFee: 6.00,
+                isActive: true,
+                minPayin: 100.00,
+                maxPayin: 100000.00,
+                minPayout: 100.00,
+                maxPayout: 100000.00,
+                usesCustomPayPage: true
             }
-        ]);
+        ];
 
-        console.log('Seed data inserted');
-        process.exit();
-    } catch (err) {
-        console.error('Error seeding data:', err);
-        process.exit(1);
+        for (const channelData of channels) {
+            const [channel, created] = await Channel.findOrCreate({
+                where: { name: channelData.name },
+                defaults: channelData
+            });
+
+            if (created) {
+                console.log(`Created channel: ${channelData.name}`);
+            } else {
+                // Update existing channel
+                await channel.update(channelData);
+                console.log(`Updated channel: ${channelData.name}`);
+            }
+        }
+
+        console.log('Database seed completed!');
+
+    } catch (error) {
+        console.error('Seed error:', error);
     }
-};
+}
 
-seed();
+// Run if called directly
+if (require.main === module) {
+    sequelize.sync().then(() => {
+        seedDatabase().then(() => process.exit(0));
+    });
+} else {
+    module.exports = seedDatabase;
+}

@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
+const crypto = require('crypto');
 
 const User = sequelize.define('User', {
     id: {
@@ -28,13 +29,61 @@ const User = sequelize.define('User', {
         type: DataTypes.BOOLEAN,
         defaultValue: false
     },
+    // Merchant API fields
+    apiKey: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        unique: true,
+        comment: 'Merchant API key (x-merchant-id header)'
+    },
+    apiSecret: {
+        type: DataTypes.STRING(64),
+        allowNull: true,
+        comment: 'Secret key for signature verification'
+    },
+    assignedChannel: {
+        type: DataTypes.STRING(50),
+        allowNull: true,
+        defaultValue: 'hdpay',
+        comment: 'Assigned payment channel: hdpay, x2, payable'
+    },
+    balance: {
+        type: DataTypes.DECIMAL(14, 2),
+        defaultValue: 0.00,
+        comment: 'Available wallet balance'
+    },
+    pendingBalance: {
+        type: DataTypes.DECIMAL(14, 2),
+        defaultValue: 0.00,
+        comment: 'Pending balance (processing payouts)'
+    },
+    callbackUrl: {
+        type: DataTypes.STRING(500),
+        allowNull: true,
+        comment: 'Default callback URL for webhooks'
+    },
+    isActive: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
+        comment: 'Whether merchant account is active'
+    },
     channel_rates: {
-        type: DataTypes.TEXT, // Storing as JSON string for simplicity
-        allowNull: true
+        type: DataTypes.TEXT,
+        allowNull: true,
+        comment: 'Custom rates override as JSON (deprecated)'
     }
 }, {
     tableName: 'users',
-    timestamps: true
+    timestamps: true,
+    hooks: {
+        beforeCreate: (user) => {
+            // Generate API secret if not set
+            if (!user.apiSecret) {
+                user.apiSecret = crypto.randomBytes(32).toString('hex');
+            }
+        }
+    }
 });
 
 module.exports = User;
+

@@ -8,10 +8,106 @@
         <%= t('title_admin') %>
     </title>
     <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .dashboard {
+            max-width: 900px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            text-align: center;
+        }
+
+        .stat-card.green {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .stat-card.blue {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        .section {
+            background: #f9fafb;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section h3 {
+            margin: 0 0 1rem 0;
+            color: #374151;
+            font-size: 1.125rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #f3f4f6;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        td {
+            font-size: 0.875rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-green {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-red {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .rate {
+            font-family: monospace;
+        }
+    </style>
 </head>
 
 <body>
-    <div class="container" style="max-width: 600px;">
+    <div class="container dashboard">
         <div class="lang-switch">
             <a href="?lang=en" class="lang-link <%= currentLang === 'en' ? 'active' : '' %>">English</a>
             <a href="?lang=zh" class="lang-link <%= currentLang === 'zh' ? 'active' : '' %>">中文</a>
@@ -28,7 +124,93 @@
             <%= t('welcome_user', { username: user.username, role: user.role }) %>
         </p>
 
-        <div style="text-align: left; background: #f9fafb; padding: 1rem; border-radius: 0.5rem; margin-bottom: 2rem;">
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card green">
+                <div class="stat-value">
+                    <%= typeof merchantCount !=='undefined' ? merchantCount : 0 %>
+                </div>
+                <div class="stat-label">
+                    <%= t('merchant_count') %>
+                </div>
+            </div>
+            <div class="stat-card blue">
+                <div class="stat-value">
+                    <%= typeof channels !=='undefined' ? channels.length : 0 %>
+                </div>
+                <div class="stat-label">
+                    <%= t('channels') %>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">
+                    <%= user.two_fa_enabled ? '✓' : '✗' %>
+                </div>
+                <div class="stat-label">
+                    <%= t('2fa_status') %>
+                </div>
+            </div>
+        </div>
+
+        <!-- Channels Section -->
+        <div class="section">
+            <h3>
+                <%= t('channels') %>
+            </h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>
+                            <%= t('channel_name') %>
+                        </th>
+                        <th>
+                            <%= t('payin_rate') %>
+                        </th>
+                        <th>
+                            <%= t('payout_rate') %>
+                        </th>
+                        <th>
+                            <%= t('fixed_fee') %>
+                        </th>
+                        <th>
+                            <%= t('status') %>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (typeof channels !=='undefined' && channels.length> 0) { %>
+                        <% channels.forEach(function(channel) { %>
+                            <tr>
+                                <td><strong>
+                                        <%= channel.displayName %>
+                                    </strong></td>
+                                <td class="rate">
+                                    <%= channel.payinRate %>%
+                                </td>
+                                <td class="rate">
+                                    <%= channel.payoutRate %>%
+                                </td>
+                                <td class="rate">₹<%= channel.payoutFixedFee %>
+                                </td>
+                                <td>
+                                    <span class="badge <%= channel.isActive ? 'badge-green' : 'badge-red' %>">
+                                        <%= channel.isActive ? t('active') : t('inactive') %>
+                                    </span>
+                                </td>
+                            </tr>
+                            <% }); %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="5" style="text-align: center; color: #6b7280;">No channels
+                                            configured</td>
+                                    </tr>
+                                    <% } %>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- System Status -->
+        <div class="section">
             <h3>
                 <%= t('system_status') %>
             </h3>
@@ -40,6 +222,14 @@
                 </strong>
                 <%= user.two_fa_enabled ? t('enabled') : t('disabled') %>
             </p>
+        </div>
+
+        <!-- API Docs Link -->
+        <div class="section" style="text-align: center;">
+            <a href="/ourapi.txt" target="_blank" class="btn"
+                style="display: inline-block; width: auto; margin-right: 0.5rem;">
+                <%= t('view_docs') %>
+            </a>
         </div>
 
         <a href="/auth/logout" class="btn" style="background-color: #ef4444;">
