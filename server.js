@@ -16,6 +16,7 @@ const balanceRoutes = require('./src/routes/api/balance');
 const callbackRoutes = require('./src/routes/api/callbacks');
 const paypageRoutes = require('./src/routes/paypage');
 const adminRoutes = require('./src/routes/admin');
+const merchantApiRoutes = require('./src/routes/merchant_api');
 
 // Seeder
 const seedDatabase = require('./src/seeders/init');
@@ -78,6 +79,11 @@ app.use('/auth', authRoutes);
 // Admin API Routes
 // ============================================
 app.use('/admin/api', adminRoutes);
+
+// ============================================
+// Merchant API Routes
+// ============================================
+app.use('/api/merchant', merchantApiRoutes);
 
 // ============================================
 // Protected Routes Middleware

@@ -1,321 +1,1008 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<%= currentLang %>">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>
-        <%= t('title_merchant') %>
-    </title>
-    <link rel="stylesheet" href="/css/style.css">
+    <title>Merchant Dashboard - VSPAY</title>
+    <!-- Fonts & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
-        .dashboard {
-            max-width: 800px;
+        :root {
+            --primary: #4F46E5;
+            --primary-dark: #4338ca;
+            --bg-dark: #111827;
+            --bg-light: #F3F4F6;
+            --text-dark: #1F2937;
+            --text-light: #9CA3AF;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
         }
 
-        .balance-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
         }
 
-        .balance-card {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        body {
+            background: var(--bg-light);
+            color: var(--text-dark);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .dashboard-container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-dark);
             color: white;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+            z-index: 50;
+        }
+
+        .sidebar-header {
             padding: 1.5rem;
-            border-radius: 0.75rem;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .balance-card.pending {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        .sidebar-header i {
+            font-size: 1.5rem;
+            color: var(--primary);
         }
 
-        .balance-card.total {
-            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-        }
-
-        .balance-value {
-            font-size: 2rem;
+        .logo-text {
+            font-size: 1.25rem;
             font-weight: 700;
+            letter-spacing: 0.5px;
         }
 
-        .balance-label {
-            font-size: 0.875rem;
-            opacity: 0.9;
-            margin-top: 0.25rem;
-        }
-
-        .section {
-            background: #f9fafb;
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .section h3 {
-            margin: 0 0 1rem 0;
-            color: #374151;
-            font-size: 1.125rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .credential-row {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.75rem;
-            flex-wrap: wrap;
-        }
-
-        .credential-label {
-            font-weight: 600;
-            color: #374151;
-            min-width: 100px;
-        }
-
-        .credential-value {
-            font-family: monospace;
-            background: white;
-            padding: 0.5rem 0.75rem;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.375rem;
+        .nav-links {
+            padding: 1rem;
             flex: 1;
-            word-break: break-all;
-            font-size: 0.875rem;
+            overflow-y: auto;
         }
 
-        .credential-value.hidden {
-            filter: blur(4px);
-            user-select: none;
-        }
-
-        .btn-small {
-            padding: 0.375rem 0.75rem;
-            font-size: 0.75rem;
-            border-radius: 0.375rem;
-            border: none;
+        .nav-item {
+            padding: 0.875rem 1rem;
+            color: var(--text-light);
+            text-decoration: none;
+            border-radius: 0.5rem;
+            margin-bottom: 0.25rem;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 500;
             transition: all 0.2s;
         }
 
-        .btn-primary {
-            background: #6366f1;
+        .nav-item:hover,
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            transform: translateX(4px);
+        }
+
+        .nav-item.active {
+            background: var(--primary);
             color: white;
         }
 
-        .btn-primary:hover {
-            background: #4f46e5;
+        .nav-item i {
+            font-size: 1.25rem;
+            width: 24px;
+            text-align: center;
         }
 
-        .btn-secondary {
-            background: #e5e7eb;
-            color: #374151;
+        .user-profile {
+            padding: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.2);
         }
 
-        .btn-secondary:hover {
-            background: #d1d5db;
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
         }
 
-        .rate-item {
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Top Header (Mobile mainly) */
+        .top-header {
+            background: white;
+            padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
-            padding: 0.75rem;
-            background: white;
-            border-radius: 0.5rem;
+            align-items: center;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            display: none;
+            /* Desktop default hidden */
+        }
+
+        .mobile-toggle {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-dark);
+        }
+
+        .content-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        /* Components */
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #111827;
             margin-bottom: 0.5rem;
         }
 
-        .rate-label {
-            color: #6b7280;
+        .subtitle {
+            color: #6B7280;
+            font-size: 0.875rem;
+            margin-bottom: 2rem;
         }
 
-        .rate-value {
-            font-weight: 600;
-            font-family: monospace;
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
         }
 
-        .channel-badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            background: #ddd6fe;
-            color: #5b21b6;
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
             border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid #E5E7EB;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-icon {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            font-size: 3rem;
+            opacity: 0.1;
+            color: var(--primary);
+            transform: rotate(-10deg);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #6B7280;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #111827;
+            display: flex;
+            align-items: baseline;
+            gap: 0.25rem;
+        }
+
+        .stat-sub {
+            font-size: 0.75rem;
+            color: var(--success);
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+
+        .card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid #E5E7EB;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #F3F4F6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
             font-weight: 600;
+            color: #374151;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid #F3F4F6;
             font-size: 0.875rem;
         }
 
-        .copy-success {
-            background: #10b981 !important;
+        th {
+            background: #F9FAFB;
+            font-weight: 600;
+            color: #6B7280;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        tr:hover {
+            background: #F9FAFB;
+        }
+
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .badge-success {
+            background: #ECFDF5;
+            color: #059669;
+        }
+
+        .badge-pending {
+            background: #FFFBEB;
+            color: #D97706;
+        }
+
+        .badge-failed {
+            background: #FEF2F2;
+            color: #DC2626;
+        }
+
+        /* Forms & Buttons */
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #E5E7EB;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            transition: border 0.2s;
+            background: #F9FAFB;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            ring: 2px solid rgba(79, 70, 229, 0.1);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            border: none;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .blur-text {
+            filter: blur(6px);
+            transition: 0.3s;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .blur-text:hover {
+            filter: blur(0);
+        }
+
+        /* Tabs */
+        .tab-content {
+            display: none;
+            animation: slideIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                position: fixed;
+                height: 100%;
+                transform: translateX(-100%);
+                width: 280px;
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .top-header {
+                display: flex;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 40;
+            }
+
+            .overlay.active {
+                display: block;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div class="container dashboard">
-        <div class="lang-switch">
-            <a href="?lang=en" class="lang-link <%= currentLang === 'en' ? 'active' : '' %>">English</a>
-            <a href="?lang=zh" class="lang-link <%= currentLang === 'zh' ? 'active' : '' %>">中文</a>
-        </div>
+    <div class="overlay" onclick="toggleSidebar()"></div>
+    <div class="dashboard-container">
 
-        <div class="logo-container">
-            <img src="/images/logo.png" alt="VSPAY Logo" class="logo">
-        </div>
-
-        <h1>
-            <%= t('header_merchant') %>
-        </h1>
-        <p class="subtitle">
-            <%= t('welcome_user', { username: user.username, role: user.role }) %>
-        </p>
-
-        <!-- Balance Cards -->
-        <div class="balance-cards">
-            <div class="balance-card">
-                <div class="balance-value">₹<%= user.balance ? parseFloat(user.balance).toLocaleString() : '0.00' %>
-                </div>
-                <div class="balance-label">
-                    <%= t('available_balance') %>
-                </div>
-            </div>
-            <div class="balance-card pending">
-                <div class="balance-value">₹<%= user.pendingBalance ? parseFloat(user.pendingBalance).toLocaleString()
-                        : '0.00' %>
-                </div>
-                <div class="balance-label">
-                    <%= t('pending_balance') %>
-                </div>
-            </div>
-            <div class="balance-card total">
-                <div class="balance-value">₹<%= ((parseFloat(user.balance) || 0) + (parseFloat(user.pendingBalance) ||
-                        0)).toLocaleString() %>
-                </div>
-                <div class="balance-label">
-                    <%= t('total_balance') %>
-                </div>
-            </div>
-        </div>
-
-        <!-- API Credentials -->
-        <div class="section">
-            <h3>🔑 <%= t('api_credentials') %>
-            </h3>
-
-            <div class="credential-row">
-                <span class="credential-label">
-                    <%= t('merchant_id') %>:
-                </span>
-                <span class="credential-value" id="merchantId">
-                    <%= user.apiKey %>
-                </span>
-                <button class="btn-small btn-primary" onclick="copyToClipboard('merchantId')">
-                    <%= t('copy') %>
-                </button>
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <i class="ri-shield-check-fill" style="font-size: 2rem;"></i>
+                <span class="logo-text">VSPAY <span style="font-weight:300; opacity:0.7">MERCHANT</span></span>
             </div>
 
-            <div class="credential-row">
-                <span class="credential-label">
-                    <%= t('secret_key') %>:
-                </span>
-                <span class="credential-value hidden" id="secretKey">
-                    <%= user.apiSecret %>
-                </span>
-                <button class="btn-small btn-secondary" id="toggleSecret" onclick="toggleSecret()">
-                    <%= t('show') %>
-                </button>
-                <button class="btn-small btn-primary" onclick="copyToClipboard('secretKey')">
-                    <%= t('copy') %>
-                </button>
+            <nav class="nav-links">
+                <div class="nav-item active" onclick="switchTab('dashboard')">
+                    <i class="ri-dashboard-3-line"></i>
+                    <%= t('nav_dashboard') %>
+                </div>
+                <div class="nav-item" onclick="switchTab('payin')">
+                    <i class="ri-arrow-left-down-line"></i>
+                    <%= t('nav_payin') %>
+                </div>
+                <div class="nav-item" onclick="switchTab('payout')">
+                    <i class="ri-arrow-right-up-line"></i>
+                    <%= t('nav_payout') %>
+                </div>
+                <div class="nav-item" onclick="switchTab('settlements')">
+                    <i class="ri-bank-card-line"></i>
+                    <%= t('nav_settlements') %>
+                </div>
+                <div class="nav-item" onclick="switchTab('paylink')">
+                    <i class="ri-link-m"></i>
+                    <%= t('nav_paylink') %>
+                </div>
+                <div class="nav-item" onclick="switchTab('profile')">
+                    <i class="ri-user-settings-line"></i>
+                    <%= t('nav_profile') %>
+                </div>
+            </nav>
+
+            <div class="user-profile">
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <%= user.username.charAt(0).toUpperCase() %>
+                    </div>
+                    <div style="flex:1;">
+                        <div style="font-size:0.875rem; font-weight:600;">
+                            <%= user.username %>
+                        </div>
+                        <div style="font-size:0.75rem; color:var(--text-light);">Merchant Account</div>
+                    </div>
+                </div>
+                <a href="/auth/logout" class="btn"
+                    style="width:100%; justify-content:center; background:rgba(239, 68, 68, 0.2); color:#FCA5A5; padding:0.5rem;">
+                    <i class="ri-logout-box-r-line"></i>
+                    <%= t('btn_logout') %>
+                </a>
             </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="mobile-toggle" onclick="toggleSidebar()"><i class="ri-menu-2-fill"></i></div>
+                <div style="display:flex; gap:1rem; align-items:center;">
+                    <a href="?lang=en" class="badge"
+                        style="background:#f3f4f6; color:inherit; text-decoration:none;">🇬🇧 EN</a>
+                    <a href="?lang=zh" class="badge"
+                        style="background:#f3f4f6; color:inherit; text-decoration:none;">🇨🇳 CN</a>
+                </div>
+            </header>
+
+            <div class="content-scroll">
+
+                <!-- Dashboard Tab -->
+                <div id="tab-dashboard" class="tab-content active">
+                    <h1>
+                        <%= t('dashboard_overview') %>
+                    </h1>
+                    <div class="subtitle">Welcome back, here's what's happening today.</div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <i class="ri-wallet-3-line stat-icon"></i>
+                            <div class="stat-label">
+                                <%= t('avail_balance') %>
+                            </div>
+                            <div class="stat-value" style="color:var(--success);">
+                                <span>₹</span><span id="stat-balance">
+                                    <%= parseFloat(user.balance).toFixed(2) %>
+                                </span>
+                            </div>
+                            <div class="stat-sub"><i class="ri-arrow-up-circle-fill"></i> Live Balance</div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="ri-bar-chart-groupped-line stat-icon"></i>
+                            <div class="stat-label">
+                                <%= t('today_volume') %>
+                            </div>
+                            <div class="stat-value">
+                                <span>₹</span><span id="stat-today-vol">0.00</span>
+                            </div>
+                            <div class="stat-sub"><span id="stat-today-count">0</span> transactions today</div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="ri-history-line stat-icon"></i>
+                            <div class="stat-label">
+                                <%= t('yesterday_volume') %>
+                            </div>
+                            <div class="stat-value" style="color: grey;">
+                                <span>₹</span><span id="stat-yst-vol">0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title"><i class="ri-line-chart-line"></i>
+                                <%= t('volume_trends') %>
+                            </div>
+                            <span class="badge" style="background:#EEF2FF; color:#4F46E5;">Last 7 Days</span>
+                        </div>
+                        <div style="padding: 1.5rem; height: 350px;">
+                            <canvas id="volumeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payin History Tab -->
+                <div id="tab-payin" class="tab-content">
+                    <h1>
+                        <%= t('payin_history') %>
+                    </h1>
+                    <div class="subtitle">View all incoming payment transactions.</div>
+                    <div class="card">
+                        <table id="payin-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="4">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Payout History Tab -->
+                <div id="tab-payout" class="tab-content">
+                    <h1>
+                        <%= t('payout_history') %>
+                    </h1>
+                    <div class="subtitle">View transaction history for all payouts.</div>
+                    <div class="card">
+                        <table id="payout-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="4">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Settlements Tab -->
+                <div id="tab-settlements" class="tab-content">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <div>
+                            <h1>
+                                <%= t('settlements') %>
+                            </h1>
+                            <div class="subtitle">Manage settlement requests and history.</div>
+                        </div>
+                        <button class="btn btn-primary" onclick="openSettlementModal()">
+                            <i class="ri-add-line"></i>
+                            <%= t('request_settlement') %>
+                        </button>
+                    </div>
+
+                    <div class="card">
+                        <table id="settlement-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>UTR / Notes</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="5">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- PayLink Tab -->
+                <div id="tab-paylink" class="tab-content">
+                    <h1>
+                        <%= t('payment_link') %>
+                    </h1>
+                    <div class="subtitle">Generate direct payment links for your customers.</div>
+
+                    <div class="card" style="max-width: 600px;">
+                        <div class="card-header">
+                            <div class="card-title"><i class="ri-link-m"></i>
+                                <%= t('create_new_link') %>
+                            </div>
+                        </div>
+                        <div style="padding: 2rem;">
+                            <form onsubmit="generatePayLink(event)">
+                                <div style="margin-bottom:1.5rem;">
+                                    <label class="stat-label">
+                                        <%= t('amount') %>
+                                    </label>
+                                    <div
+                                        style="display:flex; align-items:center; background:#F9FAFB; border:1px solid #E5E7EB; border-radius:0.5rem; overflow:hidden;">
+                                        <div
+                                            style="padding:0.75rem; background:#F3F4F6; color:#6B7280; font-weight:600;">
+                                            ₹</div>
+                                        <input type="number" id="link-amount"
+                                            style="border:none; padding:0.75rem; flex:1; outline:none; background:transparent;"
+                                            required min="10" placeholder="0.00">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary"
+                                    style="width:100%; justify-content:center;">
+                                    <%= t('generate_link') %> <i class="ri-arrow-right-line"></i>
+                                </button>
+                            </form>
+
+                            <div id="paylink-result" style="display: none; margin-top: 2rem;">
+                                <div style="background:var(--success); padding:1px; border-radius:0.5rem; opacity:0.1;">
+                                </div>
+                                <div
+                                    style="background:#ECFDF5; padding:1.5rem; border-radius:0.5rem; border:1px solid #D1FAE5;">
+                                    <label
+                                        style="font-size: 0.75rem; color: #059669; font-weight:600; text-transform:uppercase; margin-bottom: 0.5rem; display:block;">Ready
+                                        to Share</label>
+                                    <div style="display: flex; gap: 0.5rem;">
+                                        <input type="text" id="generated-link" class="form-control" readonly
+                                            style="background: white;">
+                                        <button class="btn btn-primary" onclick="copyLink()"><i
+                                                class="ri-file-copy-line"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Tab -->
+                <div id="tab-profile" class="tab-content">
+                    <h1>
+                        <%= t('profile_settings') %>
+                    </h1>
+                    <div class="subtitle">Manage your API credentials and channel rates.</div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title"><i class="ri-key-2-line"></i> API Credentials</div>
+                        </div>
+                        <div style="padding: 1.5rem;">
+                            <div style="margin-bottom:1.5rem;">
+                                <label class="stat-label">Merchant ID (x-merchant-id)</label>
+                                <div style="display:flex; gap:0.5rem;">
+                                    <input type="text" class="form-control" value="<%= user.apiKey %>" readonly
+                                        style="font-family: monospace; background:#F3F4F6;">
+                                    <button class="btn" style="background:#E5E7EB;"
+                                        onclick="navigator.clipboard.writeText('<%= user.apiKey %>')"><i
+                                            class="ri-file-copy-line"></i></button>
+                                </div>
+                                <small style="color: #6B7280; margin-top:0.25rem; display:block;">Include this in your
+                                    API headers.</small>
+                            </div>
+
+                            <div style="margin-bottom:1.5rem;">
+                                <label class="stat-label">API Secret</label>
+                                <div style="position:relative;">
+                                    <div class="blur-text form-control"
+                                        style="font-family: monospace; background:#F3F4F6;"
+                                        onclick="this.classList.remove('blur-text')">
+                                        <%= user.apiSecret %>
+                                    </div>
+                                    <div
+                                        style="position:absolute; right:1rem; top:50%; transform:translateY(-50%); font-size:0.75rem; color:#9CA3AF; pointer-events:none;">
+                                        Click to reveal</div>
+                                </div>
+                                <small style="color: #6B7280; margin-top:0.25rem; display:block;">Never share this
+                                    secret key.</small>
+                            </div>
+
+                            <div
+                                style="padding:1rem; background:#DBEAFE; border-radius:0.5rem; color:#1E40AF; font-size:0.875rem; display:flex; gap:0.75rem;">
+                                <i class="ri-information-fill" style="font-size:1.25rem;"></i>
+                                <div>
+                                    <strong>Documentation:</strong> Check our <a href="/docs"
+                                        style="color:inherit; text-decoration:underline;">API Documentation</a> for
+                                    integration guide.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title"><i class="ri-percent-line"></i> Active Rates</div>
+                        </div>
+                        <div style="padding: 1.5rem;">
+                            <% let rates={}; try { rates=JSON.parse(user.channel_rates || '{}' ); } catch(e) {} %>
+                                <div
+                                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.5rem;">
+                                    <div
+                                        style="padding: 1.5rem; background: #F9FAFB; border-radius: 0.75rem; text-align:center;">
+                                        <div class="stat-label">Payin Fee</div>
+                                        <div class="stat-value"
+                                            style="justify-content:center; color:var(--primary); font-size:1.5rem;">
+                                            <%= rates.payinRate || 5 %>%
+                                        </div>
+                                    </div>
+                                    <div
+                                        style="padding: 1.5rem; background: #F9FAFB; border-radius: 0.75rem; text-align:center;">
+                                        <div class="stat-label">Payout Fee</div>
+                                        <div class="stat-value"
+                                            style="justify-content:center; color:var(--danger); font-size:1.5rem;">
+                                            <%= rates.payoutRate || 3 %>%
+                                        </div>
+                                    </div>
+                                    <div
+                                        style="padding: 1.5rem; background: #F9FAFB; border-radius: 0.75rem; text-align:center;">
+                                        <div class="stat-label">Fixed Fee</div>
+                                        <div class="stat-value" style="justify-content:center; font-size:1.5rem;">₹<%=
+                                                rates.payoutFixedFee || 6 %>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Settlement Modal -->
+    <div id="settleModal"
+        style="display: none; position: fixed; index:100; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index:100;">
+        <div
+            style="background: white; padding: 2rem; border-radius: 1rem; width: 90%; max-width: 450px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:1.5rem;">
+                <h3 style="font-size:1.25rem;">Request Settlement</h3>
+                <i class="ri-close-line" style="cursor:pointer; font-size:1.5rem;"
+                    onclick="document.getElementById('settleModal').style.display='none'"></i>
+            </div>
+
+            <form onsubmit="submitSettlement(event)">
+                <div style="margin-bottom:1.5rem;">
+                    <label class="stat-label">Amount (₹)</label>
+                    <input type="number" id="settle-amount" class="form-control" required min="100"
+                        max="<%= user.balance %>" placeholder="Enter amount">
+                    <div
+                        style="margin-top:0.5rem; font-size:0.75rem; color:var(--text-light); display:flex; justify-content:space-between;">
+                        <span>Available Balance</span>
+                        <span style="font-weight:600; color:var(--success);">₹<%= parseFloat(user.balance).toFixed(2) %>
+                                </span>
+                    </div>
+                </div>
+                <div style="margin-bottom:1.5rem;">
+                    <label class="stat-label">Bank Details / Notes</label>
+                    <textarea id="settle-notes" class="form-control" rows="3"
+                        placeholder="Enter Account Number, IFSC, etc."></textarea>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1; justify-content:center;">Submit
+                        Request</button>
+                    <button type="button" class="btn"
+                        onclick="document.getElementById('settleModal').style.display='none'"
+                        style="background: #F3F4F6; flex:1; justify-content:center;">Cancel</button>
+                </div>
+            </form>
         </div>
-
-        <!-- Channel & Rates -->
-        <div class="section">
-            <h3>📊 <%= t('channel_rates') %>
-            </h3>
-
-            <% if (typeof channel !=='undefined' && channel) { %>
-                <div style="margin-bottom: 1rem;">
-                    <span class="channel-badge">
-                        <%= channel.displayName %>
-                    </span>
-                </div>
-
-                <div class="rate-item">
-                    <span class="rate-label">
-                        <%= t('payin_rate') %>
-                    </span>
-                    <span class="rate-value">
-                        <%= channel.payinRate %>%
-                    </span>
-                </div>
-                <div class="rate-item">
-                    <span class="rate-label">
-                        <%= t('payout_rate') %>
-                    </span>
-                    <span class="rate-value">
-                        <%= channel.payoutRate %>%
-                    </span>
-                </div>
-                <div class="rate-item">
-                    <span class="rate-label">
-                        <%= t('fixed_fee') %>
-                    </span>
-                    <span class="rate-value">₹<%= channel.payoutFixedFee %></span>
-                </div>
-                <% } else { %>
-                    <p style="color: #6b7280;">
-                        <%= t('no_channel') %>
-                    </p>
-                    <% } %>
-        </div>
-
-        <!-- API Documentation Link -->
-        <div class="section" style="text-align: center;">
-            <h3 style="justify-content: center;">📄 <%= t('api_docs') %>
-            </h3>
-            <p style="color: #6b7280; margin-bottom: 1rem;">Integrate with our API to accept payments</p>
-            <a href="/ourapi.txt" target="_blank" class="btn"
-                style="display: inline-block; width: auto; background: #6366f1;">
-                <%= t('view_docs') %>
-            </a>
-        </div>
-
-        <a href="/auth/logout" class="btn" style="background-color: #ef4444;">
-            <%= t('btn_logout') %>
-        </a>
     </div>
 
     <script>
-        let secretVisible = false;
+        // ... Same Logic as before, just UI structure change ...
 
-        function toggleSecret() {
-            const secretEl = document.getElementById('secretKey');
-            const toggleBtn = document.getElementById('toggleSecret');
+        switchTab('dashboard');
+        loadStats();
 
-            secretVisible = !secretVisible;
-            secretEl.classList.toggle('hidden', !secretVisible);
-            toggleBtn.textContent = secretVisible ? '<%= t("hide") %>' : '<%= t("show") %>';
+        // Mobile Toggle
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.querySelector('.overlay').classList.toggle('active');
         }
 
-        function copyToClipboard(elementId) {
-            const el = document.getElementById(elementId);
-            const text = el.textContent;
+        let chartInstance = null;
 
-            navigator.clipboard.writeText(text).then(() => {
-                const btn = el.nextElementSibling.nextElementSibling || el.nextElementSibling;
-                const originalText = btn.textContent;
-                btn.textContent = '<%= t("copied") %>';
-                btn.classList.add('copy-success');
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
 
-                setTimeout(() => {
-                    btn.textContent = '<%= t("copy") %>';
-                    btn.classList.remove('copy-success');
-                }, 1500);
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            // Close mobile menu on click
+            if (window.innerWidth <= 1024) toggleSidebar();
+
+            event && event.currentTarget.classList.add('active'); // Use currentTarget for div click
+
+            if (tab === 'payin') loadOrders('payin');
+            if (tab === 'payout') loadOrders('payout');
+            if (tab === 'settlements') loadSettlements();
+        }
+
+        async function loadStats() {
+            try {
+                const res = await fetch('/api/merchant/stats');
+                const data = await res.json();
+                if (data.success) {
+                    const s = data.stats;
+                    document.getElementById('stat-today-vol').innerText = s.today.payin.toFixed(2);
+                    document.getElementById('stat-today-count').innerText = s.today.payinCount;
+                    document.getElementById('stat-yst-vol').innerText = s.yesterday.payin.toFixed(2);
+                }
+                loadChart();
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadChart() {
+            const ctx = document.getElementById('volumeChart').getContext('2d');
+            const res = await fetch('/api/merchant/chart');
+            const data = await res.json();
+
+            if (chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [
+                        { label: 'Payin', data: data.payinData, borderColor: '#10B981', backgroundColor: 'rgba(16, 185, 129, 0.1)', fill: true, tension: 0.4 },
+                        { label: 'Payout', data: data.payoutData, borderColor: '#EF4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', fill: true, tension: 0.4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'top' } },
+                    scales: { y: { beginAtZero: true, grid: { borderDash: [2, 4] } }, x: { grid: { display: false } } }
+                }
             });
+        }
+
+        async function loadOrders(type) {
+            const tbody = document.getElementById(type + '-table').querySelector('tbody');
+            tbody.innerHTML = '<tr><td colspan="4"><div style="text-align:center; padding:2rem; color:grey;"><i class="ri-loader-4-line ri-spin"></i> Loading...</div></td></tr>';
+
+            const res = await fetch(`/api/merchant/orders?type=${type}`);
+            const data = await res.json();
+
+            if (data.success && data.orders.length > 0) {
+                tbody.innerHTML = data.orders.map(o => `
+                    <tr>
+                        <td style="font-family:monospace; font-weight:600;">#${o.orderId.substring(0, 8)}...</td>
+                        <td>₹${o.amount}</td>
+                        <td><span class="badge badge-${o.status}">${o.status}</span></td>
+                        <td>${new Date(o.createdAt).toLocaleDateString()}</td>
+                    </tr>
+                `).join('');
+            } else {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #9ca3af; padding:2rem;">No transactions found</td></tr>';
+            }
+        }
+
+        async function loadSettlements() {
+            const tbody = document.getElementById('settlement-table').querySelector('tbody');
+            tbody.innerHTML = '<tr><td colspan="5"><div style="text-align:center; padding:2rem; color:grey;"><i class="ri-loader-4-line ri-spin"></i> Loading...</div></td></tr>';
+            const res = await fetch('/api/merchant/settlements');
+            const data = await res.json();
+
+            if (data.success && data.settlements.length > 0) {
+                tbody.innerHTML = data.settlements.map(s => `
+                    <tr>
+                        <td style="font-family:monospace;">#${s.id.substring(0, 8)}</td>
+                        <td style="font-weight:600;">₹${s.amount}</td>
+                        <td><span class="badge badge-${s.status}">${s.status}</span></td>
+                        <td>
+                            ${s.utr ? `<div style="font-size:0.75rem; color:var(--text-light);">UTR: ${s.utr}</div>` : ''}
+                            ${s.notes ? `<div style="font-size:0.75rem;">${s.notes}</div>` : ''}
+                        </td>
+                        <td>${new Date(s.createdAt).toLocaleDateString()}</td>
+                    </tr>
+                `).join('');
+            } else {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #9ca3af; padding:2rem;">No settlements yet</td></tr>';
+            }
+        }
+
+        function openSettlementModal() {
+            document.getElementById('settleModal').style.display = 'flex';
+        }
+
+        async function submitSettlement(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Processing...';
+            btn.disabled = true;
+
+            const amount = document.getElementById('settle-amount').value;
+            const notes = document.getElementById('settle-notes').value;
+
+            try {
+                const res = await fetch('/api/merchant/settlements', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount, notes })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('settleModal').style.display = 'none';
+                    loadSettlements();
+                    // Update balance text
+                    const currentBal = parseFloat(document.getElementById('stat-balance').innerText);
+                    document.getElementById('stat-balance').innerText = (currentBal - parseFloat(amount)).toFixed(2);
+                } else {
+                    alert(data.error);
+                }
+            } catch (e) { alert('Error submitting request'); }
+
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+
+        async function generatePayLink(e) {
+            e.preventDefault();
+            const amount = document.getElementById('link-amount').value;
+            const res = await fetch('/api/merchant/paylink', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount })
+            });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('generated-link').value = data.link;
+                document.getElementById('paylink-result').style.display = 'block';
+            }
+        }
+
+        function copyLink() {
+            const el = document.getElementById('generated-link');
+            el.select();
+            document.execCommand('copy');
+            alert('Copied!');
         }
     </script>
 </body>

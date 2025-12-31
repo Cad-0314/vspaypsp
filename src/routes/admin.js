@@ -1,13 +1,15 @@
 /**
  * Admin Routes
- * Merchant management, channel configuration
+ * Merchant management, channel configuration, global stats, settlements
  */
 
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
-const { User, Channel, Order } = require('../models');
+const { User, Channel, Order, Settlement, sequelize } = require('../models');
+const { getStats, getChartData } = require('../services/stats');
+const axios = require('axios');
 
 // Middleware to ensure admin role
 function ensureAdmin(req, res, next) {
@@ -17,48 +19,78 @@ function ensureAdmin(req, res, next) {
     return res.status(403).json({ success: false, error: 'Admin access required' });
 }
 
+router.use(ensureAdmin);
+
+// ==========================================
+// Stats & Dashboard
+// ==========================================
+
 /**
- * GET /admin/api/merchants
- * List all merchants
+ * GET /admin/api/stats
+ * Get comprehensive admin stats
  */
-router.get('/merchants', ensureAdmin, async (req, res) => {
+router.get('/stats', async (req, res) => {
+    try {
+        const stats = await getStats(null); // Global stats
+        const admin = await User.findOne({ where: { role: 'admin' } });
+        const merchantCount = await User.count({ where: { role: 'merchant' } });
+        const activeCount = await User.count({ where: { role: 'merchant', isActive: true } });
+
+        res.json({
+            success: true,
+            stats: {
+                ...stats,
+                adminBalance: parseFloat(admin?.balance || 0),
+                merchantCount,
+                activeMerchants: activeCount
+            }
+        });
+    } catch (error) {
+        console.error('[Admin] Stats error:', error);
+        res.status(500).json({ success: false, error: 'Failed to fetch stats' });
+    }
+});
+
+/**
+ * GET /admin/api/chart
+ * Get global chart data
+ */
+router.get('/chart', async (req, res) => {
+    try {
+        const data = await getChartData(null); // Global chart
+        res.json({ success: true, ...data });
+    } catch (error) {
+        console.error('[Admin] Chart error:', error);
+        res.status(500).json({ success: false, error: 'Failed to fetch chart data' });
+    }
+});
+
+// ==========================================
+// Merchant Management
+// ==========================================
+
+router.get('/merchants', async (req, res) => {
     try {
         const merchants = await User.findAll({
             where: { role: 'merchant' },
             attributes: ['id', 'username', 'apiKey', 'assignedChannel', 'balance', 'pendingBalance', 'isActive', 'channel_rates', 'createdAt'],
             order: [['createdAt', 'DESC']]
         });
-
         res.json({ success: true, merchants: merchants.map(m => m.toJSON()) });
     } catch (error) {
-        console.error('[Admin] List merchants error:', error);
-        res.status(500).json({ success: false, error: 'Failed to fetch merchants' });
+        res.status(500).json({ success: false, error: 'Failed' });
     }
 });
 
-/**
- * POST /admin/api/merchants
- * Create new merchant
- */
-router.post('/merchants', ensureAdmin, async (req, res) => {
+router.post('/merchants', async (req, res) => {
     try {
         const { username, password, assignedChannel, payinRate, payoutRate, payoutFixedFee, usdtRate } = req.body;
+        if (!username || !password) return res.status(400).json({ success: false, error: 'Missing fields' });
 
-        // Validate required fields
-        if (!username || !password) {
-            return res.status(400).json({ success: false, error: 'Username and password are required' });
-        }
-
-        // Check if username exists
         const existing = await User.findOne({ where: { username } });
-        if (existing) {
-            return res.status(400).json({ success: false, error: 'Username already exists' });
-        }
+        if (existing) return res.status(400).json({ success: false, error: 'Username exists' });
 
-        // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Build custom rates
         const customRates = {
             payinRate: parseFloat(payinRate) || 5.0,
             payoutRate: parseFloat(payoutRate) || 3.0,
@@ -66,7 +98,6 @@ router.post('/merchants', ensureAdmin, async (req, res) => {
             usdtRate: parseFloat(usdtRate) || 0
         };
 
-        // Create merchant
         const merchant = await User.create({
             username,
             password_hash: hashedPassword,
@@ -77,245 +108,190 @@ router.post('/merchants', ensureAdmin, async (req, res) => {
             isActive: true
         });
 
-        res.json({
-            success: true,
-            message: 'Merchant created successfully',
-            merchant: {
-                id: merchant.id,
-                username: merchant.username,
-                apiKey: merchant.apiKey,
-                assignedChannel: merchant.assignedChannel
-            }
-        });
-
+        res.json({ success: true, merchant: { id: merchant.id, username } });
     } catch (error) {
-        console.error('[Admin] Create merchant error:', error);
-        res.status(500).json({ success: false, error: 'Failed to create merchant' });
+        res.status(500).json({ success: false, error: 'Failed' });
     }
 });
 
-/**
- * GET /admin/api/merchants/:id
- * Get merchant details
- */
-router.get('/merchants/:id', ensureAdmin, async (req, res) => {
+router.get('/merchants/:id', async (req, res) => {
     try {
-        const merchant = await User.findOne({
-            where: { id: req.params.id, role: 'merchant' },
-            attributes: { exclude: ['password_hash', 'two_fa_secret'] }
-        });
-
-        if (!merchant) {
-            return res.status(404).json({ success: false, error: 'Merchant not found' });
-        }
-
-        res.json({ success: true, merchant: merchant.toJSON() });
+        const merchant = await User.findOne({ where: { id: req.params.id }, attributes: { exclude: ['password_hash', 'two_fa_secret'] } });
+        if (!merchant) return res.status(404).json({ success: false, error: 'Not found' });
+        res.json({ success: true, merchant });
     } catch (error) {
-        console.error('[Admin] Get merchant error:', error);
-        res.status(500).json({ success: false, error: 'Failed to fetch merchant' });
+        res.status(500).json({ success: false, error: 'Failed' });
     }
 });
 
-/**
- * PUT /admin/api/merchants/:id
- * Update merchant
- */
-router.put('/merchants/:id', ensureAdmin, async (req, res) => {
+router.put('/merchants/:id', async (req, res) => {
     try {
         const { username, password, assignedChannel, payinRate, payoutRate, payoutFixedFee, usdtRate, isActive } = req.body;
+        const merchant = await User.findByPk(req.params.id);
+        if (!merchant) return res.status(404).json({ success: false, error: 'Not found' });
 
-        const merchant = await User.findOne({
-            where: { id: req.params.id, role: 'merchant' }
-        });
-
-        if (!merchant) {
-            return res.status(404).json({ success: false, error: 'Merchant not found' });
-        }
-
-        // Update fields
         const updates = {};
+        if (username) updates.username = username;
+        if (password) updates.password_hash = await bcrypt.hash(password, 10);
+        if (assignedChannel) updates.assignedChannel = assignedChannel;
+        if (typeof isActive === 'boolean') updates.isActive = isActive;
 
-        if (username && username !== merchant.username) {
-            const existing = await User.findOne({ where: { username } });
-            if (existing) {
-                return res.status(400).json({ success: false, error: 'Username already exists' });
-            }
-            updates.username = username;
-        }
-
-        if (password) {
-            updates.password_hash = await bcrypt.hash(password, 10);
-        }
-
-        if (assignedChannel) {
-            updates.assignedChannel = assignedChannel;
-        }
-
-        if (typeof isActive === 'boolean') {
-            updates.isActive = isActive;
-        }
-
-        // Update custom rates
-        let currentRates = {};
-        try {
-            currentRates = JSON.parse(merchant.channel_rates || '{}');
-        } catch (e) { }
-
-        if (payinRate !== undefined) currentRates.payinRate = parseFloat(payinRate);
-        if (payoutRate !== undefined) currentRates.payoutRate = parseFloat(payoutRate);
-        if (payoutFixedFee !== undefined) currentRates.payoutFixedFee = parseFloat(payoutFixedFee);
-        if (usdtRate !== undefined) currentRates.usdtRate = parseFloat(usdtRate);
-
-        updates.channel_rates = JSON.stringify(currentRates);
+        let rates = {};
+        try { rates = JSON.parse(merchant.channel_rates || '{}'); } catch (e) { }
+        if (payinRate !== undefined) rates.payinRate = parseFloat(payinRate);
+        if (payoutRate !== undefined) rates.payoutRate = parseFloat(payoutRate);
+        if (payoutFixedFee !== undefined) rates.payoutFixedFee = parseFloat(payoutFixedFee);
+        if (usdtRate !== undefined) rates.usdtRate = parseFloat(usdtRate);
+        updates.channel_rates = JSON.stringify(rates);
 
         await merchant.update(updates);
-
-        res.json({
-            success: true,
-            message: 'Merchant updated successfully',
-            merchant: {
-                id: merchant.id,
-                username: merchant.username,
-                assignedChannel: merchant.assignedChannel,
-                isActive: merchant.isActive
-            }
-        });
-
+        res.json({ success: true, message: 'Updated' });
     } catch (error) {
-        console.error('[Admin] Update merchant error:', error);
-        res.status(500).json({ success: false, error: 'Failed to update merchant' });
+        res.status(500).json({ success: false, error: 'Failed' });
     }
 });
 
-/**
- * DELETE /admin/api/merchants/:id
- * Disable merchant (soft delete)
- */
-router.delete('/merchants/:id', ensureAdmin, async (req, res) => {
+router.post('/merchants/:id/regenerate-key', async (req, res) => {
     try {
-        const merchant = await User.findOne({
-            where: { id: req.params.id, role: 'merchant' }
-        });
-
-        if (!merchant) {
-            return res.status(404).json({ success: false, error: 'Merchant not found' });
-        }
-
-        await merchant.update({ isActive: false });
-
-        res.json({ success: true, message: 'Merchant disabled' });
-    } catch (error) {
-        console.error('[Admin] Delete merchant error:', error);
-        res.status(500).json({ success: false, error: 'Failed to disable merchant' });
-    }
-});
-
-/**
- * POST /admin/api/merchants/:id/regenerate-key
- * Regenerate API secret
- */
-router.post('/merchants/:id/regenerate-key', ensureAdmin, async (req, res) => {
-    try {
-        const merchant = await User.findOne({
-            where: { id: req.params.id, role: 'merchant' }
-        });
-
-        if (!merchant) {
-            return res.status(404).json({ success: false, error: 'Merchant not found' });
-        }
-
+        const merchant = await User.findByPk(req.params.id);
+        if (!merchant) return res.status(404).json({ success: false, error: 'Not found' });
         const newSecret = crypto.randomBytes(32).toString('hex');
         await merchant.update({ apiSecret: newSecret });
-
-        res.json({ success: true, message: 'API secret regenerated', apiSecret: newSecret });
+        res.json({ success: true, apiSecret: newSecret });
     } catch (error) {
-        console.error('[Admin] Regenerate key error:', error);
-        res.status(500).json({ success: false, error: 'Failed to regenerate key' });
+        res.status(500).json({ success: false, error: 'Failed' });
     }
 });
 
-/**
- * GET /admin/api/channels
- * List all channels
- */
-router.get('/channels', ensureAdmin, async (req, res) => {
+// ==========================================
+// Settlement Management
+// ==========================================
+
+router.get('/settlements', async (req, res) => {
     try {
-        const channels = await Channel.findAll();
-        res.json({ success: true, channels: channels.map(c => c.toJSON()) });
+        const settlements = await Settlement.findAll({
+            include: [{ model: User, as: 'merchant', attributes: ['username'] }],
+            order: [['createdAt', 'DESC']]
+        });
+        res.json({ success: true, settlements });
     } catch (error) {
-        console.error('[Admin] List channels error:', error);
-        res.status(500).json({ success: false, error: 'Failed to fetch channels' });
+        console.error('[Admin] Settlement list error:', error);
+        res.status(500).json({ success: false, error: 'Failed' });
     }
 });
 
-/**
- * PUT /admin/api/channels/:id
- * Update channel configuration
- */
-router.put('/channels/:id', ensureAdmin, async (req, res) => {
+router.put('/settlements/:id', async (req, res) => {
     try {
-        const { payinRate, payoutRate, payoutFixedFee, isActive, minPayin, maxPayin, minPayout, maxPayout } = req.body;
+        const { status, utr, notes } = req.body; // status: 'completed' or 'rejected'
+        const settlement = await Settlement.findByPk(req.params.id);
 
-        const channel = await Channel.findByPk(req.params.id);
-        if (!channel) {
-            return res.status(404).json({ success: false, error: 'Channel not found' });
+        if (!settlement) return res.status(404).json({ success: false, error: 'Not found' });
+        if (settlement.status !== 'pending') return res.status(400).json({ success: false, error: 'Request not pending' });
+
+        const t = await sequelize.transaction();
+
+        try {
+            await settlement.update({ status, utr, notes }, { transaction: t });
+
+            if (status === 'rejected') {
+                // Refund balance to merchant
+                await User.update(
+                    { balance: sequelize.literal(`balance + ${settlement.amount}`) },
+                    { where: { id: settlement.merchantId }, transaction: t }
+                );
+            }
+
+            await t.commit();
+            res.json({ success: true, message: `Settlement ${status}` });
+        } catch (error) {
+            await t.rollback();
+            throw error;
         }
 
-        const updates = {};
-        if (payinRate !== undefined) updates.payinRate = parseFloat(payinRate);
-        if (payoutRate !== undefined) updates.payoutRate = parseFloat(payoutRate);
-        if (payoutFixedFee !== undefined) updates.payoutFixedFee = parseFloat(payoutFixedFee);
-        if (isActive !== undefined) updates.isActive = isActive;
-        if (minPayin !== undefined) updates.minPayin = parseFloat(minPayin);
-        if (maxPayin !== undefined) updates.maxPayin = parseFloat(maxPayin);
-        if (minPayout !== undefined) updates.minPayout = parseFloat(minPayout);
-        if (maxPayout !== undefined) updates.maxPayout = parseFloat(maxPayout);
-
-        await channel.update(updates);
-
-        res.json({ success: true, message: 'Channel updated', channel: channel.toJSON() });
     } catch (error) {
-        console.error('[Admin] Update channel error:', error);
-        res.status(500).json({ success: false, error: 'Failed to update channel' });
+        console.error('[Admin] Settlement action error:', error);
+        res.status(500).json({ success: false, error: 'Failed' });
     }
 });
 
-/**
- * GET /admin/api/stats
- * Get admin dashboard stats
- */
-router.get('/stats', ensureAdmin, async (req, res) => {
+// ==========================================
+// Channel Management
+// ==========================================
+
+router.get('/channels', async (req, res) => {
     try {
-        const admin = await User.findOne({ where: { role: 'admin' } });
-        const merchantCount = await User.count({ where: { role: 'merchant' } });
-        const activeCount = await User.count({ where: { role: 'merchant', isActive: true } });
+        const channels = await Channel.findAll();
+        res.json({ success: true, channels });
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Failed' });
+    }
+});
 
-        // Today's stats
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+router.put('/channels/:id', async (req, res) => {
+    try {
+        const channel = await Channel.findByPk(req.params.id);
+        if (!channel) return res.status(404).json({ success: false, error: 'Not found' });
+        await channel.update(req.body);
+        res.json({ success: true, message: 'Updated' });
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Failed' });
+    }
+});
 
-        const todayPayins = await Order.count({
-            where: { type: 'payin', createdAt: { [require('sequelize').Op.gte]: today } }
-        });
+// ==========================================
+// Global Orders
+// ==========================================
 
-        const todayPayouts = await Order.count({
-            where: { type: 'payout', createdAt: { [require('sequelize').Op.gte]: today } }
+router.get('/orders', async (req, res) => {
+    try {
+        const { type, page = 1, limit = 20, search } = req.query;
+        const offset = (page - 1) * limit;
+        const where = {};
+
+        if (type) where.type = type;
+        if (search) {
+            where[require('sequelize').Op.or] = [
+                { orderId: { [require('sequelize').Op.like]: `%${search}%` } },
+                { status: { [require('sequelize').Op.like]: `%${search}%` } }
+            ];
+        }
+
+        const { count, rows } = await Order.findAndCountAll({
+            where,
+            limit: parseInt(limit),
+            offset: parseInt(offset),
+            order: [['createdAt', 'DESC']],
+            include: [{ model: User, as: 'merchant', attributes: ['username'] }]
         });
 
         res.json({
             success: true,
-            stats: {
-                adminBalance: parseFloat(admin?.balance || 0),
-                merchantCount,
-                activeMerchants: activeCount,
-                todayPayins,
-                todayPayouts
-            }
+            orders: rows,
+            pagination: { total: count, page: parseInt(page), pages: Math.ceil(count / limit) }
         });
     } catch (error) {
-        console.error('[Admin] Stats error:', error);
-        res.status(500).json({ success: false, error: 'Failed to fetch stats' });
+        res.status(500).json({ success: false, error: 'Failed' });
     }
 });
+
+// ==========================================
+// Broadcasting
+// ==========================================
+
+router.post('/broadcast', async (req, res) => {
+    try {
+        const { message } = req.body;
+        // Placeholder for bot broadcasting logic
+        console.log(`[Broadcast] Sending to all merchants: ${message}`);
+
+        // In a real implementation we would likely loop through merchants with telegramId
+        // or call a dedicated bot service
+
+        res.json({ success: true, message: 'Broadcast queued' });
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Failed' });
+    }
+});
+
 
 module.exports = router;
