@@ -34,8 +34,25 @@
                     <img src="<%= qr_code %>" alt="QR Code">
                 </div>
 
-                <p class="secret-code">Secret: <%= secret %>
-                </p>
+                <div class="secret-container"
+                    style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 1rem;">
+                    <span class="secret-code" id="secretCode">
+                        <%= secret %>
+                    </span>
+                    <button type="button" onclick="copySecret()"
+                        style="background: none; border: 1px solid #d1d5db; padding: 0.25rem 0.5rem; border-radius: 0.25rem; cursor: pointer;">Copy</button>
+                </div>
+
+                <script>
+                    function copySecret() {
+                        const secret = document.getElementById('secretCode').innerText;
+                        navigator.clipboard.writeText(secret).then(() => {
+                            alert('Secret copied to clipboard!');
+                        }).catch(err => {
+                            console.error('Failed to copy text: ', err);
+                        });
+                    }
+                </script>
 
                 <form action="/auth/2fa-setup" method="POST">
                     <div class="form-group">
