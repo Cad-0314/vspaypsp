@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= t('title_admin') %>
+    </title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <div class="container" style="max-width: 600px;">
+        <div class="lang-switch">
+            <a href="?lang=en" class="lang-link <%= currentLang === 'en' ? 'active' : '' %>">English</a>
+            <a href="?lang=zh" class="lang-link <%= currentLang === 'zh' ? 'active' : '' %>">中文</a>
+        </div>
+
+        <div class="logo-container">
+            <img src="/images/logo.png" alt="VSPAY Logo" class="logo">
+        </div>
+
+        <h1>
+            <%= t('header_admin') %>
+        </h1>
+        <p class="subtitle">
+            <%= t('welcome_user', { username: user.username, role: user.role }) %>
+        </p>
+
+        <div style="text-align: left; background: #f9fafb; padding: 1rem; border-radius: 0.5rem; margin-bottom: 2rem;">
+            <h3>
+                <%= t('system_status') %>
+            </h3>
+            <p><strong>Database:</strong>
+                <%= t('db_connected') %>
+            </p>
+            <p><strong>
+                    <%= t('2fa_status') %>:
+                </strong>
+                <%= user.two_fa_enabled ? t('enabled') : t('disabled') %>
+            </p>
+        </div>
+
+        <a href="/auth/logout" class="btn" style="background-color: #ef4444;">
+            <%= t('btn_logout') %>
+        </a>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= t('title_2fa_setup') %>
+    </title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="lang-switch">
+            <a href="?lang=en" class="lang-link <%= currentLang === 'en' ? 'active' : '' %>">English</a>
+            <a href="?lang=zh" class="lang-link <%= currentLang === 'zh' ? 'active' : '' %>">中文</a>
+        </div>
+
+        <h1>
+            <%= t('header_secure') %>
+        </h1>
+        <p class="subtitle">
+            <%= t('subtitle_scan') %>
+        </p>
+
+        <% if (typeof error !=='undefined' ) { %>
+            <div class="alert alert-error">
+                <%= error %>
+            </div>
+            <% } %>
+
+                <div class="qr-code">
+                    <img src="<%= qr_code %>" alt="QR Code">
+                </div>
+
+                <p class="secret-code">Secret: <%= secret %>
+                </p>
+
+                <form action="/auth/2fa-setup" method="POST">
+                    <div class="form-group">
+                        <label for="token">
+                            <%= t('label_code') %>
+                        </label>
+                        <input type="text" id="token" name="token" required placeholder="<%= t('ph_code') %>"
+                            autocomplete="off">
+                    </div>
+                    <button type="submit" class="btn">
+                        <%= t('btn_verify_enable') %>
+                    </button>
+                </form>
+    </div>
+</body>
+
+</html>
