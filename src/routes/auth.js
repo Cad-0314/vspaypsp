@@ -42,6 +42,9 @@ router.get('/2fa-setup', async (req, res) => {
     });
 });
 
+// Configure otplib
+otplib.authenticator.options = { window: 1 }; // Allow 1 step window for time drift
+
 // 2FA Setup Verification
 router.post('/2fa-setup', async (req, res) => {
     if (!req.session.tempUser || !req.session.tempSecret) return res.redirect('/auth/login');
@@ -64,7 +67,10 @@ router.post('/2fa-setup', async (req, res) => {
         const redirectUrl = req.session.user.role === 'admin' ? '/admin' : '/merchant';
         res.redirect(redirectUrl);
     } else {
-        res.render('2fa-setup', { qr_code: null, secret: null, error: 'Invalid Code' });
+        // Regenerate QR for the SAME secret so user can try again or rescan if needed
+        qrcode.toDataURL(otplib.authenticator.keyuri(req.session.tempUser.username, 'VSPAY', req.session.tempSecret), (err, data_url) => {
+            res.render('2fa-setup', { qr_code: data_url, secret: req.session.tempSecret, error: 'Invalid Code. Please try again.' });
+        });
     }
 });
 
