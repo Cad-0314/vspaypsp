@@ -14,4 +14,5 @@ evry change that effect apidocs ui or db or anything sync accordingly
 use best practise and room for updates
 use main db for everything and migrate data and sync after evry change config in .env 
 it should not be both language at a time but a switch to conver language  and the process should be effiecient 
-update not shown restar and push to github after everychange 
+update not shown restar and push to github after everychange
+merchent will use our api avialbele in main directory @ ourapi.txt keep this in mind 
