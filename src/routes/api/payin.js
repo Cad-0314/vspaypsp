@@ -32,10 +32,10 @@ router.post('/create', validateMerchant, async (req, res) => {
         }
 
         // Validate required fields
-        if (!orderId || !orderAmount) {
+        if (!orderId || !orderAmount || !callbackUrl) {
             return res.json({
                 code: -2,
-                msg: 'Missing required parameters: orderId, orderAmount'
+                msg: 'Missing required parameters: orderId, orderAmount, callbackUrl'
             });
         }
 

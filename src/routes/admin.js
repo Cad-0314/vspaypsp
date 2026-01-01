@@ -39,12 +39,14 @@ router.get('/stats', async (req, res) => {
         const admin = await User.findOne({ where: { role: 'admin' } });
         const merchantCount = await User.count({ where: { role: 'merchant' } });
         const activeCount = await User.count({ where: { role: 'merchant', isActive: true } });
+        const totalMerchantBalance = await User.sum('balance', { where: { role: 'merchant' } });
 
         res.json({
             success: true,
             stats: {
                 ...stats,
                 adminBalance: parseFloat(admin?.balance || 0),
+                totalMerchantBalance: parseFloat(totalMerchantBalance || 0),
                 merchantCount,
                 activeMerchants: activeCount
             }

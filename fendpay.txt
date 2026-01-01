@@ -1,0 +1,355 @@
+FendPay 接入文档
+验签
+传入参数：
+{
+    "merchantNumber": "10086",
+    "amount": "300.00",
+    "outTradeNo": "Test111122222233",
+    "notifyUrl": "api.xxx.xxx",
+    "callbackUrl": "https://xxxx.xxx"
+}
+拼接成 key=value&key=value 格式的字符串, 按参数名 ASCII 从小到大排序得到
+amount=300.00&callbackUrl=https://xxxx.xxx&merchantNumber=10086&notifyUrl=https://api.xxx.xxx&outTradeNo=Test111122222233
+在末尾拼接上 &key=secret
+md5(signStr)转小写, 得到sign
+注意：
+
+sign字段不参与加密，为空或为null的参数不参与加密
+金额类参数需保留两位小数，格式化为1000.00 单位元
+收到回调返回 success
+
+代收
+创建代收订单
+POST https://kspay.shop/pay/payment
+Content-Type: application/json
+{
+    // 必传：传入商户订单号 - 需要唯一
+    "outTradeNo": "PP262024100911014795623",
+    // 必传：代收金额
+    "amount": "300.00",
+    // 必传：通知地址
+    "notifyUrl": "https://xxx.xx",
+    // 支付成功后打开地址
+    "callbackUrl": "https://xxxx.xx",
+    // 必传：平台商户号
+    "merchantNumber": "10086",
+    // 必传：签证
+    "sign": "6512bd43d9caa6e02c990b0a82652dca"
+}
+
+Response:
+{
+    "uuid": "85647968-aee6-4f9a-a79f-e0b3b9edc469",
+    // 200 成功其余失败
+    "code": "200",
+    "msg": "success",
+    "data": {
+        "orderNo": "S503051124216651a482",
+        "payUrl": "支付地址"
+    }
+}
+
+代收查询
+POST https://kspay.shop/pay/query
+Content-Type: application/json
+{
+    // 必传：传入商户订单号 
+    "outTradeNo": "PP262024100911014795623"
+    // 必传：平台商户号
+    "merchantNumber": "10086",
+    // 必传：签证
+    "sign": "6512bd43d9caa6e02c990b0a82652dca"
+}
+
+Response: 
+{
+    "uuid": "85647968-aee6-4f9a-a79f-e0b3b9edc469",
+    // 200 成功其余失败
+    "code": "200",
+    "msg": "success",
+    "data": {
+        // 支付平台订单号
+        "orderNo": "So410091101479562",
+        // 订单状态 1 = 成功 其他失败
+        "status": 1,
+        // 必须穿
+        "amount": "代收金额",
+        // 可选。如有则传
+        "utr": "流水号"
+        // 商户订单号
+        "outTradeNo": "PP262024100911014795623",
+        // 必传：签证
+        "sign": "6512bd43d9caa6e02c990b0a82652dca"
+    }
+}
+代收UTR查询
+POST https://kspay.shop/pay/payment/query/utr
+Content-Type: application/json
+{
+    // 必传：传入UTR 
+    "utr": "11111111111"
+    // 必传：平台商户号
+    "merchantNumber": "10086",
+    // 必传：签证
+    "sign": "6512bd43d9caa6e02c990b0a82652dca"
+}
+
+Response: 
+{
+    "uuid": "85647968-aee6-4f9a-a79f-e0b3b9edc469",
+    // 200 成功其余失败
+    "code": "200",
+    "msg": "success",
+    "data": {
+        // 1 = 已收到已绑定 2 = 已收到未绑定 3 = 未收到 4 = 其他商户领取
+        "status": 1,
+        // status in (1, 2, 4) 时返回
+        "amount": "收款金额",
+        // status = 1 时返回
+        "outTradeNo": "绑定的商户单号"
+    }
+}
+代收UTR补单
+POST https://kspay.shop/pay/payment/bind/utr
+Content-Type: application/json
+{
+    // 必传：传入UTR 
+    "utr": "11111111111"
+    // 必传： 需要绑定的商户单号（需要非成功状态订单）
+    "outTradeNo": ""
+    // 必传：平台商户号
+    "merchantNumber": "10086",
+    // 必传：签证
+    "sign": "6512bd43d9caa6e02c990b0a82652dca"
+}
+
+Response: 
+{
+    "uuid": "85647968-aee6-4f9a-a79f-e0b3b9edc469",
+    // 200 成功其余失败
+    "code": "200",
+    "msg": "success",
+    "data": null
+}
+
+代收回调
+POST notifyUrl
+Content-Type: application/json
+{
+  // 必传
+  "outTradeNo": "传入的商户订单号",
+  // 必传
+  "orderNo": "订单号",
+  // 必传
+  "amount": "代收金额",
+  // 必传：1 成功 其余失败
+  "status": "1",
+  // 可选。如有则传
+  "utr": "流水号"
+  //必传
+  "sign": "6512bd43d9caa6e02c990b0a82652dca"
+}
+代付
+创建代付订单
+POST https://kspay.shop/pay/payout
+Content-Type: application/json
+{
+  // 必传：商户号
+  "merchantNumber": "10086",
+  // 必传：传入商户订单号 - 需要唯一
+  "outTradeNo": "PP262024100911014795623",
+  // 必传：代付金额
+  "amount": "300.00",
+  // 必传：通知地址
+  "notifyUrl": "https://xxx.xx",
+  // 必传：收款户名
+  "accName": "Vic",
+  // 必传：收款账号  
+  "accNo": "988741323333",
+  // 必传：IFSC
+  "ifsc": "ifsc",
+  // 必传：手机号 可固定传入
+  "mobileNo": "9887415157",
+  // 必传
+  "sign": "6512bd43d9caa6e02c990b0a82652dca"
+}
+
+Response:
+{
+    "uuid": "85647968-aee6-4f9a-a79f-e0b3b9edc469",
+    // 200 成功其余失败
+    "code": "200",
+    "msg": "success",
+    "data": {
+        // 平台单号
+        "orderNo": "Onnafals12313231",
+        // 0 = 提交成功 其余失败
+        "status": "0"
+    }
+}
+创建UPI代付订单
+POST https://kspay.shop/pay/upi/payout
+Content-Type: application/json
+{
+  // 必传：商户号
+  "merchantNumber": "10086",
+  // 必传：传入商户订单号 - 需要唯一
+  "outTradeNo": "PP262024100911014795623",
+  // 必传：代付金额
+  "amount": "300.00",
+  // 必传：通知地址
+  "notifyUrl": "https://xxx.xx",
+  // 必传：收款UPI
+  "upi": "9887415157@iob",
+  // 必传：手机号 可固定传入
+  "mobileNo": "9887415157",
+  // 必传
+  "sign": "6512bd43d9caa6e02c990b0a82652dca"
+}
+
+Response:
+{
+    "uuid": "85647968-aee6-4f9a-a79f-e0b3b9edc469",
+    // 200 成功其余失败
+    "code": "200",
+    "msg": "success",
+    "data": {
+        // 平台单号
+        "orderNo": "Onnafals12313231",
+        // 0 = 提交成功 其余失败
+        "status": "0"
+    }
+}
+
+代付回调
+POST notifyUrl
+Content-Type: application/json
+
+{
+  // 可选。如有则传
+  "utr": "43333322222",
+  // 商户代付单号
+  "outTradeNo": ,
+  // 平台代付单号
+  "orderNo":
+  // 代付金额
+  "amount": "300.00"
+  // 必填：  0 = 处理中，1 = 成功 其他失败
+  "status": 1 
+  "sign": "加密"
+}
+代付查单
+POST https://kspay.shop/pay/queryPayout
+Content-Type: application/json
+{
+  // 必填商户交易单号
+    "outTradeNo": "MKN2347-012123",
+    // 必传：平台商户号
+    "merchantNumber": "10086",
+    // 必传：签证
+    "sign": "6512bd43d9caa6e02c990b0a82652dca"
+}
+
+Response:
+{
+    "uuid": "85647968-aee6-4f9a-a79f-e0b3b9edc469",
+    // 200 成功其余失败
+    "code": "200",
+    "msg": "success",
+    "data": {
+        // 可选。如有则传
+        "utr": "43333322222",
+        // 商户代付单号
+        "outTradeNo": ,
+        // 平台代付单号
+        "orderNo":
+        // 代付金额
+        "amount": "300.00"
+        // 必填：  0 = 处理中，1 = 成功 其他失败
+        "status": 1,
+        "sign": "加密"
+    }
+}
+代付UTR查单
+POST https://kspay.shop/pay/payout/query/utr
+Content-Type: application/json
+{
+  // 必填UTR
+    "utr": "11111111111",
+    // 必传：平台商户号
+    "merchantNumber": "10086",
+    // 必传：签证
+    "sign": "6512bd43d9caa6e02c990b0a82652dca"
+}
+
+Response:
+{
+    "uuid": "85647968-aee6-4f9a-a79f-e0b3b9edc469",
+    // 200 成功其余失败
+    "code": "200",
+    "msg": "success",
+    "data": {
+        // 可选。如有则传
+        "utr": "43333322222",
+        // 商户代付单号
+        "outTradeNo": ,
+        // 平台代付单号
+        "orderNo":
+        // 代付金额
+        "amount": "300.00"
+        // 必填：  0 = 处理中，1 = 成功 其他失败
+        "status": 1,
+        "sign": "加密"
+    }
+}
+
+余额查询
+POST https://kspay.shop/pay/merchantQuery
+{
+    // 必传：平台商户号
+    "merchantNumber": "10086",
+    // 必传：签证
+    "sign": "6512bd43d9caa6e02c990b0a82652dca"
+}
+
+Response
+{
+    "uuid": "85647968-aee6-4f9a-a79f-e0b3b9edc469",
+    // 200 成功其余失败
+    "code": "200",
+    "msg": "success",
+    "data": {
+        // 商户总余额
+        "balance": "2000",
+        // 代付中余额 : 商户总余额-代付中余额=可用余额
+        "forceBalance": "100",
+        // 可用余额
+        "availableBalance": "1900"
+    }
+}
+
+UPI查询
+POST https://kspay.shop/pay/upi
+{
+    // 必传：平台商户号
+    "merchantNumber": "10086",
+    // 必传：签证
+    "sign": "6512bd43d9caa6e02c990b0a82652dca",
+    "upi": "123@freecharge"
+}
+
+Response
+{
+    "uuid": "85647968-aee6-4f9a-a79f-e0b3b9edc469",
+    // 200 成功其余失败
+    "code": "200",
+    "msg": "success",
+    // True 是我们的。False 不是我们的
+    "data": true
+}
+
+状态码
+200: 成功
+10005: 验签异常
+10008: IFSC 错误
+10010: AccName错误

@@ -1,0 +1,438 @@
+1. Overview
+1.1 Must-Read
+Important Notes:
+All API calls use HTTPS protocol
+Callback interfaces use application/json format
+Amounts must retain two decimal places (e.g., "100.00")
+Always verify the signKey in callbacks to ensure authenticity
+The system will retry failed callbacks up to 5 times
+1.2 Encryption Rules
+The signKey is generated using the following process:
+
+Sort all request parameters by key in ASCII ascending order
+Concatenate all non-empty values (excluding signKey itself)
+Append your secret key to the concatenated string
+Generate MD5 hash of the resulting string
+Include this signKey in your request parameters
+2. API Endpoints
+2.1.A PayIn (Deposit)
+URL: https://cai-pay.net/api/cai/out/v1/payIn
+
+Method: GET
+
+Content-Type: application/x-www-form-urlencoded
+
+2.1.B PayIn (Deposit) H2H
+URL: https://cai-pay.net/api/cai/out/v1/payIn-H2H
+
+Method: GET
+
+Content-Type: application/x-www-form-urlencoded
+
+Request Parameters:
+Parameter
+Required
+Type
+Description
+token	
+Yes
+String	
+Merchant authentication token
+tenantId	
+Yes
+String	
+Merchant identifier
+signKey	
+Yes
+String	
+MD5 signature
+amount	
+Yes
+String	
+Transaction amount (2 decimal places)
+customerOrderNo	
+Yes
+String	
+Unique merchant order number
+callbackUrl	
+Yes
+String	
+Callback notification URL
+rechargeName	
+Yes
+String	
+Customer name
+rechargeEmail	
+Yes
+String	
+Customer email
+rechargePhone	
+Yes
+String	
+Customer phone number
+Success Response:
+{
+    "code": 0,
+    "msg": null,
+    "data": {
+        "orderStatus": "PENDING",
+        "customerOrderNo": "TEST123456789",
+        "platOrderNo": "1928018154181656576",
+        "orderAmount": "100",
+        "url": "https://cai-pay.net/mobile/?trans=1928018154181656576"
+    },
+    "ok": true
+}
+H2H Success Response:
+     {
+    "code": 0,
+    "msg": null,
+    "data": {
+        "platOrderNo": "1930975505444503552",
+        "orderStatus": "PENDING",
+        "upi": "upi://pay?pn=",
+        "orderAmount": 200,
+        "expireTime": "2025-06-06 21:20:10",
+        "paytm": "paytmmp://pay?",
+        "customerOrderNo": "TEST98989898"
+    },
+    "ok": true
+}
+2.2 PayOut (Withdrawal)
+URL: https://cai-pay.net/api/cai/out/v1/payOut
+
+Method: POST
+
+Content-Type:application/json
+
+Request Parameters:
+Parameter
+Required
+Type
+Description
+token	
+Yes
+String	
+Merchant authentication token
+tenantId	
+Yes
+String	
+Tenant identifier
+signKey	
+Yes
+String	
+MD5 signature
+bankAccountName	
+Yes
+String	
+Beneficiary name
+bankAccountNumber	
+Yes
+String	
+Bank account number
+callbackUrl	
+Yes
+String	
+Callback notification URL
+orderAmount	
+Yes
+String	
+Transaction amount (2 decimal places)
+payEmail	
+Yes
+String	
+Beneficiary email
+payIfsc	
+Yes
+String	
+Bank IFSC code
+payPhone	
+Yes
+String	
+Beneficiary phone number
+Success Response:
+{
+    "code": 0,
+    "msg": null,
+    "data": {
+        "orderStatus": "PENDING",
+        "customerOrderNo": "TEST123456789",
+        "platOrderNo": "1928018154181656576",
+        "orderAmount": "100"
+    },
+    "ok": true
+}
+2.3 Search PayIn Result
+URL: https://cai-pay.net/api/cai/out/v1/searchPayInResult
+
+Method: GET
+
+Request Parameters:
+Parameter
+Required
+Type
+Description
+token	
+Yes
+String	
+Merchant authentication token
+tenantId	
+Yes
+String	
+Tenant identifier
+signKey	
+Yes
+String	
+MD5 signature
+customerOrderNo	
+Yes
+String	
+Original merchant order number
+Success Response:
+{
+    "code": 0,
+    "msg": null,
+    "data": {
+        "tenantId": "1919668884792586242",
+        "customerOrderNo": "TEST98989898",
+        "amount": "10",
+        "actualAmount": "10",
+        "status": "PENDING",
+        "utr": "None"
+    },
+    "ok": true
+}
+2.4 Search PayOut Result
+URL: https://cai-pay.net/api/cai/out/v1/searchPayOutResult
+
+Method: GET
+
+Request Parameters:
+Parameter
+Required
+Type
+Description
+token	
+Yes
+String	
+Merchant authentication token
+tenantId	
+Yes
+String	
+Tenant identifier
+signKey	
+Yes
+String	
+MD5 signature
+customerOrderNo	
+Yes
+String	
+Original merchant order number
+Success Response:
+{
+    "code": 0,
+    "msg": null,
+    "data": {
+        "tenantId": "1919668884792586242",
+        "customerOrderNo": "TEST98989898",
+        "amount": "10",
+        "actualAmount": "10",
+        "status": "PENDING",
+        "utr": "None"
+    },
+    "ok": true
+}
+2.5 Submit UTR
+URL: https://cai-pay.net/api/cai/out/v1/submitUtr
+
+Method:POST
+
+Content-Type: application/json
+
+Request Parameters:
+Parameter
+Required
+Type
+Description
+transId	
+Yes
+String	
+Platform Transaction ID
+UTR	
+Yes
+String	
+12 Digit Payment UTR
+3. Status Codes
+3.1 System Status Codes
+Code
+Description
+200	
+Success
+400	
+Bad request
+401	
+Unauthorized
+403	
+Forbidden
+500	
+Internal server error
+3.2 Order Status Codes
+Status
+Description
+PENDING	
+Initial processing
+PROCESSING	
+Transaction in progress
+SUCCESS	
+Completed successfully
+FAILED	
+Transaction failed
+REVERSED	
+Transaction reversed
+4. Callback Notifications
+Important: Merchants must respond to callbacks with exactly success (all lowercase, no quotes, no whitespace) to acknowledge receipt.
+4.1 PayIn Callback
+Method: POST
+
+Content-Type: application/json
+
+Sample Callback:
+{
+    "customerOrderNo":"TEST98989898",
+    "description":"No data",
+    "orderAmount":"10",
+    "orderStatus":"SUCCESS",
+    "payUtrNo":"1111111111111",
+    "platOrderNo":"1111111111111111",
+    "orderMessage":"SUCCESS",
+    "token":"4f44347e81987f3325ef8c0f3df366b7b1f365883929127a9e207ba0bc94a46f3e5d9f2d71870a1d0050f43f1806126f",
+    "signKey":"4aa177240e759e3c7cd5e4a3549e1fec"
+}
+4.2 PayOut Callback
+Method: POST
+
+Content-Type: application/json
+
+Sample Callback:
+{
+    "customerOrderNo":"TEST98989898",
+    "description":"No data",
+    "orderAmount":"10",
+    "orderStatus":"SUCCESS",
+    "payUtrNo":"1111111111111",
+    "platOrderNo":"1111111111111111",
+    "orderMessage":"SUCCESS",
+    "token":"4f44347e81987f3325ef8c0f3df366b7b1f365883929127a9e207ba0bc94a46f3e5d9f2d71870a1d0050f43f1806126f",
+    "signKey":"4aa177240e759e3c7cd5e4a3549e1fec"
+}
+5. Sample Code
+5.1 Java Encryption Example
+Example implementation for generating the signKey:
+
+import org.apache.commons.codec.digest.DigestUtils;
+import java.util.*;
+
+public class SignKeyGenerator {
+
+    /**
+     * Generates signKey for API requests.
+     * 
+     * @param params     Map of request parameters (excluding signKey).
+     * @param secretKey  Merchant's secret key.
+     * @return           MD5 hash of the signed string.
+     */
+    public static String generateSignKey(Map params, String secretKey) {
+        // 1. Sort parameters by key in ASCII order
+        List sortedKeys = new ArrayList<>(params.keySet());
+        Collections.sort(sortedKeys);
+
+        // 2. Concatenate non-empty values (skip signKey)
+        StringBuilder concatenated = new StringBuilder();
+        for (String key : sortedKeys) {
+            if (!key.equals("signKey")) {
+                String value = params.get(key);
+                if (value != null && !value.isEmpty()) {
+                    concatenated.append(value);
+                }
+            }
+        }
+
+        // 3. Append secret key
+        String rawString = concatenated.append(secretKey).toString();
+
+        // 4. Generate MD5 hash
+        return DigestUtils.md5Hex(rawString);
+    }
+
+    public static void main(String[] args) {
+        // Example parameters (include all required fields)
+        Map params = new HashMap<>();
+        params.put("token", "a41fd77e034d424b97e64ea42f17c544");
+        params.put("tenantId", "1923067572689027074");
+        params.put("amount", "2");
+        params.put("customerOrderNo", "TEST1748433693");
+        params.put("callbackUrl", "1111111111111");
+        params.put("rechargeName", "John Doe");      // New field
+        params.put("rechargeEmail", "john@example.com"); // New field
+        params.put("rechargePhone", "+1234567890"); // New field
+
+        String secretKey = "76b570d3acb79ef559983839b25614ac";
+
+        String signKey = generateSignKey(params, secretKey);
+        System.out.println("Generated signKey: " + signKey);
+    }
+}
+5.2 PHP Encryption Example
+Example implementation for generating the signKey:
+
+<?php
+/**
+ * Generates signKey for API requests
+ * 
+ * @param array $params Request parameters (excluding signKey)
+ * @param string $secretKey Merchant's secret key
+ * @return string MD5 hash of the signed string
+ */
+function generateSignKey(array $params, string $secretKey): string {
+    // 1. Sort parameters by key in ASCII order
+    ksort($params);
+
+    // 2. Concatenate non-empty values (excluding signKey)
+    $concatenated = '';
+    foreach ($params as $key => $value) {
+        if ($key !== 'signKey' && $value !== null && $value !== '') {
+            $concatenated .= $value;
+        }
+    }
+
+    // 3. Append secret key
+    $rawString = $concatenated . $secretKey;
+
+    // 4. Generate MD5 hash
+    return md5($rawString);
+}
+
+// Example usage
+$params = [
+    "token" => "a41fd77e034d424b97e64ea42f17c544",
+    "tenantId" => "1923067572689027074",
+    "amount" => "2",
+    "customerOrderNo" => "TEST1748433693",
+    "callbackUrl" => "1111111111111",
+    "rechargeName" => "John Doe",
+    "rechargeEmail" => "john@example.com",
+    "rechargePhone" => "+1234567890"
+];
+
+$secretKey = "76b570d3acb79ef559983839b25614ac";
+
+$signKey = generateSignKey($params, $secretKey);
+echo "Generated signKey: " . $signKey;
+?>
+6. Important Notes
+All amounts must be in string format with exactly 2 decimal places (e.g., "100.00")
+The customerOrderNo must be unique for each transaction
+Callback URLs must be HTTPS endpoints
+Always verify the signKey in callbacks to ensure authenticity
+The system will retry failed callbacks up to 5 times
+For production access, please contact our support team to obtain your live credentials and IP whitelisting

@@ -67,9 +67,25 @@ async function validateMerchant(req, res, next) {
 
         // Verify signature
         const body = req.body || {};
-        const expectedSign = generateSignature(body, merchant.apiSecret);
+        const expectedSign = generateSignature(body, (merchant.apiSecret || '').trim());
 
-        if (signature.toUpperCase() !== expectedSign) {
+        if ((signature || '').trim().toUpperCase() !== expectedSign) {
+            console.warn(`[API Auth] Signature Mismatch for Merchant ${merchant.id}`);
+            console.warn(`[API Auth] Received: ${signature}`);
+            console.warn(`[API Auth] Expected: ${expectedSign}`);
+
+            // Re-generate to log the string used for hashing (for debugging)
+            const filtered = {};
+            Object.keys(body).forEach(key => {
+                if (key !== 'sign' && body[key] !== '' && body[key] != null) {
+                    filtered[key] = body[key];
+                }
+            });
+            const sorted = Object.keys(filtered).sort();
+            const query = sorted.map(k => `${k}=${filtered[k]}`).join('&');
+            const str = `${query}&secret=${(merchant.apiSecret || '').trim()}`;
+            console.warn(`[API Auth] String to Sign: ${str}`);
+
             return res.status(401).json({
                 code: -1,
                 msg: 'Invalid signature'

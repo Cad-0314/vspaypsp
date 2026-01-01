@@ -58,6 +58,20 @@ router.post('/:channel/payin', async (req, res) => {
             utr = req.body.utr || req.body.bankRef;
             actualAmount = parseFloat(req.body.actualAmount || req.body.amount);
             providerOrderId = req.body.tradeNo;
+        } else if (channelName === 'fendpay' || channelName === 'upi super') {
+            // FendPay: status 1 = success
+            orderId = req.body.outTradeNo;
+            status = req.body.status === '1' || req.body.status === 1 ? 'success' : 'failed';
+            utr = req.body.utr;
+            actualAmount = parseFloat(req.body.amount);
+            providerOrderId = req.body.orderNo;
+        } else if (channelName === 'caipay' || channelName === 'yellow') {
+            // CaiPay: orderStatus "SUCCESS"
+            orderId = req.body.customerOrderNo;
+            status = req.body.orderStatus === 'SUCCESS' ? 'success' : 'failed';
+            utr = req.body.payUtrNo;
+            actualAmount = parseFloat(req.body.orderAmount);
+            providerOrderId = req.body.platOrderNo;
         }
 
         if (!orderId) {
@@ -186,6 +200,19 @@ router.post('/:channel/payout', async (req, res) => {
             status = req.body.status === 1 || req.body.status === '1' ? 'success' : 'failed';
             utr = req.body.utr;
             providerOrderId = req.body.tradeNo;
+        } else if (channelName === 'fendpay' || channelName === 'upi super') {
+            // FendPay Payout: status 1 = success, 0 = processing
+            orderId = req.body.outTradeNo;
+            status = req.body.status === '1' || req.body.status === 1 ? 'success' :
+                req.body.status === '0' || req.body.status === 0 ? 'processing' : 'failed';
+            utr = req.body.utr;
+            providerOrderId = req.body.orderNo;
+        } else if (channelName === 'caipay' || channelName === 'yellow') {
+            // CaiPay Payout: orderStatus "SUCCESS"
+            orderId = req.body.customerOrderNo;
+            status = req.body.orderStatus === 'SUCCESS' ? 'success' : 'failed';
+            utr = req.body.payUtrNo;
+            providerOrderId = req.body.platOrderNo;
         }
 
         if (!orderId) {

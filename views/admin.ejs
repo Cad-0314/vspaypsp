@@ -418,6 +418,12 @@
                             </div>
                         </div>
                         <div class="stat-card">
+                            <i class="ri-wallet-3-line stat-icon" style="color:var(--success)"></i>
+                            <div class="stat-label">Total Merchant Balance</div>
+                            <div class="stat-value" style="color: var(--success);">₹<span
+                                    id="stat-merchant-balance">0.00</span></div>
+                        </div>
+                        <div class="stat-card">
                             <i class="ri-arrow-left-down-line stat-icon"></i>
                             <div class="stat-label">Today's PayIn Volume</div>
                             <div class="stat-value">₹<span id="stat-today-payin">0.00</span></div>
@@ -777,6 +783,7 @@
                 if (data.success) {
                     const s = data.stats;
                     document.getElementById('stat-profit').innerText = s.adminBalance.toFixed(2);
+                    document.getElementById('stat-merchant-balance').innerText = s.totalMerchantBalance.toFixed(2);
                     document.getElementById('stat-today-payin').innerText = s.today.payin.toFixed(2);
                     document.getElementById('stat-merchants').innerText = s.merchantCount;
                 }

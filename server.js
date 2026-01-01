@@ -23,6 +23,10 @@ const merchantApiRoutes = require('./src/routes/merchant_api');
 // Seeder
 const seedDatabase = require('./src/seeders/init');
 
+// Telegram Bot
+const telegramBot = require('./src/services/telegramBot');
+telegramBot.init(process.env.TELEGRAM_BOT_TOKEN);
+
 // Passport Config
 require('./src/config/passport')(passport);
 
