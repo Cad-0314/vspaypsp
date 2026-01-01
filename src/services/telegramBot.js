@@ -1,3 +1,4 @@
+const TelegramBot = require('node-telegram-bot-api');
 const { User, Order } = require('../models'); // Ensure models are imported
 const { Op } = require('sequelize');
 
