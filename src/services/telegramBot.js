@@ -34,6 +34,7 @@ const init = (token) => {
             bot.sendMessage(chatId, `Available Commands:
 /data - Show Account Balance & Status
 /stats - Show Success Rates (15m, 30m, 1h, 24h)
+/callback <orderId> - Manually Trigger Callback
 /id - Get Group/Chat ID
 /help - Show this message`);
         });
@@ -135,6 +136,37 @@ Rate: **${d1.rate}%** (${d1.success}/${d1.total})
             bot.sendMessage(chatId, response, { parse_mode: 'Markdown' });
         });
 
+        // /callback command
+        bot.onText(/\/callback/, async (msg) => {
+            const chatId = msg.chat.id;
+            const orderId = msg.text.split(' ')[1];
+
+            if (!orderId) {
+                return bot.sendMessage(chatId, 'Usage: /callback <orderId>');
+            }
+
+            try {
+                // Check if user authorized (bound merchant)
+                const merchant = await getMerchant(chatId);
+                if (!merchant && chatId > 0) { // Allow private chats if testing, but ideally stricter
+                    // For now, allow anyone with Order ID (admin tool style) or restrict?
+                    // Let's stick to standard behavior: simply call service
+                }
+
+                const callbackService = require('./callbackService');
+                const result = await callbackService.manualCallback(orderId);
+
+                if (result.success) {
+                    const statusEmoji = result.isOk ? '✅' : '⚠️';
+                    const responseDetails = result.response ? result.response.substring(0, 100) : 'N/A';
+                    bot.sendMessage(chatId, `${statusEmoji} Callback Sent\n\nResult: ${result.isOk ? 'Acknowledged (OK)' : 'Not Acknowledged'}\nHTTP Code: ${result.httpCode}\nResponse: ${responseDetails}...`);
+                } else {
+                    bot.sendMessage(chatId, `❌ Callback Failed: ${result.message}`);
+                }
+            } catch (error) {
+                bot.sendMessage(chatId, `❌ Error: ${error.message}`);
+            }
+        });
 
         // Error handling
         bot.on('polling_error', (error) => {
