@@ -6,7 +6,13 @@
 
 const axios = require('axios');
 const crypto = require('crypto');
+const http = require('http');
+const https = require('https');
 require('dotenv').config();
+
+// Global HTTP agents for connection reuse
+const httpAgent = new http.Agent({ keepAlive: true, maxSockets: 100 });
+const httpsAgent = new https.Agent({ keepAlive: true, maxSockets: 100 });
 
 const BASE_URL = process.env.F2PAY_BASE_URL || 'https://api.f2pay.com';
 const MERCHANT_ID = process.env.F2PAY_MERCHANT_ID;
@@ -18,7 +24,9 @@ const httpClient = axios.create({
     baseURL: BASE_URL,
     timeout: 30000,
     headers: { 'Content-Type': 'application/json' },
-    family: 4
+    family: 4,
+    httpAgent,
+    httpsAgent
 });
 
 /**

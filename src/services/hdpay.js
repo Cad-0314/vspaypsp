@@ -6,7 +6,13 @@
 
 const axios = require('axios');
 const crypto = require('crypto');
+const http = require('http');
+const https = require('https');
 require('dotenv').config();
+
+// Shared agents for connection reuse
+const httpAgent = new http.Agent({ keepAlive: true, maxSockets: 100 });
+const httpsAgent = new https.Agent({ keepAlive: true, maxSockets: 100 });
 
 const BASE_URL = process.env.HDPAY_BASE_URL || 'https://dd1688.cc';
 const MERCHANT_ID = process.env.HDPAY_MERCHANT_ID;
@@ -17,7 +23,9 @@ const httpClient = axios.create({
     baseURL: BASE_URL,
     timeout: 30000,
     headers: { 'Content-Type': 'application/json' },
-    family: 4 // Force IPv4
+    family: 4, // Force IPv4
+    httpAgent,
+    httpsAgent
 });
 
 /**

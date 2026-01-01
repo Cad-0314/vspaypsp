@@ -51,7 +51,7 @@ pm2 start server.js -i max --name "vspay"
 *Note: Ensure your `SESSION_SECRET` is consistent. For multi-server setups, use Redis for sessions.*
 
 ### Database Connection Pooling
-Sequelize is already configured for connection pooling. Ensure your `.env` DB config allows enough connections (default is usually fine for up to 500 concurrent reqs).
+The system is pre-configured with a connection pool of **50** in `src/config/database.js`. This is optimized for high-volume environments (~10,000 orders/min). ensure your database server (e.g., MySQL) configuration `max_connections` is set higher than 100 to support this.
 
 ### aaPanel / Nginx Optimization
 - **Enable Gzip**: Compress responses for faster API calls.
