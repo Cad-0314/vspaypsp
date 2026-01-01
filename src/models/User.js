@@ -80,6 +80,11 @@ const User = sequelize.define('User', {
         type: DataTypes.TEXT,
         allowNull: true,
         comment: 'Custom rates override as JSON (deprecated)'
+    },
+    telegramGroupId: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        comment: 'Telegram Group ID for support channel'
     }
 }, {
     tableName: 'users',

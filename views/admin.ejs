@@ -687,7 +687,11 @@
                     <option value="hdpay">HDPay</option>
                     <option value="x2">X2</option>
                     <option value="payable">Payable</option>
+                    <option value="yellow">Yellow</option>
+                    <option value="upi super">UPI Super</option>
                 </select>
+                <input type="text" id="m-telegramGroup" placeholder="Telegram Group ID (e.g. -100123456789)"
+                    style="width:100%; margin-bottom:0.75rem; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem;">
                     <input type="number" id="m-payin" placeholder="Payin %" value="5"
                         style="padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
@@ -739,9 +743,27 @@
     <script>
         let merchantSearchTimeout = null;
 
+        function showToast(message, type = 'success') {
+            Toastify({
+                text: message,
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: type === 'error' ? "#EF4444" : "#10B981",
+                stopOnFocus: true
+            }).showToast();
+        }
+
         function renderPagination(paging, containerId, clickActionTemplate) {
             const container = document.getElementById(containerId);
+            // Safety check: if container doesn't exist, log warning but don't crash
+            if (!container) {
+                console.warn(`Pagination container not found: ${containerId}`);
+                return;
+            }
             if (!paging || paging.pages <= 1) { container.innerHTML = ''; return; }
+
 
             const prevAction = clickActionTemplate.replace('{page}', paging.page - 1);
             const nextAction = clickActionTemplate.replace('{page}', paging.page + 1);
@@ -970,6 +992,7 @@
             document.getElementById('m-username').value = m.username;
             document.getElementById('m-password').value = '';
             document.getElementById('m-channel').value = m.assignedChannel || '';
+            document.getElementById('m-telegramGroup').value = m.telegramGroupId || '';
 
             const rates = JSON.parse(m.channel_rates || '{}');
             document.getElementById('m-payin').value = rates.payinRate || 5;
@@ -996,6 +1019,7 @@
             const body = {
                 username: document.getElementById('m-username').value,
                 assignedChannel: document.getElementById('m-channel').value,
+                telegramGroupId: document.getElementById('m-telegramGroup').value,
                 payinRate: document.getElementById('m-payin').value,
                 payoutRate: document.getElementById('m-payout').value,
                 payoutFixedFee: document.getElementById('m-fixed').value,

@@ -131,6 +131,7 @@ router.post('/merchants', async (req, res) => {
             password_hash: hashedPassword,
             role: 'merchant',
             assignedChannel: assignedChannel || null,
+            telegramGroupId: req.body.telegramGroupId || null,
             channel_rates: JSON.stringify(customRates),
             apiSecret: crypto.randomBytes(32).toString('hex'),
             isActive: true,
@@ -164,6 +165,7 @@ router.put('/merchants/:id', async (req, res) => {
         if (username) updates.username = username;
         if (password) updates.password_hash = await bcrypt.hash(password, 10);
         if (assignedChannel !== undefined) updates.assignedChannel = assignedChannel;
+        if (req.body.telegramGroupId !== undefined) updates.telegramGroupId = req.body.telegramGroupId;
         if (typeof isActive === 'boolean') updates.isActive = isActive;
         if (typeof canPayin === 'boolean') updates.canPayin = canPayin;
         if (typeof canPayout === 'boolean') updates.canPayout = canPayout;
