@@ -8,6 +8,10 @@ const router = express.Router();
 const { Order, Settlement, User, Channel, sequelize } = require('../models');
 const { getStats, getChartData } = require('../services/stats');
 const { v4: uuidv4 } = require('uuid');
+const otplib = require('otplib');
+
+// Configure otplib
+otplib.authenticator.options = { window: 2, step: 30 };
 
 // Middleware to ensure merchant role
 function ensureMerchant(req, res, next) {
@@ -328,10 +332,137 @@ router.post('/callback/:orderId', async (req, res) => {
 
         if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
 
-        const result = await require('../../services/callbackService').manualCallback(orderId);
+        const result = await require('../services/callbackService').manualCallback(orderId);
         res.json(result);
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// ==========================================
+// IP Whitelisting Management
+// ==========================================
+
+/**
+ * GET /api/merchant/ips
+     * Get merchant's whitelisted IPs
+     */
+router.get('/ips', async (req, res) => {
+    try {
+        const merchant = await User.findByPk(req.session.user.id);
+        let ips = [];
+        try {
+            ips = JSON.parse(merchant.whitelistedIps || '[]');
+        } catch (e) {
+            ips = [];
+        }
+        res.json({ success: true, ips, has2fa: !!merchant.two_fa_enabled });
+    } catch (error) {
+        console.error('[MerchantAPI] Get IPs error:', error);
+        res.status(500).json({ success: false, error: 'Failed to fetch IPs' });
+    }
+});
+
+/**
+ * POST /api/merchant/ips/add
+ * Add IP to whitelist (requires 2FA)
+ */
+router.post('/ips/add', async (req, res) => {
+    try {
+        const { ip, totpCode } = req.body;
+        const merchant = await User.findByPk(req.session.user.id);
+
+        // Require 2FA to be enabled
+        if (!merchant.two_fa_enabled || !merchant.two_fa_secret) {
+            return res.status(400).json({ success: false, error: 'Please enable 2FA first to manage IP whitelist' });
+        }
+
+        // Verify TOTP code
+        if (!totpCode) {
+            return res.status(400).json({ success: false, error: '2FA code is required' });
+        }
+
+        const isValid = otplib.authenticator.check(totpCode, merchant.two_fa_secret);
+        if (!isValid) {
+            return res.status(400).json({ success: false, error: 'Invalid 2FA code' });
+        }
+
+        // Validate IP format (IPv4 only for simplicity)
+        const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
+        if (!ip || !ipRegex.test(ip)) {
+            return res.status(400).json({ success: false, error: 'Invalid IP format. Example: 192.168.1.1' });
+        }
+
+        // Get current IPs and add new one
+        let ips = [];
+        try {
+            ips = JSON.parse(merchant.whitelistedIps || '[]');
+        } catch (e) {
+            ips = [];
+        }
+
+        if (ips.includes(ip)) {
+            return res.status(400).json({ success: false, error: 'IP already whitelisted' });
+        }
+
+        ips.push(ip);
+        await merchant.update({ whitelistedIps: JSON.stringify(ips) });
+
+        console.log(`[MerchantAPI] IP ${ip} added to whitelist for ${merchant.username}`);
+        res.json({ success: true, message: 'IP added to whitelist', ips });
+
+    } catch (error) {
+        console.error('[MerchantAPI] Add IP error:', error);
+        res.status(500).json({ success: false, error: 'Failed to add IP' });
+    }
+});
+
+/**
+ * POST /api/merchant/ips/remove
+ * Remove IP from whitelist (requires 2FA)
+ */
+router.post('/ips/remove', async (req, res) => {
+    try {
+        const { ip, totpCode } = req.body;
+        const merchant = await User.findByPk(req.session.user.id);
+
+        // Require 2FA to be enabled
+        if (!merchant.two_fa_enabled || !merchant.two_fa_secret) {
+            return res.status(400).json({ success: false, error: 'Please enable 2FA first to manage IP whitelist' });
+        }
+
+        // Verify TOTP code
+        if (!totpCode) {
+            return res.status(400).json({ success: false, error: '2FA code is required' });
+        }
+
+        const isValid = otplib.authenticator.check(totpCode, merchant.two_fa_secret);
+        if (!isValid) {
+            return res.status(400).json({ success: false, error: 'Invalid 2FA code' });
+        }
+
+        // Get current IPs and remove
+        let ips = [];
+        try {
+            ips = JSON.parse(merchant.whitelistedIps || '[]');
+        } catch (e) {
+            ips = [];
+        }
+
+        const index = ips.indexOf(ip);
+        if (index === -1) {
+            return res.status(400).json({ success: false, error: 'IP not found in whitelist' });
+        }
+
+        ips.splice(index, 1);
+        await merchant.update({ whitelistedIps: JSON.stringify(ips) });
+
+        console.log(`[MerchantAPI] IP ${ip} removed from whitelist for ${merchant.username}`);
+        res.json({ success: true, message: 'IP removed from whitelist', ips });
+
+    } catch (error) {
+        console.error('[MerchantAPI] Remove IP error:', error);
+        res.status(500).json({ success: false, error: 'Failed to remove IP' });
     }
 });
 

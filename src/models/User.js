@@ -85,6 +85,12 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING,
         allowNull: true,
         comment: 'Telegram Group ID for support channel'
+    },
+    whitelistedIps: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        defaultValue: '[]',
+        comment: 'JSON array of whitelisted IP addresses for API access'
     }
 }, {
     tableName: 'users',

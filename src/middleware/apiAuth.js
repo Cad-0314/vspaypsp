@@ -65,6 +65,25 @@ async function validateMerchant(req, res, next) {
             });
         }
 
+        // Validate IP whitelist
+        const clientIp = (req.headers['x-forwarded-for'] || req.ip || req.connection?.remoteAddress || '').split(',')[0].trim().replace('::ffff:', '');
+        let whitelistedIps = [];
+        try {
+            whitelistedIps = JSON.parse(merchant.whitelistedIps || '[]');
+        } catch (e) {
+            whitelistedIps = [];
+        }
+
+        // If whitelist is configured, validate IP
+        if (whitelistedIps.length > 0 && !whitelistedIps.includes(clientIp)) {
+            console.warn(`[API Auth] IP not whitelisted for Merchant ${merchant.username}: ${clientIp}`);
+            console.warn(`[API Auth] Allowed IPs: ${whitelistedIps.join(', ')}`);
+            return res.status(403).json({
+                code: -5,
+                msg: 'IP not whitelisted'
+            });
+        }
+
         // Verify signature
         const body = req.body || {};
         const expectedSign = generateSignature(body, (merchant.apiSecret || '').trim());

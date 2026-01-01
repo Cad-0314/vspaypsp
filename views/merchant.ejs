@@ -850,6 +850,38 @@
                         </div>
                     </div>
 
+                    <!-- IP Whitelisting Card -->
+                    <div class="card" style="margin-top: 1.5rem;">
+                        <div class="card-header">
+                            <div class="card-title"><i class="ri-shield-keyhole-line"></i> IP Whitelist / IP白名单</div>
+                        </div>
+                        <div style="padding: 1.5rem;">
+                            <p style="color: #6B7280; font-size: 0.875rem; margin-bottom: 1rem;">
+                                Only these IPs can make API calls. Leave empty to allow all IPs.<br>
+                                只有这些IP可以调用API。留空则允许所有IP。
+                            </p>
+
+                            <div id="ip-list" style="margin-bottom: 1rem;">
+                                <!-- IPs will be loaded here -->
+                                <div style="color: #9CA3AF; font-size: 0.875rem;">Loading...</div>
+                            </div>
+
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                <input type="text" id="new-ip-input" class="form-control" placeholder="192.168.1.1"
+                                    style="max-width: 200px;">
+                                <button class="btn btn-primary" onclick="showAddIpModal()">
+                                    <i class="ri-add-line"></i> Add IP / 添加IP
+                                </button>
+                            </div>
+
+                            <div
+                                style="margin-top: 1rem; padding: 0.75rem; background: #FEF3C7; border-radius: 0.5rem; color: #92400E; font-size: 0.8rem; display: flex; gap: 0.5rem; align-items: center;">
+                                <i class="ri-lock-line"></i>
+                                <span>2FA verification required to add or remove IPs / 添加或删除IP需要2FA验证</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="card">
                         <div class="card-header">
                             <div class="card-title"><i class="ri-percent-line"></i> Active Rates</div>
@@ -1295,7 +1327,133 @@
                 showToast(e.message, 'error');
             }
         }
+
+        // ==========================================
+        // IP Whitelist Management
+        // ==========================================
+        let currentIps = [];
+        let pendingIpAction = null; // { action: 'add'|'remove', ip: string }
+
+        async function loadIps() {
+            try {
+                const res = await fetch('/api/merchant/ips');
+                const data = await res.json();
+                if (data.success) {
+                    currentIps = data.ips;
+                    renderIpList(data.ips, data.has2fa);
+                }
+            } catch (e) {
+                document.getElementById('ip-list').innerHTML = '<div style="color: #EF4444;">Failed to load IPs</div>';
+            }
+        }
+
+        function renderIpList(ips, has2fa) {
+            const container = document.getElementById('ip-list');
+            if (ips.length === 0) {
+                container.innerHTML = `
+                    <div style="padding: 1rem; background: #F3F4F6; border-radius: 0.5rem; color: #6B7280; text-align: center;">
+                        <i class="ri-global-line" style="font-size: 1.5rem;"></i><br>
+                        No IPs whitelisted - all IPs allowed<br>
+                        未设置IP白名单 - 允许所有IP
+                    </div>`;
+                return;
+            }
+            container.innerHTML = ips.map(ip => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #F9FAFB; border-radius: 0.5rem; margin-bottom: 0.5rem;">
+                    <span style="font-family: monospace; font-size: 0.9rem;">${ip}</span>
+                    <button class="btn" style="background: #FEE2E2; color: #EF4444; padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="showRemoveIpModal('${ip}')">
+                        <i class="ri-delete-bin-line"></i> Remove
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function showAddIpModal() {
+            const ip = document.getElementById('new-ip-input').value.trim();
+            if (!ip) {
+                showToast('Please enter an IP address', 'error');
+                return;
+            }
+            const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
+            if (!ipRegex.test(ip)) {
+                showToast('Invalid IP format. Example: 192.168.1.1', 'error');
+                return;
+            }
+            pendingIpAction = { action: 'add', ip: ip };
+            document.getElementById('ip-modal-title').innerText = 'Add IP / 添加IP';
+            document.getElementById('ip-modal-desc').innerText = `Add ${ip} to whitelist`;
+            document.getElementById('totp-input').value = '';
+            document.getElementById('ip-modal').style.display = 'flex';
+        }
+
+        function showRemoveIpModal(ip) {
+            pendingIpAction = { action: 'remove', ip: ip };
+            document.getElementById('ip-modal-title').innerText = 'Remove IP / 删除IP';
+            document.getElementById('ip-modal-desc').innerText = `Remove ${ip} from whitelist`;
+            document.getElementById('totp-input').value = '';
+            document.getElementById('ip-modal').style.display = 'flex';
+        }
+
+        function closeIpModal() {
+            document.getElementById('ip-modal').style.display = 'none';
+            pendingIpAction = null;
+        }
+
+        async function confirmIpAction() {
+            if (!pendingIpAction) return;
+            const totpCode = document.getElementById('totp-input').value.trim();
+            if (!totpCode || totpCode.length !== 6) {
+                showToast('Please enter 6-digit 2FA code', 'error');
+                return;
+            }
+
+            const endpoint = pendingIpAction.action === 'add' ? '/api/merchant/ips/add' : '/api/merchant/ips/remove';
+            try {
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ip: pendingIpAction.ip, totpCode: totpCode })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    currentIps = data.ips;
+                    renderIpList(data.ips, true);
+                    document.getElementById('new-ip-input').value = '';
+                    closeIpModal();
+                } else {
+                    showToast(data.error, 'error');
+                }
+            } catch (e) {
+                showToast('Network error', 'error');
+            }
+        }
+
+        // Load IPs on profile tab activation
+        document.querySelector('[data-tab="profile"]').addEventListener('click', loadIps);
+        // Initial load if on profile tab
+        if (window.location.hash === '#profile') loadIps();
     </script>
+
+    <!-- IP Modal -->
+    <div id="ip-modal"
+        style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+        <div style="background: white; border-radius: 1rem; padding: 2rem; max-width: 400px; width: 90%;">
+            <h3 id="ip-modal-title" style="margin-bottom: 0.5rem;">IP Action</h3>
+            <p id="ip-modal-desc" style="color: #6B7280; margin-bottom: 1.5rem;">Confirm action</p>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">2FA Code / 2FA验证码</label>
+                <input type="text" id="totp-input" class="form-control" placeholder="123456" maxlength="6"
+                    style="font-size: 1.5rem; text-align: center; letter-spacing: 0.5rem;">
+            </div>
+
+            <div style="display: flex; gap: 0.5rem;">
+                <button class="btn" style="flex: 1; background: #E5E7EB;" onclick="closeIpModal()">Cancel / 取消</button>
+                <button class="btn btn-primary" style="flex: 1;" onclick="confirmIpAction()">Confirm / 确认</button>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
