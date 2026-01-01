@@ -147,6 +147,28 @@ app.get('/health', (req, res) => {
 });
 
 // ============================================
+// Public Analysis Endpoint (Temporary)
+// ============================================
+app.get('/analysis', async (req, res) => {
+    try {
+        // Dynamic import to avoid caching
+        delete require.cache[require.resolve('./test-payin-channels')];
+        const testChannels = require('./test-payin-channels');
+
+        console.log('[Analysis] Request received from ' + req.ip);
+        const results = await testChannels();
+        res.json({
+            success: true,
+            timestamp: new Date().toISOString(),
+            results: results
+        });
+    } catch (error) {
+        console.error('[Analysis] Failed:', error);
+        res.status(500).json({ success: false, error: 'Analysis failed' });
+    }
+});
+
+// ============================================
 // Database Sync & Start Server
 // ============================================
 const PORT = process.env.PORT || 3000;
