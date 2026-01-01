@@ -225,6 +225,8 @@ router.post('/paylink', async (req, res) => {
 
         const orderId = `PL${Date.now()}${Math.floor(Math.random() * 1000)}`;
 
+        const channelName = merchant.assignedChannel || 'hdpay';
+
         const order = await Order.create({
             id: uuidv4(),
             orderId: orderId,
@@ -234,7 +236,7 @@ router.post('/paylink', async (req, res) => {
             fee: fee,
             status: 'pending',
             type: 'payin',
-            channelName: merchant.assignedChannel,
+            channelName: channelName,
             expiresAt: new Date(Date.now() + 30 * 60 * 1000) // 30 minutes
         });
 

@@ -184,47 +184,6 @@
             height: auto;
         }
 
-        .upi-id-section {
-            margin-top: 1rem;
-            padding: 0.75rem;
-            background: #fff;
-            border-radius: 0.5rem;
-            border: 1px solid #e5e7eb;
-        }
-
-        .upi-id-label {
-            font-size: 0.75rem;
-            color: #6b7280;
-            margin-bottom: 0.25rem;
-        }
-
-        .upi-id {
-            font-family: monospace;
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #1f2937;
-            word-break: break-all;
-        }
-
-        .copy-btn {
-            margin-top: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: #6366f1;
-            color: white;
-            border: none;
-            border-radius: 0.5rem;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .copy-btn:hover {
-            background: #4f46e5;
-        }
-
-        .copy-btn.copied {
-            background: #10b981;
-        }
 
         .footer {
             padding: 1rem 1.5rem;
@@ -358,9 +317,6 @@
                 expired: 'Expired',
                 payWith: 'Pay with UPI App',
                 orScan: 'Or Scan QR Code',
-                upiId: 'UPI ID',
-                copyBtn: 'Copy UPI ID',
-                copied: 'Copied!',
                 securePayment: 'Secured by VSPAY',
                 pending: 'Awaiting Payment',
                 success: 'Payment Successful'
@@ -373,9 +329,6 @@
                 expired: '已过期',
                 payWith: '使用UPI应用支付',
                 orScan: '或扫描二维码',
-                upiId: 'UPI ID',
-                copyBtn: '复制 UPI ID',
-                copied: '已复制!',
                 securePayment: 'VSPAY安全支付',
                 pending: '等待支付',
                 success: '支付成功'
@@ -465,13 +418,6 @@
                     <div class="qr-section">
                         <div class="qr-container">
                             <div id="qrCode"></div>
-                            ${upiId ? `
-                            <div class="upi-id-section">
-                                <p class="upi-id-label">${t('upiId')}</p>
-                                <p class="upi-id" id="upiId">${upiId}</p>
-                                <button class="copy-btn" onclick="copyUpiId()">${t('copyBtn')}</button>
-                            </div>
-                            ` : ''}
                         </div>
                     </div>
                 </div>
@@ -484,7 +430,18 @@
             document.getElementById('content').innerHTML = html;
 
             // Generate QR code
-            const qrData = deepLinks.upi_scan || `upi://pay?pa=${upiId}&am=${data.amount}&cu=INR`;
+            let qrData = deepLinks.upi_scan || '';
+
+            // If upiId looks like a full upi:// link, use it
+            if (!qrData && upiId && upiId.startsWith('upi://')) {
+                qrData = upiId;
+            }
+
+            // Fallback construct
+            if (!qrData) {
+                qrData = `upi://pay?pa=${upiId}&am=${data.amount}&cu=INR&tn=${data.merchantOrderId}`;
+            }
+
             if (typeof QRCode !== 'undefined' && document.getElementById('qrCode')) {
                 QRCode.toCanvas(document.getElementById('qrCode'), qrData, {
                     width: 180,
@@ -525,18 +482,6 @@
             }, 1000);
         }
 
-        function copyUpiId() {
-            const upiId = document.getElementById('upiId');
-            if (!upiId) return;
-
-            navigator.clipboard.writeText(upiId.textContent).then(() => {
-                showToast(t('copied'));
-                btn.classList.add('copied');
-                setTimeout(() => {
-                    btn.classList.remove('copied');
-                }, 2000);
-            });
-        }
 
         // Check payment status periodically
         async function checkStatus() {
