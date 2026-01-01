@@ -151,7 +151,7 @@ router.post('/create', validateMerchant, async (req, res) => {
                 orderAmount: amount,
                 fee: parseFloat(fee.toFixed(2)),
                 paymentUrl: paymentUrl,
-                deepLinks: Object.keys(deepLinks).length > 0 ? deepLinks : undefined
+                paymentUrl: paymentUrl
             }
         });
 

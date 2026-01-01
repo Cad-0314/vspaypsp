@@ -135,6 +135,10 @@ app.get('/docs', (req, res) => {
     res.render('docs', { currentLang: req.cookies.lang || 'en' });
 });
 
+app.get('/apidoc', (req, res) => {
+    res.render('apidocs');
+});
+
 app.get('/', (req, res) => {
     res.redirect('/auth/login');
 });

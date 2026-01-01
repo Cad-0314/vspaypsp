@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VSPAY Developer API Documentation</title>
+    <meta name="description"
+        content="Integrate VSPAY Payment Gateway securely. Comprehensive API documentation for Pay-In, Pay-Out, and Balance checks.">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <!-- Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --bg-body: #f8fafc;
+            --bg-sidebar: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --code-bg: #1e293b;
+            --code-text: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
+            background: var(--bg-body);
+            line-height: 1.6;
+        }
+
+        /* Layout */
+        .wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 2rem;
+            display: block;
+            text-decoration: none;
+        }
+
+        .nav-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 0.5rem 0.75rem;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.9rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #eff6ff;
+            color: var(--primary);
+        }
+
+        /* Main Content */
+        .content {
+            margin-left: 260px;
+            padding: 3rem 4rem;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        section {
+            margin-bottom: 4rem;
+            scroll-margin-top: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 1.5rem 0 1rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: #334155;
+        }
+
+        /* Code Blocks */
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1.25rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: #e2e8f0;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.85em;
+            color: #d63384;
+        }
+
+        pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        th,
+        td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: #f1f5f9;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        td {
+            font-size: 0.95rem;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge.req {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        .badge.opt {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .method {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+
+            .content {
+                margin-left: 0;
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <a href="/" class="logo"><i class="fas fa-layer-group"></i> VSPAY API</a>
+
+            <div class="nav-group">
+                <div class="nav-title">General</div>
+                <a href="#intro" class="nav-link">Introduction</a>
+                <a href="#auth" class="nav-link">Authentication</a>
+                <a href="#error-codes" class="nav-link">Error Codes</a>
+            </div>
+
+            <div class="nav-group">
+                <div class="nav-title">Pay-In (Collections)</div>
+                <a href="#payin-create" class="nav-link">Create Order</a>
+                <a href="#payin-query" class="nav-link">Query Status</a>
+                <a href="#payin-callback" class="nav-link">Webhook (Callback)</a>
+            </div>
+
+            <div class="nav-group">
+                <div class="nav-title">Pay-Out (Settlements)</div>
+                <a href="#payout-bank" class="nav-link">Bank Transfer</a>
+                <a href="#payout-usdt" class="nav-link">USDT Transfer</a>
+                <a href="#payout-query" class="nav-link">Query Status</a>
+            </div>
+
+            <div class="nav-group">
+                <div class="nav-title">Utilities</div>
+                <a href="#balance" class="nav-link">Check Balance</a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="content">
+
+            <!-- Introduction -->
+            <section id="intro">
+                <h1>Introduction</h1>
+                <p>Welcome to the <strong>VSPAY Payment Gateway API</strong>. Our API enables seamless integration of
+                    secure payment collection (Pay-In) and disbursement (Pay-Out) solutions directly into your
+                    application.</p>
+                <ul>
+                    <li><strong>Base URL:</strong> <code>https://vspay.vip</code></li>
+                    <li><strong>Protocol:</strong> HTTPS Required</li>
+                    <li><strong>Content-Type:</strong> <code>application/json</code></li>
+                </ul>
+            </section>
+
+            <!-- Authentication -->
+            <section id="auth">
+                <h2>Authentication & Security</h2>
+                <p>We use Header-Based Authentication with HMAC-MD5 signatures. Every request must be authenticated to
+                    ensure data integrity.</p>
+
+                <h3>Required Headers</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Header</th>
+                            <th>Example</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>x-merchant-id</code></td>
+                            <td><code>550e8400-e29b...</code></td>
+                            <td>Your unique Merchant UUID.</td>
+                        </tr>
+                        <tr>
+                            <td><code>x-signature</code></td>
+                            <td><code>A1B2C3D4E5...</code></td>
+                            <td>The MD5 hash of your request body.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Signature Generation Formula</h3>
+                <ol style="margin-left: 1.5rem; margin-bottom: 1.5rem;">
+                    <li><strong>Sort</strong> all body parameters alphabetically by key (ASCII).</li>
+                    <li><strong>Remove</strong> empty values (<code>""</code>, <code>null</code>) and the
+                        <code>sign</code> field itself.</li>
+                    <li><strong>Join</strong> parameters in <code>key=value</code> format separated by <code>&</code>.
+                    </li>
+                    <li><strong>Append</strong> <code>&secret=YOUR_MERCHANT_SECRET_KEY</code> to the string.</li>
+                    <li><strong>Hash</strong> using MD5 and convert to <strong>UPPERCASE</strong>.</li>
+                </ol>
+
+                <h4>Node.js Example</h4>
+                <pre><code>const crypto = require('crypto');
+
+function generateSignature(params, secretKey) {
+    const filtered = {};
+    Object.keys(params).forEach(key => {
+        if (key !== 'sign' && params[key] !== '' && params[key] != null) {
+            filtered[key] = params[key];
+        }
+    });
+
+    // Sort and Join
+    const sortedKeys = Object.keys(filtered).sort();
+    const query = sortedKeys.map(k => `${k}=${filtered[k]}`).join('&');
+    
+    // Append Secret and Hash
+    const str = `${query}&secret=${secretKey}`;
+    return crypto.createHash('md5').update(str).digest('hex').toUpperCase();
+}</code></pre>
+            </section>
+
+            <!-- Pay-In: Create -->
+            <section id="payin-create">
+                <h2 class="method">POST /api/payin/create</h2>
+                <p>Generate a payment link to collect funds from a user.</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>orderId</code></td>
+                            <td><span class="badge req">Required</span> String</td>
+                            <td>Unique Order ID (Max 64 chars).</td>
+                        </tr>
+                        <tr>
+                            <td><code>orderAmount</code></td>
+                            <td><span class="badge req">Required</span> Number</td>
+                            <td>Amount to collect (Min ₹100).</td>
+                        </tr>
+                        <tr>
+                            <td><code>callbackUrl</code></td>
+                            <td><span class="badge req">Required</span> String</td>
+                            <td>Webhook URL for payment notifications.</td>
+                        </tr>
+                        <tr>
+                            <td><code>customerName</code></td>
+                            <td><span class="badge req">Required</span> String</td>
+                            <td>Name of the customer.</td>
+                        </tr>
+                        <tr>
+                            <td><code>customerEmail</code></td>
+                            <td><span class="badge req">Required</span> String</td>
+                            <td>Email of the customer.</td>
+                        </tr>
+                        <tr>
+                            <td><code>customerPhone</code></td>
+                            <td><span class="badge req">Required</span> String</td>
+                            <td>Phone number of the customer.</td>
+                        </tr>
+                        <tr>
+                            <td><code>skipUrl</code></td>
+                            <td><span class="badge opt">Optional</span> String</td>
+                            <td>Redirect URL after successful payment.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Response</h3>
+                <pre><code>{
+    "code": 1,
+    "msg": "Order created",
+    "data": {
+        "orderId": "Your_Order_ID_123",
+        "id": "Gateway_Internal_ID",
+        "orderAmount": 500,
+        "fee": 25,
+        "paymentUrl": "https://vspay.vip/pay/ABC-123-XYZ"
+    }
+}</code></pre>
+            </section>
+
+            <!-- Pay-In: Callback -->
+            <section id="payin-callback">
+                <h2>Pay-In Webhook (Callback)</h2>
+                <p>We will send a POST request to your <code>callbackUrl</code> when the payment status updates.</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>status</code></td>
+                            <td>Number</td>
+                            <td><code>1</code> = Success, <code>0</code> = Failed</td>
+                        </tr>
+                        <tr>
+                            <td><code>amount</code></td>
+                            <td>Number</td>
+                            <td>Net amount credited (after fees).</td>
+                        </tr>
+                        <tr>
+                            <td><code>orderAmount</code></td>
+                            <td>Number</td>
+                            <td>Original order amount.</td>
+                        </tr>
+                        <tr>
+                            <td><code>orderId</code></td>
+                            <td>String</td>
+                            <td>Your merchant order ID.</td>
+                        </tr>
+                        <tr>
+                            <td><code>utr</code></td>
+                            <td>String</td>
+                            <td>Bank UTR / Reference Number.</td>
+                        </tr>
+                        <tr>
+                            <td><code>sign</code></td>
+                            <td>String</td>
+                            <td>MD5 signature for verification.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div
+                    style="background: #fff3cd; color: #856404; padding: 1rem; border-left: 4px solid #ffeeba; border-radius: 4px; margin-top: 1rem;">
+                    <strong>Important:</strong> You must respond with the plain text <code>OK</code> to acknowledge
+                    receipt. If not received, we retry up to 5 times.
+                </div>
+            </section>
+
+            <!-- Payout: Bank -->
+            <section id="payout-bank">
+                <h2 class="method">POST /api/payout/bank</h2>
+                <p>Transfer funds to a bank account via IMPS/NEFT.</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>orderId</code></td>
+                            <td><span class="badge req">Required</span> String</td>
+                            <td>Unique Transaction ID.</td>
+                        </tr>
+                        <tr>
+                            <td><code>amount</code></td>
+                            <td><span class="badge req">Required</span> Number</td>
+                            <td>Amount in INR (Min ₹100).</td>
+                        </tr>
+                        <tr>
+                            <td><code>account</code></td>
+                            <td><span class="badge req">Required</span> String</td>
+                            <td>Beneficiary Bank Account Number.</td>
+                        </tr>
+                        <tr>
+                            <td><code>ifsc</code></td>
+                            <td><span class="badge req">Required</span> String</td>
+                            <td>Beneficiary Bank IFSC Code.</td>
+                        </tr>
+                        <tr>
+                            <td><code>personName</code></td>
+                            <td><span class="badge req">Required</span> String</td>
+                            <td>Beneficiary Account Holder Name.</td>
+                        </tr>
+                        <tr>
+                            <td><code>callbackUrl</code></td>
+                            <td><span class="badge opt">Optional</span> String</td>
+                            <td>Webhook URL for status updates.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="balance">
+                <h2 class="method">POST /api/balance/query</h2>
+                <p>Check your available merchant balance.</p>
+                <p><strong>Body:</strong> <code>{}</code> (Empty JSON object)</p>
+
+                <h3>Response</h3>
+                <pre><code>{
+    "code": 1,
+    "msg": "Success",
+    "data": {
+        "availableAmount": 10050.00,
+        "pendingAmount": 0,
+        "totalAmount": 10050.00
+    }
+}</code></pre>
+            </section>
+
+            <section id="error-codes">
+                <h2>Error Codes</h2>
+                <table>
+                    <tr>
+                        <th>Code</th>
+                        <th>Meaning</th>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>Success</td>
+                    </tr>
+                    <tr>
+                        <td>0</td>
+                        <td>Failed / General Error</td>
+                    </tr>
+                    <tr>
+                        <td>-1</td>
+                        <td>Invalid Signature</td>
+                    </tr>
+                    <tr>
+                        <td>-2</td>
+                        <td>Missing Parameters</td>
+                    </tr>
+                    <tr>
+                        <td>-3</td>
+                        <td>Insufficient Balance</td>
+                    </tr>
+                    <tr>
+                        <td>-4</td>
+                        <td>Order Not Found</td>
+                    </tr>
+                </table>
+            </section>
+
+        </main>
+    </div>
+
+</body>
+
+</html>
