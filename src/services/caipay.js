@@ -1,11 +1,20 @@
 const axios = require('axios');
+const https = require('https');
+const http = require('http');
 const crypto = require('crypto');
-require('dotenv').config();
 
 const BASE_URL = process.env.CAIPAY_BASE_URL;
 const MERCHANT_ID = process.env.CAIPAY_MERCHANT_ID; // Maps to tenantId
 const SECRET_KEY = process.env.CAIPAY_SECRET_KEY;
 const TOKEN = process.env.CAIPAY_TOKEN;
+
+// Create axios instance with IPv4 enforcement
+const httpClient = axios.create({
+    timeout: 30000,
+    family: 4, // Force IPv4
+    httpAgent: new http.Agent({ keepAlive: true }),
+    httpsAgent: new https.Agent({ keepAlive: true })
+});
 
 // Helper: Generate MD5 Signature for CaiPay
 function generateSignature(params) {
@@ -50,7 +59,7 @@ const caipayService = {
             const url = `${BASE_URL}/payIn-H2H?${queryString}`;
 
             console.log('[CaiPay] Creating Payin H2H:', url);
-            const response = await axios.get(url);
+            const response = await httpClient.get(url);
             console.log('[CaiPay] Payin Response:', response.data);
 
             if (response.data.code === 0 && response.data.ok) {
@@ -102,7 +111,7 @@ const caipayService = {
             params.signKey = generateSignature(params);
 
             console.log('[CaiPay] Creating Payout:', params);
-            const response = await axios.post(`${BASE_URL}/payOut`, params);
+            const response = await httpClient.post(`${BASE_URL}/payOut`, params);
             console.log('[CaiPay] Payout Response:', response.data);
 
             if (response.data.code === 0 && response.data.ok) {

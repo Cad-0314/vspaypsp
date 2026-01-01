@@ -1,10 +1,19 @@
 const axios = require('axios');
+const https = require('https');
+const http = require('http');
 const crypto = require('crypto');
-require('dotenv').config();
 
 const BASE_URL = process.env.FENDPAY_BASE_URL;
 const MERCHANT_ID = process.env.FENDPAY_MERCHANT_ID;
 const SECRET_KEY = process.env.FENDPAY_SECRET_KEY;
+
+// Create axios instance with IPv4 enforcement
+const httpClient = axios.create({
+    timeout: 30000,
+    family: 4, // Force IPv4
+    httpAgent: new http.Agent({ keepAlive: true }),
+    httpsAgent: new https.Agent({ keepAlive: true })
+});
 
 // Helper: Generate MD5 Signature
 function generateSignature(params) {
@@ -39,7 +48,7 @@ const fendpayService = {
             params.sign = generateSignature(params);
 
             console.log('[FendPay] Creating Payin:', params);
-            const response = await axios.post(`${BASE_URL}/payment`, params);
+            const response = await httpClient.post(`${BASE_URL}/payment`, params);
             console.log('[FendPay] Payin Response:', response.data);
 
             if (response.data.code == 200) {
@@ -75,7 +84,7 @@ const fendpayService = {
             params.sign = generateSignature(params);
 
             console.log('[FendPay] Creating Payout:', params);
-            const response = await axios.post(`${BASE_URL}/payout`, params);
+            const response = await httpClient.post(`${BASE_URL}/payout`, params);
             console.log('[FendPay] Payout Response:', response.data);
 
             if (response.data.code == 200) {
@@ -102,7 +111,7 @@ const fendpayService = {
             };
             params.sign = generateSignature(params);
 
-            const response = await axios.post(`${BASE_URL}/merchantQuery`, params);
+            const response = await httpClient.post(`${BASE_URL}/merchantQuery`, params);
 
             if (response.data.code == 200) {
                 return {
