@@ -357,14 +357,14 @@
 
             <div class="nav-group" data-i18n="pay_in_deposits">Pay-In (Deposits)</div>
             <a href="#payin-create" class="nav-item" data-i18n="create_order">Create Order</a>
-            <a href="#payin-query" class="nav-item" data-i18n="query_status">Query Status</a>
             <a href="#payin-callback" class="nav-item" data-i18n="payin_callback">Pay-In Callback</a>
+            <a href="#payin-query" class="nav-item" data-i18n="query_status">Query Status</a>
 
             <div class="nav-group" data-i18n="pay_out_withdrawals">Pay-Out (Withdrawals)</div>
             <a href="#payout-bank" class="nav-item" data-i18n="bank_transfer">Bank Transfer</a>
             <a href="#payout-usdt" class="nav-item" data-i18n="usdt_transfer">USDT Transfer</a>
-            <a href="#payout-query" class="nav-item" data-i18n="query_status">Query Status</a>
             <a href="#payout-callback" class="nav-item" data-i18n="payout_callback">Payout Callback</a>
+            <a href="#payout-query" class="nav-item" data-i18n="query_status">Query Status</a>
 
             <div class="nav-group" data-i18n="utilities">Utilities</div>
             <a href="#balance" class="nav-item" data-i18n="check_balance">Check Balance</a>
@@ -590,51 +590,6 @@ function generateSignature(params, secretKey) {
             </div>
         </section>
 
-        <!-- Pay-In Query -->
-        <section id="payin-query">
-            <h2 data-i18n="query_status">Query Pay-In Status / 查询充值状态</h2>
-            <p data-i18n="query_payin_desc">Check the real-time status of a deposit order.</p>
-            <p><span class="method post">POST</span><span class="endpoint">/api/payin/query</span></p>
-            <div class="alert alert-info">
-                <strong>Public Alternative:</strong> Use <code>POST /api/payin/check</code> with <code>orderId</code>
-                and <code>userId</code> (no signature required).<br>
-                <strong>公开接口:</strong> 可使用 <code>/api/payin/check</code>，需传 <code>orderId</code> 和
-                <code>userId</code>（无需签名）
-            </div>
-
-            <table class="param-table">
-                <tr>
-                    <th>Parameter</th>
-                    <th>Type</th>
-                    <th>Description</th>
-                </tr>
-                <tr>
-                    <td><code>orderId</code></td>
-                    <td>String <span class="required">Required</span></td>
-                    <td>Your unique Order ID / 您的订单号</td>
-                </tr>
-            </table>
-
-            <h3 data-i18n="success_response">Response</h3>
-            <div class="code-block">
-                <button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
-                <pre><code>{
-    "code": 1,
-    "data": {
-        "orderId": "MC001-998877",
-        "id": "e0b5...88",
-        "status": "success",
-        "amount": 500,
-        "orderAmount": 500,
-        "fee": 25,
-        "netAmount": 475,
-        "utr": "123456789012",
-        "createdAt": "2025-01-01T12:00:00Z"
-    }
-}</code></pre>
-            </div>
-        </section>
-
         <!-- Pay-In Callback -->
         <section id="payin-callback">
             <h2 data-i18n="payin_callback">Pay-In Callback / 充值回调</h2>
@@ -709,6 +664,51 @@ function generateSignature(params, secretKey) {
                 <strong>Important / 重要:</strong> You must respond with plain text <code>OK</code> to acknowledge. We
                 retry up to 5 times if not received.<br>
                 <strong>必须响应:</strong> 收到回调后需返回纯文本 <code>OK</code>。未收到确认将重试5次。
+            </div>
+        </section>
+
+        <!-- Pay-In Query -->
+        <section id="payin-query">
+            <h2 data-i18n="query_status">Query Pay-In Status / 查询充值状态</h2>
+            <p data-i18n="query_payin_desc">Check the real-time status of a deposit order.</p>
+            <p><span class="method post">POST</span><span class="endpoint">/api/payin/query</span></p>
+            <div class="alert alert-info">
+                <strong>Public Alternative:</strong> Use <code>POST /api/payin/check</code> with <code>orderId</code>
+                and <code>userId</code> (no signature required).<br>
+                <strong>公开接口:</strong> 可使用 <code>/api/payin/check</code>，需传 <code>orderId</code> 和
+                <code>userId</code>（无需签名）
+            </div>
+
+            <table class="param-table">
+                <tr>
+                    <th>Parameter</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><code>orderId</code></td>
+                    <td>String <span class="required">Required</span></td>
+                    <td>Your unique Order ID / 您的订单号</td>
+                </tr>
+            </table>
+
+            <h3 data-i18n="success_response">Response</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
+                <pre><code>{
+    "code": 1,
+    "data": {
+        "orderId": "MC001-998877",
+        "id": "e0b5...88",
+        "status": "success",
+        "amount": 500,
+        "orderAmount": 500,
+        "fee": 25,
+        "netAmount": 475,
+        "utr": "123456789012",
+        "createdAt": "2025-01-01T12:00:00Z"
+    }
+}</code></pre>
             </div>
         </section>
 
@@ -834,48 +834,6 @@ function generateSignature(params, secretKey) {
             </div>
         </section>
 
-        <!-- Payout Query -->
-        <section id="payout-query">
-            <h2 data-i18n="query_status">Query Payout Status / 查询代付状态</h2>
-            <p><span class="method post">POST</span><span class="endpoint">/api/payout/query</span></p>
-            <div class="alert alert-info">
-                <strong>Public Alternative:</strong> Use <code>POST /api/payout/check</code> with <code>orderId</code>
-                and <code>userId</code>.<br>
-                <strong>公开接口:</strong> 可用 <code>/api/payout/check</code>，传 <code>orderId</code> 和 <code>userId</code>
-            </div>
-
-            <table class="param-table">
-                <tr>
-                    <th>Parameter</th>
-                    <th>Type</th>
-                    <th>Description</th>
-                </tr>
-                <tr>
-                    <td><code>orderId</code></td>
-                    <td>String <span class="required">Required</span></td>
-                    <td>Payout Order ID / 代付订单号</td>
-                </tr>
-            </table>
-
-            <h3 data-i18n="success_response">Response</h3>
-            <div class="code-block">
-                <button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
-                <pre><code>{
-    "code": 1,
-    "data": {
-        "orderId": "MC001-998877",
-        "id": "e0b5...88",
-        "type": "bank",
-        "status": "success",
-        "amount": 500,
-        "fee": 21,
-        "utr": "123456789012",
-        "createdAt": "2025-01-01T12:00:00Z"
-    }
-}</code></pre>
-            </div>
-        </section>
-
         <!-- Payout Callback -->
         <section id="payout-callback">
             <h2 data-i18n="payout_callback">Payout Callback / 代付回调</h2>
@@ -948,6 +906,48 @@ function generateSignature(params, secretKey) {
             <div class="alert alert-warning">
                 <strong>Response Required:</strong> Return plain text <code>OK</code> to acknowledge.<br>
                 <strong>必须响应:</strong> 返回纯文本 <code>OK</code> 确认收到。
+            </div>
+        </section>
+
+        <!-- Payout Query -->
+        <section id="payout-query">
+            <h2 data-i18n="query_status">Query Payout Status / 查询代付状态</h2>
+            <p><span class="method post">POST</span><span class="endpoint">/api/payout/query</span></p>
+            <div class="alert alert-info">
+                <strong>Public Alternative:</strong> Use <code>POST /api/payout/check</code> with <code>orderId</code>
+                and <code>userId</code>.<br>
+                <strong>公开接口:</strong> 可用 <code>/api/payout/check</code>，传 <code>orderId</code> 和 <code>userId</code>
+            </div>
+
+            <table class="param-table">
+                <tr>
+                    <th>Parameter</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><code>orderId</code></td>
+                    <td>String <span class="required">Required</span></td>
+                    <td>Payout Order ID / 代付订单号</td>
+                </tr>
+            </table>
+
+            <h3 data-i18n="success_response">Response</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
+                <pre><code>{
+    "code": 1,
+    "data": {
+        "orderId": "MC001-998877",
+        "id": "e0b5...88",
+        "type": "bank",
+        "status": "success",
+        "amount": 500,
+        "fee": 21,
+        "utr": "123456789012",
+        "createdAt": "2025-01-01T12:00:00Z"
+    }
+}</code></pre>
             </div>
         </section>
 
