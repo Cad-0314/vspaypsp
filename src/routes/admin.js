@@ -325,6 +325,23 @@ router.put('/channels/:id', async (req, res) => {
     }
 });
 
+router.post('/channels/analyze', async (req, res) => {
+    try {
+        // Dynamic import to avoid caching
+        delete require.cache[require.resolve('../../test-payin-channels')];
+        const testChannels = require('../../test-payin-channels');
+
+        console.log('[Admin] Starting Channel Analysis...');
+        const results = await testChannels();
+        res.json({ success: true, results });
+    } catch (error) {
+        console.error('[Admin] Analysis Failed:', error);
+        res.status(500).json({ success: false, error: 'Analysis failed' });
+    }
+});
+    }
+});
+
 // ==========================================
 // Global Orders
 // ==========================================

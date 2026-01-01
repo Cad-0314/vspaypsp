@@ -25,6 +25,7 @@ const seedDatabase = require('./src/seeders/init');
 
 // Telegram Bot
 const telegramBot = require('./src/services/telegramBot');
+console.log('[Server] Initializing Telegram Bot...');
 telegramBot.init(process.env.TELEGRAM_BOT_TOKEN);
 
 // Passport Config

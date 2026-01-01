@@ -599,7 +599,12 @@
                 <!-- Channels -->
                 <div id="tab-channels" class="tab-content">
                     <h1>Channels</h1>
-                    <div class="subtitle">Configure upstream payment channels.</div>
+                    <div class="subtitle" style="margin-bottom:0">Configure upstream payment channels.</div>
+                    <button class="btn btn-primary" onclick="analyzeChannels()" id="btn-analyze"
+                        style="float:right; margin-top:-2rem;">
+                        <i class="ri-pulse-line"></i> Check Health
+                    </button>
+                    <br style="clear:both; margin-bottom:1rem;">
                     <div class="card">
                         <table id="channels-table">
                             <thead>
@@ -1096,6 +1101,35 @@
                      <td><button class="btn" style="padding:0.25rem 0.5rem;"><i class="ri-settings-4-line"></i></button></td>
                 </tr>
              `).join('');
+        }
+
+        async function analyzeChannels() {
+            const btn = document.getElementById('btn-analyze');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Checking...';
+
+            showToast('Starting channel analysis. This may take 10-20 seconds.', 'info');
+
+            try {
+                const res = await fetch('/admin/api/channels/analyze', { method: 'POST' });
+                const data = await res.json();
+
+                if (data.success) {
+                    let msg = 'Analysis Complete:\n';
+                    data.results.forEach(r => {
+                        msg += `${r.channel}: ${r.success ? '✅ OK' : '❌ ' + (r.error || 'Failed')} \n`;
+                    });
+                    alert(msg); // Using alert for simplicity as modal is not set up
+                } else {
+                    showToast('Analysis failed to run', 'error');
+                }
+            } catch (e) {
+                showToast('Error running analysis', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
         }
     </script>
 </body>
