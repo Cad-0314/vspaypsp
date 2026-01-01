@@ -53,12 +53,13 @@ router.post('/:channel/payin', async (req, res) => {
             actualAmount = parseFloat(bizContent.actualAmount);
             providerOrderId = bizContent.platNo;
         } else if (channelName === 'payable' || channelName === 'silkpay') {
-            orderId = req.body.orderId;
+            // Silkpay V2 uses mOrderId for merchant order ID
+            orderId = req.body.mOrderId || req.body.orderId;
             status = req.body.status === 1 || req.body.status === '1' ? 'success' :
                 req.body.status === 2 || req.body.status === '2' ? 'failed' : 'pending';
             utr = req.body.utr || req.body.bankRef;
             actualAmount = parseFloat(req.body.actualAmount || req.body.amount);
-            providerOrderId = req.body.tradeNo;
+            providerOrderId = req.body.sysOrderId || req.body.tradeNo;
         } else if (channelName === 'fendpay' || channelName === 'upi super') {
             // FendPay: status 1 = success
             orderId = req.body.outTradeNo;
@@ -147,8 +148,6 @@ router.post('/:channel/payin', async (req, res) => {
                     console.log(`[Callback] Admin profit: ₹${adminProfit.toFixed(2)}`);
                 }
             }
-
-            await t.commit();
 
             await t.commit();
 

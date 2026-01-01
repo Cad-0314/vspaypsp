@@ -1,7 +1,22 @@
 const axios = require('axios');
+const http = require('http');
+const https = require('https');
 const { Order, User } = require('../models');
 const { signCallback } = require('../middleware/apiAuth');
 const sequelize = require('../config/database');
+
+// HTTP Keep-Alive agents for high throughput callback forwarding
+const httpAgent = new http.Agent({ keepAlive: true, maxSockets: 100 });
+const httpsAgent = new https.Agent({ keepAlive: true, maxSockets: 100 });
+
+// Axios instance with keep-alive for merchant callbacks
+const callbackClient = axios.create({
+    timeout: 10000,
+    headers: { 'Content-Type': 'application/json' },
+    httpAgent,
+    httpsAgent,
+    validateStatus: () => true // Resolve for all status codes
+});
 
 // Retry configuration
 const MAX_CALLBACK_RETRIES = 5;
@@ -68,11 +83,7 @@ const callbackService = {
 
             console.log(`[Callback] Sending payin to ${order.callbackUrl}`);
 
-            const response = await axios.post(order.callbackUrl, callbackData, {
-                timeout: 10000,
-                headers: { 'Content-Type': 'application/json' },
-                validateStatus: () => true // Resolve promise for all status codes
-            });
+            const response = await callbackClient.post(order.callbackUrl, callbackData);
 
             const responseText = typeof response.data === 'string' ? response.data : JSON.stringify(response.data);
             const isOk = responseText.toUpperCase().includes('OK');
@@ -120,11 +131,7 @@ const callbackService = {
 
             console.log(`[Callback] Sending payout to ${order.callbackUrl}`);
 
-            const response = await axios.post(order.callbackUrl, callbackData, {
-                timeout: 10000,
-                headers: { 'Content-Type': 'application/json' },
-                validateStatus: () => true
-            });
+            const response = await callbackClient.post(order.callbackUrl, callbackData);
 
             const responseText = typeof response.data === 'string' ? response.data : JSON.stringify(response.data);
             const isOk = responseText.toUpperCase().includes('OK');

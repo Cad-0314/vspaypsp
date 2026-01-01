@@ -46,13 +46,33 @@ function generateSign(bizContent) {
 
 /**
  * Verify RSA signature using platform public key
+ * Accepts either (bizContent, signature) OR (fullCallbackBody)
  */
-function verifySign(bizContent, signature) {
+function verifySign(bizContentOrParams, signature) {
     try {
+        let bizContent, sign;
+
+        // Handle both calling conventions:
+        // 1. verifySign(bizContent, signature) - direct call
+        // 2. verifySign(params) - from channelRouter.verifyCallback
+        if (typeof bizContentOrParams === 'object' && bizContentOrParams !== null) {
+            // Called with full callback body from router
+            bizContent = bizContentOrParams.bizContent;
+            sign = bizContentOrParams.sign;
+            if (!bizContent || !sign) {
+                console.warn('[F2Pay] verifySign: Missing bizContent or sign in callback body');
+                return false;
+            }
+        } else {
+            // Called with separate bizContent and signature
+            bizContent = bizContentOrParams;
+            sign = signature;
+        }
+
         const publicKey = `-----BEGIN PUBLIC KEY-----\n${PLATFORM_PUBLIC_KEY}\n-----END PUBLIC KEY-----`;
         const verify = crypto.createVerify('RSA-SHA256');
         verify.update(bizContent, 'utf8');
-        return verify.verify(publicKey, signature, 'base64');
+        return verify.verify(publicKey, sign, 'base64');
     } catch (error) {
         console.error('[F2Pay] Sign verification error:', error.message);
         return false;
