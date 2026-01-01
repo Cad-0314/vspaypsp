@@ -339,8 +339,7 @@ router.post('/channels/analyze', async (req, res) => {
         res.status(500).json({ success: false, error: 'Analysis failed' });
     }
 });
-    }
-});
+
 
 // ==========================================
 // Global Orders
