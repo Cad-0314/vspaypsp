@@ -67,17 +67,7 @@ async function validateMerchant(req, res, next) {
 
         // Verify signature
         const body = req.body || {};
-
-        // Ensure all values are converted to strings for consistent signature generation
-        const normalizedBody = {};
-        Object.keys(body).forEach(key => {
-            if (body[key] !== '' && body[key] != null && key !== 'sign') {
-                // Convert to string to match client-side signature generation
-                normalizedBody[key] = String(body[key]);
-            }
-        });
-
-        const expectedSign = generateSignature(normalizedBody, (merchant.apiSecret || '').trim());
+        const expectedSign = generateSignature(body, (merchant.apiSecret || '').trim());
 
         if ((signature || '').trim().toUpperCase() !== expectedSign) {
             console.warn(`[API Auth] Signature Mismatch for Merchant ${merchant.username} (ID: ${merchant.id})`);
@@ -86,11 +76,16 @@ async function validateMerchant(req, res, next) {
             console.warn(`[API Auth] Request Body:`, JSON.stringify(body, null, 2));
 
             // Log the exact string used for hashing (for debugging)
-            const sorted = Object.keys(normalizedBody).sort();
-            const query = sorted.map(k => `${k}=${normalizedBody[k]}`).join('&');
+            const filtered = {};
+            Object.keys(body).forEach(key => {
+                if (key !== 'sign' && body[key] !== '' && body[key] != null) {
+                    filtered[key] = body[key];
+                }
+            });
+            const sorted = Object.keys(filtered).sort();
+            const query = sorted.map(k => `${k}=${filtered[k]}`).join('&');
             const str = `${query}&secret=${(merchant.apiSecret || '').trim()}`;
             console.warn(`[API Auth] String to Sign: ${str}`);
-            console.warn(`[API Auth] Tip: Ensure client uses the same sorting and secret key`);
 
             return res.status(401).json({
                 code: -1,
