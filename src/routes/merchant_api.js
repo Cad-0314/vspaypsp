@@ -314,4 +314,25 @@ router.get('/export/orders', async (req, res) => {
     }
 });
 
+// Manual Callback Trigger
+router.post('/callback/:orderId', async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        // Verify ownership (security check)
+        const order = await Order.findOne({
+            where: {
+                merchantId: req.user.id,
+                orderId: orderId
+            }
+        });
+
+        if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+
+        const result = await require('../../services/callbackService').manualCallback(orderId);
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
 module.exports = router;

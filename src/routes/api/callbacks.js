@@ -11,6 +11,7 @@ const { Order, User, Channel } = require('../../models');
 const channelRouter = require('../../services/channelRouter');
 const { signCallback } = require('../../middleware/apiAuth');
 const sequelize = require('../../config/database');
+const callbackService = require('../../services/callbackService');
 
 // Retry configuration
 const MAX_CALLBACK_RETRIES = 5;
@@ -149,9 +150,13 @@ router.post('/:channel/payin', async (req, res) => {
 
             await t.commit();
 
-            // Forward callback to merchant (async, don't wait)
+            await t.commit();
+
+            // Forward callback to merchant (async)
             if (order.callbackUrl && !order.callbackSent) {
-                forwardPayinCallback(order, status, utr);
+                callbackService.sendPayinCallback(order, status, utr).then(res => {
+                    if (!res.isOk) callbackService.scheduleRetry(order, status, utr, 'payin');
+                });
             }
 
         } catch (error) {
@@ -159,7 +164,6 @@ router.post('/:channel/payin', async (req, res) => {
             throw error;
         }
 
-        // Return success to upstream provider
         return res.send('success');
 
     } catch (error) {
@@ -177,59 +181,41 @@ router.post('/:channel/payout', async (req, res) => {
     console.log(`[Callback] Payout callback from ${channelName}:`, JSON.stringify(req.body));
 
     try {
-        // Extract order info
         let orderId, status, utr, providerOrderId;
 
+        // ... Extraction logic remains essentially the same, but simplified for brevity in this replace ...
         if (channelName === 'hdpay') {
             orderId = req.body.merchantPayoutId;
             status = req.body.status === '1' ? 'success' : 'failed';
             utr = req.body.utr;
             providerOrderId = req.body.payoutId;
         } else if (channelName === 'x2' || channelName === 'f2pay') {
-            const bizContent = typeof req.body.bizContent === 'string'
-                ? JSON.parse(req.body.bizContent)
-                : req.body.bizContent;
-
+            const bizContent = typeof req.body.bizContent === 'string' ? JSON.parse(req.body.bizContent) : req.body.bizContent;
             orderId = bizContent.mchOrderNo;
-            status = bizContent.state === 'Success' || bizContent.state === 'Paid' ? 'success' :
-                bizContent.state === 'Failed' ? 'failed' : 'processing';
+            status = bizContent.state === 'Success' || bizContent.state === 'Paid' ? 'success' : bizContent.state === 'Failed' ? 'failed' : 'processing';
             utr = bizContent.trxId;
             providerOrderId = bizContent.platNo;
         } else if (channelName === 'payable' || channelName === 'silkpay') {
             orderId = req.body.orderId;
-            status = req.body.status === 1 || req.body.status === '1' ? 'success' : 'failed';
+            status = req.body.status == 1 ? 'success' : 'failed';
             utr = req.body.utr;
             providerOrderId = req.body.tradeNo;
         } else if (channelName === 'fendpay' || channelName === 'upi super') {
-            // FendPay Payout: status 1 = success, 0 = processing
             orderId = req.body.outTradeNo;
-            status = req.body.status === '1' || req.body.status === 1 ? 'success' :
-                req.body.status === '0' || req.body.status === 0 ? 'processing' : 'failed';
+            status = req.body.status == 1 ? 'success' : req.body.status == 0 ? 'processing' : 'failed';
             utr = req.body.utr;
             providerOrderId = req.body.orderNo;
         } else if (channelName === 'caipay' || channelName === 'yellow') {
-            // CaiPay Payout: orderStatus "SUCCESS"
             orderId = req.body.customerOrderNo;
             status = req.body.orderStatus === 'SUCCESS' ? 'success' : 'failed';
             utr = req.body.payUtrNo;
             providerOrderId = req.body.platOrderNo;
         }
 
-        if (!orderId) {
-            return res.send('success');
-        }
+        if (!orderId) return res.send('success');
 
-        const order = await Order.findOne({
-            where: { orderId: orderId, type: 'payout' }
-        });
-
-        if (!order) {
-            return res.send('success');
-        }
-
-        if (order.status === 'success' || order.status === 'failed') {
-            return res.send('success');
-        }
+        const order = await Order.findOne({ where: { orderId: orderId, type: 'payout' } });
+        if (!order || order.status === 'success' || order.status === 'failed') return res.send('success');
 
         const t = await sequelize.transaction();
 
@@ -241,37 +227,27 @@ router.post('/:channel/payout', async (req, res) => {
                 callbackData: JSON.stringify(req.body)
             }, { transaction: t });
 
-            // Update pending balance
             await User.update(
                 { pendingBalance: sequelize.literal(`GREATEST(pendingBalance - ${order.amount}, 0)`) },
                 { where: { id: order.merchantId }, transaction: t }
             );
 
             if (status === 'success') {
-                // Payout successful - admin keeps the fee (already deducted from merchant)
                 const adminProfit = parseFloat(order.fee);
                 if (adminProfit > 0) {
-                    await User.update(
-                        { balance: sequelize.literal(`balance + ${adminProfit}`) },
-                        { where: { role: 'admin' }, transaction: t }
-                    );
-                    console.log(`[Callback] Admin payout profit: ₹${adminProfit}`);
+                    await User.update({ balance: sequelize.literal(`balance + ${adminProfit}`) }, { where: { role: 'admin' }, transaction: t });
                 }
             } else if (status === 'failed') {
-                // Refund full amount + fee to merchant
                 const refundAmount = parseFloat(order.amount) + parseFloat(order.fee);
-                await User.update(
-                    { balance: sequelize.literal(`balance + ${refundAmount}`) },
-                    { where: { id: order.merchantId }, transaction: t }
-                );
-                console.log(`[Callback] Refunded ₹${refundAmount} to merchant ${order.merchantId}`);
+                await User.update({ balance: sequelize.literal(`balance + ${refundAmount}`) }, { where: { id: order.merchantId }, transaction: t });
             }
 
             await t.commit();
 
-            // Forward callback to merchant
             if (order.callbackUrl && !order.callbackSent) {
-                forwardPayoutCallback(order, status, utr);
+                callbackService.sendPayoutCallback(order, status, utr).then(res => {
+                    if (!res.isOk) callbackService.scheduleRetry(order, status, utr, 'payout');
+                });
             }
 
         } catch (error) {
@@ -286,132 +262,5 @@ router.post('/:channel/payout', async (req, res) => {
         return res.send('success');
     }
 });
-
-/**
- * Forward payin callback to merchant
- * Format exactly matches ourapi.txt Pay-In Callback specification:
- * { status, amount, orderAmount, orderId, id, utr, param, sign }
- */
-async function forwardPayinCallback(order, status, utr) {
-    try {
-        const merchant = await User.findByPk(order.merchantId);
-        if (!merchant || !order.callbackUrl) return;
-
-        // Build callback data exactly as per ourapi.txt
-        const callbackData = {
-            status: status === 'success' ? 1 : 0,
-            amount: parseFloat(parseFloat(order.netAmount).toFixed(2)),
-            orderAmount: parseFloat(parseFloat(order.amount).toFixed(2)),
-            orderId: order.orderId,
-            id: order.id,
-            utr: utr || '',
-            param: order.param || ''
-        };
-
-        // Add MD5 signature
-        callbackData.sign = signCallback(callbackData, merchant.apiSecret);
-
-        console.log(`[Callback] Forwarding payin to merchant: ${order.callbackUrl}`);
-        console.log(`[Callback] Data:`, JSON.stringify(callbackData));
-
-        const response = await axios.post(order.callbackUrl, callbackData, {
-            timeout: 10000,
-            headers: { 'Content-Type': 'application/json' }
-        });
-
-        const responseText = typeof response.data === 'string' ? response.data : JSON.stringify(response.data);
-
-        // Check for OK response (case insensitive)
-        if (responseText.toUpperCase().includes('OK')) {
-            await order.update({ callbackSent: true, callbackAttempts: order.callbackAttempts + 1 });
-            console.log(`[Callback] Merchant acknowledged: ${order.orderId}`);
-        } else {
-            await order.update({ callbackAttempts: order.callbackAttempts + 1 });
-            console.log(`[Callback] Merchant response was not OK: ${responseText}`);
-            // Schedule retry if needed
-            scheduleRetry(order, status, utr, 'payin');
-        }
-    } catch (error) {
-        console.error(`[Callback] Forward payin error: ${error.message}`);
-        await order.update({ callbackAttempts: order.callbackAttempts + 1 });
-        // Schedule retry
-        scheduleRetry(order, status, utr, 'payin');
-    }
-}
-
-/**
- * Forward payout callback to merchant  
- * Format exactly matches ourapi.txt Payout Callback specification:
- * { status, amount, orderId, id, utr, message, param, sign }
- */
-async function forwardPayoutCallback(order, status, utr) {
-    try {
-        const merchant = await User.findByPk(order.merchantId);
-        if (!merchant || !order.callbackUrl) return;
-
-        // Build callback data exactly as per ourapi.txt
-        const callbackData = {
-            status: status === 'success' ? 1 : 0,
-            amount: parseFloat(parseFloat(order.amount).toFixed(2)),
-            orderId: order.orderId,
-            id: order.id,
-            utr: utr || '',
-            message: status === 'success' ? 'success' : 'failed',
-            param: order.param || ''
-        };
-
-        // Add MD5 signature
-        callbackData.sign = signCallback(callbackData, merchant.apiSecret);
-
-        console.log(`[Callback] Forwarding payout to merchant: ${order.callbackUrl}`);
-        console.log(`[Callback] Data:`, JSON.stringify(callbackData));
-
-        const response = await axios.post(order.callbackUrl, callbackData, {
-            timeout: 10000,
-            headers: { 'Content-Type': 'application/json' }
-        });
-
-        const responseText = typeof response.data === 'string' ? response.data : JSON.stringify(response.data);
-
-        if (responseText.toUpperCase().includes('OK')) {
-            await order.update({ callbackSent: true, callbackAttempts: order.callbackAttempts + 1 });
-            console.log(`[Callback] Merchant acknowledged payout: ${order.orderId}`);
-        } else {
-            await order.update({ callbackAttempts: order.callbackAttempts + 1 });
-            scheduleRetry(order, status, utr, 'payout');
-        }
-    } catch (error) {
-        console.error(`[Callback] Forward payout error: ${error.message}`);
-        await order.update({ callbackAttempts: order.callbackAttempts + 1 });
-        scheduleRetry(order, status, utr, 'payout');
-    }
-}
-
-/**
- * Schedule callback retry
- */
-function scheduleRetry(order, status, utr, type) {
-    const attempts = order.callbackAttempts + 1;
-
-    if (attempts >= MAX_CALLBACK_RETRIES) {
-        console.log(`[Callback] Max retries reached for order ${order.orderId}`);
-        return;
-    }
-
-    const delay = RETRY_DELAYS[attempts] || 600000;
-    console.log(`[Callback] Scheduling retry ${attempts}/${MAX_CALLBACK_RETRIES} in ${delay / 1000}s for ${order.orderId}`);
-
-    setTimeout(async () => {
-        // Reload order to check current state
-        const freshOrder = await Order.findByPk(order.id);
-        if (freshOrder && !freshOrder.callbackSent) {
-            if (type === 'payin') {
-                forwardPayinCallback(freshOrder, status, utr);
-            } else {
-                forwardPayoutCallback(freshOrder, status, utr);
-            }
-        }
-    }, delay);
-}
 
 module.exports = router;

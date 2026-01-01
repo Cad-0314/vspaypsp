@@ -609,11 +609,12 @@
                                     <th>Status</th>
                                     <th>Created</th>
                                     <th>Updated</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td colspan="4">Loading...</td>
+                                    <td colspan="6">Loading...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -657,11 +658,12 @@
                                     <th>Status</th>
                                     <th>Created</th>
                                     <th>Updated</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td colspan="4">Loading...</td>
+                                    <td colspan="6">Loading...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1121,6 +1123,11 @@
                             <td><span class="badge badge-${o.status}">${o.status}</span></td>
                             <td>${new Date(o.createdAt).toLocaleString()}</td>
                             <td>${new Date(o.updatedAt).toLocaleString()}</td>
+                            <td>
+                                <button class="btn btn-sm" style="padding:0.25rem 0.5rem; font-size:0.75rem; background:#F3F4F6;" onclick="resendCallback('${o.orderId}')" title="Resend Callback">
+                                    <i class="ri-refresh-line"></i> Callback
+                                </button>
+                            </td>
                         </tr>
                     `).join('');
 
@@ -1271,6 +1278,22 @@
             el.select();
             document.execCommand('copy');
             showToast('Copied to clipboard!');
+        }
+
+        async function resendCallback(orderId) {
+            if (!confirm('Resend callback for this order?')) return;
+            try {
+                const res = await fetch(`/api/merchant/callback/${orderId}`, { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    const status = data.isOk ? 'Merchant OK' : 'Merchant Error';
+                    showToast(`Callback Sent: ${status} (HTTP ${data.httpCode})`, data.isOk ? 'success' : 'warning');
+                } else {
+                    showToast(data.message || 'Callback failed', 'error');
+                }
+            } catch (e) {
+                showToast(e.message, 'error');
+            }
         }
     </script>
 </body>
