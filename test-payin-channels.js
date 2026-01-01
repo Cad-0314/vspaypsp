@@ -1,3 +1,7 @@
+const hdpayService = require('./src/services/hdpay');
+const f2payService = require('./src/services/f2pay');
+const caipayService = require('./src/services/caipay');
+const fendpayService = require('./src/services/fendpay');
 const silkpayService = require('./src/services/silkpay');
 const { v4: uuidv4 } = require('uuid');
 

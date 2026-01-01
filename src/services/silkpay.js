@@ -74,6 +74,7 @@ async function createPayin({ orderId, amount, notifyUrl, returnUrl, customerName
         payload.sign = generateSign(payload);
 
         console.log('[Silkpay] Creating payin:', { orderId, amount });
+        console.log('[Silkpay] Target URL:', `${BASE_URL}/api/v1/payin/create`);
         const response = await httpClient.post('/api/v1/payin/create', payload);
 
         if (response.data.code === 0 || response.data.code === 200 || response.data.success) {
