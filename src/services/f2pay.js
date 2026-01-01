@@ -74,12 +74,8 @@ function buildRequest(bizContent, traceId) {
 }
 
 /**
- * Create payin order
- * @param {Object} params - { orderId, amount, notifyUrl, returnUrl, customerName, customerPhone, customerEmail, customerIp }
- * @returns {Object} - { success, payUrl, providerOrderId, deepLinks }
- */
-/**
- * Create payin order (V2 H2H)
+ * Create payin order (Consolidated V2 Logic)
+ * Endpoint: /payin/inr/order/createV2
  * @param {Object} params - { orderId, amount, notifyUrl, returnUrl, customerName, customerPhone, customerEmail, customerIp }
  * @returns {Object} - { success, payUrl, providerOrderId, deepLinks }
  */
@@ -99,8 +95,9 @@ async function createPayin({ orderId, amount, notifyUrl, returnUrl, customerName
 
         const payload = buildRequest(bizContent, orderId);
 
-        console.log('[F2Pay] Creating payin (V2 H2H):', { orderId, amount });
-        // Use V2 endpoint
+        console.log('[F2Pay] Creating payin vs V2 endpoint:', { orderId, amount });
+
+        // Use V2 endpoint exclusively as requested
         const response = await httpClient.post('/payin/inr/order/createV2', payload);
 
         if (response.data.code === '0000') {
@@ -108,7 +105,7 @@ async function createPayin({ orderId, amount, notifyUrl, returnUrl, customerName
                 ? JSON.parse(response.data.bizContent)
                 : response.data.bizContent;
 
-            // Parse accountInfo for deeplinks
+            // Parse accountInfo for deeplinks which is specific to V2
             let deepLinks = {};
             if (bizData.accountInfo) {
                 const accountInfo = typeof bizData.accountInfo === 'string'
@@ -138,67 +135,6 @@ async function createPayin({ orderId, amount, notifyUrl, returnUrl, customerName
     } catch (error) {
         console.error('[F2Pay] Payin exception:', error.message);
         return { success: false, error: error.message };
-    }
-}
-
-/**
- * Create payin order with V2 API (returns deeplinks)
- */
-async function createPayinV2({ orderId, amount, notifyUrl, returnUrl, customerName, customerPhone, customerEmail, customerIp }) {
-    try {
-        const bizContent = {
-            amount: amount.toFixed(2),
-            customerEmail: customerEmail || 'customer@example.com',
-            customerIpAddress: customerIp || '127.0.0.1',
-            customerName: customerName || 'Customer',
-            customerPhone: customerPhone || '9999999999',
-            mchOrderNo: orderId,
-            methodCode: 'UpiMixed',
-            notifyUrl: notifyUrl,
-            returnUrl: returnUrl || notifyUrl
-        };
-
-        const payload = buildRequest(bizContent, orderId);
-
-        console.log('[F2Pay] Creating payin V2:', { orderId, amount });
-        const response = await httpClient.post('/payin/inr/order/createV2', payload);
-
-        if (response.data.code === '0000') {
-            const bizData = typeof response.data.bizContent === 'string'
-                ? JSON.parse(response.data.bizContent)
-                : response.data.bizContent;
-
-            // Parse accountInfo for deeplinks
-            let deepLinks = {};
-            if (bizData.accountInfo) {
-                const accountInfo = typeof bizData.accountInfo === 'string'
-                    ? JSON.parse(bizData.accountInfo)
-                    : bizData.accountInfo;
-
-                deepLinks = {
-                    upi: accountInfo.upi,
-                    upi_scan: accountInfo.upiScan ? `upi://pay?${accountInfo.upiScan}` : null,
-                    upi_phonepe: accountInfo.upiPhonepe,
-                    upi_intent: accountInfo.upiIntent ? `upi://pay?${accountInfo.upiIntent}` : null
-                };
-            }
-
-            return {
-                success: true,
-                payUrl: bizData.payUrl,
-                providerOrderId: bizData.platNo,
-                mchOrderNo: bizData.mchOrderNo,
-                deepLinks: deepLinks
-            };
-        } else {
-            console.error('[F2Pay] Payin V2 error:', response.data);
-            // Fallback to V1
-            return createPayin({ orderId, amount, notifyUrl, returnUrl, customerName, customerPhone, customerEmail, customerIp });
-        }
-    } catch (error) {
-        console.error('[F2Pay] Payin V2 exception:', error.message);
-        // Fallback to V1
-        return createPayin({ orderId, amount, notifyUrl, returnUrl, customerName, customerPhone, customerEmail, customerIp });
     }
 }
 
@@ -382,7 +318,7 @@ function mapStatus(state) {
 
 module.exports = {
     createPayin,
-    createPayinV2,
+    // createPayinV2, // Removed as per consolidation to V2 in createPayin
     queryPayin,
     createPayout,
     queryPayout,
