@@ -18,11 +18,12 @@ const MID = process.env.SILKPAY_MID;
 const SECRET = process.env.SILKPAY_SECRET;
 
 // Create axios instance
+// Create axios instance
 const httpClient = axios.create({
     baseURL: BASE_URL,
     timeout: 30000,
     headers: { 'Content-Type': 'application/json' },
-    family: 4,
+    family: 4, // Force IPv4
     httpAgent,
     httpsAgent
 });

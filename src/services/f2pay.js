@@ -78,6 +78,11 @@ function buildRequest(bizContent, traceId) {
  * @param {Object} params - { orderId, amount, notifyUrl, returnUrl, customerName, customerPhone, customerEmail, customerIp }
  * @returns {Object} - { success, payUrl, providerOrderId, deepLinks }
  */
+/**
+ * Create payin order (V2 H2H)
+ * @param {Object} params - { orderId, amount, notifyUrl, returnUrl, customerName, customerPhone, customerEmail, customerIp }
+ * @returns {Object} - { success, payUrl, providerOrderId, deepLinks }
+ */
 async function createPayin({ orderId, amount, notifyUrl, returnUrl, customerName, customerPhone, customerEmail, customerIp }) {
     try {
         const bizContent = {
@@ -94,22 +99,40 @@ async function createPayin({ orderId, amount, notifyUrl, returnUrl, customerName
 
         const payload = buildRequest(bizContent, orderId);
 
-        console.log('[F2Pay] Creating payin:', { orderId, amount });
-        const response = await httpClient.post('/payin/inr/order/create', payload);
+        console.log('[F2Pay] Creating payin (V2 H2H):', { orderId, amount });
+        // Use V2 endpoint
+        const response = await httpClient.post('/payin/inr/order/createV2', payload);
 
         if (response.data.code === '0000') {
             const bizData = typeof response.data.bizContent === 'string'
                 ? JSON.parse(response.data.bizContent)
                 : response.data.bizContent;
 
+            // Parse accountInfo for deeplinks
+            let deepLinks = {};
+            if (bizData.accountInfo) {
+                const accountInfo = typeof bizData.accountInfo === 'string'
+                    ? JSON.parse(bizData.accountInfo)
+                    : bizData.accountInfo;
+
+                deepLinks = {
+                    upi: accountInfo.upi,
+                    upi_scan: accountInfo.upiScan ? `upi://pay?${accountInfo.upiScan}` : null,
+                    upi_phonepe: accountInfo.upiPhonepe,
+                    upi_intent: accountInfo.upiIntent ? `upi://pay?${accountInfo.upiIntent}` : null
+                };
+            }
+
             return {
                 success: true,
                 payUrl: bizData.payUrl,
                 providerOrderId: bizData.platNo,
-                mchOrderNo: bizData.mchOrderNo
+                mchOrderNo: bizData.mchOrderNo,
+                deepLinks: deepLinks,
+                raw: bizData
             };
         } else {
-            console.error('[F2Pay] Payin error:', response.data);
+            console.error('[F2Pay] Payin V2 error:', response.data);
             return { success: false, error: response.data.msg || 'Unknown error' };
         }
     } catch (error) {
