@@ -55,9 +55,11 @@ router.get('/:orderId', async (req, res) => {
         const { orderId } = req.params;
 
         const { Op } = require('sequelize');
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(orderId);
+
         const order = await Order.findOne({
             where: {
-                [Op.or]: [{ id: orderId }, { orderId: orderId }],
+                [Op.or]: isUuid ? [{ id: orderId }, { orderId: orderId }] : [{ orderId: orderId }],
                 type: 'payin'
             }
         });
@@ -72,8 +74,11 @@ router.get('/:orderId', async (req, res) => {
         }
 
         // For dashboard links, ensure upstream is created before deciding redirect
-        if (!order.payUrl) {
-            await ensureUpstreamOrder(order, req.ip);
+        if (!order.payUrl && order.status === 'pending') {
+            const success = await ensureUpstreamOrder(order, req.ip);
+            if (!success) {
+                return res.status(422).send('Failed to initialize payment gateway. Please try again later.');
+            }
         }
 
         // Redirect to provider if they have their own pay page (e.g., HDPay)
@@ -100,9 +105,11 @@ router.get('/api/:orderId', async (req, res) => {
         const { orderId } = req.params;
 
         const { Op } = require('sequelize');
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(orderId);
+
         const order = await Order.findOne({
             where: {
-                [Op.or]: [{ id: orderId }, { orderId: orderId }],
+                [Op.or]: isUuid ? [{ id: orderId }, { orderId: orderId }] : [{ orderId: orderId }],
                 type: 'payin'
             }
         });
@@ -118,7 +125,10 @@ router.get('/api/:orderId', async (req, res) => {
 
         // Ensure upstream order exists (for API-only calls)
         if (!order.payUrl && order.status === 'pending') {
-            await ensureUpstreamOrder(order, req.ip);
+            const success = await ensureUpstreamOrder(order, req.ip);
+            if (!success) {
+                return res.status(422).json({ success: false, error: 'Failed to initialize payment gateway' });
+            }
         }
 
         const paymentData = {
@@ -154,9 +164,11 @@ router.post('/:orderId/utr', async (req, res) => {
         }
 
         const { Op } = require('sequelize');
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(orderId);
+
         const order = await Order.findOne({
             where: {
-                [Op.or]: [{ id: orderId }, { orderId: orderId }],
+                [Op.or]: isUuid ? [{ id: orderId }, { orderId: orderId }] : [{ orderId: orderId }],
                 type: 'payin'
             }
         });

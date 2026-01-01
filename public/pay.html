@@ -406,10 +406,13 @@
         async function loadPayment() {
             try {
                 const response = await fetch(`/pay/api/${orderId}`);
+                const data = await response.json();
+
                 if (!response.ok) {
-                    throw new Error('Payment not found');
+                    throw new Error(data.error || 'Payment not found');
                 }
-                paymentData = await response.json();
+
+                paymentData = data;
                 renderPayment(paymentData);
                 startCountdown(paymentData.expiresAt);
             } catch (error) {

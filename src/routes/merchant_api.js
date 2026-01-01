@@ -234,7 +234,8 @@ router.post('/paylink', async (req, res) => {
             fee: fee,
             status: 'pending',
             type: 'payin',
-            channelName: merchant.assignedChannel
+            channelName: merchant.assignedChannel,
+            expiresAt: new Date(Date.now() + 30 * 60 * 1000) // 30 minutes
         });
 
         // Current host URL
