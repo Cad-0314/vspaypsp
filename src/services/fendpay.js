@@ -56,9 +56,59 @@ const fendpayService = {
                 // Extract UPI link for deep links
                 const upiLink = data.upiTxt || null;
                 const deepLinks = {};
+
                 if (upiLink) {
                     deepLinks.upi_scan = upiLink;
                     deepLinks.upi_intent = upiLink;
+
+                    // Parse UPI link to extract parameters
+                    try {
+                        const upiUrl = new URL(upiLink);
+                        const pa = upiUrl.searchParams.get('pa') || '';
+                        const pn = upiUrl.searchParams.get('pn') || '';
+                        const tr = upiUrl.searchParams.get('tr') || '';
+                        const am = upiUrl.searchParams.get('am') || '';
+                        const cu = upiUrl.searchParams.get('cu') || 'INR';
+                        const tn = upiUrl.searchParams.get('tn') || '';
+
+                        // Generate Paytm link
+                        deepLinks.upi_paytm = `paytmmp://cash_wallet?pa=${pa}&pn=${encodeURIComponent(pn)}&tr=${tr}&am=${am}&cu=${cu}&tn=${tn}&featuretype=money_transfer`;
+
+                        // Generate GPay link
+                        deepLinks.upi_gpay = `gpay://upi/pay?pa=${pa}&pn=${encodeURIComponent(tn)}&tr=${tr}&tid=${tr}&am=${am}&cu=${cu}&tn=${tn}`;
+
+                        // Generate PhonePe link (base64 encoded payload)
+                        const phonePePayload = {
+                            contact: {
+                                cbsName: "",
+                                nickName: "",
+                                type: "VPA",
+                                vpa: pa
+                            },
+                            p2pPaymentCheckoutParams: {
+                                checkoutType: "DEFAULT",
+                                initialAmount: Math.round(parseFloat(am) * 100),
+                                note: tn,
+                                isByDefaultKnownContact: true,
+                                disableViewHistory: true,
+                                shouldShowMaskedNumber: true,
+                                shouldShowUnsavedContactBanner: false,
+                                showKeyboard: true,
+                                allowAmountEdit: false,
+                                disableNotesEdit: true,
+                                currency: "INR",
+                                showQrCodeOption: false,
+                                enableSpeechToText: false,
+                                transactionContext: "p2p",
+                                isRecurring: false
+                            }
+                        };
+                        const base64Payload = Buffer.from(JSON.stringify(phonePePayload)).toString('base64');
+                        deepLinks.upi_phonepe = `phonepe://native?data=${base64Payload}&id=p2ppayment`;
+
+                    } catch (err) {
+                        console.error('[FendPay] Error parsing UPI link:', err.message);
+                    }
                 }
 
                 return {
