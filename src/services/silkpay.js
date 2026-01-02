@@ -131,7 +131,7 @@ async function createPayin(data, config = {}) {
         // I will attempt to preserve the `success: true` wrapper pattern from the OLD file 
         // to minimize breakage in `services/order.js` or wherever this is called.
 
-        const success = (resData.status === '1' || resData.status === 1 || resData.code === 200 || resData.success === true);
+        const success = (resData.status === '1' || resData.status === 1 || resData.status === '200' || resData.status === 200 || resData.code === 200 || resData.success === true);
 
         return {
             success: success,
@@ -233,7 +233,7 @@ async function createPayout(data, config = {}) {
 
         const resData = response.data;
         // Assuming status 1 is accepted/processing
-        const success = (resData.status === '1' || resData.code === 200 || resData.success === true);
+        const success = (resData.status === '1' || resData.status === 1 || resData.status === '200' || resData.status === 200 || resData.code === 200 || resData.success === true);
 
         return {
             success,
