@@ -34,9 +34,68 @@ const init = (token) => {
             bot.sendMessage(chatId, `Available Commands:
 /data - Show Account Balance & Status
 /stats - Show Success Rates (15m, 30m, 1h, 24h)
+/link <amount> - Generate Payment Link
 /callback <orderId> - Manually Trigger Callback
 /id - Get Group/Chat ID
 /help - Show this message`);
+        });
+
+        // /link command - Generate payment link
+        bot.onText(/\/link (.+)/, async (msg, match) => {
+            const chatId = msg.chat.id;
+            const amountStr = match[1];
+            const amount = parseFloat(amountStr);
+
+            if (isNaN(amount) || amount <= 0) {
+                return bot.sendMessage(chatId, '❌ Invalid amount. Usage: /link 200');
+            }
+
+            const merchant = await getMerchant(chatId);
+            if (!merchant) {
+                return bot.sendMessage(chatId, '❌ This group is not bound to any merchant account.');
+            }
+
+            if (!merchant.canPayin) {
+                return bot.sendMessage(chatId, '❌ PayIn is disabled for this merchant.');
+            }
+
+            try {
+                const { v4: uuidv4 } = require('uuid');
+                const orderId = `TG_${merchant.username.toUpperCase()}_${uuidv4().substring(0, 8).toUpperCase()}`;
+                const APP_URL = process.env.APP_URL || 'https://vspay.vip';
+
+                // Create order in database
+                const order = await Order.create({
+                    orderId: orderId,
+                    merchantId: merchant.id,
+                    amount: amount,
+                    type: 'payin',
+                    status: 'pending',
+                    channelName: merchant.assignedChannel,
+                    notifyUrl: merchant.callbackUrl || `${APP_URL}/callback/dummy`,
+                    skipUrl: `${APP_URL}/pay/success`,
+                    expiresAt: new Date(Date.now() + 30 * 60 * 1000) // 30 min expiry
+                });
+
+                const paymentLink = `${APP_URL}/pay/${order.id}`;
+
+                const response = `
+🔗 **Payment Link Generated**
+
+**Amount:** ₹${amount.toFixed(2)}
+**Order ID:** \`${orderId}\`
+
+**Link:** ${paymentLink}
+
+_Valid for 30 minutes_
+                `;
+
+                bot.sendMessage(chatId, response, { parse_mode: 'Markdown' });
+                console.log(`[Telegram] /link generated: ${orderId} for ₹${amount}`);
+            } catch (error) {
+                console.error('[Telegram] /link error:', error);
+                bot.sendMessage(chatId, `❌ Error generating link: ${error.message}`);
+            }
         });
 
         // /id command
