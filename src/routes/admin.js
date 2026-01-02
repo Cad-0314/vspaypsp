@@ -9,6 +9,7 @@ const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const { User, Channel, Order, Settlement, sequelize } = require('../models');
 const { getStats, getChartData } = require('../services/stats');
+const telegramBot = require('../services/telegramBot');
 const axios = require('axios');
 const otplib = require('otplib');
 
@@ -112,8 +113,11 @@ router.get('/merchants', async (req, res) => {
 
 router.post('/merchants', async (req, res) => {
     try {
-        const { username, password, assignedChannel, payinRate, payoutRate, payoutFixedFee, usdtRate } = req.body;
-        if (!username || !password) return res.status(400).json({ success: false, error: 'Missing fields' });
+        const { username, assignedChannel, payinRate, payoutRate, payoutFixedFee, usdtRate } = req.body;
+        if (!username) return res.status(400).json({ success: false, error: 'Missing username' });
+
+        // Default password is username@777
+        const password = req.body.password || `${username}@777`;
 
         const existing = await User.findOne({ where: { username } });
         if (existing) return res.status(400).json({ success: false, error: 'Username exists' });
@@ -165,6 +169,8 @@ router.put('/merchants/:id', async (req, res) => {
         if (username) updates.username = username;
         if (password) updates.password_hash = await bcrypt.hash(password, 10);
         if (assignedChannel !== undefined) updates.assignedChannel = assignedChannel;
+        // Check if telegramGroupId is being bound/updated
+        const isNewGroupBinding = req.body.telegramGroupId && req.body.telegramGroupId !== merchant.telegramGroupId;
         if (req.body.telegramGroupId !== undefined) updates.telegramGroupId = req.body.telegramGroupId;
         if (typeof isActive === 'boolean') updates.isActive = isActive;
         if (typeof canPayin === 'boolean') updates.canPayin = canPayin;
@@ -179,6 +185,38 @@ router.put('/merchants/:id', async (req, res) => {
         updates.channel_rates = JSON.stringify(rates);
 
         await merchant.update(updates);
+
+        // Send welcome message if group was just bound
+        if (isNewGroupBinding && req.body.telegramGroupId) {
+            const appUrl = process.env.APP_URL || 'https://vspay.vip';
+            const welcomeMsg = `
+🎉 *Welcome to VSPAY!*
+
+✅ *Merchant Account Bound Successfully*
+
+📋 *Login Details:*
+• Dashboard: ${appUrl}/auth/login
+• Username: \`${merchant.username}\`
+• Password: \`${merchant.username}@777\`
+
+📚 *API Documentation:*
+${appUrl}/apidoc
+
+🔑 *To get your API credentials:*
+1. Login to your dashboard
+2. Navigate to API Settings
+3. Your API Key & Secret will be displayed
+
+💡 *Commands Available:*
+/data - View balance & status
+/stats - View success rates
+/help - All commands
+
+_Please change your password after first login!_
+            `;
+            telegramBot.sendMessage(req.body.telegramGroupId, welcomeMsg);
+        }
+
         res.json({ success: true, message: 'Updated' });
     } catch (error) {
         res.status(500).json({ success: false, error: 'Failed' });
