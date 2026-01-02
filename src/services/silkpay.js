@@ -133,10 +133,19 @@ async function createPayin(data, config = {}) {
 
         const success = (resData.status === '1' || resData.status === 1 || resData.status === '200' || resData.status === 200 || resData.code === 200 || resData.success === true);
 
+        // Extract deep links from response
+        const rawDeepLinks = resData.data?.deepLink || resData.deepLink || {};
+        const deepLinks = {
+            upi_phonepe: rawDeepLinks.upi_phonepe || null,
+            upi_paytm: rawDeepLinks.upi_paytm || null,
+            upi_scan: rawDeepLinks.upi_scan || null
+        };
+
         return {
             success: success,
-            payUrl: resData.payUrl || resData.data?.payUrl || resData.paymentUrl,
-            providerOrderId: resData.sysOrderId || resData.tradeNo || resData.data?.tradeNo,
+            payUrl: resData.data?.paymentUrl || resData.payUrl || resData.data?.payUrl || resData.paymentUrl,
+            providerOrderId: resData.data?.payOrderId || resData.sysOrderId || resData.tradeNo || resData.data?.tradeNo,
+            deepLinks: deepLinks,
             raw: resData
         };
 

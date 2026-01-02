@@ -52,10 +52,21 @@ const fendpayService = {
             console.log('[FendPay] Payin Response:', response.data);
 
             if (response.data.code == 200) {
+                const data = response.data.data;
+                // Extract UPI link for deep links
+                const upiLink = data.upiTxt || null;
+                const deepLinks = {};
+                if (upiLink) {
+                    deepLinks.upi_scan = upiLink;
+                    deepLinks.upi_intent = upiLink;
+                }
+
                 return {
                     success: true,
-                    paymentUrl: response.data.data.payUrl,
-                    providerOrderId: response.data.data.orderNo,
+                    paymentUrl: data.payUrl,
+                    payUrl: data.payUrl,
+                    providerOrderId: data.orderNo,
+                    deepLinks: deepLinks,
                     raw: response.data
                 };
             } else {

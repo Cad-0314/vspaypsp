@@ -16,48 +16,50 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            background: #f5f7fa;
             min-height: 100vh;
-            padding: 1rem;
         }
 
         .container {
-            max-width: 420px;
+            max-width: 480px;
             margin: 0 auto;
             background: #fff;
-            border-radius: 1rem;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            overflow: hidden;
+            min-height: 100vh;
         }
 
         .header {
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            background: #2563eb;
             color: white;
-            padding: 1.5rem;
-            text-align: center;
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
-        .header h1 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
+        .lang-switch {
+            display: flex;
+            gap: 0.25rem;
         }
 
-        .header .subtitle {
-            font-size: 0.875rem;
-            opacity: 0.9;
+        .lang-btn {
+            padding: 0.25rem 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 0.25rem;
+            background: transparent;
+            color: white;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .lang-btn.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: white;
         }
 
         .amount-section {
             padding: 2rem 1.5rem;
-            text-align: center;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .amount-label {
-            font-size: 0.875rem;
-            color: #6b7280;
-            margin-bottom: 0.5rem;
         }
 
         .amount {
@@ -67,165 +69,161 @@
         }
 
         .amount .currency {
-            font-size: 1.5rem;
+            font-size: 1.75rem;
             font-weight: 500;
         }
 
-        .timer {
-            margin-top: 1rem;
-            padding: 0.5rem 1rem;
-            background: #fef3c7;
-            border-radius: 2rem;
-            display: inline-block;
-            color: #92400e;
+        .amount-sublabel {
             font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
         }
 
-        .timer.warning {
-            background: #fee2e2;
-            color: #dc2626;
-        }
-
-        .payment-methods {
-            padding: 1.5rem;
+        .payment-section {
+            padding: 0 1.5rem 2rem;
         }
 
         .section-title {
-            font-size: 0.875rem;
-            font-weight: 600;
+            font-size: 0.9rem;
+            font-weight: 500;
             color: #374151;
             margin-bottom: 1rem;
-            text-align: center;
         }
 
-        .app-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem;
+        .payment-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
         }
 
-        .app-btn {
+        .payment-option {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            padding: 1rem;
-            background: #f9fafb;
-            border: 2px solid #e5e7eb;
+            padding: 1rem 1.25rem;
+            background: #fff;
+            border: 1px solid #e5e7eb;
             border-radius: 0.75rem;
             cursor: pointer;
             transition: all 0.2s;
             text-decoration: none;
+            color: inherit;
+        }
+
+        .payment-option:hover {
+            border-color: #2563eb;
+            background: #f8fafc;
+        }
+
+        .payment-option.selected {
+            border-color: #2563eb;
+            border-width: 2px;
+            background: #eff6ff;
+        }
+
+        .payment-option img {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+            margin-right: 1rem;
+        }
+
+        .payment-option .option-name {
+            flex: 1;
+            font-weight: 500;
+            font-size: 1rem;
             color: #1f2937;
         }
 
-        .app-btn:hover {
-            border-color: #6366f1;
-            background: #f5f3ff;
-            transform: translateY(-2px);
+        .payment-option .radio-circle {
+            width: 22px;
+            height: 22px;
+            border: 2px solid #d1d5db;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
         }
 
-        .app-btn:active {
+        .payment-option.selected .radio-circle {
+            border-color: #2563eb;
+            background: #2563eb;
+        }
+
+        .payment-option.selected .radio-circle::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .pay-button {
+            display: block;
+            width: calc(100% - 3rem);
+            margin: 1.5rem 1.5rem 1rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .pay-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .pay-button:active {
             transform: scale(0.98);
         }
 
-        .app-btn img {
-            width: 40px;
-            height: 40px;
-            object-fit: contain;
+        .pay-button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
-
-        .app-btn span {
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .divider {
-            display: flex;
-            align-items: center;
-            margin: 1.5rem 0;
-            color: #9ca3af;
-            font-size: 0.75rem;
-        }
-
-        .divider::before,
-        .divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: #e5e7eb;
-        }
-
-        .divider span {
-            padding: 0 1rem;
-        }
-
-        .qr-section {
-            text-align: center;
-            padding: 0 1.5rem 1.5rem;
-        }
-
-        .qr-container {
-            background: #f9fafb;
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            display: inline-block;
-        }
-
-        #qrCode {
-            width: 180px;
-            height: 180px;
-            margin: 0 auto;
-        }
-
-        #qrCode img,
-        #qrCode canvas {
-            max-width: 100%;
-            height: auto;
-        }
-
 
         .footer {
-            padding: 1rem 1.5rem;
-            background: #f9fafb;
-            border-top: 1px solid #e5e7eb;
+            padding: 1.5rem;
             text-align: center;
+            color: #9ca3af;
+            font-size: 0.75rem;
+            border-top: 1px solid #f3f4f6;
         }
 
-        .footer p {
-            font-size: 0.75rem;
+        .footer .order-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            font-size: 0.8rem;
             color: #6b7280;
         }
 
-        .status-badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 1rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-top: 0.5rem;
-        }
-
-        .status-pending {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .status-success {
-            background: #d1fae5;
-            color: #065f46;
+        .footer .secure-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
         }
 
         .loading {
             text-align: center;
-            padding: 3rem;
+            padding: 4rem 1.5rem;
         }
 
         .spinner {
             width: 40px;
             height: 40px;
             border: 3px solid #e5e7eb;
-            border-top-color: #6366f1;
+            border-top-color: #2563eb;
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin: 0 auto 1rem;
@@ -239,31 +237,51 @@
 
         .error-state {
             text-align: center;
-            padding: 3rem 1.5rem;
+            padding: 4rem 1.5rem;
             color: #dc2626;
         }
 
-        .lang-switch {
-            display: flex;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .lang-btn {
+        .status-badge {
+            display: inline-block;
             padding: 0.25rem 0.75rem;
-            border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 1rem;
-            background: transparent;
-            color: white;
             font-size: 0.75rem;
-            cursor: pointer;
-            transition: all 0.2s;
+            font-weight: 600;
+            margin-left: 0.5rem;
         }
 
-        .lang-btn.active {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: white;
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .timer-bar {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .timer-bar.warning {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .no-options {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
@@ -272,12 +290,12 @@
     <div class="container">
         <div class="header">
             <div class="lang-switch">
-                <button class="lang-btn active" onclick="setLang('en')">English</button>
+                <button class="lang-btn active" onclick="setLang('en')">EN</button>
                 <button class="lang-btn" onclick="setLang('zh')">中文</button>
             </div>
-            <h1 id="headerTitle">Complete Payment</h1>
-            <p class="subtitle" id="headerSubtitle">Select payment method</p>
         </div>
+
+        <div id="timerBar" class="timer-bar hidden"></div>
 
         <div id="content">
             <div class="loading">
@@ -287,10 +305,56 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <script>
         let paymentData = null;
         let countdownInterval = null;
+        let selectedOption = null;
+        let currentLang = 'en';
+
+        const translations = {
+            en: {
+                amountLabel: 'The amount you need to pay',
+                selectOption: 'Select an option to pay (UPI)',
+                payBtn: 'Pay',
+                orderId: 'Order ID',
+                date: 'Date',
+                securedBy: 'Secured Payment',
+                pending: 'Awaiting Payment',
+                success: 'Payment Successful',
+                expired: 'Payment Expired',
+                timeRemaining: 'Time remaining',
+                noOptions: 'No payment options available',
+                otherUpi: 'Other UPI Apps'
+            },
+            zh: {
+                amountLabel: '您需要支付的金额',
+                selectOption: '选择支付方式 (UPI)',
+                payBtn: '支付',
+                orderId: '订单号',
+                date: '日期',
+                securedBy: '安全支付',
+                pending: '等待支付',
+                success: '支付成功',
+                expired: '已过期',
+                timeRemaining: '剩余时间',
+                noOptions: '没有可用的支付方式',
+                otherUpi: '其他UPI应用'
+            }
+        };
+
+        function t(key) {
+            return translations[currentLang][key] || key;
+        }
+
+        function setLang(lang) {
+            currentLang = lang;
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.includes(lang === 'en' ? 'EN' : '中'));
+            });
+            if (paymentData) {
+                renderPayment(paymentData);
+            }
+        }
 
         function showToast(text, type = 'success') {
             Toastify({
@@ -305,50 +369,6 @@
                     borderRadius: "8px",
                 }
             }).showToast();
-        }
-        let currentLang = 'en';
-
-        const translations = {
-            en: {
-                headerTitle: 'Complete Payment',
-                headerSubtitle: 'Select payment method',
-                amountLabel: 'Amount to Pay',
-                timeRemaining: 'Time remaining',
-                expired: 'Expired',
-                payWith: 'Pay with UPI App',
-                orScan: 'Or Scan QR Code',
-                securePayment: 'Secured by VSPAY',
-                pending: 'Awaiting Payment',
-                success: 'Payment Successful'
-            },
-            zh: {
-                headerTitle: '完成支付',
-                headerSubtitle: '选择支付方式',
-                amountLabel: '支付金额',
-                timeRemaining: '剩余时间',
-                expired: '已过期',
-                payWith: '使用UPI应用支付',
-                orScan: '或扫描二维码',
-                securePayment: 'VSPAY安全支付',
-                pending: '等待支付',
-                success: '支付成功'
-            }
-        };
-
-        function t(key) {
-            return translations[currentLang][key] || key;
-        }
-
-        function setLang(lang) {
-            currentLang = lang;
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.textContent.includes(lang === 'en' ? 'Eng' : '中'));
-            });
-            if (paymentData) {
-                renderPayment(paymentData);
-            }
-            document.getElementById('headerTitle').textContent = t('headerTitle');
-            document.getElementById('headerSubtitle').textContent = t('headerSubtitle');
         }
 
         // Get order ID from URL
@@ -379,82 +399,135 @@
 
         function renderPayment(data) {
             const deepLinks = data.deepLinks || {};
-            const hasDeeplinks = Object.keys(deepLinks).length > 0;
-            const upiId = deepLinks.upi || '';
+
+            // Build payment options based on available links
+            const options = [];
+
+            // PhonePe
+            if (deepLinks.upi_phonepe) {
+                options.push({
+                    id: 'phonepe',
+                    name: 'PhonePe',
+                    icon: '/images/phonepe.png',
+                    link: deepLinks.upi_phonepe
+                });
+            }
+
+            // Paytm
+            if (deepLinks.upi_paytm) {
+                options.push({
+                    id: 'paytm',
+                    name: 'Paytm',
+                    icon: '/images/paytm.png',
+                    link: deepLinks.upi_paytm
+                });
+            }
+
+            // Google Pay
+            if (deepLinks.upi_gpay) {
+                options.push({
+                    id: 'gpay',
+                    name: 'Google Pay',
+                    icon: '/images/gpay.png',
+                    link: deepLinks.upi_gpay
+                });
+            }
+
+            // Other UPI (generic intent)
+            if (deepLinks.upi_scan || deepLinks.upi_intent || deepLinks.upi) {
+                const upiLink = deepLinks.upi_scan || deepLinks.upi_intent ||
+                    (deepLinks.upi && deepLinks.upi.startsWith('upi://') ? deepLinks.upi : null);
+                if (upiLink) {
+                    options.push({
+                        id: 'upi',
+                        name: t('otherUpi'),
+                        icon: '/images/upi.png',
+                        link: upiLink
+                    });
+                }
+            }
+
+            // Select first option by default
+            if (options.length > 0 && !selectedOption) {
+                selectedOption = options[0].id;
+            }
+
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+            let optionsHtml = '';
+            if (options.length > 0) {
+                optionsHtml = options.map(opt => `
+                    <div class="payment-option ${selectedOption === opt.id ? 'selected' : ''}" 
+                         data-id="${opt.id}" 
+                         data-link="${opt.link}"
+                         onclick="selectOption('${opt.id}')">
+                        <img src="${opt.icon}" alt="${opt.name}">
+                        <span class="option-name">${opt.name}</span>
+                        <div class="radio-circle"></div>
+                    </div>
+                `).join('');
+            } else {
+                optionsHtml = `<div class="no-options">${t('noOptions')}</div>`;
+            }
+
+            const selectedLink = options.find(o => o.id === selectedOption)?.link || '#';
 
             let html = `
                 <div class="amount-section">
-                    <p class="amount-label">${t('amountLabel')}</p>
-                    <p class="amount"><span class="currency">₹</span>${data.amount.toLocaleString()}</p>
-                    <div class="timer" id="timer">${t('timeRemaining')}: --:--</div>
-                    <div class="status-badge status-${data.status}" id="statusBadge">
-                        ${data.status === 'success' ? t('success') : t('pending')}
+                    <p class="amount"><span class="currency">₹</span>${data.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</p>
+                    <p class="amount-sublabel">${t('amountLabel')}</p>
+                </div>
+
+                <div class="payment-section">
+                    <p class="section-title">${t('selectOption')}</p>
+                    <div class="payment-options" id="paymentOptions">
+                        ${optionsHtml}
                     </div>
                 </div>
 
-                <div class="payment-methods">
-                    <p class="section-title">${t('payWith')}</p>
-                    <div class="app-grid">
-                        <a href="${deepLinks.upi_phonepe || '#'}" class="app-btn" id="phonepeBtn">
-                            <img src="/images/phonepe.png" alt="PhonePe">
-                            <span>PhonePe</span>
-                        </a>
-                        <a href="${deepLinks.upi_gpay || '#'}" class="app-btn" id="gpayBtn">
-                            <img src="/images/gpay.png" alt="Google Pay">
-                            <span>GPay</span>
-                        </a>
-                        <a href="${deepLinks.upi_paytm || '#'}" class="app-btn" id="paytmBtn">
-                            <img src="/images/paytm.png" alt="Paytm">
-                            <span>Paytm</span>
-                        </a>
-                        <a href="${deepLinks.upi_scan || '#'}" class="app-btn" id="upiBtn">
-                            <img src="/images/upi.png" alt="Any UPI">
-                            <span>Any UPI</span>
-                        </a>
-                    </div>
-
-                    <div class="divider"><span>${t('orScan')}</span></div>
-
-                    <div class="qr-section">
-                        <div class="qr-container">
-                            <div id="qrCode"></div>
-                        </div>
-                    </div>
-                </div>
+                <a href="${selectedLink}" class="pay-button" id="payButton" ${options.length === 0 ? 'style="pointer-events:none; opacity:0.5"' : ''}>
+                    ${t('payBtn')}  ₹  ${data.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                </a>
 
                 <div class="footer">
-                    <p>🔒 ${t('securePayment')}</p>
+                    <div class="order-info">
+                        <span>${t('orderId')}</span>
+                        <span>${data.merchantOrderId || data.orderId}</span>
+                    </div>
+                    <div class="order-info">
+                        <span>${t('date')}</span>
+                        <span>${dateStr}</span>
+                    </div>
+                    <div class="secure-badge">
+                        🔒 ${t('securedBy')}
+                    </div>
                 </div>
             `;
 
             document.getElementById('content').innerHTML = html;
+        }
 
-            // Generate QR code
-            let qrData = deepLinks.upi_scan || '';
+        function selectOption(id) {
+            selectedOption = id;
 
-            // If upiId looks like a full upi:// link, use it
-            if (!qrData && upiId && upiId.startsWith('upi://')) {
-                qrData = upiId;
-            }
+            // Update UI
+            document.querySelectorAll('.payment-option').forEach(el => {
+                el.classList.toggle('selected', el.dataset.id === id);
+            });
 
-            // Fallback construct
-            if (!qrData) {
-                qrData = `upi://pay?pa=${upiId}&am=${data.amount}&cu=INR&tn=${data.merchantOrderId}`;
-            }
-
-            if (typeof QRCode !== 'undefined' && document.getElementById('qrCode')) {
-                QRCode.toCanvas(document.getElementById('qrCode'), qrData, {
-                    width: 180,
-                    margin: 2,
-                    color: { dark: '#1f2937', light: '#ffffff' }
-                }, function (error) {
-                    if (error) console.error(error);
-                });
+            // Update button link
+            const selectedEl = document.querySelector(`.payment-option[data-id="${id}"]`);
+            if (selectedEl) {
+                document.getElementById('payButton').href = selectedEl.dataset.link;
             }
         }
 
         function startCountdown(expiresAt) {
             if (!expiresAt) return;
+
+            const timerBar = document.getElementById('timerBar');
+            timerBar.classList.remove('hidden');
 
             if (countdownInterval) clearInterval(countdownInterval);
 
@@ -462,26 +535,22 @@
                 const now = Date.now();
                 const remaining = expiresAt - now;
 
-                const timerEl = document.getElementById('timer');
-                if (!timerEl) return;
-
                 if (remaining <= 0) {
-                    timerEl.textContent = t('expired');
-                    timerEl.classList.add('warning');
+                    timerBar.textContent = t('expired');
+                    timerBar.classList.add('warning');
                     clearInterval(countdownInterval);
                     return;
                 }
 
                 const minutes = Math.floor(remaining / 60000);
                 const seconds = Math.floor((remaining % 60000) / 1000);
-                timerEl.textContent = `${t('timeRemaining')}: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                timerBar.textContent = `${t('timeRemaining')}: ${minutes}:${seconds.toString().padStart(2, '0')}`;
 
                 if (remaining < 5 * 60000) {
-                    timerEl.classList.add('warning');
+                    timerBar.classList.add('warning');
                 }
             }, 1000);
         }
-
 
         // Check payment status periodically
         async function checkStatus() {
@@ -489,12 +558,8 @@
                 const response = await fetch(`/pay/api/${orderId}`);
                 const data = await response.json();
                 if (data.status === 'success') {
-                    const statusBadge = document.getElementById('statusBadge');
-                    if (statusBadge) {
-                        statusBadge.textContent = t('success');
-                        statusBadge.className = 'status-badge status-success';
-                    }
                     clearInterval(countdownInterval);
+                    showToast(t('success'), 'success');
                     // Redirect to success or skipUrl
                     if (paymentData.skipUrl) {
                         setTimeout(() => window.location.href = paymentData.skipUrl, 2000);
