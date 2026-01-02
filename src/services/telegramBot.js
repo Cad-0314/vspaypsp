@@ -59,20 +59,32 @@ const init = (token) => {
                 return bot.sendMessage(chatId, '❌ PayIn is disabled for this merchant.');
             }
 
+            if (!merchant.assignedChannel) {
+                return bot.sendMessage(chatId, '❌ No payment channel assigned to this merchant.');
+            }
+
             try {
                 const { v4: uuidv4 } = require('uuid');
                 const orderId = `TG_${merchant.username.toUpperCase()}_${uuidv4().substring(0, 8).toUpperCase()}`;
                 const APP_URL = process.env.APP_URL || 'https://vspay.vip';
+
+                // Calculate fee based on merchant rates
+                const rates = JSON.parse(merchant.channel_rates || '{}');
+                const payinRate = parseFloat(rates.payinRate) || 5.0;
+                const fee = (amount * payinRate) / 100;
+                const netAmount = amount - fee;
 
                 // Create order in database
                 const order = await Order.create({
                     orderId: orderId,
                     merchantId: merchant.id,
                     amount: amount,
+                    fee: fee,
+                    netAmount: netAmount,
                     type: 'payin',
                     status: 'pending',
                     channelName: merchant.assignedChannel,
-                    notifyUrl: merchant.callbackUrl || `${APP_URL}/callback/dummy`,
+                    callbackUrl: merchant.callbackUrl || null,
                     skipUrl: `${APP_URL}/pay/success`,
                     expiresAt: new Date(Date.now() + 30 * 60 * 1000) // 30 min expiry
                 });
@@ -84,6 +96,7 @@ const init = (token) => {
 
 **Amount:** ₹${amount.toFixed(2)}
 **Order ID:** \`${orderId}\`
+**Channel:** ${merchant.assignedChannel}
 
 **Link:** ${paymentLink}
 
