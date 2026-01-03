@@ -41,7 +41,7 @@ const fendpayService = {
                 merchantNumber: MERCHANT_ID,
                 amount: parseFloat(orderData.amount).toFixed(2),
                 outTradeNo: orderData.orderId,
-                notifyUrl: `${process.env.APP_URL}/api/callback/fendpay/payin`,
+                notifyUrl: `${process.env.APP_URL}/callback/fendpay/payin`,
                 callbackUrl: `${process.env.APP_URL}/pay/status/${orderData.orderId}`
             };
 
@@ -135,7 +135,7 @@ const fendpayService = {
                 merchantNumber: MERCHANT_ID,
                 outTradeNo: payoutData.orderId,
                 amount: parseFloat(payoutData.amount).toFixed(2),
-                notifyUrl: `${process.env.APP_URL}/api/callback/fendpay/payout`,
+                notifyUrl: `${process.env.APP_URL}/callback/fendpay/payout`,
                 accName: payoutData.accountName,
                 accNo: payoutData.accountNumber,
                 ifsc: payoutData.ifscCode,
@@ -194,6 +194,11 @@ const fendpayService = {
 
         const calculatedSign = generateSignature(params);
         return receivedSign === calculatedSign;
+    },
+
+    // Alias for channelRouter compatibility
+    verifySign: function (params) {
+        return fendpayService.verifySignature(params);
     }
 };
 

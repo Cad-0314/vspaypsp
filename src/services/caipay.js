@@ -45,7 +45,7 @@ const caipayService = {
                 tenantId: MERCHANT_ID,
                 amount: parseFloat(orderData.amount).toFixed(2),
                 customerOrderNo: orderData.orderId,
-                callbackUrl: `${process.env.APP_URL}/api/callback/caipay/payin`,
+                callbackUrl: `${process.env.APP_URL}/callback/caipay/payin`,
                 rechargeName: orderData.customerName || 'Customer',
                 rechargeEmail: orderData.customerEmail || 'customer@example.com',
                 rechargePhone: orderData.customerPhone || '9999999999'
@@ -101,7 +101,7 @@ const caipayService = {
                 tenantId: MERCHANT_ID,
                 bankAccountName: payoutData.accountName,
                 bankAccountNumber: payoutData.accountNumber,
-                callbackUrl: `${process.env.APP_URL}/api/callback/caipay/payout`,
+                callbackUrl: `${process.env.APP_URL}/callback/caipay/payout`,
                 orderAmount: parseFloat(payoutData.amount).toFixed(2),
                 payEmail: 'payee@example.com',
                 payIfsc: payoutData.ifscCode,
@@ -137,6 +137,11 @@ const caipayService = {
 
         const calculatedSign = generateSignature(params);
         return receivedSign === calculatedSign;
+    },
+
+    // Alias for channelRouter compatibility
+    verifySign: function (params) {
+        return this.verifySignature(params);
     }
 };
 
