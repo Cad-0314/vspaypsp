@@ -11,11 +11,36 @@ const { Order, User, Channel } = require('../../models');
 const channelRouter = require('../../services/channelRouter');
 const { signCallback } = require('../../middleware/apiAuth');
 const sequelize = require('../../config/database');
+const { DataTypes } = require('sequelize');
 const callbackService = require('../../services/callbackService');
+
+// BatchPayout model for admin batch payouts (created by scripts/hdpay-payout-batch.js)
+const BatchPayout = sequelize.define('BatchPayout', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    orderId: { type: DataTypes.STRING(64), unique: true },
+    amount: DataTypes.DECIMAL(12, 2),
+    name: DataTypes.STRING(100),
+    accountType: DataTypes.STRING(10),
+    accountNumber: DataTypes.STRING(50),
+    ifsc: DataTypes.STRING(20),
+    upi: DataTypes.STRING(100),
+    status: { type: DataTypes.STRING(20), defaultValue: 'submitted' },
+    providerOrderId: DataTypes.STRING(64),
+    utr: DataTypes.STRING(50),
+    fee: DataTypes.DECIMAL(10, 2),
+    callbackData: DataTypes.TEXT,
+    createdAt: DataTypes.DATE,
+    updatedAt: DataTypes.DATE
+}, {
+    tableName: 'batch_payouts',
+    timestamps: true,
+    freezeTableName: true
+});
 
 // Retry configuration
 const MAX_CALLBACK_RETRIES = 5;
 const RETRY_DELAYS = [0, 30000, 60000, 300000, 600000]; // 0s, 30s, 1m, 5m, 10m
+
 
 /**
  * POST /callback/:channel/payin
@@ -213,6 +238,29 @@ router.post('/:channel/payout', async (req, res) => {
 
         if (!orderId) return res.send('success');
 
+        // Check if this is a batch payout (admin payout from scripts/hdpay-payout-batch.js)
+        if (orderId.startsWith('BPOUT_')) {
+            console.log(`[Callback] Batch payout callback for: ${orderId}`);
+            try {
+                const batchPayout = await BatchPayout.findOne({ where: { orderId: orderId } });
+                if (batchPayout) {
+                    await batchPayout.update({
+                        status: status,
+                        utr: utr || batchPayout.utr,
+                        providerOrderId: providerOrderId || batchPayout.providerOrderId,
+                        fee: parseFloat(req.body.fee) || 0,
+                        callbackData: JSON.stringify(req.body)
+                    });
+                    console.log(`[Callback] Batch payout ${orderId} updated to: ${status}, UTR: ${utr}`);
+                } else {
+                    console.log(`[Callback] Batch payout ${orderId} not found in database`);
+                }
+            } catch (batchErr) {
+                console.error(`[Callback] Batch payout update error: ${batchErr.message}`);
+            }
+            return res.send('success');
+        }
+
         const order = await Order.findOne({ where: { orderId: orderId, type: 'payout' } });
         if (!order || order.status === 'success' || order.status === 'failed') return res.send('success');
 
@@ -263,3 +311,4 @@ router.post('/:channel/payout', async (req, res) => {
 });
 
 module.exports = router;
+
