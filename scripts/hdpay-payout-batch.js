@@ -3,15 +3,14 @@
  * HDPay Batch Payout Script
  * Run with: node scripts/hdpay-payout-batch.js
  * 
- * Makes payout requests in batch of 5000 and 2000 until balance is low
- * Stores all payouts in database for proper callback handling
+ * Makes payout requests in batch of 5000 and 2000 until API returns error
+ * Skips balance checking - uses API response to detect insufficient balance
  */
 
 const axios = require('axios');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
-const http = require('http');
 
 // Load environment variables
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
@@ -44,11 +43,11 @@ const TARGET_ACCOUNT = {
     // upi: 'your-upi@okaxis',
 };
 
-// Batch amounts (in order of priority)
+// Batch amounts (in order of priority - tries largest first, then smaller)
 const BATCH_AMOUNTS = [5000, 2000];
 
-// Minimum balance to keep (stop when balance goes below this)
-const MIN_BALANCE = 1000;
+// Max consecutive failures before stopping (to handle rate limits etc)
+const MAX_CONSECUTIVE_FAILURES = 3;
 
 // Delay between requests (ms) to avoid rate limiting
 const REQUEST_DELAY = 2000;
@@ -71,7 +70,7 @@ const httpClient = axios.create({
 });
 
 // =====================================================
-// Database Model (Simple inline for standalone script)
+// Database Model
 // =====================================================
 const BatchPayout = sequelize.define('BatchPayout', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
@@ -98,9 +97,6 @@ const BatchPayout = sequelize.define('BatchPayout', {
 // Helper Functions
 // =====================================================
 
-/**
- * Generate MD5 signature for HDPay
- */
 function generateSign(params) {
     const filtered = {};
     Object.keys(params).forEach(key => {
@@ -116,18 +112,6 @@ function generateSign(params) {
     return crypto.createHash('md5').update(str).digest('hex').toLowerCase();
 }
 
-/**
- * Verify callback signature
- */
-function verifySign(params) {
-    const receivedSign = params.sign;
-    const calculatedSign = generateSign(params);
-    return receivedSign === calculatedSign;
-}
-
-/**
- * Generate unique order ID
- */
 function generateOrderId() {
     const timestamp = Date.now();
     const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
@@ -135,28 +119,7 @@ function generateOrderId() {
 }
 
 /**
- * Get current balance
- */
-async function getBalance() {
-    const payload = {
-        merchantId: parseInt(MERCHANT_ID)
-    };
-    payload.sign = generateSign(payload);
-
-    try {
-        const response = await httpClient.post('/api/payout/balance', payload);
-        if (response.data.code === 200) {
-            const balance = parseFloat(response.data.data) || 0;
-            return { success: true, balance };
-        }
-        return { success: false, error: response.data.msg };
-    } catch (error) {
-        return { success: false, error: error.message };
-    }
-}
-
-/**
- * Create payout order
+ * Create payout order - returns response to detect balance issues
  */
 async function createPayout(orderId, amount) {
     const payload = {
@@ -179,54 +142,39 @@ async function createPayout(orderId, amount) {
 
     try {
         const response = await httpClient.post('/api/payout/submit', payload);
+        const isSuccess = response.data.code === 200;
+        const errorMsg = response.data.msg || '';
+
+        // Detect balance-related errors
+        const isBalanceError = errorMsg.toLowerCase().includes('balance') ||
+            errorMsg.toLowerCase().includes('insufficient') ||
+            errorMsg.toLowerCase().includes('not enough') ||
+            errorMsg.toLowerCase().includes('余额') ||
+            response.data.code === 4001 || // Common code for insufficient balance
+            response.data.code === 4002;
+
         return {
-            success: response.data.code === 200,
+            success: isSuccess,
             data: response.data.data,
-            error: response.data.msg,
+            error: errorMsg,
+            code: response.data.code,
+            isBalanceError: isBalanceError,
             rawResponse: response.data
         };
     } catch (error) {
-        return { success: false, error: error.message };
+        return { success: false, error: error.message, isBalanceError: false };
     }
 }
 
-/**
- * Query payout status
- */
-async function queryPayout(orderId) {
-    const payload = {
-        merchantId: parseInt(MERCHANT_ID),
-        merchantPayoutId: orderId
-    };
-    payload.sign = generateSign(payload);
-
-    try {
-        const response = await httpClient.post('/api/payout/query', payload);
-        if (response.data.code === 200) {
-            return { success: true, data: response.data.data };
-        }
-        return { success: false, error: response.data.msg };
-    } catch (error) {
-        return { success: false, error: error.message };
-    }
-}
-
-/**
- * Delay helper
- */
 function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-/**
- * Log with timestamp
- */
 function log(message, type = 'INFO') {
     const timestamp = new Date().toISOString();
     const logMessage = `[${timestamp}] [${type}] ${message}`;
     console.log(logMessage);
 
-    // Also append to log file
     fs.appendFileSync(
         path.join(__dirname, 'payout-log.txt'),
         logMessage + '\n',
@@ -241,13 +189,13 @@ function log(message, type = 'INFO') {
 async function main() {
     console.log('=========================================');
     console.log('   HDPay Batch Payout Script');
+    console.log('   (No Balance Check Mode)');
     console.log('=========================================');
     console.log(`Base URL: ${BASE_URL}`);
     console.log(`Merchant ID: ${MERCHANT_ID}`);
     console.log(`Target Account: ${TARGET_ACCOUNT.name}`);
     console.log(`Type: ${TARGET_ACCOUNT.type === '0' ? 'Bank Transfer' : 'UPI'}`);
     console.log(`Batch Amounts: ${BATCH_AMOUNTS.join(', ')}`);
-    console.log(`Min Balance: ${MIN_BALANCE}`);
     console.log(`Callback URL: ${APP_URL}/api/callback/hdpay/payout`);
     console.log('=========================================\n');
 
@@ -262,7 +210,7 @@ async function main() {
         process.exit(1);
     }
 
-    // Connect to database and sync table
+    // Connect to database
     try {
         await sequelize.authenticate();
         log('Database connected');
@@ -282,57 +230,36 @@ async function main() {
         orders: []
     };
 
-    // Get initial balance
-    log('Fetching initial balance...');
-    const balanceResult = await getBalance();
+    let consecutiveFailures = 0;
+    let currentAmountIndex = 0;
+    let keepRunning = true;
 
-    if (!balanceResult.success) {
-        log(`Failed to get balance: ${balanceResult.error}`, 'ERROR');
-        process.exit(1);
-    }
+    log('Starting batch payouts (will stop on balance error)...');
 
-    let currentBalance = balanceResult.balance;
-    log(`Initial Balance: ₹${currentBalance.toFixed(2)}`);
-
-    // Main loop
-    while (currentBalance > MIN_BALANCE) {
-        // Determine the best amount to use
-        let payoutAmount = null;
-        for (const amount of BATCH_AMOUNTS) {
-            if (currentBalance >= amount + MIN_BALANCE) {
-                payoutAmount = amount;
-                break;
-            }
-        }
-
-        if (!payoutAmount) {
-            log(`Balance (₹${currentBalance.toFixed(2)}) too low for any batch amount`);
-            break;
-        }
-
-        // Generate order ID
+    // Main loop - keeps trying until balance error or max failures
+    while (keepRunning && currentAmountIndex < BATCH_AMOUNTS.length) {
+        const payoutAmount = BATCH_AMOUNTS[currentAmountIndex];
         const orderId = generateOrderId();
         stats.totalRequests++;
 
         log(`Creating payout #${stats.totalRequests}: ₹${payoutAmount} | Order: ${orderId}`);
 
-        // Create payout
         const result = await createPayout(orderId, payoutAmount);
 
         if (result.success) {
+            consecutiveFailures = 0;
             stats.successfulPayouts++;
             stats.totalAmount += payoutAmount;
 
-            const orderInfo = {
+            stats.orders.push({
                 orderId,
                 amount: payoutAmount,
                 status: 'submitted',
                 providerOrderId: result.data?.payoutId,
                 time: new Date().toISOString()
-            };
-            stats.orders.push(orderInfo);
+            });
 
-            // Store in database for callback handling
+            // Store in database
             try {
                 await BatchPayout.create({
                     orderId: orderId,
@@ -346,54 +273,50 @@ async function main() {
                     providerOrderId: result.data?.payoutId,
                     callbackData: JSON.stringify(result.rawResponse)
                 });
-                log(`✓ Payout saved to DB: ${orderId}`, 'SUCCESS');
             } catch (dbError) {
-                log(`⚠ Failed to save to DB: ${dbError.message}`, 'WARN');
+                log(`⚠ DB save error: ${dbError.message}`, 'WARN');
             }
 
             log(`✓ Payout submitted: ${orderId} | Platform ID: ${result.data?.payoutId}`, 'SUCCESS');
 
-            // Deduct from expected balance
-            currentBalance -= payoutAmount;
-            log(`Expected Balance: ₹${currentBalance.toFixed(2)}`);
         } else {
-            stats.failedPayouts++;
-            stats.orders.push({
-                orderId,
-                amount: payoutAmount,
-                status: 'failed',
-                error: result.error,
-                time: new Date().toISOString()
-            });
+            // Failed - check why
+            log(`✗ Payout failed: ${result.error} (code: ${result.code})`, 'ERROR');
 
-            log(`✗ Payout failed: ${result.error}`, 'ERROR');
+            if (result.isBalanceError) {
+                log(`Balance insufficient for ₹${payoutAmount}`, 'WARN');
 
-            // Check if it's a balance error
-            if (result.error && (
-                result.error.toLowerCase().includes('balance') ||
-                result.error.toLowerCase().includes('insufficient')
-            )) {
-                log('Insufficient balance detected, stopping...', 'WARN');
-                break;
+                // Try smaller amount
+                currentAmountIndex++;
+                if (currentAmountIndex < BATCH_AMOUNTS.length) {
+                    log(`Trying smaller amount: ₹${BATCH_AMOUNTS[currentAmountIndex]}`, 'INFO');
+                    consecutiveFailures = 0;
+                } else {
+                    log('No smaller amounts to try. Stopping.', 'WARN');
+                    keepRunning = false;
+                }
+            } else {
+                consecutiveFailures++;
+                stats.failedPayouts++;
+                stats.orders.push({
+                    orderId,
+                    amount: payoutAmount,
+                    status: 'failed',
+                    error: result.error,
+                    time: new Date().toISOString()
+                });
+
+                if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+                    log(`${MAX_CONSECUTIVE_FAILURES} consecutive failures. Stopping.`, 'ERROR');
+                    keepRunning = false;
+                }
             }
         }
 
-        // Refresh balance every 5 requests
-        if (stats.totalRequests % 5 === 0) {
-            log('Refreshing balance...');
-            const refreshResult = await getBalance();
-            if (refreshResult.success) {
-                currentBalance = refreshResult.balance;
-                log(`Actual Balance: ₹${currentBalance.toFixed(2)}`);
-            }
+        if (keepRunning) {
+            await delay(REQUEST_DELAY);
         }
-
-        // Delay before next request
-        await delay(REQUEST_DELAY);
     }
-
-    // Final balance check
-    const finalBalance = await getBalance();
 
     // Print summary
     console.log('\n=========================================');
@@ -403,34 +326,29 @@ async function main() {
     console.log(`Successful: ${stats.successfulPayouts}`);
     console.log(`Failed: ${stats.failedPayouts}`);
     console.log(`Total Amount Submitted: ₹${stats.totalAmount.toFixed(2)}`);
-    console.log(`Final Balance: ₹${finalBalance.success ? finalBalance.balance.toFixed(2) : 'Unknown'}`);
     console.log('=========================================\n');
 
-    // Save detailed log
+    // Save results
     const logPath = path.join(__dirname, `payout-results-${Date.now()}.json`);
     fs.writeFileSync(logPath, JSON.stringify(stats, null, 2));
-    log(`Detailed results saved to: ${logPath}`);
+    log(`Results saved to: ${logPath}`);
 
     // Print all orders
     console.log('\nAll Orders:');
-    console.log('-'.repeat(80));
+    console.log('-'.repeat(90));
     stats.orders.forEach((order, i) => {
         console.log(`${i + 1}. ${order.orderId} | ₹${order.amount} | ${order.status} | ${order.providerOrderId || order.error || ''}`);
     });
 
     console.log('\n=========================================');
-    console.log('   CALLBACK MONITORING');
+    console.log('   CHECK STATUS');
     console.log('=========================================');
-    console.log('All payouts are stored in the batch_payouts table.');
-    console.log(`Callbacks will be received at: ${APP_URL}/api/callback/hdpay/payout`);
-    console.log('Use: node scripts/hdpay-check-payouts.js to check final statuses');
+    console.log('Run: node scripts/hdpay-check-payouts.js');
     console.log('=========================================\n');
 
-    // Close database connection
     await sequelize.close();
 }
 
-// Run the script
 main().catch(err => {
     console.error('Fatal error:', err);
     process.exit(1);
