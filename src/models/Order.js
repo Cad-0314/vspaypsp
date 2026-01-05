@@ -141,7 +141,8 @@ const Order = sequelize.define('Order', {
         { fields: ['createdAt'] },
         { fields: ['updatedAt'] },
         { fields: ['merchantId', 'type', 'createdAt'] },
-        { fields: ['providerOrderId'] }
+        { fields: ['providerOrderId'] },
+        { fields: ['orderId', 'type'] } // For callback lookups
     ]
 });
 

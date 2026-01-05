@@ -47,18 +47,6 @@ router.post('/create', validateMerchant, async (req, res) => {
             });
         }
 
-        // Check for duplicate order ID
-        const existingOrder = await Order.findOne({
-            where: { merchantId: merchant.id, orderId: orderId }
-        });
-
-        if (existingOrder) {
-            return res.json({
-                code: 0,
-                msg: 'Duplicate order ID'
-            });
-        }
-
         // Get channel configuration
         const channelName = merchant.assignedChannel || 'hdpay';
         const channelConfig = channelRouter.getChannelConfig(channelName);
@@ -81,22 +69,46 @@ router.post('/create', validateMerchant, async (req, res) => {
         // Generate internal order ID
         const internalId = uuidv4();
 
-        // Create order in database first
-        const order = await Order.create({
-            id: internalId,
-            merchantId: merchant.id,
-            orderId: orderId,
-            channelName: channelName,
-            type: 'payin',
-            amount: amount,
-            fee: fee,
-            netAmount: netAmount,
-            status: 'pending',
-            callbackUrl: callbackUrl || merchant.callbackUrl,
-            skipUrl: skipUrl,
-            param: param,
-            expiresAt: new Date(Date.now() + 30 * 60 * 1000) // 30 minutes
-        });
+        // ATOMIC: Use findOrCreate with transaction to prevent race conditions
+        const sequelize = require('../../config/database');
+        const t = await sequelize.transaction();
+
+        let order;
+        try {
+            const [foundOrder, created] = await Order.findOrCreate({
+                where: { merchantId: merchant.id, orderId: orderId },
+                defaults: {
+                    id: internalId,
+                    merchantId: merchant.id,
+                    orderId: orderId,
+                    channelName: channelName,
+                    type: 'payin',
+                    amount: amount,
+                    fee: fee,
+                    netAmount: netAmount,
+                    status: 'pending',
+                    callbackUrl: callbackUrl || merchant.callbackUrl,
+                    skipUrl: skipUrl,
+                    param: param,
+                    expiresAt: new Date(Date.now() + 30 * 60 * 1000) // 30 minutes
+                },
+                transaction: t
+            });
+
+            if (!created) {
+                await t.rollback();
+                return res.json({
+                    code: 0,
+                    msg: 'Duplicate order ID'
+                });
+            }
+
+            await t.commit();
+            order = foundOrder;
+        } catch (txError) {
+            await t.rollback();
+            throw txError;
+        }
 
         // Call upstream provider
         const notifyUrl = `${APP_URL}/callback/${channelName}/payin`;
