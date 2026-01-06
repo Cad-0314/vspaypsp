@@ -198,15 +198,15 @@ async function queryPayin(orderId) {
 async function createPayout({ orderId, amount, accountNo, ifsc, name, mobile, email, notifyUrl }) {
     try {
         const bizContent = {
-            amount: amount.toFixed(2),
-            mchOrderNo: orderId,
+            amount: String(amount.toFixed(2)),
+            mchOrderNo: String(orderId),
             methodCode: 'BANK_INR',
-            notifyUrl: notifyUrl,
-            payeeAccountNo: accountNo,
-            payeeIfsc: ifsc,
-            payeeName: name,
-            payeeMobile: mobile || '9999999999',
-            payeeEmail: email || 'payout@example.com'
+            notifyUrl: String(notifyUrl),
+            payeeAccountNo: String(accountNo),
+            payeeIfsc: String(ifsc).toUpperCase(),
+            payeeName: String(name),
+            payeeMobile: String(mobile || '9999999999'),
+            payeeEmail: String(email || 'payout@example.com')
         };
 
         const payload = buildRequest(bizContent, orderId);
