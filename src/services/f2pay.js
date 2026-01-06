@@ -202,11 +202,11 @@ async function createPayout({ orderId, amount, accountNo, ifsc, name, mobile, em
             mchOrderNo: String(orderId),
             methodCode: 'BANK_INR',
             notifyUrl: String(notifyUrl),
-            payeeAccountNo: String(accountNo),
-            payeeIfsc: String(ifsc).toUpperCase(),
-            payeeName: String(name),
-            payeeMobile: String(mobile || '9999999999'),
-            payeeEmail: String(email || 'payout@example.com')
+            customerAccountNum: String(accountNo),
+            ifsc: String(ifsc).toUpperCase(),
+            customerName: String(name),
+            customerPhone: String(mobile || '9999999999'),
+            customerEmail: String(email || 'payout@example.com')
         };
 
         const payload = buildRequest(bizContent, orderId);
