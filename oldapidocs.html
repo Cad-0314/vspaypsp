@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Huidu Payment Gateway - API Reference</title>
+    <title>Payable Payment Gateway - API Reference</title>
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
         rel="stylesheet">
@@ -333,7 +333,7 @@
 <body>
     <aside class="sidebar">
         <div class="logo">
-            <h1>VSPAY API</h1>
+            <h1>Payable API</h1>
         </div>
         <button id="langToggle" class="lang-toggle" onclick="window.changeLanguage()">
             <span style="font-size:1.1rem;">🇺🇸</span> English
@@ -364,11 +364,11 @@
         <!-- Introduction -->
         <section id="intro">
             <h1 data-i18n="introduction">Introduction</h1>
-            <p data-i18n="intro_desc">Welcome to the VSPAY Payment Gateway API. This documentation provides a
+            <p data-i18n="intro_desc">Welcome to the Payable Payment Gateway API. This documentation provides a
                 comprehensive guide to integrating our secure payment solutions for deposits (Pay-In) and withdrawals
                 (Pay-Out).</p>
             <p><strong data-i18n="version">Version:</strong> 2.1<br>
-                <strong data-i18n="base_url">Base URL:</strong> <code>https://vspay.vip</code>
+                <strong data-i18n="base_url">Base URL:</strong> <code>https://payable.firestars.co</code>
             </p>
             <div class="alert alert-info">
                 <p data-i18n="req_https">All requests must be made over HTTPS with
@@ -567,7 +567,7 @@ function generateSignature(params, secretKey) {
         "id": "e0b5...88",
         "orderAmount": 500,
         "fee": 25,
-        "paymentUrl": "https://vspay.vip/pay/DF-123456",
+        "paymentUrl": "https://payable.firestars.co/pay/DF-123456",
         "deepLinks": {
             "upi_phonepe": "phonepe://...",
             "upi_paytm": "paytmmp://...",

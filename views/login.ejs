@@ -11,47 +11,61 @@
 </head>
 
 <body>
-    <div class="container">
-        <div class="lang-switch">
-            <a href="?lang=en" class="lang-link <%= currentLang === 'en' ? 'active' : '' %>">English</a>
-            <a href="?lang=zh" class="lang-link <%= currentLang === 'zh' ? 'active' : '' %>">中文</a>
+    <div class="login-container">
+        <!-- Left Side: Image -->
+        <div class="login-left">
+            <img src="/images/login-side.png" alt="Payable">
         </div>
 
-        <div class="logo-container">
-            <img src="/images/logo.png" alt="VSPAY Logo" class="logo">
-        </div>
-
-        <h1>
-            <%= t('header_welcome') %>
-        </h1>
-        <p class="subtitle">
-            <%= t('subtitle_login') %>
-        </p>
-
-        <% if (message && message.length> 0) { %>
-            <div class="alert alert-error">
-                <%= message %>
+        <!-- Right Side: Form -->
+        <div class="login-right">
+            <div class="lang-switch" style="justify-content: flex-end;">
+                <a href="?lang=en" class="lang-link <%= currentLang === 'en' ? 'active' : '' %>">English</a>
+                <a href="?lang=zh" class="lang-link <%= currentLang === 'zh' ? 'active' : '' %>">中文</a>
             </div>
-            <% } %>
 
-                <form action="/auth/login" method="POST">
-                    <div class="form-group">
-                        <label for="username">
-                            <%= t('label_username') %>
-                        </label>
-                        <input type="text" id="username" name="username" required placeholder="<%= t('ph_username') %>">
-                    </div>
-                    <div class="form-group">
-                        <label for="password">
-                            <%= t('label_password') %>
-                        </label>
-                        <input type="password" id="password" name="password" required
-                            placeholder="<%= t('ph_password') %>">
-                    </div>
-                    <button type="submit" class="btn">
-                        <%= t('btn_login') %>
-                    </button>
-                </form>
+            <div class="logo-container">
+                <!-- Using a text placeholder for now if logo is not updated, or assuming logo.png will be updated -->
+                <!-- Ideally we would use the new logo here. For now I'll use the PayAble text style if no image or keep using logo.png but assume it will be updated -->
+                <div style="text-align: center; margin-bottom: 1rem;">
+                    <img src="/images/logo.png" alt="Payable Logo" class="logo" style="margin-bottom: 10px;">
+                    <h2 style="color: var(--primary-color); font-weight: 800; font-size: 2rem; margin: 0;">Payable</h2>
+                </div>
+            </div>
+
+            <h1>
+                <%= t('header_welcome') %>
+            </h1>
+            <p class="subtitle">
+                <%= t('subtitle_login') %>
+            </p>
+
+            <% if (message && message.length> 0) { %>
+                <div class="alert alert-error">
+                    <%= message %>
+                </div>
+                <% } %>
+
+                    <form action="/auth/login" method="POST">
+                        <div class="form-group">
+                            <label for="username">
+                                <%= t('label_username') %>
+                            </label>
+                            <input type="text" id="username" name="username" required
+                                placeholder="<%= t('ph_username') %>">
+                        </div>
+                        <div class="form-group">
+                            <label for="password">
+                                <%= t('label_password') %>
+                            </label>
+                            <input type="password" id="password" name="password" required
+                                placeholder="<%= t('ph_password') %>">
+                        </div>
+                        <button type="submit" class="btn">
+                            <%= t('btn_login') %>
+                        </button>
+                    </form>
+        </div>
     </div>
 </body>
 

@@ -1,4 +1,4 @@
-VSPAY API
+Payable API
 
 🇺🇸
 EN
@@ -18,10 +18,10 @@ Payout Callback
 Utilities
 Check Balance
 Introduction
-Welcome to the VSPAY Payment Gateway API. This documentation provides a comprehensive guide to integrating our secure payment solutions.
+Welcome to the Payable Payment Gateway API. This documentation provides a comprehensive guide to integrating our secure payment solutions.
 
 Version 2.1
-Base URL https://vspay.vip
+Base URL https://payable.firestars.co
 
 All requests must be made over HTTPS with Content-Type: application/json.
 
@@ -111,7 +111,7 @@ Success Response
         "id": "e0b5...88",
         "orderAmount": 500,
         "fee": 25,
-        "paymentUrl": "https://vspay.vip/pay/DF-123456",
+        "paymentUrl": "https://payable.firestars.co/pay/DF-123456",
         "deepLinks": {
             "upi_phonepe": "phonepe://...",
             "upi_paytm": "paytmmp://...",

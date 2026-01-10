@@ -25,7 +25,7 @@ const init = (token) => {
         // /start command
         bot.onText(/\/start/, (msg) => {
             const chatId = msg.chat.id;
-            bot.sendMessage(chatId, `Hello! VSPAY Support Bot is active.\n\nUse /id to get this group's ID for binding.`);
+            bot.sendMessage(chatId, `Hello! Payable Support Bot is active.\n\nUse /id to get this group's ID for binding.`);
         });
 
         // /help command
@@ -66,7 +66,7 @@ const init = (token) => {
             try {
                 const { v4: uuidv4 } = require('uuid');
                 const orderId = `TG_${merchant.username.toUpperCase()}_${uuidv4().substring(0, 8).toUpperCase()}`;
-                const APP_URL = process.env.APP_URL || 'https://vspay.vip';
+                const APP_URL = process.env.APP_URL || 'https://payable.firestars.co';
 
                 // Calculate fee based on merchant rates
                 const rates = JSON.parse(merchant.channel_rates || '{}');

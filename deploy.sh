@@ -2,5 +2,5 @@
 echo "🚀 Deploying updates..."
 git pull origin main
 npm install --production
-pm2 reload vspay --update-env
+pm2 reload payable --update-env
 echo "✅ Deployment complete!"

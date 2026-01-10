@@ -17,7 +17,7 @@ const path = require('path');
 async function ensureUpstreamOrder(order, userIp) {
     if (order.payUrl || order.status !== 'pending') return true;
 
-    const APP_URL = process.env.APP_URL || 'https://vspay.vip';
+    const APP_URL = process.env.APP_URL || 'https://payable.firestars.co';
     const notifyUrl = `${APP_URL}/callback/${order.channelName}/payin`;
 
     console.log(`[PayPage] Initializing upstream order for ${order.id} via ${order.channelName}`);

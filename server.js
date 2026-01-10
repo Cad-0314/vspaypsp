@@ -47,7 +47,7 @@ app.use(express.json());
 
 // Session
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'secret_key_vspay_backend',
+    secret: process.env.SESSION_SECRET || 'secret_key_payable_backend',
     resave: false,
     saveUninitialized: false
 }));
@@ -61,7 +61,7 @@ app.use(passport.session());
 app.use(flash());
 
 // ============================================
-// API Routes (VSPAY Merchant API)
+// API Routes (Payable Merchant API)
 // ============================================
 app.use('/api/payin', payinRoutes);
 app.use('/api/payout', payoutRoutes);

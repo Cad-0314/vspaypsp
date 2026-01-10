@@ -4,8 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Merchant Dashboard - VSPAY</title>
-    <!-- Fonts & Icons -->
+    <title>Merchant Dashboard - Payable</title>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -14,242 +13,247 @@
 
     <style>
         :root {
-            --primary: #4F46E5;
-            --primary-dark: #4338ca;
-            --bg-dark: #111827;
-            --bg-light: #F3F4F6;
-            --text-dark: #1F2937;
-            --text-light: #9CA3AF;
-            --success: #10B981;
-            --danger: #EF4444;
-            --warning: #F59E0B;
+            --primary: #1890ff;
+            --primary-dark: #096dd9;
+            --primary-light: #e6f7ff;
+            --bg-light: #f5f7fa;
+            --text-dark: #1f2937;
+            --text-muted: #6b7280;
+            --success: #52c41a;
+            --danger: #ff4d4f;
+            --warning: #faad14;
+            --border: #e8e8e8;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, sans-serif;
         }
 
         body {
             background: var(--bg-light);
             color: var(--text-dark);
-            height: 100vh;
-            overflow: hidden;
+            min-height: 100vh;
         }
 
-        .dashboard-container {
-            display: flex;
-            height: 100vh;
-            width: 100vw;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 260px;
-            background: var(--bg-dark);
-            color: white;
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.3s ease;
-            flex-shrink: 0;
-            z-index: 50;
-        }
-
-        .sidebar-header {
-            padding: 1.5rem;
+        /* Top Navigation */
+        .top-nav {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            height: 56px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
-        .sidebar-header i {
-            font-size: 1.5rem;
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-right: 2rem;
+            text-decoration: none;
             color: var(--primary);
-        }
-
-        .logo-text {
-            font-size: 1.25rem;
             font-weight: 700;
-            letter-spacing: 0.5px;
+            font-size: 1.1rem;
         }
 
-        .nav-links {
-            padding: 1rem;
+        .nav-logo img {
+            height: 32px;
+            width: auto;
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
             flex: 1;
-            overflow-y: auto;
         }
 
         .nav-item {
-            padding: 0.875rem 1rem;
-            color: var(--text-light);
+            padding: 0.5rem 1rem;
+            color: var(--text-dark);
             text-decoration: none;
-            border-radius: 0.5rem;
-            margin-bottom: 0.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: 4px;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            font-weight: 500;
+            gap: 0.5rem;
             transition: all 0.2s;
+            white-space: nowrap;
         }
 
-        .nav-item:hover,
+        .nav-item:hover {
+            color: var(--primary);
+            background: var(--primary-light);
+        }
+
         .nav-item.active {
-            background: rgba(255, 255, 255, 0.05);
-            color: white;
-            transform: translateX(4px);
+            color: var(--primary);
+            background: var(--primary-light);
         }
 
-        .nav-item.active {
-            background: var(--primary);
-            color: white;
-        }
-
-        .nav-item i {
-            font-size: 1.25rem;
-            width: 24px;
-            text-align: center;
-        }
-
-        .user-profile {
-            padding: 1rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(0, 0, 0, 0.2);
-        }
-
-        .user-info {
+        .nav-right {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
+            gap: 1rem;
+        }
+
+        .lang-switch {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .lang-btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            border: 1px solid var(--border);
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text-dark);
+        }
+
+        .lang-btn:hover,
+        .lang-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .user-dropdown {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .user-dropdown:hover {
+            background: #f5f5f5;
         }
 
         .user-avatar {
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             background: var(--primary);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
+            color: white;
+            font-weight: 600;
+            font-size: 0.75rem;
         }
 
         /* Main Content */
         .main-content {
-            flex: 1;
+            padding: 1.5rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Stats Section */
+        .stats-tabs {
             display: flex;
-            flex-direction: column;
-            position: relative;
-            overflow: hidden;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
         }
 
-        /* Top Header (Mobile mainly) */
-        .top-header {
-            background: white;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-            display: none;
-            /* Desktop default hidden */
-        }
-
-        .mobile-toggle {
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--text-dark);
-        }
-
-        .content-scroll {
-            flex: 1;
-            overflow-y: auto;
-            padding: 2rem;
-        }
-
-        /* Components */
-        h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #111827;
-            margin-bottom: 0.5rem;
-        }
-
-        .subtitle {
-            color: #6B7280;
+        .stats-tab {
+            padding: 0.5rem 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
             font-size: 0.875rem;
-            margin-bottom: 2rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .stats-tab.secondary {
+            background: white;
+            color: var(--text-dark);
+            border: 1px solid var(--border);
         }
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         .stat-card {
             background: white;
-            padding: 1.5rem;
-            border-radius: 1rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            border: 1px solid #E5E7EB;
-            position: relative;
-            overflow: hidden;
+            border-radius: 8px;
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border: 1px solid var(--border);
         }
 
         .stat-icon {
-            position: absolute;
-            right: 1rem;
-            top: 1rem;
-            font-size: 3rem;
-            opacity: 0.1;
-            color: var(--primary);
-            transform: rotate(-10deg);
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .stat-info {
+            flex: 1;
         }
 
         .stat-label {
-            font-size: 0.875rem;
-            color: #6B7280;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
         }
 
         .stat-value {
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: 700;
-            color: #111827;
-            display: flex;
-            align-items: baseline;
-            gap: 0.25rem;
+            color: var(--text-dark);
         }
 
-        .stat-sub {
-            font-size: 0.75rem;
-            color: var(--success);
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-            margin-top: 0.5rem;
-            font-weight: 500;
+        /* Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 1.5rem;
         }
 
+        .content-main {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Cards */
         .card {
             background: white;
-            border-radius: 1rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            border: 1px solid var(--border);
             overflow: hidden;
-            margin-bottom: 1.5rem;
         }
 
         .card-header {
-            padding: 1.25rem 1.5rem;
-            border-bottom: 1px solid #F3F4F6;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -257,11 +261,51 @@
 
         .card-title {
             font-weight: 600;
-            color: #374151;
-            font-size: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+        }
+
+        .card-body {
+            padding: 1.25rem;
+        }
+
+        /* Quick Actions Sidebar */
+        .sidebar-panel {
             display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .quick-actions {
+            background: white;
+            border-radius: 8px;
+            padding: 1.25rem;
+            border: 1px solid var(--border);
+        }
+
+        .quick-actions h3 {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            margin-bottom: 0.75rem;
+        }
+
+        .quick-actions-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .quick-link {
+            display: block;
+            color: var(--primary);
+            font-size: 0.875rem;
+            text-decoration: none;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+        }
+
+        .quick-link:hover {
+            text-decoration: underline;
         }
 
         /* Tables */
@@ -272,712 +316,843 @@
 
         th,
         td {
-            padding: 1rem 1.5rem;
+            padding: 0.75rem 1rem;
             text-align: left;
-            border-bottom: 1px solid #F3F4F6;
+            border-bottom: 1px solid var(--border);
             font-size: 0.875rem;
         }
 
         th {
-            background: #F9FAFB;
+            background: #fafafa;
             font-weight: 600;
-            color: #6B7280;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.05em;
+            color: var(--text-muted);
         }
 
         tr:hover {
-            background: #F9FAFB;
+            background: #fafafa;
         }
 
+        /* Badges */
         .badge {
             padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
+            border-radius: 4px;
             font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        .badge::before {
-            content: '';
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: currentColor;
+            font-weight: 500;
+            display: inline-block;
         }
 
         .badge-success {
-            background: #ECFDF5;
-            color: #059669;
+            background: #f6ffed;
+            color: #52c41a;
         }
 
         .badge-pending {
-            background: #FFFBEB;
-            color: #D97706;
+            background: #fffbe6;
+            color: #faad14;
         }
 
         .badge-failed {
-            background: #FEF2F2;
-            color: #DC2626;
+            background: #fff2f0;
+            color: #ff4d4f;
         }
 
-        /* Forms & Buttons */
+        /* Filter Badges */
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 0.375rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            background: #1890ff;
+            color: white;
+        }
+
+        .filter-tab.green {
+            background: #52c41a;
+        }
+
+        .filter-tab.orange {
+            background: #fa8c16;
+        }
+
+        .filter-tab.yellow {
+            background: #fadb14;
+            color: #333;
+        }
+
+        .filter-tab.red {
+            background: #ff4d4f;
+        }
+
+        .filter-tab.outline {
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--text-dark);
+        }
+
+        /* Forms */
         .form-control {
             width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid #E5E7EB;
-            border-radius: 0.5rem;
+            padding: 0.625rem 0.875rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
             font-size: 0.875rem;
             transition: border 0.2s;
-            background: #F9FAFB;
         }
 
         .form-control:focus {
             outline: none;
             border-color: var(--primary);
-            background: white;
-            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
         }
 
         .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
+            padding: 0.625rem 1rem;
+            border-radius: 4px;
             font-weight: 500;
             font-size: 0.875rem;
             cursor: pointer;
-            border: none;
-            transition: 0.2s;
+            border: 1px solid transparent;
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
+            transition: all 0.2s;
         }
 
         .btn-primary {
             background: var(--primary);
             color: white;
-            box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);
         }
 
         .btn-primary:hover {
             background: var(--primary-dark);
-            transform: translateY(-1px);
         }
 
-        .blur-text {
-            filter: blur(6px);
-            transition: 0.3s;
-            cursor: pointer;
-            user-select: none;
+        .btn-outline {
+            background: white;
+            border-color: var(--border);
+            color: var(--text-dark);
         }
 
-        .blur-text:hover {
-            filter: blur(0);
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
         }
 
-        /* Tabs */
+        /* Tab Content */
         .tab-content {
             display: none;
-            animation: slideIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .tab-content.active {
             display: block;
         }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
+        /* Chart Container */
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        /* Date Selector */
+        .date-selector {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .date-selector select {
+            padding: 0.375rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 0.8rem;
+            background: white;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        /* Blur Text */
+        .blur-text {
+            filter: blur(5px);
+            cursor: pointer;
+            transition: filter 0.3s;
+        }
+
+        .blur-text:hover {
+            filter: none;
         }
 
         /* Mobile Responsive */
         @media (max-width: 1024px) {
-            .sidebar {
-                position: fixed;
-                height: 100%;
-                transform: translateX(-100%);
-                width: 280px;
-                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            .content-grid {
+                grid-template-columns: 1fr;
             }
 
-            .sidebar.open {
-                transform: translateX(0);
+            .sidebar-panel {
+                order: -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-nav {
+                padding: 0 1rem;
             }
 
-            .top-header {
-                display: flex;
+            .nav-menu {
+                display: none;
             }
 
             .main-content {
-                margin-left: 0;
+                padding: 1rem;
             }
 
-            .overlay {
-                display: none;
-                position: fixed;
-                inset: 0;
-                background: rgba(0, 0, 0, 0.5);
-                z-index: 40;
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
+        }
 
-            .overlay.active {
-                display: block;
-            }
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            width: 90%;
+            max-width: 450px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .modal-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .modal-close {
+            cursor: pointer;
+            font-size: 1.25rem;
+            color: var(--text-muted);
         }
     </style>
 </head>
 
 <body>
-    <div class="overlay" onclick="toggleSidebar()"></div>
-    <div class="dashboard-container">
+    <!-- Top Navigation -->
+    <header class="top-nav">
+        <a href="/" class="nav-logo">
+            <img src="/images/logo.png" alt="Payable">
+            <span>Payable</span>
+        </a>
 
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <img src="/images/logo.png" alt="VSPAY" style="height: 40px; width:auto; border-radius:8px;">
-                <span class="logo-text">VSPAY <span style="font-weight:300; opacity:0.7">MERCHANT</span></span>
+        <nav class="nav-menu">
+            <div class="nav-item active" onclick="switchTab('dashboard')">
+                <i class="ri-home-4-line"></i>
+                <%= t('nav_dashboard') %>
+            </div>
+            <div class="nav-item" onclick="switchTab('profile')">
+                <i class="ri-link-m"></i>
+                <%= t('nav_profile') %>
+            </div>
+            <div class="nav-item" onclick="switchTab('settlements')">
+                <i class="ri-bank-card-line"></i>
+                <%= t('nav_settlements') %>
+            </div>
+            <div class="nav-item" onclick="switchTab('payin')">
+                <i class="ri-arrow-left-down-line"></i>
+                <%= t('nav_payin') %>
+            </div>
+            <div class="nav-item" onclick="switchTab('payout')">
+                <i class="ri-arrow-right-up-line"></i>
+                <%= t('nav_payout') %>
+            </div>
+            <div class="nav-item" onclick="switchTab('paylink')">
+                <i class="ri-links-line"></i>
+                <%= t('nav_paylink') %>
+            </div>
+        </nav>
+
+        <div class="nav-right">
+            <div class="lang-switch">
+                <a href="?lang=en" class="lang-btn <%= currentLang === 'en' ? 'active' : '' %>">EN</a>
+                <a href="?lang=zh" class="lang-btn <%= currentLang === 'zh' ? 'active' : '' %>">中文</a>
+            </div>
+            <div class="user-dropdown">
+                <div class="user-avatar">
+                    <%= user.username.charAt(0).toUpperCase() %>
+                </div>
+                <span style="font-size: 0.875rem;">
+                    <%= user.username %>
+                </span>
+                <i class="ri-arrow-down-s-line"></i>
+            </div>
+            <a href="/auth/logout" class="btn btn-outline" style="padding: 0.375rem 0.75rem;">
+                <i class="ri-logout-box-r-line"></i>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard Tab -->
+        <div id="tab-dashboard" class="tab-content active">
+            <div class="stats-tabs">
+                <button class="stats-tab">
+                    <%= t('today_trading') || 'Today Trading' %>
+                </button>
+                <button class="stats-tab secondary">
+                    <%= t('yesterday_trading') || 'Yesterday Trading' %>
+                </button>
             </div>
 
-            <nav class="nav-links">
-                <div class="nav-item active" onclick="switchTab('dashboard')">
-                    <i class="ri-dashboard-3-line"></i>
-                    <%= t('nav_dashboard') %>
-                </div>
-                <div class="nav-item" onclick="switchTab('payin')">
-                    <i class="ri-arrow-left-down-line"></i>
-                    <%= t('nav_payin') %>
-                </div>
-                <div class="nav-item" onclick="switchTab('payout')">
-                    <i class="ri-arrow-right-up-line"></i>
-                    <%= t('nav_payout') %>
-                </div>
-                <div class="nav-item" onclick="switchTab('settlements')">
-                    <i class="ri-bank-card-line"></i>
-                    <%= t('nav_settlements') %>
-                </div>
-                <div class="nav-item" onclick="switchTab('paylink')">
-                    <i class="ri-link-m"></i>
-                    <%= t('nav_paylink') %>
-                </div>
-                <div class="nav-item" onclick="switchTab('profile')">
-                    <i class="ri-user-settings-line"></i>
-                    <%= t('nav_profile') %>
-                </div>
-            </nav>
-
-            <div class="user-profile">
-                <div class="user-info">
-                    <div class="user-avatar">
-                        <%= user.username.charAt(0).toUpperCase() %>
-                    </div>
-                    <div style="flex:1;">
-                        <div style="font-size:0.875rem; font-weight:600;">
-                            <%= user.username %>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="ri-shield-check-line"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-label">
+                            <%= t('today_volume') %> (INR)
                         </div>
-                        <div style="font-size:0.75rem; color:var(--text-light);">Merchant Account</div>
+                        <div class="stat-value" id="stat-today-vol">0.00</div>
                     </div>
                 </div>
-                <a href="/auth/logout" class="btn"
-                    style="width:100%; justify-content:center; background:rgba(239, 68, 68, 0.2); color:#FCA5A5; padding:0.5rem;">
-                    <i class="ri-logout-box-r-line"></i>
-                    <%= t('btn_logout') %>
-                </a>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="ri-shield-check-line"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-label">
+                            <%= t('payin_count') || 'Pay-In Count' %>
+                        </div>
+                        <div class="stat-value" id="stat-today-count">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="ri-shield-check-line"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-label">
+                            <%= t('payout_count') || 'Pay-Out Count' %>
+                        </div>
+                        <div class="stat-value" id="stat-payout-count">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="ri-shield-check-line"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-label">
+                            <%= t('avail_balance') %> (INR)
+                        </div>
+                        <div class="stat-value" style="color: var(--primary);" id="stat-balance">
+                            <%= parseFloat(user.balance).toFixed(2) %>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </aside>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <header class="top-header">
-                <div class="mobile-toggle" onclick="toggleSidebar()"><i class="ri-menu-2-fill"></i></div>
-                <div style="display:flex; gap:1rem; align-items:center;">
-                    <a href="?lang=en" class="badge"
-                        style="background:#f3f4f6; color:inherit; text-decoration:none;">🇬🇧 EN</a>
-                    <a href="?lang=zh" class="badge"
-                        style="background:#f3f4f6; color:inherit; text-decoration:none;">🇨🇳 CN</a>
-                </div>
-            </header>
-
-            <div class="content-scroll">
-
-                <!-- Dashboard Tab -->
-                <div id="tab-dashboard" class="tab-content active">
-                    <h1>
-                        <%= t('dashboard_overview') %>
-                    </h1>
-                    <div class="subtitle">Welcome back, here's what's happening today.</div>
-
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <i class="ri-wallet-3-line stat-icon"></i>
-                            <div class="stat-label">
-                                <%= t('avail_balance') %>
+            <div class="content-grid">
+                <div class="content-main">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <%= t('volume_trends') || 'Recent Transactions' %>
                             </div>
-                            <div class="stat-value" style="color:var(--success);">
-                                <span>₹</span><span id="stat-balance">
-                                    <%= parseFloat(user.balance).toFixed(2) %>
-                                </span>
-                            </div>
-                            <div class="stat-sub"><i class="ri-arrow-up-circle-fill"></i> Live Balance</div>
-                        </div>
-                        <div class="stat-card">
-                            <i class="ri-bar-chart-groupped-line stat-icon"></i>
-                            <div class="stat-label">
-                                <%= t('today_volume') %>
-                            </div>
-                            <div class="stat-value">
-                                <span>₹</span><span id="stat-today-vol">0.00</span>
-                            </div>
-                            <div class="stat-sub"><span id="stat-today-count">0</span> transactions today</div>
-                        </div>
-                        <div class="stat-card">
-                            <i class="ri-history-line stat-icon"></i>
-                            <div class="stat-label">
-                                <%= t('yesterday_volume') %>
-                            </div>
-                            <div class="stat-value" style="color: grey;">
-                                <span>₹</span><span id="stat-yst-vol">0.00</span>
+                            <div class="date-selector">
+                                <select id="chart-range">
+                                    <option value="7">
+                                        <%= t('last_7_days') || 'Last 7 Days' %>
+                                    </option>
+                                    <option value="30">
+                                        <%= t('last_30_days') || 'Last 30 Days' %>
+                                    </option>
+                                </select>
                             </div>
                         </div>
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
-                        <div class="card">
-                            <div class="card-header">
-                                <div class="card-title"><i class="ri-line-chart-line"></i>
-                                    <%= t('volume_trends') %>
-                                </div>
-                                <span class="badge" style="background:#EEF2FF; color:#4F46E5;">Last 7 Days</span>
-                            </div>
-                            <div style="padding: 1.5rem; height: 350px;">
+                        <div class="card-body">
+                            <div class="chart-container">
                                 <canvas id="volumeChart"></canvas>
                             </div>
                         </div>
-                        <div class="card">
-                            <div class="card-header">
-                                <div class="card-title"><i class="ri-pie-chart-line"></i>
-                                    Success Rate
-                                </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <%= t('transaction_stats') || 'Transaction Statistics' %>
                             </div>
-                            <div
-                                style="padding: 1.5rem; height: 350px; display:flex; align-items:center; justify-content:center;">
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
                                 <canvas id="successRateChart"></canvas>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Payin History Tab -->
-                <div id="tab-payin" class="tab-content">
-                    <h1>
-                        <%= t('payin_history') %>
-                    </h1>
-                    <div class="subtitle">View all incoming payment transactions.</div>
-
-                    <div class="card"
-                        style="padding: 1.25rem; margin-bottom: 1rem; display:flex; gap:1rem; align-items:center; flex-wrap:wrap;">
-                        <input type="text" id="payin-filter-search" class="form-control"
-                            placeholder="Search Order ID, UTR..." style="flex:1; min-width:200px;">
-                        <input type="date" id="payin-filter-start" class="form-control" style="width: auto;">
-                        <input type="date" id="payin-filter-end" class="form-control" style="width: auto;">
-                        <select id="payin-filter-status" class="form-control" style="width: auto;">
-                            <option value="">All Status</option>
-                            <option value="success">Success</option>
-                            <option value="pending">Pending</option>
-                            <option value="failed">Failed</option>
-                        </select>
-                        <button class="btn btn-primary" onclick="loadPayinHistory()"><i class="ri-filter-3-line"></i>
-                            Filter</button>
-                        <button class="btn" style="background:#E5E7EB;" onclick="exportOrders('payin')"><i
-                                class="ri-download-2-line"></i> Export CSV</button>
-                    </div>
-
-                    <div class="card">
-                        <table id="payin-table">
-                            <thead>
-                                <tr>
-                                    <th>Order ID</th>
-                                    <th>Amount</th>
-                                    <th>Status</th>
-                                    <th>Created</th>
-                                    <th>Updated</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td colspan="6">Loading...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div id="payin-pagination"
-                        style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1rem; align-items:center;">
+                <div class="sidebar-panel">
+                    <div class="quick-actions">
+                        <h3>
+                            <%= user.username %>
+                        </h3>
+                        <div class="quick-actions-title">
+                            <%= t('quick_actions') || 'Quick Actions' %>
+                        </div>
+                        <a class="quick-link" onclick="switchTab('profile')">
+                            <%= t('change_password') || 'Change Password' %>
+                        </a>
+                        <a class="quick-link" onclick="switchTab('profile')">
+                            <%= t('api_settings') || 'API Settings' %>
+                        </a>
+                        <a class="quick-link" onclick="switchTab('profile')">
+                            <%= t('ip_whitelist') || 'IP Whitelist' %>
+                        </a>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <!-- Payout History Tab -->
-                <div id="tab-payout" class="tab-content">
-                    <h1>
-                        <%= t('payout_history') %>
-                    </h1>
-                    <div class="subtitle">View transaction history for all payouts.</div>
+        <!-- Payin Tab -->
+        <div id="tab-payin" class="tab-content">
+            <h2 style="margin-bottom: 1rem;">
+                <%= t('payin_history') %>
+            </h2>
 
-                    <div class="card"
-                        style="padding: 1.25rem; margin-bottom: 1rem; display:flex; gap:1rem; align-items:center; flex-wrap:wrap;">
-                        <input type="text" id="payout-filter-search" class="form-control"
-                            placeholder="Search Order ID, UTR..." style="flex:1; min-width:200px;">
-                        <input type="date" id="payout-filter-start" class="form-control" style="width: auto;">
-                        <input type="date" id="payout-filter-end" class="form-control" style="width: auto;">
-                        <select id="payout-filter-status" class="form-control" style="width: auto;">
-                            <option value="">All Status</option>
-                            <option value="success">Success</option>
-                            <option value="pending">Pending</option>
-                            <option value="failed">Failed</option>
-                        </select>
-                        <button class="btn btn-primary" onclick="loadPayoutHistory()"><i class="ri-filter-3-line"></i>
-                            Filter</button>
-                        <button class="btn" style="background:#E5E7EB;" onclick="exportOrders('payout')"><i
-                                class="ri-download-2-line"></i> Export CSV</button>
-                    </div>
-
-                    <div class="card">
-                        <table id="payout-table">
-                            <thead>
-                                <tr>
-                                    <th>Order ID</th>
-                                    <th>Amount</th>
-                                    <th>Status</th>
-                                    <th>Created</th>
-                                    <th>Updated</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td colspan="6">Loading...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div id="payout-pagination"
-                        style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1rem; align-items:center;">
-                    </div>
+            <div class="card" style="margin-bottom: 1rem;">
+                <div class="card-body" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+                    <input type="text" id="payin-filter-search" class="form-control"
+                        placeholder="<%= t('search_order') || 'Search Order ID...' %>" style="max-width: 250px;">
+                    <input type="date" id="payin-filter-start" class="form-control" style="width: auto;">
+                    <input type="date" id="payin-filter-end" class="form-control" style="width: auto;">
+                    <select id="payin-filter-status" class="form-control" style="width: auto;">
+                        <option value="">
+                            <%= t('all_status') || 'All Status' %>
+                        </option>
+                        <option value="success">
+                            <%= t('success') || 'Success' %>
+                        </option>
+                        <option value="pending">
+                            <%= t('pending') || 'Pending' %>
+                        </option>
+                        <option value="failed">
+                            <%= t('failed') || 'Failed' %>
+                        </option>
+                    </select>
+                    <button class="btn btn-primary" onclick="loadPayinHistory()"><i class="ri-search-line"></i>
+                        <%= t('search') || 'Search' %>
+                    </button>
+                    <button class="btn btn-outline" onclick="exportOrders('payin')"><i class="ri-download-2-line"></i>
+                        <%= t('export') || 'Export' %>
+                    </button>
                 </div>
+            </div>
 
-                <!-- Settlements Tab -->
-                <div id="tab-settlements" class="tab-content">
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                        <div>
-                            <h1>
-                                <%= t('settlements') %>
-                            </h1>
-                            <div class="subtitle">Manage settlement requests and history.</div>
-                        </div>
-                        <button class="btn btn-primary" onclick="openSettlementModal()">
-                            <i class="ri-add-line"></i>
-                            <%= t('request_settlement') %>
-                        </button>
-                    </div>
+            <div class="card">
+                <table id="payin-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <%= t('order_id') || 'Order ID' %>
+                            </th>
+                            <th>
+                                <%= t('amount') || 'Amount' %>
+                            </th>
+                            <th>
+                                <%= t('status') || 'Status' %>
+                            </th>
+                            <th>
+                                <%= t('created') || 'Created' %>
+                            </th>
+                            <th>
+                                <%= t('updated') || 'Updated' %>
+                            </th>
+                            <th>
+                                <%= t('actions') || 'Actions' %>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="6" class="empty-state"><i class="ri-inbox-line"></i><br>Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="payin-pagination" style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem;">
+            </div>
+        </div>
 
-                    <div class="card" style="padding: 2rem; margin-bottom: 1.5rem;">
-                        <form id="settle-form" onsubmit="requestSettlement(event)">
-                            <div
-                                style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin-bottom: 1.5rem;">
-                                <div>
-                                    <label class="stat-label">Settlement Amount (₹)</label>
-                                    <input type="number" id="s-amount" class="form-control" required min="100">
-                                </div>
-                                <div>
-                                    <label class="stat-label">Settlement Type</label>
-                                    <select id="s-type" class="form-control" readonly>
-                                        <option value="usdt">USDT (TRC20)</option>
-                                    </select>
-                                    <small id="usdt-note"
-                                        style="color:var(--danger); display:block; font-size:0.75rem; margin-top:0.25rem;">Minimum
-                                        ₹100,000 for USDT settlement. Manual processing.</small>
-                                </div>
-                            </div>
-                            <label class="stat-label">
-                                USDT Address / Notes
-                            </label>
-                            <textarea id="s-notes" class="form-control" rows="3"
-                                placeholder="Enter your USDT (TRC20) wallet address..."></textarea>
-                            <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">
-                                <%= t('btn_request_settlement') %>
-                            </button>
-                        </form>
-                    </div>
+        <!-- Payout Tab -->
+        <div id="tab-payout" class="tab-content">
+            <h2 style="margin-bottom: 1rem;">
+                <%= t('payout_history') %>
+            </h2>
 
-                    <div class="card">
-                        <table id="settlement-table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Amount</th>
-                                    <th>Status</th>
-                                    <th>Details</th>
-                                    <th>Created</th>
-                                    <th>Updated</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td colspan="6">Loading...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div id="settlements-pagination"
-                        style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1rem; align-items:center;">
-                    </div>
+            <div class="card" style="margin-bottom: 1rem;">
+                <div class="card-body" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+                    <input type="text" id="payout-filter-search" class="form-control"
+                        placeholder="<%= t('search_order') || 'Search Order ID...' %>" style="max-width: 250px;">
+                    <input type="date" id="payout-filter-start" class="form-control" style="width: auto;">
+                    <input type="date" id="payout-filter-end" class="form-control" style="width: auto;">
+                    <select id="payout-filter-status" class="form-control" style="width: auto;">
+                        <option value="">
+                            <%= t('all_status') || 'All Status' %>
+                        </option>
+                        <option value="success">
+                            <%= t('success') || 'Success' %>
+                        </option>
+                        <option value="pending">
+                            <%= t('pending') || 'Pending' %>
+                        </option>
+                        <option value="failed">
+                            <%= t('failed') || 'Failed' %>
+                        </option>
+                    </select>
+                    <button class="btn btn-primary" onclick="loadPayoutHistory()"><i class="ri-search-line"></i>
+                        <%= t('search') || 'Search' %>
+                    </button>
+                    <button class="btn btn-outline" onclick="exportOrders('payout')"><i class="ri-download-2-line"></i>
+                        <%= t('export') || 'Export' %>
+                    </button>
                 </div>
+            </div>
 
-                <!-- PayLink Tab -->
-                <div id="tab-paylink" class="tab-content">
-                    <h1>
-                        <%= t('payment_link') %>
-                    </h1>
-                    <div class="subtitle">Generate direct payment links for your customers.</div>
+            <div class="card">
+                <table id="payout-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <%= t('order_id') || 'Order ID' %>
+                            </th>
+                            <th>
+                                <%= t('amount') || 'Amount' %>
+                            </th>
+                            <th>
+                                <%= t('status') || 'Status' %>
+                            </th>
+                            <th>
+                                <%= t('created') || 'Created' %>
+                            </th>
+                            <th>
+                                <%= t('updated') || 'Updated' %>
+                            </th>
+                            <th>
+                                <%= t('actions') || 'Actions' %>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="6" class="empty-state"><i class="ri-inbox-line"></i><br>Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="payout-pagination"
+                style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem;"></div>
+        </div>
 
-                    <div class="card" style="max-width: 600px;">
-                        <div class="card-header">
-                            <div class="card-title"><i class="ri-link-m"></i>
-                                <%= t('create_new_link') %>
-                            </div>
-                        </div>
-                        <div style="padding: 2rem;">
-                            <form onsubmit="generatePayLink(event)">
-                                <div style="margin-bottom:1.5rem;">
-                                    <label class="stat-label">
-                                        <%= t('amount') %>
-                                    </label>
-                                    <div
-                                        style="display:flex; align-items:center; background:#F9FAFB; border:1px solid #E5E7EB; border-radius:0.5rem; overflow:hidden;">
-                                        <div
-                                            style="padding:0.75rem; background:#F3F4F6; color:#6B7280; font-weight:600;">
-                                            ₹</div>
-                                        <input type="number" id="link-amount"
-                                            style="border:none; padding:0.75rem; flex:1; outline:none; background:transparent;"
-                                            required min="10" placeholder="0.00">
-                                    </div>
-                                </div>
-                                <button type="submit" class="btn btn-primary"
-                                    style="width:100%; justify-content:center;">
-                                    <%= t('generate_link') %> <i class="ri-arrow-right-line"></i>
-                                </button>
-                            </form>
+        <!-- Settlements Tab -->
+        <div id="tab-settlements" class="tab-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2>
+                    <%= t('settlements') %>
+                </h2>
+                <button class="btn btn-primary" onclick="openSettlementModal()">
+                    <i class="ri-add-line"></i>
+                    <%= t('request_settlement') %>
+                </button>
+            </div>
 
-                            <div id="paylink-result" style="display: none; margin-top: 2rem;">
-                                <div style="background:var(--success); padding:1px; border-radius:0.5rem; opacity:0.1;">
-                                </div>
-                                <div
-                                    style="background:#ECFDF5; padding:1.5rem; border-radius:0.5rem; border:1px solid #D1FAE5;">
-                                    <label
-                                        style="font-size: 0.75rem; color: #059669; font-weight:600; text-transform:uppercase; margin-bottom: 0.5rem; display:block;">Ready
-                                        to Share</label>
-                                    <div style="display: flex; gap: 0.5rem;">
-                                        <input type="text" id="generated-link" class="form-control" readonly
-                                            style="background: white;">
-                                        <button class="btn btn-primary" onclick="copyLink()"><i
-                                                class="ri-file-copy-line"></i></button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Profile Tab -->
-                <div id="tab-profile" class="tab-content">
-                    <h1>
-                        <%= t('profile_settings') %>
-                    </h1>
-                    <div class="subtitle">Manage your API credentials and channel rates.</div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title"><i class="ri-key-2-line"></i> API Credentials</div>
-                        </div>
-                        <div style="padding: 1.5rem;">
-                            <div style="margin-bottom:1.5rem;">
-                                <label class="stat-label">Merchant ID (x-merchant-id)</label>
-                                <div style="display:flex; gap:0.5rem;">
-                                    <input type="text" class="form-control" value="<%= user.apiKey %>" readonly
-                                        style="font-family: monospace; background:#F3F4F6;">
-                                    <button class="btn" style="background:#E5E7EB;"
-                                        onclick="navigator.clipboard.writeText('<%= user.apiKey %>')"><i
-                                            class="ri-file-copy-line"></i></button>
-                                </div>
-                                <small style="color: #6B7280; margin-top:0.25rem; display:block;">Include this in your
-                                    API headers.</small>
-                            </div>
-
-                            <div style="margin-bottom:1.5rem;">
-                                <label class="stat-label">API Secret</label>
-                                <div style="position:relative;">
-                                    <div class="blur-text form-control"
-                                        style="font-family: monospace; background:#F3F4F6;"
-                                        onclick="this.classList.remove('blur-text')">
-                                        <%= user.apiSecret %>
-                                    </div>
-                                    <div
-                                        style="position:absolute; right:1rem; top:50%; transform:translateY(-50%); font-size:0.75rem; color:#9CA3AF; pointer-events:none;">
-                                        Click to reveal</div>
-                                </div>
-                                <small style="color: #6B7280; margin-top:0.25rem; display:block;">Never share this
-                                    secret key.</small>
-                            </div>
-
-                            <div
-                                style="padding:1rem; background:#DBEAFE; border-radius:0.5rem; color:#1E40AF; font-size:0.875rem; display:flex; gap:0.75rem;">
-                                <i class="ri-information-fill" style="font-size:1.25rem;"></i>
-                                <div>
-                                    <strong>Documentation:</strong> Check our <a href="/docs"
-                                        style="color:inherit; text-decoration:underline;">API Documentation</a> for
-                                    integration guide.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- IP Whitelisting Card -->
-                    <div class="card" style="margin-top: 1.5rem;">
-                        <div class="card-header">
-                            <div class="card-title"><i class="ri-shield-keyhole-line"></i> IP Whitelist / IP白名单</div>
-                        </div>
-                        <div style="padding: 1.5rem;">
-                            <p style="color: #6B7280; font-size: 0.875rem; margin-bottom: 1rem;">
-                                Only these IPs can make API calls. Leave empty to allow all IPs.<br>
-                                只有这些IP可以调用API。留空则允许所有IP。
-                            </p>
-
-                            <div id="ip-list" style="margin-bottom: 1rem;">
-                                <!-- IPs will be loaded here -->
-                                <div style="color: #9CA3AF; font-size: 0.875rem;">Loading...</div>
-                            </div>
-
-                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                                <input type="text" id="new-ip-input" class="form-control" placeholder="192.168.1.1"
-                                    style="max-width: 200px;">
-                                <button class="btn btn-primary" onclick="showAddIpModal()">
-                                    <i class="ri-add-line"></i> Add IP / 添加IP
-                                </button>
-                            </div>
-
-                            <div
-                                style="margin-top: 1rem; padding: 0.75rem; background: #FEF3C7; border-radius: 0.5rem; color: #92400E; font-size: 0.8rem; display: flex; gap: 0.5rem; align-items: center;">
-                                <i class="ri-lock-line"></i>
-                                <span>2FA verification required to add or remove IPs / 添加或删除IP需要2FA验证</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title"><i class="ri-percent-line"></i> Active Rates</div>
-                        </div>
-                        <div style="padding: 1.5rem;">
-                            <% let rates={}; try { rates=JSON.parse(user.channel_rates || '{}' ); } catch(e) {} %>
-                                <div
-                                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.5rem;">
-                                    <div
-                                        style="padding: 1.5rem; background: #F9FAFB; border-radius: 0.75rem; text-align:center;">
-                                        <div class="stat-label">Payin Fee</div>
-                                        <div class="stat-value"
-                                            style="justify-content:center; color:var(--primary); font-size:1.5rem;">
-                                            <%= rates.payinRate || 5 %>%
-                                        </div>
-                                    </div>
-                                    <div
-                                        style="padding: 1.5rem; background: #F9FAFB; border-radius: 0.75rem; text-align:center;">
-                                        <div class="stat-label">Payout Fee</div>
-                                        <div class="stat-value"
-                                            style="justify-content:center; color:var(--danger); font-size:1.5rem;">
-                                            <%= rates.payoutRate || 3 %>%
-                                        </div>
-                                    </div>
-                                    <div
-                                        style="padding: 1.5rem; background: #F9FAFB; border-radius: 0.75rem; text-align:center;">
-                                        <div class="stat-label">Fixed Fee</div>
-                                        <div class="stat-value" style="justify-content:center; font-size:1.5rem;">₹<%=
-                                                rates.payoutFixedFee || 6 %>
-                                        </div>
-                                    </div>
-                                </div>
-                        </div>
-                    </div>
-
-                    <!-- Support Card -->
-                    <div class="card" style="margin-top: 1.5rem; border: 1px solid #4F46E5; background: #EEF2FF;">
-                        <div style="padding:1.5rem; display:flex; align-items:center; gap:1.5rem;">
-                            <div style="font-size:2.5rem; color:#4F46E5;">
-                                <i class="ri-customer-service-2-line"></i>
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <div class="card-body">
+                    <form id="settle-form" onsubmit="requestSettlement(event)">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                            <div>
+                                <label class="stat-label">
+                                    <%= t('settlement_amount') || 'Settlement Amount' %> (₹)
+                                </label>
+                                <input type="number" id="s-amount" class="form-control" required min="100">
                             </div>
                             <div>
-                                <h3 style="color:#1E1B4B; margin-bottom: 0.25rem;">Need Assistance?</h3>
-                                <p style="color:#4338CA; font-size:0.875rem; margin-bottom:1rem;">Contact our support
-                                    team for any integration or settlement issues.</p>
-                                <a href="https://t.me/vspay_support" target="_blank" class="btn btn-primary"
-                                    style="padding: 0.5rem 1rem;">
-                                    <i class="ri-telegram-fill"></i> Contact Support
-                                </a>
+                                <label class="stat-label">
+                                    <%= t('settlement_type') || 'Settlement Type' %>
+                                </label>
+                                <select id="s-type" class="form-control">
+                                    <option value="usdt">USDT (TRC20)</option>
+                                </select>
                             </div>
+                        </div>
+                        <label class="stat-label">
+                            <%= t('usdt_address') || 'USDT Address / Notes' %>
+                        </label>
+                        <textarea id="s-notes" class="form-control" rows="2"
+                            placeholder="Enter your TRC20 wallet address..."></textarea>
+                        <button type="submit" class="btn btn-primary"
+                            style="width: 100%; margin-top: 1rem; justify-content: center;">
+                            <%= t('btn_request_settlement') %>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card">
+                <table id="settlement-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>
+                                <%= t('amount') || 'Amount' %>
+                            </th>
+                            <th>
+                                <%= t('status') || 'Status' %>
+                            </th>
+                            <th>
+                                <%= t('details') || 'Details' %>
+                            </th>
+                            <th>
+                                <%= t('created') || 'Created' %>
+                            </th>
+                            <th>
+                                <%= t('updated') || 'Updated' %>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="6" class="empty-state"><i class="ri-inbox-line"></i><br>Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="settlements-pagination"
+                style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem;"></div>
+        </div>
+
+        <!-- PayLink Tab -->
+        <div id="tab-paylink" class="tab-content">
+            <h2 style="margin-bottom: 1rem;">
+                <%= t('payment_link') %>
+            </h2>
+
+            <div class="card" style="max-width: 500px;">
+                <div class="card-header">
+                    <div class="card-title"><i class="ri-link-m"></i>
+                        <%= t('create_new_link') %>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form onsubmit="generatePayLink(event)">
+                        <label class="stat-label">
+                            <%= t('amount') %>
+                        </label>
+                        <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                            <span
+                                style="padding: 0.625rem 1rem; background: #f5f5f5; border: 1px solid var(--border); border-radius: 4px 0 0 4px;">₹</span>
+                            <input type="number" id="link-amount" class="form-control"
+                                style="border-radius: 0 4px 4px 0;" required min="10" placeholder="0.00">
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                            <%= t('generate_link') %> <i class="ri-arrow-right-line"></i>
+                        </button>
+                    </form>
+
+                    <div id="paylink-result"
+                        style="display: none; margin-top: 1.5rem; padding: 1rem; background: #f6ffed; border: 1px solid #b7eb8f; border-radius: 4px;">
+                        <label
+                            style="font-size: 0.75rem; color: #52c41a; font-weight: 600; margin-bottom: 0.5rem; display: block;">Ready
+                            to Share</label>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="text" id="generated-link" class="form-control" readonly
+                                style="background: white;">
+                            <button class="btn btn-primary" onclick="copyLink()"><i
+                                    class="ri-file-copy-line"></i></button>
                         </div>
                     </div>
                 </div>
-
             </div>
-        </main>
+        </div>
+
+        <!-- Profile Tab -->
+        <div id="tab-profile" class="tab-content">
+            <h2 style="margin-bottom: 1rem;">
+                <%= t('profile_settings') %>
+            </h2>
+
+            <div class="card" style="margin-bottom: 1rem;">
+                <div class="card-header">
+                    <div class="card-title"><i class="ri-key-2-line"></i> API Credentials</div>
+                </div>
+                <div class="card-body">
+                    <div style="margin-bottom: 1rem;">
+                        <label class="stat-label">Merchant ID (x-merchant-id)</label>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="text" class="form-control" value="<%= user.apiKey %>" readonly
+                                style="font-family: monospace; background: #f5f5f5;">
+                            <button class="btn btn-outline"
+                                onclick="navigator.clipboard.writeText('<%= user.apiKey %>'); showToast('Copied!')"><i
+                                    class="ri-file-copy-line"></i></button>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label class="stat-label">API Secret</label>
+                        <div class="blur-text form-control" style="font-family: monospace; background: #f5f5f5;"
+                            onclick="this.classList.remove('blur-text')">
+                            <%= user.apiSecret %>
+                        </div>
+                        <small style="color: var(--text-muted);">Click to reveal. Never share this key.</small>
+                    </div>
+                    <div
+                        style="padding: 1rem; background: var(--primary-light); border-radius: 4px; display: flex; gap: 0.75rem; align-items: center;">
+                        <i class="ri-information-fill" style="color: var(--primary); font-size: 1.25rem;"></i>
+                        <span style="font-size: 0.875rem;">Check our <a href="/docs" style="color: var(--primary);">API
+                                Documentation</a> for integration guide.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-bottom: 1rem;">
+                <div class="card-header">
+                    <div class="card-title"><i class="ri-shield-keyhole-line"></i> IP Whitelist / IP白名单</div>
+                </div>
+                <div class="card-body">
+                    <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">
+                        Only these IPs can make API calls. Leave empty to allow all IPs.<br>
+                        只有这些IP可以调用API。留空则允许所有IP。
+                    </p>
+                    <div id="ip-list" style="margin-bottom: 1rem;">Loading...</div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" id="new-ip-input" class="form-control" placeholder="192.168.1.1"
+                            style="max-width: 200px;">
+                        <button class="btn btn-primary" onclick="showAddIpModal()"><i class="ri-add-line"></i> Add
+                            IP</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="ri-percent-line"></i> Active Rates</div>
+                </div>
+                <div class="card-body">
+                    <% let rates={}; try { rates=JSON.parse(user.channel_rates || '{}' ); } catch(e) {} %>
+                        <div
+                            style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; text-align: center;">
+                            <div style="padding: 1rem; background: #f5f5f5; border-radius: 4px;">
+                                <div class="stat-label">Payin Fee</div>
+                                <div style="font-size: 1.25rem; font-weight: 600; color: var(--primary);">
+                                    <%= rates.payinRate || 5 %>%
+                                </div>
+                            </div>
+                            <div style="padding: 1rem; background: #f5f5f5; border-radius: 4px;">
+                                <div class="stat-label">Payout Fee</div>
+                                <div style="font-size: 1.25rem; font-weight: 600; color: var(--danger);">
+                                    <%= rates.payoutRate || 3 %>%
+                                </div>
+                            </div>
+                            <div style="padding: 1rem; background: #f5f5f5; border-radius: 4px;">
+                                <div class="stat-label">Fixed Fee</div>
+                                <div style="font-size: 1.25rem; font-weight: 600;">₹<%= rates.payoutFixedFee || 6 %>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 1rem; border-color: var(--primary); background: var(--primary-light);">
+                <div class="card-body" style="display: flex; align-items: center; gap: 1rem;">
+                    <i class="ri-customer-service-2-line" style="font-size: 2rem; color: var(--primary);"></i>
+                    <div>
+                        <h3 style="margin-bottom: 0.25rem;">
+                            <%= t('need_help') || 'Need Assistance?' %>
+                        </h3>
+                        <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 0.75rem;">Contact our
+                            support team for any issues.</p>
+                        <a href="https://t.me/payable_support" target="_blank" class="btn btn-primary"
+                            style="padding: 0.375rem 0.75rem;">
+                            <i class="ri-telegram-fill"></i> Contact Support
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- IP Modal -->
+    <div id="ip-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="ip-modal-title">IP Action</div>
+                <i class="ri-close-line modal-close" onclick="closeIpModal()"></i>
+            </div>
+            <p id="ip-modal-desc" style="color: var(--text-muted); margin-bottom: 1rem;">Confirm action</p>
+            <div style="margin-bottom: 1rem;">
+                <label class="stat-label">2FA Code / 2FA验证码</label>
+                <input type="text" id="totp-input" class="form-control" placeholder="123456" maxlength="6"
+                    style="font-size: 1.25rem; text-align: center; letter-spacing: 0.5rem;">
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-outline" style="flex: 1;" onclick="closeIpModal()">Cancel</button>
+                <button class="btn btn-primary" style="flex: 1;" onclick="confirmIpAction()">Confirm</button>
+            </div>
+        </div>
     </div>
 
     <!-- Settlement Modal -->
-    <div id="settleModal"
-        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index:100;">
-        <div
-            style="background: white; padding: 2rem; border-radius: 1rem; width: 90%; max-width: 450px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);">
-            <div style="display:flex; justify-content:space-between; margin-bottom:1.5rem;">
-                <h3 style="font-size:1.25rem;">Request Settlement</h3>
-                <i class="ri-close-line" style="cursor:pointer; font-size:1.5rem;"
-                    onclick="document.getElementById('settleModal').style.display='none'"></i>
+    <div id="settleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Request Settlement</div>
+                <i class="ri-close-line modal-close"
+                    onclick="document.getElementById('settleModal').classList.remove('active')"></i>
             </div>
-
             <form onsubmit="submitSettlement(event)">
-                <div style="margin-bottom:1.5rem;">
+                <div style="margin-bottom: 1rem;">
                     <label class="stat-label">Amount (₹)</label>
                     <input type="number" id="settle-amount" class="form-control" required min="100"
-                        max="<%= user.balance %>" placeholder="Enter amount">
-                    <div
-                        style="margin-top:0.5rem; font-size:0.75rem; color:var(--text-light); display:flex; justify-content:space-between;">
-                        <span>Available Balance</span>
-                        <span style="font-weight:600; color:var(--success);">₹<%= parseFloat(user.balance).toFixed(2) %>
-                        </span>
-                    </div>
+                        max="<%= user.balance %>">
+                    <small style="color: var(--text-muted);">Available Balance: ₹<%= parseFloat(user.balance).toFixed(2)
+                            %></small>
                 </div>
-                <div style="margin-bottom:1.5rem;">
-                    <label class="stat-label">Settlement Type</label>
-                    <input type="text" class="form-control" value="USDT (TRC20)" readonly style="background:#F3F4F6;">
-                </div>
-                <div style="margin-bottom:1.5rem;">
+                <div style="margin-bottom: 1rem;">
                     <label class="stat-label">USDT Address / Notes</label>
-                    <textarea id="settle-notes" class="form-control" rows="3"
+                    <textarea id="settle-notes" class="form-control" rows="2"
                         placeholder="Enter your TRC20 wallet address..."></textarea>
                 </div>
-                <div style="display: flex; gap: 1rem;">
-                    <button type="submit" class="btn btn-primary" style="flex: 1; justify-content:center;">Submit
-                        Request</button>
-                    <button type="button" class="btn"
-                        onclick="document.getElementById('settleModal').style.display='none'"
-                        style="background: #F3F4F6; flex:1; justify-content:center;">Cancel</button>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button type="button" class="btn btn-outline" style="flex: 1;"
+                        onclick="document.getElementById('settleModal').classList.remove('active')">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Submit</button>
                 </div>
             </form>
         </div>
@@ -993,23 +1168,14 @@
             const nextAction = clickActionTemplate.replace('{page}', paging.page + 1);
 
             container.innerHTML = `
-                <span style="font-size:0.875rem; color:grey; margin-right:auto;">Page ${paging.page} of ${paging.pages} (${paging.total} items)</span>
-                <button class="btn" style="padding:0.25rem 0.75rem; background:${paging.page > 1 ? 'white' : '#F3F4F6'}; border:1px solid #E5E7EB;" 
-                    onclick="${prevAction}" ${paging.page <= 1 ? 'disabled' : ''}><i class="ri-arrow-left-s-line"></i></button>
-                <button class="btn" style="padding:0.25rem 0.75rem; background:${paging.page < paging.pages ? 'white' : '#F3F4F6'}; border:1px solid #E5E7EB;" 
-                    onclick="${nextAction}" ${paging.page >= paging.pages ? 'disabled' : ''}><i class="ri-arrow-right-s-line"></i></button>
+                <span style="font-size: 0.875rem; color: grey; margin-right: auto;">Page ${paging.page} of ${paging.pages} (${paging.total} items)</span>
+                <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="${prevAction}" ${paging.page <= 1 ? 'disabled' : ''}><i class="ri-arrow-left-s-line"></i></button>
+                <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="${nextAction}" ${paging.page >= paging.pages ? 'disabled' : ''}><i class="ri-arrow-right-s-line"></i></button>
             `;
         }
-        // ... Same Logic as before, just UI structure change ...
 
         switchTab('dashboard');
         loadStats();
-
-        // Mobile Toggle
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
-            document.querySelector('.overlay').classList.toggle('active');
-        }
 
         let chartInstance = null;
         let successChartInstance = null;
@@ -1023,9 +1189,8 @@
                 position: "right",
                 stopOnFocus: true,
                 style: {
-                    background: type === 'success' ? "#10B981" : "#EF4444",
-                    borderRadius: "8px",
-                    boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)"
+                    background: type === 'success' ? "#52c41a" : "#ff4d4f",
+                    borderRadius: "4px"
                 }
             }).showToast();
         }
@@ -1033,16 +1198,13 @@
         function switchTab(tab) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.getElementById('tab-' + tab).classList.add('active');
-
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            // Close mobile menu on click
-            if (window.innerWidth <= 1024) toggleSidebar();
-
-            event && event.currentTarget.classList.add('active'); // Use currentTarget for div click
+            if (event && event.currentTarget) event.currentTarget.classList.add('active');
 
             if (tab === 'payin') loadOrders('payin');
             if (tab === 'payout') loadOrders('payout');
             if (tab === 'settlements') loadSettlements();
+            if (tab === 'profile') loadIps();
         }
 
         async function loadStats() {
@@ -1053,8 +1215,7 @@
                     const s = data.stats;
                     document.getElementById('stat-today-vol').innerText = s.today.payin.toFixed(2);
                     document.getElementById('stat-today-count').innerText = s.today.payinSuccessCount;
-                    document.getElementById('stat-yst-vol').innerText = s.yesterday.payin.toFixed(2);
-
+                    document.getElementById('stat-payout-count').innerText = s.today.payoutSuccessCount || 0;
                     renderSuccessChart(s.today.payinSuccessCount, s.today.payinFailedCount + s.today.payinPendingCount);
                 }
                 loadChart();
@@ -1073,8 +1234,8 @@
                 data: {
                     labels: ['Success', 'Other'],
                     datasets: [{
-                        data: [success, failed || 1], // dummy 1 if both 0 for visual
-                        backgroundColor: ['#10B981', '#E5E7EB'],
+                        data: [success, failed || 1],
+                        backgroundColor: ['#52c41a', '#f0f0f0'],
                         borderWidth: 0
                     }]
                 },
@@ -1082,10 +1243,7 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     cutout: '70%',
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: { enabled: total > 0 }
-                    }
+                    plugins: { legend: { display: false } }
                 },
                 plugins: [{
                     id: 'text',
@@ -1111,26 +1269,26 @@
             if (chartInstance) chartInstance.destroy();
 
             chartInstance = new Chart(ctx, {
-                type: 'line',
+                type: 'bar',
                 data: {
                     labels: data.labels,
                     datasets: [
-                        { label: 'Payin', data: data.payinData, borderColor: '#10B981', backgroundColor: 'rgba(16, 185, 129, 0.1)', fill: true, tension: 0.4 },
-                        { label: 'Payout', data: data.payoutData, borderColor: '#EF4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', fill: true, tension: 0.4 }
+                        { label: 'Payin', data: data.payinData, backgroundColor: 'rgba(24, 144, 255, 0.8)' },
+                        { label: 'Payout', data: data.payoutData, backgroundColor: 'rgba(255, 77, 79, 0.8)' }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: { legend: { position: 'top' } },
-                    scales: { y: { beginAtZero: true, grid: { borderDash: [2, 4] } }, x: { grid: { display: false } } }
+                    scales: { y: { beginAtZero: true } }
                 }
             });
         }
 
         async function loadOrders(type, page = 1) {
             const tbody = document.getElementById(type + '-table').querySelector('tbody');
-            tbody.innerHTML = '<tr><td colspan="4"><div style="text-align:center; padding:2rem; color:grey;"><i class="ri-loader-4-line ri-spin"></i> Loading...</div></td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="ri-loader-4-line ri-spin"></i><br>Loading...</td></tr>';
 
             const start = document.getElementById(type + '-filter-start').value;
             const end = document.getElementById(type + '-filter-end').value;
@@ -1150,22 +1308,21 @@
                 if (data.success && data.orders.length > 0) {
                     tbody.innerHTML = data.orders.map(o => `
                         <tr>
-                            <td style="font-family:monospace; font-weight:600;">${o.orderId}</td>
-                            <td>₹${o.amount} ${o.payoutType === 'usdt' ? '<small>(USDT)</small>' : ''}</td>
+                            <td style="font-family: monospace; font-weight: 500;">${o.orderId}</td>
+                            <td>₹${o.amount}</td>
                             <td><span class="badge badge-${o.status}">${o.status}</span></td>
                             <td>${new Date(o.createdAt).toLocaleString()}</td>
                             <td>${new Date(o.updatedAt).toLocaleString()}</td>
                             <td>
-                                <button class="btn btn-sm" style="padding:0.25rem 0.5rem; font-size:0.75rem; background:#F3F4F6;" onclick="resendCallback('${o.orderId}')" title="Resend Callback">
+                                <button class="btn btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="resendCallback('${o.orderId}')">
                                     <i class="ri-refresh-line"></i> Callback
                                 </button>
                             </td>
                         </tr>
                     `).join('');
-
                     renderPagination(data.pagination, type + '-pagination', `loadOrders('${type}', {page})`);
                 } else {
-                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #9ca3af; padding:2rem;">No transactions found</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="ri-inbox-line"></i><br>No transactions found</td></tr>';
                     document.getElementById(type + '-pagination').innerHTML = '';
                 }
             } catch (e) { console.error(e); }
@@ -1175,12 +1332,10 @@
             const start = document.getElementById(type + '-filter-start').value;
             const end = document.getElementById(type + '-filter-end').value;
             const status = document.getElementById(type + '-filter-status').value;
-
             let url = `/api/merchant/export/orders?type=${type}`;
             if (start) url += `&startDate=${start}`;
             if (end) url += `&endDate=${end}`;
             if (status) url += `&status=${status}`;
-
             window.location.href = url;
         }
 
@@ -1189,7 +1344,7 @@
 
         async function loadSettlements(page = 1) {
             const tbody = document.getElementById('settlement-table').querySelector('tbody');
-            tbody.innerHTML = '<tr><td colspan="5"><div style="text-align:center; padding:2rem; color:grey;"><i class="ri-loader-4-line ri-spin"></i> Loading...</div></td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="ri-loader-4-line ri-spin"></i><br>Loading...</td></tr>';
 
             try {
                 const res = await fetch(`/api/merchant/settlements?page=${page}`);
@@ -1198,28 +1353,27 @@
                 if (data.success && data.settlements.length > 0) {
                     tbody.innerHTML = data.settlements.map(s => `
                         <tr>
-                            <td style="font-family:monospace;">${s.id}</td>
-                            <td style="font-weight:600;">₹${s.amount}</td>
+                            <td style="font-family: monospace;">${s.id}</td>
+                            <td style="font-weight: 600;">₹${s.amount}</td>
                             <td><span class="badge badge-${s.status}">${s.status}</span></td>
                             <td>
-                                ${s.utr ? `<div style="font-size:0.75rem; color:var(--text-light);">UTR: ${s.utr}</div>` : ''}
-                                ${s.notes ? `<div style="font-size:0.75rem;">${s.notes}</div>` : ''}
+                                ${s.utr ? `<small style="color: var(--text-muted);">UTR: ${s.utr}</small><br>` : ''}
+                                ${s.notes ? `<small>${s.notes}</small>` : ''}
                             </td>
                             <td>${new Date(s.createdAt).toLocaleString()}</td>
                             <td>${new Date(s.updatedAt).toLocaleString()}</td>
                         </tr>
                     `).join('');
-
                     renderPagination(data.pagination, 'settlements-pagination', `loadSettlements({page})`);
                 } else {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #9ca3af; padding:2rem;">No settlements yet</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="ri-inbox-line"></i><br>No settlements yet</td></tr>';
                     document.getElementById('settlements-pagination').innerHTML = '';
                 }
             } catch (e) { console.error(e); }
         }
 
         function openSettlementModal() {
-            document.getElementById('settleModal').style.display = 'flex';
+            document.getElementById('settleModal').classList.add('active');
         }
 
         async function requestSettlement(e) {
@@ -1239,12 +1393,10 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ amount, notes, type })
                 });
-
                 const data = await res.json();
                 if (data.success) {
                     e.target.reset();
                     loadSettlements();
-                    // Update balance text
                     const currentBal = parseFloat(document.getElementById('stat-balance').innerText);
                     document.getElementById('stat-balance').innerText = (currentBal - parseFloat(amount)).toFixed(2);
                     showToast('Settlement request submitted successfully');
@@ -1273,14 +1425,13 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ amount, notes, type: 'usdt' })
                 });
-
                 const data = await res.json();
                 if (data.success) {
-                    document.getElementById('settleModal').style.display = 'none';
+                    document.getElementById('settleModal').classList.remove('active');
                     loadSettlements();
-                    // Update balance text
                     const currentBal = parseFloat(document.getElementById('stat-balance').innerText);
                     document.getElementById('stat-balance').innerText = (currentBal - parseFloat(amount)).toFixed(2);
+                    showToast('Settlement request submitted');
                 } else {
                     showToast(data.error, 'error');
                 }
@@ -1328,11 +1479,9 @@
             }
         }
 
-        // ==========================================
         // IP Whitelist Management
-        // ==========================================
         let currentIps = [];
-        let pendingIpAction = null; // { action: 'add'|'remove', ip: string }
+        let pendingIpAction = null;
 
         async function loadIps() {
             try {
@@ -1340,28 +1489,27 @@
                 const data = await res.json();
                 if (data.success) {
                     currentIps = data.ips;
-                    renderIpList(data.ips, data.has2fa);
+                    renderIpList(data.ips);
                 }
             } catch (e) {
-                document.getElementById('ip-list').innerHTML = '<div style="color: #EF4444;">Failed to load IPs</div>';
+                document.getElementById('ip-list').innerHTML = '<div style="color: #ff4d4f;">Failed to load IPs</div>';
             }
         }
 
-        function renderIpList(ips, has2fa) {
+        function renderIpList(ips) {
             const container = document.getElementById('ip-list');
             if (ips.length === 0) {
                 container.innerHTML = `
-                    <div style="padding: 1rem; background: #F3F4F6; border-radius: 0.5rem; color: #6B7280; text-align: center;">
+                    <div style="padding: 1rem; background: #f5f5f5; border-radius: 4px; color: var(--text-muted); text-align: center;">
                         <i class="ri-global-line" style="font-size: 1.5rem;"></i><br>
-                        No IPs whitelisted - all IPs allowed<br>
-                        未设置IP白名单 - 允许所有IP
+                        No IPs whitelisted - all IPs allowed
                     </div>`;
                 return;
             }
             container.innerHTML = ips.map(ip => `
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #F9FAFB; border-radius: 0.5rem; margin-bottom: 0.5rem;">
-                    <span style="font-family: monospace; font-size: 0.9rem;">${ip}</span>
-                    <button class="btn" style="background: #FEE2E2; color: #EF4444; padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="showRemoveIpModal('${ip}')">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; background: #f5f5f5; border-radius: 4px; margin-bottom: 0.5rem;">
+                    <span style="font-family: monospace;">${ip}</span>
+                    <button class="btn" style="background: #fff2f0; color: #ff4d4f; padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="showRemoveIpModal('${ip}')">
                         <i class="ri-delete-bin-line"></i> Remove
                     </button>
                 </div>
@@ -1370,20 +1518,14 @@
 
         function showAddIpModal() {
             const ip = document.getElementById('new-ip-input').value.trim();
-            if (!ip) {
-                showToast('Please enter an IP address', 'error');
-                return;
-            }
+            if (!ip) { showToast('Please enter an IP address', 'error'); return; }
             const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
-            if (!ipRegex.test(ip)) {
-                showToast('Invalid IP format. Example: 192.168.1.1', 'error');
-                return;
-            }
+            if (!ipRegex.test(ip)) { showToast('Invalid IP format', 'error'); return; }
             pendingIpAction = { action: 'add', ip: ip };
             document.getElementById('ip-modal-title').innerText = 'Add IP / 添加IP';
             document.getElementById('ip-modal-desc').innerText = `Add ${ip} to whitelist`;
             document.getElementById('totp-input').value = '';
-            document.getElementById('ip-modal').style.display = 'flex';
+            document.getElementById('ip-modal').classList.add('active');
         }
 
         function showRemoveIpModal(ip) {
@@ -1391,21 +1533,18 @@
             document.getElementById('ip-modal-title').innerText = 'Remove IP / 删除IP';
             document.getElementById('ip-modal-desc').innerText = `Remove ${ip} from whitelist`;
             document.getElementById('totp-input').value = '';
-            document.getElementById('ip-modal').style.display = 'flex';
+            document.getElementById('ip-modal').classList.add('active');
         }
 
         function closeIpModal() {
-            document.getElementById('ip-modal').style.display = 'none';
+            document.getElementById('ip-modal').classList.remove('active');
             pendingIpAction = null;
         }
 
         async function confirmIpAction() {
             if (!pendingIpAction) return;
             const totpCode = document.getElementById('totp-input').value.trim();
-            if (!totpCode || totpCode.length !== 6) {
-                showToast('Please enter 6-digit 2FA code', 'error');
-                return;
-            }
+            if (!totpCode || totpCode.length !== 6) { showToast('Please enter 6-digit 2FA code', 'error'); return; }
 
             const endpoint = pendingIpAction.action === 'add' ? '/api/merchant/ips/add' : '/api/merchant/ips/remove';
             try {
@@ -1418,7 +1557,7 @@
                 if (data.success) {
                     showToast(data.message, 'success');
                     currentIps = data.ips;
-                    renderIpList(data.ips, true);
+                    renderIpList(data.ips);
                     document.getElementById('new-ip-input').value = '';
                     closeIpModal();
                 } else {
@@ -1428,32 +1567,7 @@
                 showToast('Network error', 'error');
             }
         }
-
-        // Load IPs on profile tab activation
-        document.querySelector('[data-tab="profile"]').addEventListener('click', loadIps);
-        // Initial load if on profile tab
-        if (window.location.hash === '#profile') loadIps();
     </script>
-
-    <!-- IP Modal -->
-    <div id="ip-modal"
-        style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
-        <div style="background: white; border-radius: 1rem; padding: 2rem; max-width: 400px; width: 90%;">
-            <h3 id="ip-modal-title" style="margin-bottom: 0.5rem;">IP Action</h3>
-            <p id="ip-modal-desc" style="color: #6B7280; margin-bottom: 1.5rem;">Confirm action</p>
-
-            <div style="margin-bottom: 1rem;">
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">2FA Code / 2FA验证码</label>
-                <input type="text" id="totp-input" class="form-control" placeholder="123456" maxlength="6"
-                    style="font-size: 1.5rem; text-align: center; letter-spacing: 0.5rem;">
-            </div>
-
-            <div style="display: flex; gap: 0.5rem;">
-                <button class="btn" style="flex: 1; background: #E5E7EB;" onclick="closeIpModal()">Cancel / 取消</button>
-                <button class="btn btn-primary" style="flex: 1;" onclick="confirmIpAction()">Confirm / 确认</button>
-            </div>
-        </div>
-    </div>
 </body>
 
 </html>
