@@ -8,6 +8,7 @@
         <%= t('title_login') %>
     </title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -18,71 +19,72 @@
 
         body {
             min-height: 100vh;
-            background: #f0f5ff;
             display: flex;
+            background: #f5f9ff;
         }
 
-        .login-container {
+        .login-wrapper {
             display: flex;
             width: 100%;
             min-height: 100vh;
         }
 
         /* Left Side - Illustration */
-        .login-left {
+        .side-panel {
             flex: 1;
+            background: linear-gradient(135deg, #e8f4fd 0%, #f0f7ff 50%, #e0f0ff 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 2rem;
-            background: linear-gradient(135deg, #e6f4ff 0%, #f0f5ff 100%);
+            padding: 3rem;
             position: relative;
             overflow: hidden;
         }
 
-        .login-left::before {
+        .side-panel::before {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -20%;
-            width: 80%;
-            height: 80%;
-            background: rgba(24, 144, 255, 0.05);
+            top: 10%;
+            left: 10%;
+            width: 200px;
+            height: 200px;
+            background: rgba(24, 144, 255, 0.08);
             border-radius: 50%;
         }
 
-        .login-left::after {
+        .side-panel::after {
             content: '';
             position: absolute;
-            bottom: -30%;
-            right: -10%;
-            width: 60%;
-            height: 60%;
-            background: rgba(82, 196, 26, 0.05);
+            bottom: 10%;
+            right: 15%;
+            width: 150px;
+            height: 150px;
+            background: rgba(82, 196, 26, 0.08);
             border-radius: 50%;
         }
 
-        .login-left img {
-            max-width: 90%;
-            max-height: 80vh;
+        .side-illustration {
+            max-width: 85%;
+            max-height: 70vh;
             object-fit: contain;
             position: relative;
-            z-index: 1;
+            z-index: 2;
+            filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.1));
         }
 
         /* Right Side - Form */
-        .login-right {
-            width: 480px;
-            min-width: 400px;
+        .form-panel {
+            width: 500px;
+            min-width: 420px;
             background: white;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 3rem;
-            box-shadow: -10px 0 40px rgba(0, 0, 0, 0.05);
+            padding: 3rem 3.5rem;
+            position: relative;
         }
 
-        .lang-switch {
+        .lang-switcher {
             position: absolute;
             top: 1.5rem;
             right: 1.5rem;
@@ -90,122 +92,151 @@
             gap: 0.5rem;
         }
 
-        .lang-link {
-            padding: 0.375rem 0.75rem;
+        .lang-btn {
+            padding: 0.4rem 0.8rem;
             font-size: 0.8rem;
             color: #666;
             text-decoration: none;
-            border-radius: 4px;
-            transition: all 0.2s;
-        }
-
-        .lang-link:hover,
-        .lang-link.active {
-            background: #1890ff;
-            color: white;
-        }
-
-        .logo-section {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .logo-section img {
-            height: 60px;
-            margin-bottom: 0.5rem;
-        }
-
-        .form-title {
-            font-size: 1rem;
-            color: #666;
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.875rem;
-            color: #333;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-        }
-
-        .input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .input-wrapper i {
-            position: absolute;
-            left: 1rem;
-            color: #999;
-            font-size: 1rem;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 0.875rem 1rem 0.875rem 2.75rem;
+            border-radius: 6px;
             border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            transition: all 0.2s;
-            background: #fafafa;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: #1890ff;
             background: white;
-            box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.1);
+            transition: all 0.2s;
         }
 
-        .form-control::placeholder {
-            color: #bbb;
+        .lang-btn:hover {
+            border-color: #1890ff;
+            color: #1890ff;
         }
 
-        .btn-login {
-            width: 100%;
-            padding: 0.875rem;
+        .lang-btn.active {
             background: #1890ff;
             color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
+            border-color: #1890ff;
+        }
+
+        .brand-section {
+            margin-bottom: 2.5rem;
+        }
+
+        .brand-logo {
+            height: 48px;
+            margin-bottom: 1.5rem;
+        }
+
+        .brand-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+        }
+
+        .brand-subtitle {
+            font-size: 0.95rem;
+            color: #6b7280;
+        }
+
+        .login-form {
             margin-top: 1rem;
         }
 
-        .btn-login:hover {
-            background: #096dd9;
+        .form-group {
+            margin-bottom: 1.25rem;
         }
 
-        .alert {
-            padding: 0.75rem 1rem;
-            border-radius: 6px;
-            margin-bottom: 1rem;
+        .form-label {
+            display: block;
             font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
         }
 
-        .alert-error {
+        .input-field {
+            position: relative;
+        }
+
+        .input-field i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 1.1rem;
+        }
+
+        .input-field input {
+            width: 100%;
+            padding: 0.9rem 1rem 0.9rem 2.8rem;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            background: #fafbfc;
+        }
+
+        .input-field input:focus {
+            outline: none;
+            border-color: #1890ff;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(24, 144, 255, 0.12);
+        }
+
+        .input-field input::placeholder {
+            color: #9ca3af;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .submit-btn:hover {
+            background: linear-gradient(135deg, #096dd9 0%, #1890ff 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .error-alert {
+            padding: 0.85rem 1rem;
             background: #fff2f0;
-            color: #ff4d4f;
             border: 1px solid #ffccc7;
+            border-radius: 8px;
+            color: #cf1322;
+            font-size: 0.875rem;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .error-alert i {
+            font-size: 1rem;
         }
 
         /* Responsive */
         @media (max-width: 1024px) {
-            .login-left {
+            .side-panel {
                 display: none;
             }
 
-            .login-right {
+            .form-panel {
                 width: 100%;
                 min-width: auto;
                 max-width: 100%;
@@ -213,69 +244,73 @@
         }
 
         @media (max-width: 480px) {
-            .login-right {
+            .form-panel {
                 padding: 2rem 1.5rem;
             }
-        }
 
-        /* Icons using Unicode/CSS */
-        .icon-user::before {
-            content: '👤';
-        }
-
-        .icon-lock::before {
-            content: '🔒';
+            .brand-title {
+                font-size: 1.5rem;
+            }
         }
     </style>
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 </head>
 
 <body>
-    <div class="login-container">
+    <div class="login-wrapper">
         <!-- Left Side: Illustration -->
-        <div class="login-left">
-            <img src="/images/login-side.png" alt="Payable">
+        <div class="side-panel">
+            <img src="/images/login-side.png" alt="Illustration" class="side-illustration">
         </div>
 
         <!-- Right Side: Login Form -->
-        <div class="login-right">
-            <div class="lang-switch">
-                <a href="?lang=en" class="lang-link <%= currentLang === 'en' ? 'active' : '' %>">English</a>
-                <a href="?lang=zh" class="lang-link <%= currentLang === 'zh' ? 'active' : '' %>">中文</a>
+        <div class="form-panel">
+            <div class="lang-switcher">
+                <a href="?lang=en" class="lang-btn <%= currentLang === 'en' ? 'active' : '' %>">EN</a>
+                <a href="?lang=zh" class="lang-btn <%= currentLang === 'zh' ? 'active' : '' %>">中文</a>
             </div>
 
-            <div class="logo-section">
-                <img src="/images/logo.png" alt="Payable">
+            <div class="brand-section">
+                <img src="/images/logo.png" alt="Payable" class="brand-logo">
+                <h1 class="brand-title">
+                    <%= t('header_welcome') || 'Welcome Back' %>
+                </h1>
+                <p class="brand-subtitle">
+                    <%= t('subtitle_login') || 'Sign in to your merchant account' %>
+                </p>
             </div>
-
-            <p class="form-title">
-                <%= t('subtitle_login') || 'Sign in to your merchant account' %>
-            </p>
 
             <% if (message && message.length> 0) { %>
-                <div class="alert alert-error">
+                <div class="error-alert">
+                    <i class="ri-error-warning-line"></i>
                     <%= message %>
                 </div>
                 <% } %>
 
-                    <form action="/auth/login" method="POST">
+                    <form action="/auth/login" method="POST" class="login-form">
                         <div class="form-group">
-                            <div class="input-wrapper">
+                            <label class="form-label">
+                                <%= t('label_username') || 'Username' %>
+                            </label>
+                            <div class="input-field">
                                 <i class="ri-user-3-line"></i>
-                                <input type="text" name="username" class="form-control" required
-                                    placeholder="<%= t('ph_username') || 'Username' %>">
+                                <input type="text" name="username" required
+                                    placeholder="<%= t('ph_username') || 'Enter your username' %>">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <div class="input-wrapper">
+                            <label class="form-label">
+                                <%= t('label_password') || 'Password' %>
+                            </label>
+                            <div class="input-field">
                                 <i class="ri-lock-password-line"></i>
-                                <input type="password" name="password" class="form-control" required
-                                    placeholder="<%= t('ph_password') || 'Password' %>">
+                                <input type="password" name="password" required
+                                    placeholder="<%= t('ph_password') || 'Enter your password' %>">
                             </div>
                         </div>
 
-                        <button type="submit" class="btn-login">
+                        <button type="submit" class="submit-btn">
+                            <i class="ri-login-box-line"></i>
                             <%= t('btn_login') || 'Login' %>
                         </button>
                     </form>
