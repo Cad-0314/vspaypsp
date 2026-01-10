@@ -14,8 +14,8 @@ async function testChannels() {
         customerName: 'Test User',
         customerEmail: 'test@example.com',
         customerPhone: '9999999999',
-        notifyUrl: 'https://vspay.vip/api/callback/test',
-        returnUrl: 'https://vspay.vip/pay/success'
+        notifyUrl: 'https://payable.firestars.co/api/callback/test',
+        returnUrl: 'https://payable.firestars.co/pay/success'
     };
 
     const results = [];

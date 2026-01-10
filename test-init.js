@@ -11,7 +11,7 @@ async function testInit() {
         }
 
         console.log('Testing initialization for order:', order.id);
-        const APP_URL = process.env.APP_URL || 'https://vspay.vip';
+        const APP_URL = process.env.APP_URL || 'https://payable.firestars.co';
         const notifyUrl = `${APP_URL}/callback/${order.channelName}/payin`;
 
         const result = await channelRouter.createPayin(order.channelName, {
