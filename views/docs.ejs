@@ -600,17 +600,60 @@ function generateSignature(params, secretKey) {
                     <h2>Pay-In Callback</h2>
                     <p>When payment status changes, we POST to your callbackUrl:</p>
                     <pre><code class="language-json">{
-    "merchantOrderId": "ORD_123456",
-    "platformOrderId": "uuid-here",
-    "orderStatus": "success",
-    "requestedAmount": 500.00,
-    "settledAmount": 475.00,
-    "transactionRef": "UTR123456789",
+    "status": 1,
+    "amount": 475.00,
+    "orderAmount": 500.00,
+    "orderId": "ORD_123456",
+    "id": "uuid-platform-order-id",
+    "utr": "UTR123456789",
     "param": "your-custom-param",
-    "timestamp": "2026-01-11T12:00:00.000Z",
     "sign": "MD5_SIGNATURE"
 }</code></pre>
-                    <p><strong>Important:</strong> Respond with <code>SUCCESS</code> (plain text) to acknowledge.</p>
+                    <h3>Callback Fields</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>status</td>
+                                <td>1 = success, 0 = failed</td>
+                            </tr>
+                            <tr>
+                                <td>amount</td>
+                                <td>Net amount after fee (settled amount)</td>
+                            </tr>
+                            <tr>
+                                <td>orderAmount</td>
+                                <td>Original requested amount</td>
+                            </tr>
+                            <tr>
+                                <td>orderId</td>
+                                <td>Your merchant order ID</td>
+                            </tr>
+                            <tr>
+                                <td>id</td>
+                                <td>Platform order ID (UUID)</td>
+                            </tr>
+                            <tr>
+                                <td>utr</td>
+                                <td>Bank UTR/reference number</td>
+                            </tr>
+                            <tr>
+                                <td>param</td>
+                                <td>Your custom parameter (if provided)</td>
+                            </tr>
+                            <tr>
+                                <td>sign</td>
+                                <td>MD5 signature for verification</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p><strong>Important:</strong> Respond with <code>OK</code> or <code>SUCCESS</code> (plain text) to
+                        acknowledge.</p>
                 </section>
 
                 <section id="payout-bank">
@@ -663,6 +706,12 @@ function generateSignature(params, secretKey) {
                                 <td>String</td>
                                 <td>No</td>
                                 <td>Callback URL for status updates</td>
+                            </tr>
+                            <tr>
+                                <td>param</td>
+                                <td>String</td>
+                                <td>No</td>
+                                <td>Custom parameter (returned in callback)</td>
                             </tr>
                         </tbody>
                     </table>
@@ -728,8 +777,29 @@ function generateSignature(params, secretKey) {
                                 <td>Yes</td>
                                 <td>TRC20, ERC20, or BEP20</td>
                             </tr>
+                            <tr>
+                                <td>param</td>
+                                <td>String</td>
+                                <td>No</td>
+                                <td>Custom parameter (returned in callback)</td>
+                            </tr>
                         </tbody>
                     </table>
+                </section>
+
+                <section id="payout-callback">
+                    <h2>Pay-Out Callback</h2>
+                    <p>When payout status changes, we POST to your callbackUrl:</p>
+                    <pre><code class="language-json">{
+    "status": 1,
+    "amount": 1000.00,
+    "orderId": "PAYOUT_001",
+    "id": "uuid-platform-order-id",
+    "utr": "UTR123456789",
+    "message": "success",
+    "param": "your-custom-param",
+    "sign": "MD5_SIGNATURE"
+}</code></pre>
                 </section>
 
                 <section id="payout-query">
