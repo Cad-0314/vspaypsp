@@ -205,9 +205,42 @@ sequelize.sync().then(async () => {
     // Run seeder to ensure channels exist
     await seedDatabase();
 
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`);
         console.log(`API Base URL: ${process.env.APP_URL || 'http://localhost:' + PORT}`);
+
+        // Signal PM2 that we're ready
+        if (process.send) {
+            process.send('ready');
+        }
     });
+
+    // Graceful shutdown handling for high-traffic environments
+    const gracefulShutdown = async (signal) => {
+        console.log(`[Server] Received ${signal}, shutting down gracefully...`);
+
+        server.close(async () => {
+            console.log('[Server] HTTP server closed');
+
+            try {
+                await sequelize.close();
+                console.log('[Server] Database connections closed');
+            } catch (err) {
+                console.error('[Server] Error closing database:', err);
+            }
+
+            process.exit(0);
+        });
+
+        // Force close after 10 seconds
+        setTimeout(() => {
+            console.error('[Server] Forcefully shutting down');
+            process.exit(1);
+        }, 10000);
+    };
+
+    process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+    process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
 }).catch(err => console.log('Database connection error:', err));
 
