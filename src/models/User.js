@@ -31,10 +31,9 @@ const User = sequelize.define('User', {
     },
     // Merchant API fields
     apiKey: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
+        type: DataTypes.STRING(16),
         unique: true,
-        comment: 'Merchant API key (x-merchant-id header)'
+        comment: 'Merchant API key (x-merchant-id header) - 16 char alphanumeric'
     },
     apiSecret: {
         type: DataTypes.STRING(64),
@@ -97,6 +96,15 @@ const User = sequelize.define('User', {
     timestamps: true,
     hooks: {
         beforeCreate: (user) => {
+            // Generate short API key (16 chars alphanumeric) if not set
+            if (!user.apiKey) {
+                const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Exclude confusing chars (0,O,1,I)
+                let key = '';
+                for (let i = 0; i < 16; i++) {
+                    key += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                user.apiKey = key;
+            }
             // Generate API secret if not set
             if (!user.apiSecret) {
                 user.apiSecret = crypto.randomBytes(32).toString('hex');

@@ -185,7 +185,15 @@ sequelize.sync().then(async () => {
         const merchants = await User.findAll({ where: { role: 'merchant' } });
         for (const m of merchants) {
             let updates = {};
-            if (!m.apiKey) updates.apiKey = uuidv4();
+            // Generate short API key (16 chars) if missing or if it's an old long UUID format
+            if (!m.apiKey || m.apiKey.length > 16) {
+                const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+                let key = '';
+                for (let i = 0; i < 16; i++) {
+                    key += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                updates.apiKey = key;
+            }
             if (!m.apiSecret) updates.apiSecret = crypto.randomBytes(32).toString('hex');
             if (Object.keys(updates).length > 0) {
                 await m.update(updates);
