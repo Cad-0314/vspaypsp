@@ -7,6 +7,7 @@
     <title>Payment</title>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -216,6 +217,38 @@
             color: #888;
         }
 
+        .qr-section {
+            padding: 1.5rem;
+            text-align: center;
+            border-top: 1px solid #eee;
+        }
+
+        .qr-label {
+            font-size: 0.75rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 1rem;
+        }
+
+        .qr-box {
+            display: inline-block;
+            padding: 1rem;
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 0.5rem;
+        }
+
+        .qr-box canvas {
+            display: block;
+        }
+
+        .qr-hint {
+            font-size: 0.75rem;
+            color: #999;
+            margin-top: 0.75rem;
+        }
+
         .hidden {
             display: none !important;
         }
@@ -291,12 +324,34 @@
                         Pay ₹${data.amount.toLocaleString('en-IN')}
                     </a>
                 </div>
+                <div class="qr-section" id="qrSection">
+                    <div class="section-label">Or scan QR code</div>
+                    <div class="qr-box">
+                        <canvas id="qrCode"></canvas>
+                    </div>
+                    <div class="qr-hint">Scan with any UPI app</div>
+                </div>
                 <div class="footer">
                     <div class="footer-row"><span>Order</span><span>${(data.merchantOrderId || data.orderId).substring(0, 16)}...</span></div>
                     <div class="footer-row"><span>Date</span><span>${dateStr}</span></div>
                     <div class="secure">🔒 Secured payment</div>
                 </div>
             `;
+            // Generate QR code
+            const qrLink = deepLinks.upi_scan || deepLinks.upi_intent || deepLinks.upi || selectedLink;
+            if (qrLink && qrLink.startsWith('upi://')) {
+                setTimeout(() => {
+                    const canvas = document.getElementById('qrCode');
+                    if (canvas) {
+                        QRCode.toCanvas(canvas, qrLink, { width: 180, margin: 0 }, (err) => {
+                            if (err) console.error('QR Error:', err);
+                        });
+                    }
+                }, 100);
+            } else {
+                const qrSection = document.getElementById('qrSection');
+                if (qrSection) qrSection.style.display = 'none';
+            }
         }
 
         function selectOption(id) {
