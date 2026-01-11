@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Complete Payment | 完成支付</title>
+    <title>Complete Payment</title>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <style>
@@ -289,10 +289,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="lang-switch">
-                <button class="lang-btn active" onclick="setLang('en')">EN</button>
-                <button class="lang-btn" onclick="setLang('zh')">中文</button>
-            </div>
+            <span style="font-weight: 600;">Secure Payment</span>
         </div>
 
         <div id="timerBar" class="timer-bar hidden"></div>
@@ -312,48 +309,22 @@
         let currentLang = 'en';
 
         const translations = {
-            en: {
-                amountLabel: 'The amount you need to pay',
-                selectOption: 'Select an option to pay (UPI)',
-                payBtn: 'Pay',
-                orderId: 'Order ID',
-                date: 'Date',
-                securedBy: 'Secured Payment',
-                pending: 'Awaiting Payment',
-                success: 'Payment Successful',
-                expired: 'Payment Expired',
-                timeRemaining: 'Time remaining',
-                noOptions: 'No payment options available',
-                otherUpi: 'All UPI Apps'
-            },
-            zh: {
-                amountLabel: '您需要支付的金额',
-                selectOption: '选择支付方式 (UPI)',
-                payBtn: '支付',
-                orderId: '订单号',
-                date: '日期',
-                securedBy: '安全支付',
-                pending: '等待支付',
-                success: '支付成功',
-                expired: '已过期',
-                timeRemaining: '剩余时间',
-                noOptions: '没有可用的支付方式',
-                otherUpi: '其他UPI应用'
-            }
+            amountLabel: 'Amount to pay',
+            selectOption: 'Select payment method',
+            payBtn: 'Pay Now',
+            orderId: 'Order ID',
+            date: 'Date',
+            securedBy: 'Secured Payment',
+            pending: 'Awaiting Payment',
+            success: 'Payment Successful',
+            expired: 'Payment Expired',
+            timeRemaining: 'Time remaining',
+            noOptions: 'No payment options available',
+            otherUpi: 'All UPI Apps'
         };
 
         function t(key) {
-            return translations[currentLang][key] || key;
-        }
-
-        function setLang(lang) {
-            currentLang = lang;
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.textContent.includes(lang === 'en' ? 'EN' : '中'));
-            });
-            if (paymentData) {
-                renderPayment(paymentData);
-            }
+            return translations[key] || key;
         }
 
         function showToast(text, type = 'success') {
