@@ -132,7 +132,7 @@ app.get('/merchant', ensureAuthenticated, async (req, res) => {
 });
 
 app.get('/docs', (req, res) => {
-    res.render('docs', { currentLang: req.cookies.lang || 'en' });
+    res.render('docs', { currentLang: req.query.lang || 'en' });
 });
 
 app.get('/apidoc', (req, res) => {
