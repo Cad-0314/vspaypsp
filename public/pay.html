@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Complete Payment</title>
+    <title>Payment</title>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <style>
@@ -16,237 +16,186 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f8f9fa;
             min-height: 100vh;
-            padding: 1rem;
         }
 
         .container {
-            max-width: 420px;
+            max-width: 400px;
             margin: 0 auto;
             background: #fff;
-            border-radius: 1.5rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            overflow: hidden;
+            min-height: 100vh;
         }
 
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 1.5rem;
+        .amount-section {
+            padding: 3rem 1.5rem 2rem;
             text-align: center;
+            border-bottom: 1px solid #eee;
         }
 
-        .header-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-
-        .amount-card {
-            background: white;
-            margin: -1rem 1rem 0;
-            padding: 1.5rem;
-            border-radius: 1rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            position: relative;
-            z-index: 10;
+        .amount {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #111;
+            letter-spacing: -1px;
         }
 
         .amount-label {
             font-size: 0.8rem;
-            color: #9ca3af;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 0.5rem;
+            color: #888;
+            margin-top: 0.5rem;
         }
 
-        .amount {
-            font-size: 2.75rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .timer-bar {
-            background: linear-gradient(90deg, #fef3c7 0%, #fde68a 100%);
-            color: #92400e;
-            padding: 0.75rem 1rem;
-            font-size: 0.85rem;
+        .timer {
+            background: #fffbeb;
+            color: #b45309;
+            padding: 0.6rem;
             text-align: center;
+            font-size: 0.8rem;
             font-weight: 500;
-            margin: 1rem;
-            border-radius: 0.5rem;
         }
 
-        .timer-bar.warning {
-            background: linear-gradient(90deg, #fee2e2 0%, #fecaca 100%);
+        .timer.warning {
+            background: #fef2f2;
             color: #dc2626;
         }
 
         .payment-section {
-            padding: 1rem 1.5rem 1.5rem;
+            padding: 1.5rem;
         }
 
-        .section-title {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #6b7280;
-            margin-bottom: 1rem;
+        .section-label {
+            font-size: 0.75rem;
+            color: #888;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            margin-bottom: 1rem;
         }
 
         .payment-options {
             display: flex;
             flex-direction: column;
-            gap: 0.75rem;
+            gap: 0.5rem;
         }
 
         .payment-option {
             display: flex;
             align-items: center;
-            padding: 1rem 1.25rem;
-            background: #f9fafb;
-            border: 2px solid transparent;
-            border-radius: 1rem;
+            padding: 0.875rem 1rem;
+            background: #fff;
+            border: 1.5px solid #e5e5e5;
+            border-radius: 0.5rem;
             cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            color: inherit;
+            transition: all 0.15s;
         }
 
         .payment-option:hover {
-            background: #f3f4f6;
-            transform: translateX(4px);
+            border-color: #000;
         }
 
         .payment-option.selected {
-            border-color: #667eea;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-color: #000;
+            background: #fafafa;
         }
 
         .payment-option img {
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             object-fit: contain;
-            margin-right: 1rem;
-            border-radius: 0.5rem;
+            margin-right: 0.875rem;
         }
 
-        .payment-option .option-name {
+        .payment-option .name {
             flex: 1;
-            font-weight: 600;
-            font-size: 1rem;
-            color: #374151;
+            font-weight: 500;
+            font-size: 0.95rem;
+            color: #111;
         }
 
-        .payment-option .check-circle {
-            width: 24px;
-            height: 24px;
-            border: 2px solid #d1d5db;
+        .payment-option .check {
+            width: 20px;
+            height: 20px;
+            border: 1.5px solid #ccc;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s;
         }
 
-        .payment-option.selected .check-circle {
-            border-color: #667eea;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .payment-option.selected .check {
+            border-color: #000;
+            background: #000;
         }
 
-        .payment-option.selected .check-circle::after {
+        .payment-option.selected .check::after {
             content: '✓';
-            color: white;
-            font-size: 0.75rem;
-            font-weight: bold;
+            color: #fff;
+            font-size: 0.7rem;
         }
 
-        .pay-button {
+        .pay-btn {
             display: block;
-            width: calc(100% - 3rem);
-            margin: 1rem 1.5rem 1.5rem;
-            padding: 1.1rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            width: 100%;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            background: #000;
+            color: #fff;
             border: none;
-            border-radius: 1rem;
-            font-size: 1.1rem;
-            font-weight: 700;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
             text-align: center;
             text-decoration: none;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: opacity 0.15s;
         }
 
-        .pay-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+        .pay-btn:hover {
+            opacity: 0.85;
         }
 
-        .pay-button:active {
-            transform: scale(0.98);
-        }
-
-        .pay-button:disabled {
-            background: #9ca3af;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
+        .pay-btn:active {
+            transform: scale(0.99);
         }
 
         .footer {
-            padding: 1rem 1.5rem 1.5rem;
-            background: #f9fafb;
-            border-top: 1px solid #f3f4f6;
+            padding: 1.5rem;
+            border-top: 1px solid #eee;
+            font-size: 0.8rem;
+            color: #888;
         }
 
-        .order-info {
+        .footer-row {
             display: flex;
             justify-content: space-between;
-            padding: 0.5rem 0;
-            font-size: 0.85rem;
-            color: #6b7280;
+            padding: 0.4rem 0;
         }
 
-        .order-info span:last-child {
-            font-weight: 500;
-            color: #374151;
+        .footer-row span:last-child {
+            color: #444;
         }
 
-        .secure-badge {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
+        .secure {
+            text-align: center;
             margin-top: 1rem;
-            padding: 0.75rem;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-            border-radius: 0.5rem;
-            font-size: 0.8rem;
-            color: #667eea;
-            font-weight: 600;
+            font-size: 0.75rem;
+            color: #aaa;
         }
 
         .loading {
             text-align: center;
-            padding: 4rem 1.5rem;
+            padding: 5rem 1.5rem;
+            color: #888;
         }
 
         .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid #e5e7eb;
-            border-top-color: #667eea;
+            width: 32px;
+            height: 32px;
+            border: 2px solid #eee;
+            border-top-color: #000;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1.5rem;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1rem;
         }
 
         @keyframes spin {
@@ -255,19 +204,16 @@
             }
         }
 
-        .error-state {
+        .error {
             text-align: center;
             padding: 4rem 1.5rem;
-            color: #dc2626;
+            color: #666;
         }
 
         .no-options {
             text-align: center;
             padding: 2rem;
-            color: #9ca3af;
-            font-size: 0.9rem;
-            background: #f9fafb;
-            border-radius: 1rem;
+            color: #888;
         }
 
         .hidden {
@@ -278,16 +224,11 @@
 
 <body>
     <div class="container">
-        <div class="header">
-            <div class="header-title">🔒 Secure Payment Gateway</div>
-        </div>
-
-        <div id="timerBar" class="timer-bar hidden"></div>
-
+        <div id="timerBar" class="timer hidden"></div>
         <div id="content">
             <div class="loading">
                 <div class="spinner"></div>
-                <p style="color: #6b7280;">Loading payment details...</p>
+                <p>Loading...</p>
             </div>
         </div>
     </div>
@@ -297,200 +238,102 @@
         let countdownInterval = null;
         let selectedOption = null;
 
-        const translations = {
-            amountLabel: 'Total Amount',
-            selectOption: 'Choose Payment App',
-            payBtn: 'Pay Now',
-            orderId: 'Order ID',
-            date: 'Date',
-            securedBy: 'SSL Secured Payment',
-            pending: 'Awaiting Payment',
-            success: 'Payment Successful!',
-            expired: 'Payment Expired',
-            timeRemaining: '⏱ Time remaining',
-            noOptions: 'No payment options available',
-            otherUpi: 'Other UPI Apps'
-        };
-
-        function t(key) {
-            return translations[key] || key;
-        }
-
-        function showToast(text, type = 'success') {
-            Toastify({
-                text: text,
-                duration: 3000,
-                close: true,
-                gravity: "top",
-                position: "center",
-                stopOnFocus: true,
-                style: {
-                    background: type === 'success' ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" : "#EF4444",
-                    borderRadius: "12px",
-                    fontWeight: "600"
-                }
-            }).showToast();
-        }
-
-        // Get order ID from URL
         const pathParts = window.location.pathname.split('/');
         const orderId = pathParts[pathParts.length - 1];
 
-        // Fetch payment data
         async function loadPayment() {
             try {
                 const response = await fetch(`/pay/api/${orderId}`);
                 const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error || 'Payment not found');
-                }
-
+                if (!response.ok) throw new Error(data.error || 'Not found');
                 paymentData = data;
-                renderPayment(paymentData);
-                startCountdown(paymentData.expiresAt);
+                renderPayment(data);
+                startCountdown(data.expiresAt);
             } catch (error) {
-                document.getElementById('content').innerHTML = `
-                    <div class="error-state">
-                        <p style="font-size: 3rem; margin-bottom: 1rem;">😕</p>
-                        <p>${error.message}</p>
-                    </div>
-                `;
+                document.getElementById('content').innerHTML = `<div class="error"><p>${error.message}</p></div>`;
             }
         }
 
         function renderPayment(data) {
             const deepLinks = data.deepLinks || {};
-
-            // Build payment options based on available links
             const options = [];
 
-            if (deepLinks.upi_phonepe) {
-                options.push({ id: 'phonepe', name: 'PhonePe', icon: '/images/phonepe.png', link: deepLinks.upi_phonepe });
-            }
-            if (deepLinks.upi_paytm) {
-                options.push({ id: 'paytm', name: 'Paytm', icon: '/images/paytm.png', link: deepLinks.upi_paytm });
-            }
-            if (deepLinks.upi_gpay) {
-                options.push({ id: 'gpay', name: 'Google Pay', icon: '/images/gpay.png', link: deepLinks.upi_gpay });
-            }
-            if (deepLinks.upi_scan || deepLinks.upi_intent || deepLinks.upi) {
-                const upiLink = deepLinks.upi_scan || deepLinks.upi_intent || (deepLinks.upi && deepLinks.upi.startsWith('upi://') ? deepLinks.upi : null);
-                if (upiLink) {
-                    options.push({ id: 'upi', name: t('otherUpi'), icon: '/images/upi.png', link: upiLink });
-                }
-            }
+            if (deepLinks.upi_phonepe) options.push({ id: 'phonepe', name: 'PhonePe', icon: '/images/phonepe.png', link: deepLinks.upi_phonepe });
+            if (deepLinks.upi_paytm) options.push({ id: 'paytm', name: 'Paytm', icon: '/images/paytm.png', link: deepLinks.upi_paytm });
+            if (deepLinks.upi_gpay) options.push({ id: 'gpay', name: 'Google Pay', icon: '/images/gpay.png', link: deepLinks.upi_gpay });
+            const upiLink = deepLinks.upi_scan || deepLinks.upi_intent || (deepLinks.upi?.startsWith('upi://') ? deepLinks.upi : null);
+            if (upiLink) options.push({ id: 'upi', name: 'Other UPI', icon: '/images/upi.png', link: upiLink });
 
-            if (options.length > 0 && !selectedOption) {
-                selectedOption = options[0].id;
-            }
+            if (options.length > 0 && !selectedOption) selectedOption = options[0].id;
 
-            const now = new Date();
-            const dateStr = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-
-            let optionsHtml = '';
-            if (options.length > 0) {
-                optionsHtml = options.map(opt => `
-                    <div class="payment-option ${selectedOption === opt.id ? 'selected' : ''}" 
-                         data-id="${opt.id}" 
-                         data-link="${opt.link}"
-                         onclick="selectOption('${opt.id}')">
-                        <img src="${opt.icon}" alt="${opt.name}">
-                        <span class="option-name">${opt.name}</span>
-                        <div class="check-circle"></div>
+            const dateStr = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+            const optionsHtml = options.length > 0
+                ? options.map(o => `
+                    <div class="payment-option ${selectedOption === o.id ? 'selected' : ''}" data-id="${o.id}" data-link="${o.link}" onclick="selectOption('${o.id}')">
+                        <img src="${o.icon}" alt="${o.name}">
+                        <span class="name">${o.name}</span>
+                        <div class="check"></div>
                     </div>
-                `).join('');
-            } else {
-                optionsHtml = `<div class="no-options">${t('noOptions')}</div>`;
-            }
+                `).join('')
+                : '<div class="no-options">No payment options</div>';
 
             const selectedLink = options.find(o => o.id === selectedOption)?.link || '#';
 
-            let html = `
-                <div class="amount-card">
-                    <div class="amount-label">${t('amountLabel')}</div>
-                    <div class="amount">₹${data.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+            document.getElementById('content').innerHTML = `
+                <div class="amount-section">
+                    <div class="amount">₹${data.amount.toLocaleString('en-IN')}</div>
+                    <div class="amount-label">Amount to pay</div>
                 </div>
-
                 <div class="payment-section">
-                    <p class="section-title">${t('selectOption')}</p>
-                    <div class="payment-options" id="paymentOptions">
-                        ${optionsHtml}
-                    </div>
+                    <div class="section-label">Pay with</div>
+                    <div class="payment-options">${optionsHtml}</div>
+                    <a href="${selectedLink}" class="pay-btn" id="payBtn" ${options.length === 0 ? 'style="pointer-events:none;opacity:0.4"' : ''}>
+                        Pay ₹${data.amount.toLocaleString('en-IN')}
+                    </a>
                 </div>
-
-                <a href="${selectedLink}" class="pay-button" id="payButton" ${options.length === 0 ? 'style="pointer-events:none; opacity:0.5"' : ''}>
-                    ${t('payBtn')} ₹${data.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                </a>
-
                 <div class="footer">
-                    <div class="order-info">
-                        <span>${t('orderId')}</span>
-                        <span>${(data.merchantOrderId || data.orderId).substring(0, 20)}...</span>
-                    </div>
-                    <div class="order-info">
-                        <span>${t('date')}</span>
-                        <span>${dateStr}</span>
-                    </div>
-                    <div class="secure-badge">
-                        🔐 ${t('securedBy')}
-                    </div>
+                    <div class="footer-row"><span>Order</span><span>${(data.merchantOrderId || data.orderId).substring(0, 16)}...</span></div>
+                    <div class="footer-row"><span>Date</span><span>${dateStr}</span></div>
+                    <div class="secure">🔒 Secured payment</div>
                 </div>
             `;
-
-            document.getElementById('content').innerHTML = html;
         }
 
         function selectOption(id) {
             selectedOption = id;
-            document.querySelectorAll('.payment-option').forEach(el => {
-                el.classList.toggle('selected', el.dataset.id === id);
-            });
-            const selectedEl = document.querySelector(`.payment-option[data-id="${id}"]`);
-            if (selectedEl) {
-                document.getElementById('payButton').href = selectedEl.dataset.link;
-            }
+            document.querySelectorAll('.payment-option').forEach(el => el.classList.toggle('selected', el.dataset.id === id));
+            const el = document.querySelector(`.payment-option[data-id="${id}"]`);
+            if (el) document.getElementById('payBtn').href = el.dataset.link;
         }
 
         function startCountdown(expiresAt) {
             if (!expiresAt) return;
-
             const timerBar = document.getElementById('timerBar');
             timerBar.classList.remove('hidden');
-
             if (countdownInterval) clearInterval(countdownInterval);
-
             countdownInterval = setInterval(() => {
-                const now = Date.now();
-                const remaining = expiresAt - now;
-
+                const remaining = expiresAt - Date.now();
                 if (remaining <= 0) {
-                    timerBar.textContent = '⚠️ ' + t('expired');
+                    timerBar.textContent = 'Expired';
                     timerBar.classList.add('warning');
                     clearInterval(countdownInterval);
                     return;
                 }
-
-                const minutes = Math.floor(remaining / 60000);
-                const seconds = Math.floor((remaining % 60000) / 1000);
-                timerBar.textContent = `${t('timeRemaining')}: ${minutes}:${seconds.toString().padStart(2, '0')}`;
-
-                if (remaining < 5 * 60000) {
-                    timerBar.classList.add('warning');
-                }
+                const m = Math.floor(remaining / 60000);
+                const s = Math.floor((remaining % 60000) / 1000);
+                timerBar.textContent = `${m}:${s.toString().padStart(2, '0')} remaining`;
+                if (remaining < 300000) timerBar.classList.add('warning');
             }, 1000);
         }
 
         async function checkStatus() {
             try {
-                const response = await fetch(`/pay/api/${orderId}`);
-                const data = await response.json();
+                const res = await fetch(`/pay/api/${orderId}`);
+                const data = await res.json();
                 if (data.status === 'success') {
                     clearInterval(countdownInterval);
-                    showToast(t('success'), 'success');
-                    if (paymentData.skipUrl) {
-                        setTimeout(() => window.location.href = paymentData.skipUrl, 2000);
-                    }
+                    Toastify({ text: 'Payment successful!', duration: 3000, gravity: "top", position: "center", style: { background: "#000", borderRadius: "8px" } }).showToast();
+                    if (paymentData.skipUrl) setTimeout(() => window.location.href = paymentData.skipUrl, 2000);
                 }
             } catch (e) { }
         }
