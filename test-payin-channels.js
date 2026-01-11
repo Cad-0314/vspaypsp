@@ -77,10 +77,10 @@ async function testChannels() {
         results.push({ channel: 'Payable', success: false, error: e.message });
     }
 
-    // 6. CKPay - Test via getBalance (safer than creating order)
+    // 6. CKPay
     try {
         console.log('\nTesting CKPay...');
-        const res = await ckpayService.getBalance();
+        const res = await ckpayService.createPayin(dummyOrder);
         console.log('CKPay Result:', JSON.stringify(res, null, 2));
         results.push({ channel: 'CKPay', success: res.success, data: res, error: res.error });
     } catch (e) {
