@@ -31,9 +31,9 @@ const User = sequelize.define('User', {
     },
     // Merchant API fields
     apiKey: {
-        type: DataTypes.STRING(16),
+        type: DataTypes.STRING(12),
         unique: true,
-        comment: 'Merchant API key (x-merchant-id header) - 16 char alphanumeric'
+        comment: 'Merchant API key (x-merchant-id header) - starts with star'
     },
     apiSecret: {
         type: DataTypes.STRING(64),
@@ -96,11 +96,12 @@ const User = sequelize.define('User', {
     timestamps: true,
     hooks: {
         beforeCreate: (user) => {
-            // Generate short API key (16 chars alphanumeric) if not set
+            // Generate short API key (8-12 chars) starting with 'star' if not set
             if (!user.apiKey) {
-                const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Exclude confusing chars (0,O,1,I)
-                let key = '';
-                for (let i = 0; i < 16; i++) {
+                const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+                const randomLength = 4 + Math.floor(Math.random() * 5); // 4-8 random chars
+                let key = 'star';
+                for (let i = 0; i < randomLength; i++) {
                     key += chars.charAt(Math.floor(Math.random() * chars.length));
                 }
                 user.apiKey = key;
