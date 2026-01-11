@@ -114,6 +114,15 @@ async function validateMerchant(req, res, next) {
 
         // Attach merchant to request
         req.merchant = merchant;
+
+        // Set distinctive Payable API headers
+        res.set({
+            'X-Powered-By': 'Payable-Gateway/2.1',
+            'X-Api-Version': '2.1.0',
+            'X-Request-Id': require('crypto').randomUUID(),
+            'X-Merchant': merchant.username
+        });
+
         next();
     } catch (error) {
         console.error('[API Auth] Error:', error.message);

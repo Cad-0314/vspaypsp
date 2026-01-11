@@ -28,16 +28,20 @@ router.post('/bank', validateMerchant, async (req, res) => {
         // Check if payout is suspended
         if (merchant.canPayout === false) {
             return res.json({
-                code: 0,
-                msg: 'Payout service suspended for this merchant'
+                status: 'error',
+                errorCode: 'SERVICE_SUSPENDED',
+                message: 'Payout service suspended for this merchant',
+                timestamp: new Date().toISOString()
             });
         }
 
         // Validate required fields
         if (!orderId || !amount || !account || !ifsc || !personName) {
             return res.json({
-                code: -2,
-                msg: 'Missing required parameters: orderId, amount, account, ifsc, personName'
+                status: 'error',
+                errorCode: 'INVALID_PARAMS',
+                message: 'Missing required parameters: orderId, amount, account, ifsc, personName',
+                timestamp: new Date().toISOString()
             });
         }
 
@@ -56,8 +60,10 @@ router.post('/bank', validateMerchant, async (req, res) => {
 
         if (existingOrder) {
             return res.json({
-                code: 0,
-                msg: 'Duplicate order ID'
+                status: 'error',
+                errorCode: 'DUPLICATE_ORDER',
+                message: 'Duplicate order ID',
+                timestamp: new Date().toISOString()
             });
         }
 
@@ -81,8 +87,10 @@ router.post('/bank', validateMerchant, async (req, res) => {
         const currentBalance = parseFloat(merchant.balance) || 0;
         if (currentBalance < totalDeduction) {
             return res.json({
-                code: -3,
-                msg: `Insufficient balance. Required: ₹${totalDeduction.toFixed(2)}, Available: ₹${currentBalance.toFixed(2)}`
+                status: 'error',
+                errorCode: 'INSUFFICIENT_BALANCE',
+                message: `Insufficient balance. Required: ₹${totalDeduction.toFixed(2)}, Available: ₹${currentBalance.toFixed(2)}`,
+                timestamp: new Date().toISOString()
             });
         }
 
@@ -152,14 +160,15 @@ router.post('/bank', validateMerchant, async (req, res) => {
             await t.commit();
 
             return res.json({
-                code: 1,
-                msg: 'Payout submitted',
-                data: {
-                    orderId: orderId,
-                    id: internalId,
-                    amount: payoutAmount,
-                    fee: parseFloat(totalFee.toFixed(2)),
-                    status: 'processing'
+                status: 'success',
+                message: 'Payout submitted successfully',
+                timestamp: new Date().toISOString(),
+                result: {
+                    merchantOrderId: orderId,
+                    platformOrderId: internalId,
+                    payoutAmount: payoutAmount,
+                    processingFee: parseFloat(totalFee.toFixed(2)),
+                    orderStatus: 'processing'
                 }
             });
 

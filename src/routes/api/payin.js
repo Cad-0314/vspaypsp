@@ -26,24 +26,30 @@ router.post('/create', validateMerchant, async (req, res) => {
         // Check if payin is suspended
         if (merchant.canPayin === false) {
             return res.json({
-                code: 0,
-                msg: 'Payin service suspended for this merchant'
+                status: 'error',
+                errorCode: 'SERVICE_SUSPENDED',
+                message: 'Payin service suspended for this merchant',
+                timestamp: new Date().toISOString()
             });
         }
 
         // Validate required fields
         if (!orderId || !orderAmount || !callbackUrl) {
             return res.json({
-                code: -2,
-                msg: 'Missing required parameters: orderId, orderAmount, callbackUrl'
+                status: 'error',
+                errorCode: 'INVALID_PARAMS',
+                message: 'Missing required parameters: orderId, orderAmount, callbackUrl',
+                timestamp: new Date().toISOString()
             });
         }
 
         const amount = parseFloat(orderAmount);
         if (isNaN(amount) || amount < 100) {
             return res.json({
-                code: 0,
-                msg: 'Invalid amount. Minimum is ₹100'
+                status: 'error',
+                errorCode: 'INVALID_AMOUNT',
+                message: 'Invalid amount. Minimum is ₹100',
+                timestamp: new Date().toISOString()
             });
         }
 
@@ -53,8 +59,10 @@ router.post('/create', validateMerchant, async (req, res) => {
 
         if (!channelConfig) {
             return res.json({
-                code: 0,
-                msg: 'Channel not configured'
+                status: 'error',
+                errorCode: 'CHANNEL_ERROR',
+                message: 'Channel not configured',
+                timestamp: new Date().toISOString()
             });
         }
 
@@ -98,8 +106,10 @@ router.post('/create', validateMerchant, async (req, res) => {
             if (!created) {
                 await t.rollback();
                 return res.json({
-                    code: 0,
-                    msg: 'Duplicate order ID'
+                    status: 'error',
+                    errorCode: 'DUPLICATE_ORDER',
+                    message: 'Duplicate order ID',
+                    timestamp: new Date().toISOString()
                 });
             }
 
@@ -127,8 +137,10 @@ router.post('/create', validateMerchant, async (req, res) => {
             // Update order as failed
             await order.update({ status: 'failed' });
             return res.json({
-                code: 0,
-                msg: providerResult.error || 'Failed to create order'
+                status: 'error',
+                errorCode: 'PROVIDER_ERROR',
+                message: providerResult.error || 'Failed to create order',
+                timestamp: new Date().toISOString()
             });
         }
 
@@ -155,23 +167,27 @@ router.post('/create', validateMerchant, async (req, res) => {
         }
 
         return res.json({
-            code: 1,
-            msg: 'Order created',
-            data: {
-                orderId: orderId,
-                id: internalId,
-                orderAmount: amount,
-                fee: parseFloat(fee.toFixed(2)),
+            status: 'success',
+            message: 'Order created successfully',
+            timestamp: new Date().toISOString(),
+            result: {
+                merchantOrderId: orderId,
+                platformOrderId: internalId,
+                requestedAmount: amount,
+                processingFee: parseFloat(fee.toFixed(2)),
                 paymentUrl: paymentUrl,
-                deepLinks: Object.keys(deepLinks).length > 0 ? deepLinks : undefined
+                appLinks: Object.keys(deepLinks).length > 0 ? deepLinks : undefined,
+                expiresIn: 1800
             }
         });
 
     } catch (error) {
         console.error('[Payin Create] Error:', error);
         return res.status(500).json({
-            code: 0,
-            msg: 'Internal server error'
+            status: 'error',
+            errorCode: 'INTERNAL_ERROR',
+            message: 'Internal server error',
+            timestamp: new Date().toISOString()
         });
     }
 });
@@ -187,8 +203,10 @@ router.post('/query', validateMerchant, async (req, res) => {
 
         if (!orderId) {
             return res.json({
-                code: -2,
-                msg: 'Missing orderId'
+                status: 'error',
+                errorCode: 'INVALID_PARAMS',
+                message: 'Missing orderId',
+                timestamp: new Date().toISOString()
             });
         }
 
@@ -198,22 +216,24 @@ router.post('/query', validateMerchant, async (req, res) => {
 
         if (!order) {
             return res.json({
-                code: -4,
-                msg: 'Order not found'
+                status: 'error',
+                errorCode: 'NOT_FOUND',
+                message: 'Order not found',
+                timestamp: new Date().toISOString()
             });
         }
 
         return res.json({
-            code: 1,
-            data: {
-                orderId: order.orderId,
-                id: order.id,
-                status: order.status,
-                amount: parseFloat(order.netAmount),
-                orderAmount: parseFloat(order.amount),
-                fee: parseFloat(order.fee),
-                netAmount: parseFloat(order.netAmount),
-                utr: order.utr,
+            status: 'success',
+            timestamp: new Date().toISOString(),
+            result: {
+                merchantOrderId: order.orderId,
+                platformOrderId: order.id,
+                orderStatus: order.status,
+                settledAmount: parseFloat(order.netAmount),
+                requestedAmount: parseFloat(order.amount),
+                processingFee: parseFloat(order.fee),
+                transactionRef: order.utr || null,
                 createdAt: order.createdAt.toISOString()
             }
         });
@@ -221,8 +241,10 @@ router.post('/query', validateMerchant, async (req, res) => {
     } catch (error) {
         console.error('[Payin Query] Error:', error);
         return res.status(500).json({
-            code: 0,
-            msg: 'Internal server error'
+            status: 'error',
+            errorCode: 'INTERNAL_ERROR',
+            message: 'Internal server error',
+            timestamp: new Date().toISOString()
         });
     }
 });
@@ -237,8 +259,10 @@ router.post('/check', async (req, res) => {
 
         if (!orderId || !userId) {
             return res.json({
-                code: -2,
-                msg: 'Missing orderId or userId'
+                status: 'error',
+                errorCode: 'INVALID_PARAMS',
+                message: 'Missing orderId or userId',
+                timestamp: new Date().toISOString()
             });
         }
 
@@ -249,8 +273,10 @@ router.post('/check', async (req, res) => {
 
         if (!merchant) {
             return res.json({
-                code: -1,
-                msg: 'Invalid userId'
+                status: 'error',
+                errorCode: 'INVALID_MERCHANT',
+                message: 'Invalid userId',
+                timestamp: new Date().toISOString()
             });
         }
 
@@ -260,17 +286,20 @@ router.post('/check', async (req, res) => {
 
         if (!order) {
             return res.json({
-                code: -4,
-                msg: 'Order not found'
+                status: 'error',
+                errorCode: 'NOT_FOUND',
+                message: 'Order not found',
+                timestamp: new Date().toISOString()
             });
         }
 
         return res.json({
-            code: 1,
-            data: {
-                orderId: order.orderId,
-                id: order.id,
-                status: order.status,
+            status: 'success',
+            timestamp: new Date().toISOString(),
+            result: {
+                merchantOrderId: order.orderId,
+                platformOrderId: order.id,
+                orderStatus: order.status,
                 amount: parseFloat(order.amount),
                 createdAt: order.createdAt.toISOString()
             }
@@ -279,8 +308,10 @@ router.post('/check', async (req, res) => {
     } catch (error) {
         console.error('[Payin Check] Error:', error);
         return res.status(500).json({
-            code: 0,
-            msg: 'Internal server error'
+            status: 'error',
+            errorCode: 'INTERNAL_ERROR',
+            message: 'Internal server error',
+            timestamp: new Date().toISOString()
         });
     }
 });
