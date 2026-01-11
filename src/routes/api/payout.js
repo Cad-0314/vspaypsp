@@ -192,7 +192,7 @@ router.post('/bank', validateMerchant, async (req, res) => {
  */
 router.post('/usdt', validateMerchant, async (req, res) => {
     try {
-        const { orderId, amount, walletAddress, network, callbackUrl } = req.body;
+        const { orderId, amount, walletAddress, network, callbackUrl, param } = req.body;
         const merchant = req.merchant;
 
         // Check if payout is suspended
@@ -288,6 +288,7 @@ router.post('/usdt', validateMerchant, async (req, res) => {
                 netAmount: payoutAmount,
                 status: 'pending',
                 callbackUrl: callbackUrl || merchant.callbackUrl,
+                param: param,
                 payoutDetails: {
                     walletAddress: walletAddress,
                     network: network.toUpperCase(),
