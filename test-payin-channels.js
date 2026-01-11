@@ -3,6 +3,7 @@ const f2payService = require('./src/services/f2pay');
 const caipayService = require('./src/services/caipay');
 const fendpayService = require('./src/services/fendpay');
 const silkpayService = require('./src/services/silkpay');
+const ckpayService = require('./src/services/ckpay');
 const { v4: uuidv4 } = require('uuid');
 
 async function testChannels() {
@@ -74,6 +75,17 @@ async function testChannels() {
     } catch (e) {
         console.error('Silkpay Error:', e.message);
         results.push({ channel: 'Payable', success: false, error: e.message });
+    }
+
+    // 6. CKPay - Test via getBalance (safer than creating order)
+    try {
+        console.log('\nTesting CKPay...');
+        const res = await ckpayService.getBalance();
+        console.log('CKPay Result:', JSON.stringify(res, null, 2));
+        results.push({ channel: 'CKPay', success: res.success, data: res, error: res.error });
+    } catch (e) {
+        console.error('CKPay Error:', e.message);
+        results.push({ channel: 'CKPay', success: false, error: e.message });
     }
 
     console.log('\n--- Analysis Complete ---');
