@@ -99,6 +99,14 @@ router.post('/:channel/payin', async (req, res) => {
             utr = req.body.payUtrNo;
             actualAmount = parseFloat(req.body.orderAmount);
             providerOrderId = req.body.platOrderNo;
+        } else if (channelName === 'ckpay') {
+            // CKPay: status 70/80=success, 60=failed
+            orderId = req.body.accountOrder;
+            status = [70, 80, '70', '80'].includes(req.body.status) ? 'success' :
+                [60, '60'].includes(req.body.status) ? 'failed' : 'pending';
+            utr = req.body.utr;
+            actualAmount = parseFloat(req.body.amount);
+            providerOrderId = req.body.orderId;
         }
 
         if (!orderId) {
@@ -188,7 +196,7 @@ router.post('/:channel/payin', async (req, res) => {
             throw error;
         }
 
-        return res.send('success');
+        return res.send(channelName === 'ckpay' ? 'OK' : 'success');
 
     } catch (error) {
         console.error('[Callback] Payin error:', error);
@@ -234,6 +242,13 @@ router.post('/:channel/payout', async (req, res) => {
             status = req.body.orderStatus === 'SUCCESS' ? 'success' : 'failed';
             utr = req.body.payUtrNo;
             providerOrderId = req.body.platOrderNo;
+        } else if (channelName === 'ckpay') {
+            // CKPay payout: status 70=success, 60=failed
+            orderId = req.body.accountOrder;
+            status = [70, '70'].includes(req.body.status) ? 'success' :
+                [60, '60'].includes(req.body.status) ? 'failed' : 'processing';
+            utr = req.body.utr;
+            providerOrderId = req.body.orderId;
         }
 
         if (!orderId) return res.send('success');
@@ -302,7 +317,7 @@ router.post('/:channel/payout', async (req, res) => {
             throw error;
         }
 
-        return res.send('success');
+        return res.send(channelName === 'ckpay' ? 'OK' : 'success');
 
     } catch (error) {
         console.error('[Callback] Payout error:', error);

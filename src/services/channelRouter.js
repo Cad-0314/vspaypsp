@@ -8,6 +8,7 @@ const f2payService = require('./f2pay');
 const silkpayService = require('./silkpay');
 const caipayService = require('./caipay');
 const fendpayService = require('./fendpay');
+const ckpayService = require('./ckpay');
 
 // Channel to provider mapping
 const channelConfig = {
@@ -45,6 +46,13 @@ const channelConfig = {
         displayNameZh: 'UPI Super',
         usesCustomPayPage: true,
         provider: 'fendpay'
+    },
+    ckpay: {
+        service: ckpayService,
+        displayName: 'CKPay',
+        displayNameZh: 'CKPay',
+        usesCustomPayPage: false,
+        provider: 'ckpay'
     }
 };
 

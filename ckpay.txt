@@ -1,0 +1,1199 @@
+Request the order collection interface
+POST
+/gateway/common/api/order
+Note: The order placement process typically takes 3 seconds. It is recommended to set the request timeout to 60 seconds. Please use the URL provided in the callback parameters for payment redirection.
+Signature calculation:
+signature=md5(accountOrder+amount+appId+notifyUrl+timestamp+app_key)
+For appId and app_key parameters, please contact our sales team.
+Request parameters
+Body parameters
+application/json
+appId
+string  |  
+null 
+Merchant ID
+Required
+Merchant Application Unique Identifier
+accountOrder
+string  |  
+null 
+Customer order number
+Required
+Custom order numbers must be unique.
+timestamp
+string  |  
+null 
+Timestamp
+Required
+The format is yyyy-MM-dd HH:mm:ss
+notifyUrl
+string  |  
+null 
+Order result notification address
+Optional
+Please enter the correct address for the payment result callback. If you need to add us to the whitelist, please contact our business team to obtain our IP address.
+amount
+integer  |  
+null 
+Amount
+Required
+For specific available amounts, please consult our business department.
+>= 1
+remark
+string  |  
+null 
+Customer pass-through information
+Optional
+Pass-through fields, order callback status is returned as is.
+playerIp
+string  |  
+null 
+User's real IP
+Required
+Providing your real IP address, rather than participating in the signature process, helps increase the success rate.
+accountUser
+string 
+User ID
+Required
+If you are not participating in the signing, please provide your real user ID, which will help increase the success rate.
+signature
+string  |  
+null 
+sign
+Required
+View API documentation
+Example
+{
+    "appId": "10007",
+    "accountOrder": "P24071616595840274562",
+    "timestamp": "2024-07-16 16:59:58",
+    "notifyUrl": "http://tbnwolbj.qa/ewizyu",
+    "createUrl": "http://xwkkfrzkk.an/ehdybbfkl",
+    "amount": 100,
+    "playerIp": "192.168.0.1",
+    "accountUser": "7689102",
+    "signature": "44c6c5258a12564b55aaa6f4f7d4f0d1"
+}
+Request sample code
+Return response
+🟢 200
+success
+application/json
+Unified API response result encapsulation
+code
+integer 
+Response code
+Required
+Response codes:
+0: Success
+400: Failure
+1001: Incomplete parameters
+1002: Signature failure
+1003: Duplicate order number
+1005: Expired APPID
+1006: Authentication IP restricted
+1007: Product error
+1008: Product error
+1009: Order number does not exist
+500: Unknown reason
+999: Unknown reason
+desc
+string 
+Response Description
+Required
+data
+object 
+Response data
+Required
+orderId
+string 
+Platform serial number
+Required
+accountOrder
+string 
+Merchant order number
+Required
+amount
+integer 
+Amount
+Required
+appId
+string 
+Merchant ID
+Required
+applyDate
+string 
+Order creation time
+Required
+status
+integer 
+Order status
+Required
+20: Created
+remark
+string 
+Pass-through fields
+Required
+payUrl
+string 
+Payment Link
+Required
+signature
+string 
+sign
+Required
+signature=md5(accountOrder+amount+appId+orderId+status+app_key)
+app_key, please contact your account manager for the parameter.
+product
+string 
+Channel ID
+Optional
+Example
+{
+    "code": 0,
+    "desc": "SUCCESS",
+    "data": {
+        "orderId": "240723151200106707",
+        "accountOrder": "P24071616595840274562",
+        "amount": 100,
+        "appId": "10007",
+        "applyDate": "2024-07-23 15:12:04",
+        "status": 11,
+        "remark": "",
+        "payUrl": "http://vqcgh13.top/0g0o0.html?orderId=240723151200106707",
+        "signature": "f6b91d550570dabce3f102e9ca9b4d00"
+    }
+}
+# 请求代收订单接口
+
+## OpenAPI Specification
+
+```yaml
+openapi: 3.0.1
+info:
+  title: ''
+  description: ''
+  version: 1.0.0
+paths:
+  /gateway/common/api/order:
+    post:
+      summary: 请求代收订单接口
+      deprecated: false
+      description: |-
+        说明: 下单过程一般3秒，建议请求超时时间设置成60秒，请根据回调参数中的地址进行跳转支付。
+        签名计算：
+        signature=md5(accountOrder+amount+appId+notifyUrl+timestamp+app_key)
+        appId, app_key,参数请联系商务获取。
+      tags: []
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: ''
+              type: object
+              properties:
+                appId:
+                  type: string
+                  description: 商户应用唯一标识
+                  title: 商户ID
+                  nullable: true
+                accountOrder:
+                  type: string
+                  description: 自定义的订单号，需要保证唯一
+                  title: 客户订单号
+                  nullable: true
+                timestamp:
+                  type: string
+                  description: 格式为yyyy-MM-dd HH:mm:ss
+                  title: 时间戳
+                  nullable: true
+                notifyUrl:
+                  type: string
+                  description: 支付结果的回调地址，填写正确的地址，如果需要加白名单，请联系商务获取我方IP
+                  title: 订单结果通知地址
+                  nullable: true
+                amount:
+                  type: integer
+                  description: 具体可用金额咨询商务
+                  minimum: 1
+                  title: 金额
+                  nullable: true
+                remark:
+                  type: string
+                  description: 透传字段，订单回调状态原样回传
+                  title: 客户透传信息
+                  nullable: true
+                signature:
+                  type: string
+                  description: 查看接口说明
+                  title: 签名
+                  nullable: true
+                playerIp:
+                  type: string
+                  title: 用户真实IP
+                  description: 不参与签名，提供用户真实ip有助于提高成功率
+                  nullable: true
+                accountUser:
+                  type: string
+                  title: 用户user ID
+                  description: 不参与签名，请提供用户真实ID，有助于提高成功率
+              x-apifox-refs: {}
+              x-apifox-orders:
+                - appId
+                - accountOrder
+                - timestamp
+                - notifyUrl
+                - amount
+                - remark
+                - playerIp
+                - accountUser
+                - signature
+              required:
+                - appId
+                - accountOrder
+                - timestamp
+                - amount
+                - signature
+                - accountUser
+                - playerIp
+            example:
+              appId: '10007'
+              accountOrder: P24071616595840274562
+              timestamp: '2024-07-16 16:59:58'
+              notifyUrl: http://tbnwolbj.qa/ewizyu
+              createUrl: http://xwkkfrzkk.an/ehdybbfkl
+              amount: 100
+              playerIp: 192.168.0.1
+              accountUser: '7689102'
+              signature: 44c6c5258a12564b55aaa6f4f7d4f0d1
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    title: 响应代码
+                    description: |-
+                      响应代码：
+                      0：成功
+                      400: 失败
+                      1001：参数不全
+                      1002：签名失败
+                      1003：订单号重复
+                      1005：APPID失效
+                      1006：鉴权IP受限
+                      1007：产品错误 
+                      1008：产品错误 
+                      1009：订单号不存在
+                      500：未知原因
+                      999：未知原因
+                  desc:
+                    type: string
+                    title: 响应描述
+                  data:
+                    type: object
+                    properties:
+                      orderId:
+                        type: string
+                        title: 平台流水号
+                      accountOrder:
+                        type: string
+                        title: 商户订单号
+                      amount:
+                        type: integer
+                        title: 金额
+                      appId:
+                        type: string
+                        title: 商户ID
+                      applyDate:
+                        type: string
+                        title: 订单创建时间
+                      status:
+                        type: integer
+                        title: 订单状态
+                        description: 20:已创建
+                      remark:
+                        type: string
+                        title: 透传字段
+                      payUrl:
+                        type: string
+                        title: 支付链接
+                      signature:
+                        type: string
+                        title: 签名
+                        description: >-
+                          signature=md5(accountOrder+amount+appId+orderId+status+app_key)
+
+                          app_key,参数请联系客户经理获取
+                      product:
+                        type: string
+                        title: 通道ID
+                    required:
+                      - orderId
+                      - accountOrder
+                      - amount
+                      - appId
+                      - applyDate
+                      - status
+                      - remark
+                      - payUrl
+                      - signature
+                    x-apifox-orders:
+                      - orderId
+                      - accountOrder
+                      - amount
+                      - appId
+                      - applyDate
+                      - status
+                      - remark
+                      - payUrl
+                      - signature
+                      - product
+                    title: 响应数据
+                required:
+                  - code
+                  - desc
+                  - data
+                x-apifox-orders:
+                  - code
+                  - desc
+                  - data
+                description: 统一API响应结果封装
+                x-apifox-refs: {}
+              example:
+                code: 0
+                desc: SUCCESS
+                data:
+                  orderId: '240723151200106707'
+                  accountOrder: P24071616595840274562
+                  amount: 100
+                  appId: '10007'
+                  applyDate: '2024-07-23 15:12:04'
+                  status: 11
+                  remark: ''
+                  payUrl: http://vqcgh13.top/0g0o0.html?orderId=240723151200106707
+                  signature: f6b91d550570dabce3f102e9ca9b4d00
+          headers: {}
+          x-apifox-name: 成功
+      security: []
+      x-apifox-folder: ''
+      x-apifox-status: released
+      x-run-in-apifox: https://app.apifox.com/web/project/4871391/apis/api-196796143-run
+components:
+  schemas: {}
+  securitySchemes: {}
+servers: []
+security: []
+
+```
+# 代收订单状态通知接口
+
+## OpenAPI Specification
+
+```yaml
+openapi: 3.0.1
+info:
+  title: ''
+  description: ''
+  version: 1.0.0
+paths:
+  /客户上传notifyUrl:
+    post:
+      summary: 代收订单状态通知接口
+      deprecated: false
+      description: >-
+        接口说明：该接⼝由客户⾃⼰提供，接收POST参数，在创建订单时通过notifyUrl上传。收到该消息后请⽴即返回'OK'(全⼤写,⽆空格)字符串，当服务器收到任何⾮'OK'的字符串时会通知3次(每次间隔依次增⻓30
+        秒)，如果3次都没有给返回'OK',服务器不再通知。
+
+        签名计算：signature=md5(accountOrder+amount+appId+orderId+status+app_key)
+      tags: []
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                orderId:
+                  type: string
+                  title: 平台订单号
+                accountOrder:
+                  type: string
+                  title: 客户订单号
+                amount:
+                  type: integer
+                  title: 金额
+                  description: 订单金额
+                appId:
+                  type: string
+                  title: 客户ID
+                applyDate:
+                  type: string
+                  title: 创建时间
+                  description: 订单创建时间
+                status:
+                  type: integer
+                  title: 订单状态
+                  description: 10订单处理中 60订单失败 70,80订单成功
+                signature:
+                  type: string
+                  title: 签名
+                  description: 见接口说明
+                remark:
+                  type: string
+                  title: 备注
+                utr:
+                  type: string
+                  title: utr
+              required:
+                - orderId
+                - accountOrder
+                - amount
+                - appId
+                - applyDate
+                - status
+                - signature
+                - utr
+              x-apifox-orders:
+                - orderId
+                - accountOrder
+                - amount
+                - appId
+                - applyDate
+                - status
+                - remark
+                - utr
+                - signature
+            example: "{\r\n\"orderId\":\_\"240409145500101183\",\r\n\"accountOrder\":\_\"1712645700\",\r\n\"amount\":\_10,\r\n\"appId\":\_\"test\",\r\n\"applyDate\":\_\"2024-04-09 14:55:00\",\r\n\"status\":\_50,\r\n\"signature\":\_\"133ed286192fe50d7c1aed7056d04703\"\r\n}"
+      responses:
+        '200':
+          description: ''
+          content:
+            '*/*':
+              schema:
+                type: object
+                properties: {}
+              example: '"SUCCESS success 1"'
+          headers: {}
+          x-apifox-name: 成功
+      security: []
+      x-apifox-folder: ''
+      x-apifox-status: released
+      x-run-in-apifox: https://app.apifox.com/web/project/4871391/apis/api-196896175-run
+components:
+  schemas: {}
+  securitySchemes: {}
+servers: []
+security: []
+
+```
+# 请求代付订单接口
+
+## OpenAPI Specification
+
+```yaml
+openapi: 3.0.1
+info:
+  title: ''
+  description: ''
+  version: 1.0.0
+paths:
+  /gateway/common/api/trans:
+    post:
+      summary: 请求代付订单接口
+      deprecated: false
+      description: >-
+        签名计算：
+
+        signature=md5(accountOrder+amount+appId+bankCardName+bankCardNo+bankIfsc+bankName+notifyUrl+payType+payeeName+payeePhone+timestamp+vpaAddress+app_key)
+
+        appId, app_key,参数请联系客户经理获取
+      tags: []
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: ''
+              type: object
+              properties:
+                appId:
+                  type: string
+                  description: 商户应用唯一标识
+                  title: 商户ID
+                  nullable: true
+                accountOrder:
+                  type: string
+                  description: 自定义的订单号，需要保证唯一
+                  title: 客户订单号
+                  nullable: true
+                timestamp:
+                  type: string
+                  description: 格式为yyyy-MM-dd HH:mm:ss
+                  title: 时间戳
+                  nullable: true
+                notifyUrl:
+                  type: string
+                  description: 支付结果的回调地址
+                  title: 订单结果通知地址
+                  nullable: true
+                amount:
+                  type: integer
+                  description: 具体可用金额咨询商务
+                  minimum: 1
+                  title: 金额
+                  nullable: true
+                payType:
+                  type: integer
+                  description: 1是银行卡，2是vpa
+                  title: 类型
+                  nullable: true
+                remark:
+                  type: string
+                  description: ''
+                  title: 转账备注
+                  nullable: true
+                payeeName:
+                  type: string
+                  description: PAYTYPE:1必填，姓和名用空格隔开
+                  title: 联系人姓名
+                  nullable: true
+                payeePhone:
+                  type: string
+                  description: PAYTYPE:1必填，银行卡姓名
+                  title: 联系人电话
+                  nullable: true
+                bankCardName:
+                  type: string
+                  description: PAYTYPE:1必填，
+                  title: 收款人卡姓名
+                  nullable: true
+                bankCardNo:
+                  type: string
+                  description: PAYTYPE:1必填
+                  title: 收款人卡号
+                  nullable: true
+                bankName:
+                  type: string
+                  description: PAYTYPE:1必填，
+                  title: 银行名称
+                  nullable: true
+                bankIfsc:
+                  type: string
+                  description: PAYTYPE:1必填，
+                  title: 银行编码
+                  nullable: true
+                vpaAddress:
+                  type: string
+                  description: PAYTYPE:2必填，
+                  title: vpa地址
+                  nullable: true
+                signature:
+                  type: string
+                  description: 查看接口说明
+                  title: 签名
+                  nullable: true
+              x-apifox-refs: {}
+              x-apifox-orders:
+                - appId
+                - accountOrder
+                - timestamp
+                - notifyUrl
+                - amount
+                - payType
+                - remark
+                - payeeName
+                - payeePhone
+                - bankCardName
+                - bankCardNo
+                - bankName
+                - bankIfsc
+                - vpaAddress
+                - signature
+              required:
+                - appId
+                - accountOrder
+                - timestamp
+                - amount
+                - payType
+                - signature
+            example:
+              appId: '10007'
+              accountOrder: '11172171949686936011'
+              timestamp: '2024-07-23 15:24:56'
+              notifyUrl: https://e1vz8.nkxi23.top/notify
+              amount: 100
+              payType: 1
+              payeeName: test
+              payeePhone: '123456'
+              bankCardName: Am uttam
+              bankCardNo: '158000000000'
+              bankName: ICBANK
+              bankIfsc: IC0001583
+              signature: 352f4399df68394872db05b350ef5e1d
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    title: 响应代码
+                    description: |-
+                      0：成功
+                      1001：参数不全
+                      1002：签名失败
+                      1003：订单号重复
+                      1005：APPID失效
+                      1006：鉴权IP受限
+                      1007：产品错误 
+                      1008：产品错误 
+                      1009：订单号不存在
+                      500：未知原因
+                      999：未知原因
+                  desc:
+                    type: string
+                    title: 响应描述描述
+                  data:
+                    type: object
+                    properties:
+                      orderId:
+                        type: string
+                        title: 平台流水号
+                      accountOrder:
+                        type: string
+                        title: 请求订单号
+                      amount:
+                        type: integer
+                        title: 金额
+                      product:
+                        type: string
+                        title: 产品
+                    required:
+                      - orderId
+                      - accountOrder
+                      - amount
+                      - product
+                    x-apifox-orders:
+                      - orderId
+                      - accountOrder
+                      - amount
+                      - product
+                    title: 响应数据
+                required:
+                  - code
+                  - desc
+                  - data
+                x-apifox-orders:
+                  - code
+                  - desc
+                  - data
+                description: 统一API响应结果封装
+                x-apifox-refs: {}
+              example:
+                code: 0
+                desc: SUCCESS
+                data:
+                  orderId: '240723152457107155'
+                  accountOrder: '11172171949686936011'
+                  amount: 100
+                  product: '900'
+          headers: {}
+          x-apifox-name: 成功
+      security: []
+      x-apifox-folder: ''
+      x-apifox-status: released
+      x-run-in-apifox: https://app.apifox.com/web/project/4871391/apis/api-196796144-run
+components:
+  schemas: {}
+  securitySchemes: {}
+servers: []
+security: []
+
+```
+# 代付订单状态通知接口
+
+## OpenAPI Specification
+
+```yaml
+openapi: 3.0.1
+info:
+  title: ''
+  description: ''
+  version: 1.0.0
+paths:
+  /客户上传notifyUrl.:
+    post:
+      summary: 代付订单状态通知接口
+      deprecated: false
+      description: >-
+        接口说明：该接⼝由客户⾃⼰提供，接收POST参数，在创建订单时通过notifyUrl上传。收到该消息后请⽴即返回'OK'(全⼤写,⽆空格)字符串，当服务器收到任何⾮'OK'的字符串时会通知3次(每次间隔依次增⻓30
+        秒)，如果3次都没有给返回'OK',服务器不再通知。
+
+        签名计算：signature=md5(accountOrder+amount+appId+orderId+status+app_key)
+      tags: []
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                orderId:
+                  type: string
+                  title: 平台订单号
+                accountOrder:
+                  type: string
+                  title: 客户订单号
+                amount:
+                  type: integer
+                  title: 金额
+                  description: 订单金额
+                appId:
+                  type: string
+                  title: 客户ID
+                applyDate:
+                  type: string
+                  title: 创建时间
+                  description: 订单创建时间
+                status:
+                  type: integer
+                  title: 订单状态
+                  description: 10订单处理中 60订单失败 70订单成功
+                statusDesc:
+                  type: string
+                  title: 状态描述
+                  description: 转账失败时有时返回失败原因
+                signature:
+                  type: string
+                  title: 签名
+                  description: 见接口说明
+                utr:
+                  type: string
+                  title: utr
+              required:
+                - orderId
+                - accountOrder
+                - amount
+                - appId
+                - applyDate
+                - status
+                - signature
+                - utr
+              x-apifox-orders:
+                - orderId
+                - accountOrder
+                - amount
+                - appId
+                - applyDate
+                - status
+                - statusDesc
+                - utr
+                - signature
+            example: "{\r\n\"orderId\":\_\"240506122631101786\",\r\n\"accountOrder\":\_\"1714969590\",\r\n\"amount\":\_5,\r\n\"appId\":\_\"test\",\r\n\"applyDate\":\_\"2024-05-06 12:26:32\",\r\n\"status\":\_60,\r\n\"statusDesc\":\"\",\r\n\"signature\":\_\"beb63f82611b896cda2734ee6765fa21\"\r\n}"
+      responses:
+        '200':
+          description: ''
+          content:
+            '*/*':
+              schema:
+                type: object
+                properties: {}
+              example: '"SUCCESS success 1"'
+          headers: {}
+          x-apifox-name: 成功
+      security: []
+      x-apifox-folder: ''
+      x-apifox-status: released
+      x-run-in-apifox: https://app.apifox.com/web/project/4871391/apis/api-196906540-run
+components:
+  schemas: {}
+  securitySchemes: {}
+servers: []
+security: []
+
+```
+# 代付订单状态通知接口
+
+## OpenAPI Specification
+
+```yaml
+openapi: 3.0.1
+info:
+  title: ''
+  description: ''
+  version: 1.0.0
+paths:
+  /客户上传notifyUrl.:
+    post:
+      summary: 代付订单状态通知接口
+      deprecated: false
+      description: >-
+        接口说明：该接⼝由客户⾃⼰提供，接收POST参数，在创建订单时通过notifyUrl上传。收到该消息后请⽴即返回'OK'(全⼤写,⽆空格)字符串，当服务器收到任何⾮'OK'的字符串时会通知3次(每次间隔依次增⻓30
+        秒)，如果3次都没有给返回'OK',服务器不再通知。
+
+        签名计算：signature=md5(accountOrder+amount+appId+orderId+status+app_key)
+      tags: []
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                orderId:
+                  type: string
+                  title: 平台订单号
+                accountOrder:
+                  type: string
+                  title: 客户订单号
+                amount:
+                  type: integer
+                  title: 金额
+                  description: 订单金额
+                appId:
+                  type: string
+                  title: 客户ID
+                applyDate:
+                  type: string
+                  title: 创建时间
+                  description: 订单创建时间
+                status:
+                  type: integer
+                  title: 订单状态
+                  description: 10订单处理中 60订单失败 70订单成功
+                statusDesc:
+                  type: string
+                  title: 状态描述
+                  description: 转账失败时有时返回失败原因
+                signature:
+                  type: string
+                  title: 签名
+                  description: 见接口说明
+                utr:
+                  type: string
+                  title: utr
+              required:
+                - orderId
+                - accountOrder
+                - amount
+                - appId
+                - applyDate
+                - status
+                - signature
+                - utr
+              x-apifox-orders:
+                - orderId
+                - accountOrder
+                - amount
+                - appId
+                - applyDate
+                - status
+                - statusDesc
+                - utr
+                - signature
+            example: "{\r\n\"orderId\":\_\"240506122631101786\",\r\n\"accountOrder\":\_\"1714969590\",\r\n\"amount\":\_5,\r\n\"appId\":\_\"test\",\r\n\"applyDate\":\_\"2024-05-06 12:26:32\",\r\n\"status\":\_60,\r\n\"statusDesc\":\"\",\r\n\"signature\":\_\"beb63f82611b896cda2734ee6765fa21\"\r\n}"
+      responses:
+        '200':
+          description: ''
+          content:
+            '*/*':
+              schema:
+                type: object
+                properties: {}
+              example: '"SUCCESS success 1"'
+          headers: {}
+          x-apifox-name: 成功
+      security: []
+      x-apifox-folder: ''
+      x-apifox-status: released
+      x-run-in-apifox: https://app.apifox.com/web/project/4871391/apis/api-196906540-run
+components:
+  schemas: {}
+  securitySchemes: {}
+servers: []
+security: []
+
+```
+# 批量查询订单
+
+## OpenAPI Specification
+
+```yaml
+openapi: 3.0.1
+info:
+  title: ''
+  description: ''
+  version: 1.0.0
+paths:
+  /gateway/common/api/batchQueryOrders:
+    get:
+      summary: 批量查询订单
+      deprecated: false
+      description: 批量查询订单状态，单次最多查询100，频率1秒1次
+      tags: []
+      parameters:
+        - name: appId
+          in: query
+          description: 商户ID
+          required: true
+          schema:
+            type: string
+        - name: accountOrders
+          in: query
+          description: 客户订单号集合，强制一次查询数量不得超过100个订单
+          required: true
+          example:
+            - 1212121212aa,1725954068729
+          schema:
+            type: array
+            items:
+              type: string
+        - name: timestamp
+          in: query
+          description: 时间戳
+          required: true
+          schema:
+            type: string
+        - name: orderType
+          in: query
+          description: 订单类型 1代收 2代付
+          required: true
+          schema:
+            type: string
+        - name: signature
+          in: query
+          description: |-
+            签名
+            计算方式MD5(appId+timestamp+orderType+app_key)
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  desc:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      appId:
+                        type: string
+                        title: 应用唯一编号
+                      timestamp:
+                        type: string
+                        title: 时间戳
+                      orderType:
+                        type: string
+                        title: '订单类型 '
+                        description: 1代收 2代付
+                      orderResultList:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            accountOrder:
+                              type: string
+                              title: 客户订单号
+                            orderId:
+                              type: string
+                              title: 平台订单号
+                            status:
+                              type: integer
+                              title: 状态
+                              description: 10订单处理中 60订单失败 70订单成功
+                          required:
+                            - accountOrder
+                            - orderId
+                            - status
+                          x-apifox-orders:
+                            - accountOrder
+                            - orderId
+                            - status
+                      signature:
+                        type: string
+                        title: 签名
+                        description: 计算方式MD5(appId+timestamp+orderType+app_key)
+                    required:
+                      - appId
+                      - timestamp
+                      - orderType
+                      - orderResultList
+                      - signature
+                    x-apifox-orders:
+                      - appId
+                      - timestamp
+                      - orderType
+                      - orderResultList
+                      - signature
+                required:
+                  - code
+                  - desc
+                  - data
+                x-apifox-orders:
+                  - code
+                  - desc
+                  - data
+              example:
+                code: 0
+                desc: SUCCESS
+                data:
+                  appId: '10007'
+                  timestamp: '1730279118544'
+                  orderType: '2'
+                  orderResultList:
+                    - accountOrder: 1212121212aa
+                      orderId: '240927222708101797'
+                      status: 10
+                    - accountOrder: '1725954068729'
+                      orderId: '240910154108107903'
+                      status: 10
+                  signature: e096be6dedc504c5991c49d4939288e9
+          headers: {}
+          x-apifox-name: 成功
+      security: []
+      x-apifox-folder: ''
+      x-apifox-status: released
+      x-run-in-apifox: https://app.apifox.com/web/project/4871391/apis/api-228823367-run
+components:
+  schemas: {}
+  securitySchemes: {}
+servers: []
+security: []
+
+```
+# 查询余额
+
+## OpenAPI Specification
+
+```yaml
+openapi: 3.0.1
+info:
+  title: ''
+  description: ''
+  version: 1.0.0
+paths:
+  /gateway/common/api/queryBalance:
+    get:
+      summary: 查询余额
+      deprecated: false
+      description: 查询余额，限制10秒1次
+      tags: []
+      parameters:
+        - name: appId
+          in: query
+          description: 应用唯一编号
+          required: true
+          schema:
+            type: string
+        - name: timestamp
+          in: query
+          description: 时间戳
+          required: true
+          schema:
+            type: string
+        - name: signature
+          in: query
+          description: |-
+            签名
+            计算方式MD5(appId+timestamp+app_key)
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  desc:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      appId:
+                        type: string
+                        title: 应用唯一编号
+                      timestamp:
+                        type: string
+                        title: 时间戳
+                      balance:
+                        type: string
+                        title: 余额
+                      signature:
+                        type: string
+                        title: 签名
+                        description: >-
+                          计算方式MD5(appId+timestamp+balance+availableBalance+app_key)
+                      availableBalance:
+                        type: string
+                        title: 可用余额
+                    required:
+                      - appId
+                      - timestamp
+                      - balance
+                      - signature
+                      - availableBalance
+                    x-apifox-orders:
+                      - appId
+                      - timestamp
+                      - balance
+                      - availableBalance
+                      - signature
+                required:
+                  - code
+                  - desc
+                  - data
+                x-apifox-orders:
+                  - code
+                  - desc
+                  - data
+              examples:
+                '1':
+                  summary: 成功示例
+                  value:
+                    code: 0
+                    desc: SUCCESS
+                    data:
+                      appId: '10007'
+                      timestamp: '1730366439664'
+                      balance: '9688.01'
+                      availableBalance: '5359.97'
+                      signature: 9851a084e4eca357625cd1b09e23f3e6
+                '2':
+                  summary: 异常示例
+                  value:
+                    code: 500
+                    desc: access Is Too Frequent,Please Try Again Later
+          headers: {}
+          x-apifox-name: 成功
+      security: []
+      x-apifox-folder: ''
+      x-apifox-status: released
+      x-run-in-apifox: https://app.apifox.com/web/project/4871391/apis/api-228823366-run
+components:
+  schemas: {}
+  securitySchemes: {}
+servers: []
+security: []
+
+```
