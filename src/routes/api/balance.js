@@ -20,22 +20,26 @@ router.post('/query', validateMerchant, async (req, res) => {
         const totalAmount = availableAmount + pendingAmount;
 
         return res.json({
-            code: 1,
-            msg: 'Success',
-            data: {
-                availableAmount: parseFloat(availableAmount.toFixed(2)),
-                pendingAmount: parseFloat(pendingAmount.toFixed(2)),
-                totalAmount: parseFloat(totalAmount.toFixed(2))
+            status: 'success',
+            timestamp: new Date().toISOString(),
+            result: {
+                availableBalance: parseFloat(availableAmount.toFixed(2)),
+                pendingBalance: parseFloat(pendingAmount.toFixed(2)),
+                totalBalance: parseFloat(totalAmount.toFixed(2)),
+                currency: 'INR'
             }
         });
 
     } catch (error) {
         console.error('[Balance Query] Error:', error);
         return res.status(500).json({
-            code: 0,
-            msg: 'Internal server error'
+            status: 'error',
+            errorCode: 'INTERNAL_ERROR',
+            message: 'Internal server error',
+            timestamp: new Date().toISOString()
         });
     }
 });
 
 module.exports = router;
+

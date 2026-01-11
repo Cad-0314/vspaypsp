@@ -394,8 +394,8 @@
                 <!-- ENGLISH CONTENT -->
                 <section id="intro">
                     <h1>API Documentation</h1>
-                    <p>Welcome to the Payable Payment Gateway API. This documentation provides a comprehensive guide to
-                        integrating our secure payment solutions.</p>
+                    <p>Welcome to the Payable Payment Gateway API v2.1. This documentation provides a comprehensive
+                        guide to integrating our secure payment solutions.</p>
                     <div class="alert">
                         <strong>Version:</strong> 2.1 | <strong>Base URL:</strong> https://payable.firestars.co
                     </div>
@@ -403,8 +403,7 @@
 
                 <section id="auth">
                     <h2>Authentication</h2>
-                    <p>We strictly use Header-Based Authentication. Every request must be authenticated using the
-                        following headers.</p>
+                    <p>All API requests require header-based authentication.</p>
                     <table>
                         <thead>
                             <tr>
@@ -415,11 +414,15 @@
                         <tbody>
                             <tr>
                                 <td><code>x-merchant-id</code></td>
-                                <td>Your unique Merchant UUID.</td>
+                                <td>Your unique Merchant API Key (starts with "star")</td>
                             </tr>
                             <tr>
                                 <td><code>x-signature</code></td>
-                                <td>The HMAC-MD5 signature of your request body.</td>
+                                <td>MD5 signature of sorted request body + secret</td>
+                            </tr>
+                            <tr>
+                                <td><code>Content-Type</code></td>
+                                <td>application/json</td>
                             </tr>
                         </tbody>
                     </table>
@@ -427,92 +430,85 @@
                     <pre><code class="language-javascript">const crypto = require('crypto');
 
 function generateSignature(params, secretKey) {
+    // 1. Filter out empty values and 'sign' key
     const filtered = {};
     Object.keys(params).forEach(key => {
         if (key !== 'sign' && params[key] !== '' && params[key] != null) {
             filtered[key] = params[key];
         }
     });
+    // 2. Sort keys alphabetically
     const sorted = Object.keys(filtered).sort();
+    // 3. Build query string
     const query = sorted.map(k => `${k}=${filtered[k]}`).join('&');
+    // 4. Append secret and hash
     const str = `${query}&secret=${secretKey}`;
     return crypto.createHash('md5').update(str).digest('hex').toUpperCase();
 }</code></pre>
                 </section>
 
                 <section id="errors">
-                    <h2>Error Codes</h2>
+                    <h2>Response Format</h2>
+                    <p>All responses follow this structure:</p>
+                    <pre><code class="language-json">{
+    "status": "success" | "error",
+    "message": "Description",
+    "timestamp": "2026-01-11T12:00:00.000Z",
+    "result": { ... }  // For success responses
+    "errorCode": "..."  // For error responses
+}</code></pre>
+                    <h3>Error Codes</h3>
                     <table>
                         <thead>
                             <tr>
-                                <th>Code</th>
+                                <th>Error Code</th>
                                 <th>Meaning</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>1</td>
-                                <td>Success</td>
+                                <td>INVALID_PARAMS</td>
+                                <td>Missing or invalid parameters</td>
                             </tr>
                             <tr>
-                                <td>0</td>
-                                <td>Failed</td>
+                                <td>INVALID_SIGNATURE</td>
+                                <td>Signature verification failed</td>
                             </tr>
                             <tr>
-                                <td>-1</td>
-                                <td>Invalid signature</td>
+                                <td>INVALID_MERCHANT</td>
+                                <td>Invalid merchant ID</td>
                             </tr>
                             <tr>
-                                <td>-2</td>
-                                <td>Missing parameters</td>
+                                <td>NOT_FOUND</td>
+                                <td>Order not found</td>
                             </tr>
                             <tr>
-                                <td>-3</td>
-                                <td>Insufficient balance</td>
+                                <td>DUPLICATE_ORDER</td>
+                                <td>Order ID already exists</td>
+                            </tr>
+                            <tr>
+                                <td>INSUFFICIENT_BALANCE</td>
+                                <td>Not enough balance for payout</td>
+                            </tr>
+                            <tr>
+                                <td>SERVICE_SUSPENDED</td>
+                                <td>Service temporarily disabled</td>
                             </tr>
                         </tbody>
                     </table>
                 </section>
 
                 <section id="payin-create">
-                    <h2>Create Order (Pay-In)</h2>
+                    <h2>Create Pay-In Order</h2>
                     <p>Generate a payment link to collect funds from a user.</p>
                     <div class="endpoint"><span class="method">POST</span> /api/payin/create</div>
-
-                    <h3>Request Body</h3>
-                    <pre><code class="language-json">{
-    "orderId": "MC001-998877",
-    "orderAmount": 500,
-    "callbackUrl": "https://mysite.com/webhook",
-    "skipUrl": "https://mysite.com/success"
-}</code></pre>
-                </section>
-
-                <section id="payout-bank">
-                    <h2>Bank Transfer (Pay-Out)</h2>
-                    <p>Withdraw funds to a bank account via IMPS/NEFT.</p>
-                    <div class="endpoint"><span class="method">POST</span> /api/payout/bank</div>
-
-                    <h3>Request Body</h3>
-                    <pre><code class="language-json">{
-    "orderId": "TXN_12345",
-    "amount": 1000,
-    "account": "1234567890",
-    "ifsc": "SBIN0001234",
-    "personName": "John Doe",
-    "callbackUrl": "https://yoursite.com/payout/callback"
-}</code></pre>
-                </section>
-
-                <section id="#payout-usdt">
-                    <h2>USDT Transfer</h2>
-                    <p>Withdraw funds to a USDT (TRC20) wallet.</p>
-                    <div class="endpoint"><span class="method">POST</span> /api/payout/usdt</div>
+                    <h3>Request Parameters</h3>
                     <table>
                         <thead>
                             <tr>
                                 <th>Parameter</th>
                                 <th>Type</th>
+                                <th>Required</th>
                                 <th>Description</th>
                             </tr>
                         </thead>
@@ -520,26 +516,245 @@ function generateSignature(params, secretKey) {
                             <tr>
                                 <td>orderId</td>
                                 <td>String</td>
+                                <td>Yes</td>
+                                <td>Your unique order ID (max 64 chars)</td>
+                            </tr>
+                            <tr>
+                                <td>orderAmount</td>
+                                <td>Number</td>
+                                <td>Yes</td>
+                                <td>Amount in INR (min ₹100)</td>
+                            </tr>
+                            <tr>
+                                <td>callbackUrl</td>
+                                <td>String</td>
+                                <td>Yes</td>
+                                <td>URL for async payment notifications</td>
+                            </tr>
+                            <tr>
+                                <td>skipUrl</td>
+                                <td>String</td>
+                                <td>No</td>
+                                <td>Redirect URL after payment</td>
+                            </tr>
+                            <tr>
+                                <td>param</td>
+                                <td>String</td>
+                                <td>No</td>
+                                <td>Custom parameter (returned in callback)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>Example Request</h3>
+                    <pre><code class="language-json">{
+    "orderId": "ORD_123456",
+    "orderAmount": 500,
+    "callbackUrl": "https://yoursite.com/webhook",
+    "skipUrl": "https://yoursite.com/success"
+}</code></pre>
+                    <h3>Success Response</h3>
+                    <pre><code class="language-json">{
+    "status": "success",
+    "message": "Order created successfully",
+    "timestamp": "2026-01-11T12:00:00.000Z",
+    "result": {
+        "merchantOrderId": "ORD_123456",
+        "platformOrderId": "uuid-here",
+        "requestedAmount": 500,
+        "processingFee": 25.00,
+        "paymentUrl": "https://payable.firestars.co/pay/uuid",
+        "appLinks": {
+            "upi_phonepe": "phonepe://...",
+            "upi_gpay": "gpay://...",
+            "upi_paytm": "paytm://..."
+        },
+        "expiresIn": 1800
+    }
+}</code></pre>
+                </section>
+
+                <section id="payin-query">
+                    <h2>Query Pay-In Status</h2>
+                    <p>Check the status of a pay-in order.</p>
+                    <div class="endpoint"><span class="method">POST</span> /api/payin/query</div>
+                    <h3>Request</h3>
+                    <pre><code class="language-json">{ "orderId": "ORD_123456" }</code></pre>
+                    <h3>Response</h3>
+                    <pre><code class="language-json">{
+    "status": "success",
+    "timestamp": "2026-01-11T12:00:00.000Z",
+    "result": {
+        "merchantOrderId": "ORD_123456",
+        "platformOrderId": "uuid-here",
+        "orderStatus": "success",
+        "settledAmount": 475.00,
+        "requestedAmount": 500.00,
+        "processingFee": 25.00,
+        "transactionRef": "UTR123456789",
+        "createdAt": "2026-01-11T11:00:00.000Z"
+    }
+}</code></pre>
+                </section>
+
+                <section id="payin-callback">
+                    <h2>Pay-In Callback</h2>
+                    <p>When payment status changes, we POST to your callbackUrl:</p>
+                    <pre><code class="language-json">{
+    "merchantOrderId": "ORD_123456",
+    "platformOrderId": "uuid-here",
+    "orderStatus": "success",
+    "requestedAmount": 500.00,
+    "settledAmount": 475.00,
+    "transactionRef": "UTR123456789",
+    "param": "your-custom-param",
+    "timestamp": "2026-01-11T12:00:00.000Z",
+    "sign": "MD5_SIGNATURE"
+}</code></pre>
+                    <p><strong>Important:</strong> Respond with <code>SUCCESS</code> (plain text) to acknowledge.</p>
+                </section>
+
+                <section id="payout-bank">
+                    <h2>Bank Transfer (Pay-Out)</h2>
+                    <p>Transfer funds to a bank account via IMPS/NEFT.</p>
+                    <div class="endpoint"><span class="method">POST</span> /api/payout/bank</div>
+                    <h3>Request Parameters</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Type</th>
+                                <th>Required</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>orderId</td>
+                                <td>String</td>
+                                <td>Yes</td>
+                                <td>Your unique transaction ID</td>
+                            </tr>
+                            <tr>
+                                <td>amount</td>
+                                <td>Number</td>
+                                <td>Yes</td>
+                                <td>Amount in INR (min ₹100)</td>
+                            </tr>
+                            <tr>
+                                <td>account</td>
+                                <td>String</td>
+                                <td>Yes</td>
+                                <td>Bank account number</td>
+                            </tr>
+                            <tr>
+                                <td>ifsc</td>
+                                <td>String</td>
+                                <td>Yes</td>
+                                <td>IFSC code</td>
+                            </tr>
+                            <tr>
+                                <td>personName</td>
+                                <td>String</td>
+                                <td>Yes</td>
+                                <td>Beneficiary name</td>
+                            </tr>
+                            <tr>
+                                <td>callbackUrl</td>
+                                <td>String</td>
+                                <td>No</td>
+                                <td>Callback URL for status updates</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>Example Request</h3>
+                    <pre><code class="language-json">{
+    "orderId": "PAYOUT_001",
+    "amount": 1000,
+    "account": "1234567890",
+    "ifsc": "SBIN0001234",
+    "personName": "John Doe",
+    "callbackUrl": "https://yoursite.com/payout/webhook"
+}</code></pre>
+                    <h3>Response</h3>
+                    <pre><code class="language-json">{
+    "status": "success",
+    "message": "Payout submitted successfully",
+    "timestamp": "2026-01-11T12:00:00.000Z",
+    "result": {
+        "merchantOrderId": "PAYOUT_001",
+        "platformOrderId": "uuid-here",
+        "payoutAmount": 1000,
+        "processingFee": 36.00,
+        "orderStatus": "processing"
+    }
+}</code></pre>
+                </section>
+
+                <section id="payout-usdt">
+                    <h2>USDT Transfer</h2>
+                    <p>Transfer funds to a USDT wallet.</p>
+                    <div class="endpoint"><span class="method">POST</span> /api/payout/usdt</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Type</th>
+                                <th>Required</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>orderId</td>
+                                <td>String</td>
+                                <td>Yes</td>
                                 <td>Unique transaction ID</td>
                             </tr>
                             <tr>
                                 <td>amount</td>
                                 <td>Number</td>
-                                <td>Amount in INR</td>
+                                <td>Yes</td>
+                                <td>Amount in INR (min ₹500)</td>
                             </tr>
                             <tr>
                                 <td>walletAddress</td>
                                 <td>String</td>
-                                <td>TRC20 Wallet Address</td>
+                                <td>Yes</td>
+                                <td>USDT wallet address</td>
+                            </tr>
+                            <tr>
+                                <td>network</td>
+                                <td>String</td>
+                                <td>Yes</td>
+                                <td>TRC20, ERC20, or BEP20</td>
                             </tr>
                         </tbody>
                     </table>
                 </section>
 
+                <section id="payout-query">
+                    <h2>Query Payout Status</h2>
+                    <div class="endpoint"><span class="method">POST</span> /api/payout/query</div>
+                    <pre><code class="language-json">{ "orderId": "PAYOUT_001" }</code></pre>
+                </section>
+
                 <section id="balance">
                     <h2>Check Balance</h2>
-                    <div class="endpoint"><span class="method">POST</span> /api/balance/query</div>
                     <p>Get your current available and pending balance.</p>
+                    <div class="endpoint"><span class="method">POST</span> /api/balance/query</div>
+                    <h3>Request</h3>
+                    <p>Empty body (signature still required)</p>
+                    <h3>Response</h3>
+                    <pre><code class="language-json">{
+    "status": "success",
+    "timestamp": "2026-01-11T12:00:00.000Z",
+    "result": {
+        "availableBalance": 15000.00,
+        "pendingBalance": 2500.00,
+        "totalBalance": 17500.00,
+        "currency": "INR"
+    }
+}</code></pre>
                 </section>
                 <% } %>
     </main>
