@@ -7,7 +7,7 @@
     <title>Payment</title>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-    <script src="https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -393,7 +393,7 @@
                 <div class="qr-section" id="qrSection">
                     <div class="section-label">Or scan QR code</div>
                     <div class="qr-box">
-                        <canvas id="qrCode"></canvas>
+                        <div id="qrCode"></div>
                     </div>
                     <div class="qr-hint">Scan with any UPI app</div>
                 </div>
@@ -407,16 +407,29 @@
             // Generate QR code from normalized UPI link
             if (normalizedUpi) {
                 setTimeout(() => {
-                    const canvas = document.getElementById('qrCode');
-                    if (canvas) {
-                        QRCode.toCanvas(canvas, normalizedUpi, { width: 180, margin: 0 }, (err) => {
-                            if (err) {
-                                console.error('QR Error:', err);
-                                // Hide QR section on error
-                                const qrSection = document.getElementById('qrSection');
-                                if (qrSection) qrSection.style.display = 'none';
-                            }
-                        });
+                    const qrContainer = document.getElementById('qrCode');
+                    if (qrContainer && typeof QRCode !== 'undefined') {
+                        try {
+                            // Clear any existing QR code
+                            qrContainer.innerHTML = '';
+                            // Create new QR code using qrcodejs library
+                            new QRCode(qrContainer, {
+                                text: normalizedUpi,
+                                width: 180,
+                                height: 180,
+                                colorDark: '#000000',
+                                colorLight: '#ffffff',
+                                correctLevel: QRCode.CorrectLevel.M
+                            });
+                        } catch (err) {
+                            console.error('QR Error:', err);
+                            const qrSection = document.getElementById('qrSection');
+                            if (qrSection) qrSection.style.display = 'none';
+                        }
+                    } else {
+                        console.error('QRCode library not loaded');
+                        const qrSection = document.getElementById('qrSection');
+                        if (qrSection) qrSection.style.display = 'none';
                     }
                 }, 100);
             } else {
