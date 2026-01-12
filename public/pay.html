@@ -287,15 +287,81 @@
             }
         }
 
+        // Helper to parse UPI link and extract parameters
+        function parseUpiLink(upiLink) {
+            if (!upiLink) return null;
+            try {
+                // Handle both upi://pay?pa=... and just pa=...&pn=... formats
+                let queryString = upiLink;
+                if (upiLink.startsWith('upi://')) {
+                    const urlParts = upiLink.split('?');
+                    queryString = urlParts.length > 1 ? urlParts[1] : '';
+                }
+                const params = new URLSearchParams(queryString);
+                return {
+                    pa: params.get('pa'),
+                    pn: params.get('pn'),
+                    am: params.get('am'),
+                    cu: params.get('cu') || 'INR',
+                    tr: params.get('tr'),
+                    tn: params.get('tn') || 'Payment'
+                };
+            } catch (e) {
+                console.error('Error parsing UPI link:', e);
+                return null;
+            }
+        }
+
+        // Generate GPay deep link from UPI parameters
+        function generateGpayLink(upiParams) {
+            if (!upiParams || !upiParams.pa) return null;
+            const { pa, pn, am, cu, tr, tn } = upiParams;
+            return `gpay://upi/pay?pa=${encodeURIComponent(pa)}&pn=${encodeURIComponent(pn || 'Merchant')}&am=${am || ''}&cu=${cu}&tr=${tr || ''}&tn=${encodeURIComponent(tn)}`;
+        }
+
+        // Ensure UPI link is properly formatted
+        function normalizeUpiLink(link) {
+            if (!link) return null;
+            // If already a full UPI link, return as-is
+            if (link.startsWith('upi://')) return link;
+            // If it's just query params, prepend upi://pay?
+            if (link.includes('pa=')) return `upi://pay?${link}`;
+            return null;
+        }
+
         function renderPayment(data) {
             const deepLinks = data.deepLinks || {};
             const options = [];
 
-            if (deepLinks.upi_phonepe) options.push({ id: 'phonepe', name: 'PhonePe', icon: '/images/phonepe.png', link: deepLinks.upi_phonepe });
-            if (deepLinks.upi_paytm) options.push({ id: 'paytm', name: 'Paytm', icon: '/images/paytm.png', link: deepLinks.upi_paytm });
-            if (deepLinks.upi_gpay) options.push({ id: 'gpay', name: 'Google Pay', icon: '/images/gpay.png', link: deepLinks.upi_gpay });
-            const upiLink = deepLinks.upi_scan || deepLinks.upi_intent || (deepLinks.upi?.startsWith('upi://') ? deepLinks.upi : null);
-            if (upiLink) options.push({ id: 'upi', name: 'Other UPI', icon: '/images/upi.png', link: upiLink });
+            // Get UPI link from various sources
+            let rawUpiLink = deepLinks.upi_scan || deepLinks.upi_intent || deepLinks.upi || null;
+            const normalizedUpi = normalizeUpiLink(rawUpiLink);
+            const upiParams = parseUpiLink(normalizedUpi);
+
+            // Add PhonePe option
+            if (deepLinks.upi_phonepe) {
+                options.push({ id: 'phonepe', name: 'PhonePe', icon: '/images/phonepe.png', link: deepLinks.upi_phonepe });
+            }
+
+            // Add Paytm option
+            if (deepLinks.upi_paytm || deepLinks.paytm) {
+                options.push({ id: 'paytm', name: 'Paytm', icon: '/images/paytm.png', link: deepLinks.upi_paytm || deepLinks.paytm });
+            }
+
+            // Add GPay option - generate from UPI params if not provided
+            if (deepLinks.upi_gpay || deepLinks.gpay) {
+                options.push({ id: 'gpay', name: 'Google Pay', icon: '/images/gpay.png', link: deepLinks.upi_gpay || deepLinks.gpay });
+            } else if (upiParams && upiParams.pa) {
+                const gpayLink = generateGpayLink(upiParams);
+                if (gpayLink) {
+                    options.push({ id: 'gpay', name: 'Google Pay', icon: '/images/gpay.png', link: gpayLink });
+                }
+            }
+
+            // Add generic UPI option
+            if (normalizedUpi) {
+                options.push({ id: 'upi', name: 'Other UPI', icon: '/images/upi.png', link: normalizedUpi });
+            }
 
             if (options.length > 0 && !selectedOption) selectedOption = options[0].id;
 
@@ -337,14 +403,19 @@
                     <div class="secure">🔒 Secured payment</div>
                 </div>
             `;
-            // Generate QR code
-            const qrLink = deepLinks.upi_scan || deepLinks.upi_intent || deepLinks.upi || selectedLink;
-            if (qrLink && qrLink.startsWith('upi://')) {
+
+            // Generate QR code from normalized UPI link
+            if (normalizedUpi) {
                 setTimeout(() => {
                     const canvas = document.getElementById('qrCode');
                     if (canvas) {
-                        QRCode.toCanvas(canvas, qrLink, { width: 180, margin: 0 }, (err) => {
-                            if (err) console.error('QR Error:', err);
+                        QRCode.toCanvas(canvas, normalizedUpi, { width: 180, margin: 0 }, (err) => {
+                            if (err) {
+                                console.error('QR Error:', err);
+                                // Hide QR section on error
+                                const qrSection = document.getElementById('qrSection');
+                                if (qrSection) qrSection.style.display = 'none';
+                            }
                         });
                     }
                 }, 100);

@@ -135,10 +135,34 @@ async function createPayin(data, config = {}) {
 
         // Extract deep links from response
         const rawDeepLinks = resData.data?.deepLink || resData.deepLink || {};
+        const upiScan = rawDeepLinks.upi_scan || null;
+
+        // Generate GPay link from UPI scan link if available
+        let upi_gpay = rawDeepLinks.upi_gpay || null;
+        if (!upi_gpay && upiScan && upiScan.includes('pa=')) {
+            try {
+                const urlParts = upiScan.split('?');
+                const queryString = urlParts.length > 1 ? urlParts[1] : upiScan;
+                const params = new URLSearchParams(queryString);
+                const pa = params.get('pa');
+                const pn = params.get('pn') || 'Merchant';
+                const am = params.get('am') || '';
+                const tn = params.get('tn') || 'Payment';
+                const tr = params.get('tr') || '';
+                if (pa) {
+                    upi_gpay = `gpay://upi/pay?pa=${encodeURIComponent(pa)}&pn=${encodeURIComponent(pn)}&am=${am}&cu=INR&tr=${tr}&tn=${encodeURIComponent(tn)}`;
+                }
+            } catch (e) {
+                console.log('[Silkpay] Error generating GPay link:', e.message);
+            }
+        }
+
         const deepLinks = {
             upi_phonepe: rawDeepLinks.upi_phonepe || null,
             upi_paytm: rawDeepLinks.upi_paytm || null,
-            upi_scan: rawDeepLinks.upi_scan || null
+            upi_gpay: upi_gpay,
+            upi_scan: upiScan,
+            upi_intent: upiScan
         };
 
         return {

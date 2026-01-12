@@ -132,11 +132,34 @@ async function createPayin({ orderId, amount, notifyUrl, returnUrl, customerName
                     ? JSON.parse(bizData.accountInfo)
                     : bizData.accountInfo;
 
+                const upiScan = accountInfo.upiScan ? `upi://pay?${accountInfo.upiScan}` : null;
+
+                // Generate GPay link from UPI scan link if not provided
+                let upi_gpay = null;
+                if (upiScan && upiScan.includes('pa=')) {
+                    try {
+                        const urlParts = upiScan.split('?');
+                        const queryString = urlParts.length > 1 ? urlParts[1] : '';
+                        const params = new URLSearchParams(queryString);
+                        const pa = params.get('pa');
+                        const pn = params.get('pn') || 'Merchant';
+                        const am = params.get('am') || '';
+                        const tn = params.get('tn') || 'Payment';
+                        const tr = params.get('tr') || '';
+                        if (pa) {
+                            upi_gpay = `gpay://upi/pay?pa=${encodeURIComponent(pa)}&pn=${encodeURIComponent(pn)}&am=${am}&cu=INR&tr=${tr}&tn=${encodeURIComponent(tn)}`;
+                        }
+                    } catch (e) {
+                        console.log('[F2Pay] Error generating GPay link:', e.message);
+                    }
+                }
+
                 deepLinks = {
                     upi: accountInfo.upi,
-                    upi_scan: accountInfo.upiScan ? `upi://pay?${accountInfo.upiScan}` : null,
+                    upi_scan: upiScan,
                     upi_phonepe: accountInfo.upiPhonepe,
-                    upi_intent: accountInfo.upiIntent ? `upi://pay?${accountInfo.upiIntent}` : null
+                    upi_intent: accountInfo.upiIntent ? `upi://pay?${accountInfo.upiIntent}` : null,
+                    upi_gpay: upi_gpay
                 };
             }
 

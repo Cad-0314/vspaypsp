@@ -67,18 +67,21 @@ const caipayService = {
                 // Parse H2H response data
                 // Expected: { platOrderNo, orderStatus, upi, paytm, ... }
 
+
                 const deepLinks = {
                     upi: data.upi,        // "upi://pay?pn=..."
+                    upi_scan: data.upi,   // Same as upi for QR code generation
+                    upi_intent: data.upi, // Same as upi for intent handling
                     paytm: data.paytm,    // "paytmmp://pay?..."
+                    upi_paytm: data.paytm,
                     gpay: data.gpay || null,
-                    phonepe: data.phonepe || null
+                    upi_gpay: data.gpay || null,
+                    phonepe: data.phonepe || null,
+                    upi_phonepe: data.phonepe || null
                 };
 
                 return {
                     success: true,
-                    // Use a fallback or one of the deep links as the main payUrl if needed, 
-                    // or ideally the frontend handles deepLinks. 
-                    // If no explicit 'url' is returned in H2H, we might map 'upi' as payUrl for QR generation
                     payUrl: data.url || data.upi,
                     providerOrderId: data.platOrderNo,
                     deepLinks: deepLinks,
