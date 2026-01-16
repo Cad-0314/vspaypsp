@@ -244,10 +244,9 @@ router.post('/paylink', async (req, res) => {
             expiresAt: new Date(Date.now() + 30 * 60 * 1000) // 30 minutes
         });
 
-        // Current host URL
-        const protocol = req.protocol;
-        const host = req.get('host');
-        const link = `${protocol}://${host}/pay/${order.id}`;
+        // Use APP_URL from environment to generate proper production link
+        const APP_URL = process.env.APP_URL || 'https://payable.firestars.co';
+        const link = `${APP_URL}/pay/${order.id}`;
 
         res.json({ success: true, link, orderId });
 
