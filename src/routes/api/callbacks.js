@@ -228,10 +228,12 @@ router.post('/:channel/payout', async (req, res) => {
             utr = bizContent.trxId;
             providerOrderId = bizContent.platNo;
         } else if (channelName === 'payable' || channelName === 'silkpay') {
-            orderId = req.body.orderId;
-            status = req.body.status == 1 ? 'success' : 'failed';
-            utr = req.body.utr;
-            providerOrderId = req.body.tradeNo;
+            // Silkpay V2 payout callback uses mOrderId for merchant order ID
+            orderId = req.body.mOrderId || req.body.orderId;
+            status = req.body.status === 1 || req.body.status === '1' ? 'success' :
+                req.body.status === 2 || req.body.status === '2' ? 'failed' : 'processing';
+            utr = req.body.utr || req.body.bankRef;
+            providerOrderId = req.body.sysOrderId || req.body.tradeNo;
         } else if (channelName === 'fendpay' || channelName === 'upi super') {
             orderId = req.body.outTradeNo;
             status = req.body.status == 1 ? 'success' : req.body.status == 0 ? 'processing' : 'failed';
