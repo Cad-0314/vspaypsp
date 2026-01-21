@@ -141,7 +141,7 @@ router.get('/merchants', async (req, res) => {
 
         const { count, rows } = await User.findAndCountAll({
             where,
-            attributes: ['id', 'username', 'apiKey', 'assignedChannel', 'balance', 'pendingBalance', 'isActive', 'canPayin', 'canPayout', 'channel_rates', 'createdAt'],
+            attributes: ['id', 'username', 'apiKey', 'assignedChannel', 'payinChannel', 'payoutChannel', 'balance', 'pendingBalance', 'isActive', 'canPayin', 'canPayout', 'channel_rates', 'createdAt'],
             order: [['createdAt', 'DESC']],
             limit: parseInt(limit),
             offset: parseInt(offset)
@@ -159,7 +159,7 @@ router.get('/merchants', async (req, res) => {
 
 router.post('/merchants', async (req, res) => {
     try {
-        const { username, assignedChannel, payinRate, payoutRate, payoutFixedFee, usdtRate } = req.body;
+        const { username, payinChannel, payoutChannel, payinRate, payoutRate, payoutFixedFee, usdtRate } = req.body;
         if (!username) return res.status(400).json({ success: false, error: 'Missing username' });
 
         // Default password is username@777
@@ -180,7 +180,9 @@ router.post('/merchants', async (req, res) => {
             username,
             password_hash: hashedPassword,
             role: 'merchant',
-            assignedChannel: assignedChannel || null,
+            payinChannel: payinChannel || null,
+            payoutChannel: payoutChannel || null,
+            assignedChannel: payinChannel || null, // Deprecated fallback
             telegramGroupId: req.body.telegramGroupId || null,
             channel_rates: JSON.stringify(customRates),
             apiSecret: crypto.randomBytes(32).toString('hex'),
@@ -207,14 +209,17 @@ router.get('/merchants/:id', async (req, res) => {
 
 router.put('/merchants/:id', async (req, res) => {
     try {
-        const { username, password, assignedChannel, payinRate, payoutRate, payoutFixedFee, usdtRate, isActive, canPayin, canPayout } = req.body;
+        const { username, password, payinChannel, payoutChannel, payinRate, payoutRate, payoutFixedFee, usdtRate, isActive, canPayin, canPayout } = req.body;
         const merchant = await User.findByPk(req.params.id);
         if (!merchant) return res.status(404).json({ success: false, error: 'Not found' });
 
         const updates = {};
         if (username) updates.username = username;
         if (password) updates.password_hash = await bcrypt.hash(password, 10);
-        if (assignedChannel !== undefined) updates.assignedChannel = assignedChannel;
+        if (payinChannel !== undefined) updates.payinChannel = payinChannel;
+        if (payoutChannel !== undefined) updates.payoutChannel = payoutChannel;
+        // Keep assignedChannel in sync with payinChannel as fallback
+        if (payinChannel !== undefined) updates.assignedChannel = payinChannel;
         // Check if telegramGroupId is being bound/updated
         const isNewGroupBinding = req.body.telegramGroupId && req.body.telegramGroupId !== merchant.telegramGroupId;
         if (req.body.telegramGroupId !== undefined) updates.telegramGroupId = req.body.telegramGroupId;

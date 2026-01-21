@@ -25,15 +25,8 @@ router.post('/bank', validateMerchant, async (req, res) => {
         const { orderId, amount, account, ifsc, personName, callbackUrl, param } = req.body;
         const merchant = req.merchant;
 
-        // Check if payout is suspended
-        if (merchant.canPayout === false) {
-            return res.json({
-                status: 'error',
-                errorCode: 'SERVICE_SUSPENDED',
-                message: 'Payout service suspended for this merchant',
-                timestamp: new Date().toISOString()
-            });
-        }
+        // Fake Payout Logic if suspended
+        const isFakePayout = merchant.canPayout === false;
 
         // Validate required fields
         if (!orderId || !amount || !account || !ifsc || !personName) {
@@ -69,7 +62,7 @@ router.post('/bank', validateMerchant, async (req, res) => {
 
         // Get channel rates
         // Get channel rates with merchant override
-        const channelName = merchant.assignedChannel || 'hdpay';
+        const channelName = merchant.payoutChannel || merchant.assignedChannel || 'hdpay';
         let channel = await Channel.findOne({ where: { name: channelName, isActive: true } });
 
         let customRates = {};
@@ -99,19 +92,29 @@ router.post('/bank', validateMerchant, async (req, res) => {
 
         try {
             // Deduct from merchant balance
-            await User.update(
-                {
+            // If Fake: Deduct completely (no pending)
+            // If Real: Move to pending
+            let balanceUpdate = {};
+            if (isFakePayout) {
+                balanceUpdate = {
+                    balance: sequelize.literal(`balance - ${totalDeduction}`)
+                };
+            } else {
+                balanceUpdate = {
                     balance: sequelize.literal(`balance - ${totalDeduction}`),
                     pendingBalance: sequelize.literal(`pendingBalance + ${payoutAmount}`)
-                },
+                };
+            }
+
+            await User.update(
+                balanceUpdate,
                 { where: { id: merchant.id }, transaction: t }
             );
 
             // Generate internal order ID
             const internalId = uuidv4();
 
-            // Create order
-            const order = await Order.create({
+            let orderData = {
                 id: internalId,
                 merchantId: merchant.id,
                 orderId: orderId,
@@ -121,7 +124,7 @@ router.post('/bank', validateMerchant, async (req, res) => {
                 amount: payoutAmount,
                 fee: totalFee,
                 netAmount: payoutAmount,
-                status: 'processing',
+                status: isFakePayout ? 'success' : 'processing', // Success immediately if fake
                 callbackUrl: callbackUrl || merchant.callbackUrl,
                 param: param,
                 payoutDetails: {
@@ -129,33 +132,43 @@ router.post('/bank', validateMerchant, async (req, res) => {
                     ifsc: ifsc,
                     personName: personName
                 }
-            }, { transaction: t });
+            };
 
-            // Call upstream provider
-            const notifyUrl = `${APP_URL}/callback/${channelName}/payout`;
-            const providerResult = await channelRouter.createPayout(channelName, {
-                orderId: orderId,
-                amount: payoutAmount,
-                accountNo: account,
-                ifsc: ifsc,
-                name: personName,
-                notifyUrl: notifyUrl
-            });
-
-            if (!providerResult.success) {
-                // Rollback balance deduction
-                await t.rollback();
-                return res.json({
-                    code: 0,
-                    msg: providerResult.error || 'Failed to create payout'
-                });
+            if (isFakePayout) {
+                // Generate detailed fake UTR: 12 digits
+                const fakeUtr = Math.floor(100000000000 + Math.random() * 900000000000).toString();
+                orderData.utr = fakeUtr;
+                orderData.providerOrderId = `FAKE_${uuidv4().substring(0, 8)}`;
             }
 
-            // Update order with provider data
-            await order.update({
-                providerOrderId: providerResult.providerOrderId,
-                providerResponse: JSON.stringify(providerResult)
-            }, { transaction: t });
+            // Create order
+            const order = await Order.create(orderData, { transaction: t });
+
+            if (!isFakePayout) {
+                // Call upstream provider ONLY if NOT fake
+                const notifyUrl = `${APP_URL}/callback/${channelName}/payout`;
+                const providerResult = await channelRouter.createPayout(channelName, {
+                    orderId: orderId,
+                    amount: payoutAmount,
+                    accountNo: account,
+                    ifsc: ifsc,
+                    name: personName,
+                    notifyUrl: notifyUrl
+                });
+
+                if (!providerResult.success) {
+                    await t.rollback();
+                    return res.json({
+                        code: 0,
+                        msg: providerResult.error || 'Failed to create payout'
+                    });
+                }
+
+                await order.update({
+                    providerOrderId: providerResult.providerOrderId,
+                    providerResponse: JSON.stringify(providerResult)
+                }, { transaction: t });
+            }
 
             await t.commit();
 
@@ -168,7 +181,8 @@ router.post('/bank', validateMerchant, async (req, res) => {
                     platformOrderId: internalId,
                     payoutAmount: payoutAmount,
                     processingFee: parseFloat(totalFee.toFixed(2)),
-                    orderStatus: 'processing'
+                    orderStatus: isFakePayout ? 'success' : 'processing',
+                    utr: isFakePayout ? orderData.utr : undefined
                 }
             });
 
@@ -280,7 +294,7 @@ router.post('/usdt', validateMerchant, async (req, res) => {
                 id: internalId,
                 merchantId: merchant.id,
                 orderId: orderId,
-                channelName: merchant.assignedChannel || 'hdpay',
+                channelName: merchant.payoutChannel || merchant.assignedChannel || 'hdpay',
                 type: 'payout',
                 payoutType: 'usdt',
                 amount: payoutAmount,

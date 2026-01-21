@@ -591,7 +591,7 @@
                                 <tr>
                                     <th>Username</th>
                                     <th>API Key</th>
-                                    <th>Channel</th>
+                                    <th>Channels</th>
                                     <th>Balance</th>
                                     <th>Rates</th>
                                     <th>Status</th>
@@ -731,8 +731,24 @@
                     style="width:100%; margin-bottom:0.75rem; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
                 <input type="password" id="m-password" placeholder="Password (optional, default: username@777)"
                     style="width:100%; margin-bottom:0.75rem; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
-                <select id="m-channel"
+                <label style="display:block; margin-bottom:0.25rem; font-size:0.875rem; color:#6B7280;">Payin
+                    Channel</label>
+                <select id="m-payin-channel"
                     style="width:100%; margin-bottom:0.75rem; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
+                    <option value="">Select Payin Channel...</option>
+                    <option value="hdpay">HDPay</option>
+                    <option value="x2">X2</option>
+                    <option value="payable">Payable</option>
+                    <option value="yellow">Yellow</option>
+                    <option value="upi super">UPI Super</option>
+                    <option value="ckpay">CKPay</option>
+                </select>
+
+                <label style="display:block; margin-bottom:0.25rem; font-size:0.875rem; color:#6B7280;">Payout
+                    Channel</label>
+                <select id="m-payout-channel"
+                    style="width:100%; margin-bottom:0.75rem; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
+                    <option value="">Select Payout Channel...</option>
                     <option value="hdpay">HDPay</option>
                     <option value="x2">X2</option>
                     <option value="payable">Payable</option>
@@ -1045,7 +1061,12 @@
                     <tr>
                         <td style="font-weight:500;">${m.username}</td>
                         <td><small style="font-family:monospace; background:#F3F4F6; padding:2px 6px; border-radius:4px;">${m.apiKey || '-'}</small></td>
-                        <td>${m.assignedChannel || 'None'}</td>
+                        <td>
+                            <div style="font-size:0.75rem; line-height:1.2;">
+                                <span style="color:#6B7280;">In:</span> ${m.payinChannel || m.assignedChannel || 'None'}<br>
+                                <span style="color:#6B7280;">Out:</span> ${m.payoutChannel || m.assignedChannel || 'None'}
+                            </div>
+                        </td>
                         <td>₹${parseFloat(m.balance).toFixed(2)}</td>
                         <td>
                             <div style="font-size:0.7rem; color:#6B7280; line-height:1.2;">
@@ -1081,7 +1102,8 @@
             document.getElementById('m-id').value = m.id;
             document.getElementById('m-username').value = m.username;
             document.getElementById('m-password').value = '';
-            document.getElementById('m-channel').value = m.assignedChannel || '';
+            document.getElementById('m-payin-channel').value = m.payinChannel || m.assignedChannel || '';
+            document.getElementById('m-payout-channel').value = m.payoutChannel || m.assignedChannel || '';
             document.getElementById('m-telegramGroup').value = m.telegramGroupId || '';
 
             const rates = JSON.parse(m.channel_rates || '{}');
@@ -1108,7 +1130,8 @@
             const id = document.getElementById('m-id').value;
             const body = {
                 username: document.getElementById('m-username').value,
-                assignedChannel: document.getElementById('m-channel').value,
+                payinChannel: document.getElementById('m-payin-channel').value,
+                payoutChannel: document.getElementById('m-payout-channel').value,
                 telegramGroupId: document.getElementById('m-telegramGroup').value,
                 payinRate: document.getElementById('m-payin').value,
                 payoutRate: document.getElementById('m-payout').value,

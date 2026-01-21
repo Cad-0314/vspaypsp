@@ -144,7 +144,7 @@ Copy the ID above to bind this group to a merchant.
 ⏳ **Pending:** ₹${parseFloat(merchant.pendingBalance).toFixed(2)}
 
 ✅ **Status:** ${merchant.isActive ? 'Active' : 'Inactive'}
-📥 **PayIn:** ${merchant.canPayin ? 'On' : 'Off'} | 📤 **Payout:** ${merchant.canPayout ? 'On' : 'Off'}
+📥 **PayIn:** ${merchant.canPayin ? 'On' : 'Off'} | 📤 **Payout:** On
 
 📉 **Fee Rates:**
 • PayIn: ${rates.payinRate || 0}%

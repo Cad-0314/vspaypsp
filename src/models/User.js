@@ -43,7 +43,17 @@ const User = sequelize.define('User', {
     assignedChannel: {
         type: DataTypes.STRING(50),
         allowNull: true,
-        comment: 'Assigned payment channel: hdpay, x2, payable'
+        comment: 'DEPRECATED: Assigned payment channel (use payin/payout specific)'
+    },
+    payinChannel: {
+        type: DataTypes.STRING(50),
+        allowNull: true,
+        comment: 'Assigned channel for Payins'
+    },
+    payoutChannel: {
+        type: DataTypes.STRING(50),
+        allowNull: true,
+        comment: 'Assigned channel for Payouts'
     },
     canPayin: {
         type: DataTypes.BOOLEAN,
