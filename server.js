@@ -173,6 +173,122 @@ app.get('/analysis', async (req, res) => {
 });
 
 // ============================================
+// BharatPay Test Endpoint
+// ============================================
+app.get('/bharattest', async (req, res) => {
+    try {
+        const bharatpayService = require('./src/services/bharatpay');
+        const testOrderId = `BPTEST_${Date.now()}`;
+        const testAmount = req.query.amount || 500;
+        const callbackUrl = `${process.env.APP_URL}/callback/bharatpay/payin`;
+
+        console.log('[BharatTest] Testing both V1 and V2 APIs...');
+
+        // Test V1 API
+        const v1Result = await bharatpayService.createPayinV1({
+            orderId: testOrderId + '_V1',
+            amount: testAmount,
+            notifyUrl: callbackUrl
+        });
+
+        // Test V2 API
+        const v2Result = await bharatpayService.createPayinV2({
+            orderId: testOrderId + '_V2',
+            amount: testAmount,
+            notifyUrl: callbackUrl
+        });
+
+        // Return HTML page with results
+        res.send(`
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BharatPay API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 40px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { color: #333; }
+        .test-box { background: white; padding: 20px; margin: 20px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .success { border-left: 4px solid #4CAF50; }
+        .failed { border-left: 4px solid #f44336; }
+        pre { background: #f0f0f0; padding: 15px; border-radius: 4px; overflow-x: auto; font-size: 12px; }
+        .pay-link { display: inline-block; padding: 10px 20px; background: #2196F3; color: white; text-decoration: none; border-radius: 4px; margin-top: 10px; }
+        .pay-link:hover { background: #1976D2; }
+        h2 { margin-top: 0; }
+        .status { font-weight: bold; padding: 5px 10px; border-radius: 4px; display: inline-block; }
+        .status.success { background: #e8f5e9; color: #2e7d32; }
+        .status.failed { background: #ffebee; color: #c62828; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🇮🇳 BharatPay API Test Results</h1>
+        <p>Test Order ID: <strong>${testOrderId}</strong> | Amount: ₹${testAmount}</p>
+        <p>Callback URL: <code>${callbackUrl}</code></p>
+        
+        <div class="test-box ${v1Result.success ? 'success' : 'failed'}">
+            <h2>V1 API (Plain JSON) - Deprecated</h2>
+            <span class="status ${v1Result.success ? 'success' : 'failed'}">${v1Result.success ? '✓ SUCCESS' : '✗ FAILED'}</span>
+            ${v1Result.success ? `
+                <p>Provider Order ID: <strong>${v1Result.providerOrderId}</strong></p>
+                <p>Process Code: ${v1Result.processCode}</p>
+                ${v1Result.payUrl ? `<a class="pay-link" href="${v1Result.payUrl}" target="_blank">Open Payment Page (V1)</a>` : ''}
+            ` : `
+                <p>Error: ${v1Result.error}</p>
+            `}
+            <h3>Raw Response:</h3>
+            <pre>${JSON.stringify(v1Result.rawResponse || v1Result, null, 2)}</pre>
+        </div>
+        
+        <div class="test-box ${v2Result.success ? 'success' : 'failed'}">
+            <h2>V2 API (AES Encrypted) - Recommended</h2>
+            <span class="status ${v2Result.success ? 'success' : 'failed'}">${v2Result.success ? '✓ SUCCESS' : '✗ FAILED'}</span>
+            ${v2Result.success ? `
+                <p>Provider Order ID: <strong>${v2Result.providerOrderId}</strong></p>
+                <p>Process Code: ${v2Result.processCode}</p>
+                ${v2Result.payUrl ? `<a class="pay-link" href="${v2Result.payUrl}" target="_blank">Open Payment Page (V2)</a>` : ''}
+            ` : `
+                <p>Error: ${v2Result.error}</p>
+            `}
+            <h3>Raw Response:</h3>
+            <pre>${JSON.stringify(v2Result.rawResponse || v2Result, null, 2)}</pre>
+        </div>
+        
+        <div class="test-box">
+            <h2>📋 Summary</h2>
+            <table style="width:100%; border-collapse: collapse;">
+                <tr style="background: #f5f5f5;">
+                    <th style="text-align:left; padding:10px; border-bottom:1px solid #ddd;">API Version</th>
+                    <th style="text-align:left; padding:10px; border-bottom:1px solid #ddd;">Status</th>
+                    <th style="text-align:left; padding:10px; border-bottom:1px solid #ddd;">Order ID</th>
+                    <th style="text-align:left; padding:10px; border-bottom:1px solid #ddd;">Payment Link</th>
+                </tr>
+                <tr>
+                    <td style="padding:10px; border-bottom:1px solid #eee;">V1 (Deprecated)</td>
+                    <td style="padding:10px; border-bottom:1px solid #eee;">${v1Result.success ? '✓' : '✗'}</td>
+                    <td style="padding:10px; border-bottom:1px solid #eee;">${v1Result.providerOrderId || 'N/A'}</td>
+                    <td style="padding:10px; border-bottom:1px solid #eee;">${v1Result.payUrl ? 'Available' : 'N/A'}</td>
+                </tr>
+                <tr>
+                    <td style="padding:10px;">V2 (Recommended)</td>
+                    <td style="padding:10px;">${v2Result.success ? '✓' : '✗'}</td>
+                    <td style="padding:10px;">${v2Result.providerOrderId || 'N/A'}</td>
+                    <td style="padding:10px;">${v2Result.payUrl ? 'Available' : 'N/A'}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
+        `);
+
+    } catch (error) {
+        console.error('[BharatTest] Error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============================================
 // Database Sync & Start Server
 // ============================================
 const PORT = process.env.PORT || 3000;

@@ -107,6 +107,24 @@ router.post('/:channel/payin', async (req, res) => {
             utr = req.body.utr;
             actualAmount = parseFloat(req.body.amount);
             providerOrderId = req.body.orderId;
+        } else if (channelName === 'bharatpay') {
+            // BharatPay: callback data is AES encrypted
+            // Decrypt using parseCallback from bharatpay service
+            const bharatpayService = require('../../services/bharatpay');
+            const callbackData = bharatpayService.parseCallback(req.body);
+
+            // Extract order info from decrypted data
+            // The callback contains channelCreditOrderSimpleInfo and channelPaymentRecordSimpleInfo
+            const creditInfo = callbackData.channelCreditOrderSimpleInfo || callbackData;
+            const paymentInfo = callbackData.channelPaymentRecordSimpleInfo || {};
+
+            orderId = req.body.sourceNo || creditInfo.merchantSourceNo;
+            // processCode: 10=Pending, 20=Confirmed, 30=Completed, 40=Cancelled
+            status = creditInfo.processCode === 30 ? 'success' :
+                creditInfo.processCode === 40 ? 'failed' : 'pending';
+            utr = paymentInfo.utr || '';
+            actualAmount = parseFloat(creditInfo.fiatAmount || req.body.amount);
+            providerOrderId = String(creditInfo.id || '');
         }
 
         if (!orderId) {
@@ -252,6 +270,20 @@ router.post('/:channel/payout', async (req, res) => {
                 [60, '60'].includes(req.body.status) ? 'failed' : 'processing';
             utr = req.body.utr;
             providerOrderId = req.body.orderId;
+        } else if (channelName === 'bharatpay') {
+            // BharatPay payout callback - AES encrypted
+            const bharatpayService = require('../../services/bharatpay');
+            const callbackData = bharatpayService.parseCallback(req.body);
+
+            const debitInfo = callbackData.channelDebitOrderSimpleInfo || callbackData;
+            const paymentInfo = callbackData.channelPaymentRecordSimpleInfo || {};
+
+            orderId = req.body.sourceNo || debitInfo.merchantSourceNo;
+            // processCode: 10=Pending, 20=Confirmed, 30=Completed, 40=Cancelled, 60=Failed
+            status = debitInfo.processCode === 30 ? 'success' :
+                [40, 60].includes(debitInfo.processCode) ? 'failed' : 'processing';
+            utr = paymentInfo.utr || '';
+            providerOrderId = String(debitInfo.id || '');
         }
 
         if (!orderId) return res.send('success');

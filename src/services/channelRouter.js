@@ -9,6 +9,7 @@ const silkpayService = require('./silkpay');
 const caipayService = require('./caipay');
 const fendpayService = require('./fendpay');
 const ckpayService = require('./ckpay');
+const bharatpayService = require('./bharatpay');
 
 // Channel to provider mapping
 const channelConfig = {
@@ -53,6 +54,13 @@ const channelConfig = {
         displayNameZh: 'CKPay',
         usesCustomPayPage: false,
         provider: 'ckpay'
+    },
+    bharatpay: {
+        service: bharatpayService,
+        displayName: 'BharatPay',
+        displayNameZh: 'BharatPay',
+        usesCustomPayPage: false,
+        provider: 'bharatpay'
     }
 };
 
