@@ -9,17 +9,31 @@ const axios = require('axios');
 const crypto = require('crypto');
 const http = require('http');
 const https = require('https');
+const dns = require('dns');
 
 // Load config from environment
 const BASE_URL = process.env.BHARATPAY_BASE_URL || 'https://api-beta.bharatpay.cc';
 const MERCHANT_ID = process.env.BHARATPAY_MERCHANT_ID || '';
 const API_KEY = process.env.BHARATPAY_API_KEY || '';
 
-// HTTP Keep-Alive agents for high throughput
-const httpAgent = new http.Agent({ keepAlive: true, maxSockets: 50 });
-const httpsAgent = new https.Agent({ keepAlive: true, maxSockets: 50 });
+// Custom DNS lookup to force IPv4
+const lookupIPv4 = (hostname, options, callback) => {
+    dns.lookup(hostname, { family: 4 }, callback);
+};
 
-// Axios client
+// HTTP Keep-Alive agents with IPv4 only
+const httpAgent = new http.Agent({
+    keepAlive: true,
+    maxSockets: 50,
+    lookup: lookupIPv4
+});
+const httpsAgent = new https.Agent({
+    keepAlive: true,
+    maxSockets: 50,
+    lookup: lookupIPv4
+});
+
+// Axios client - forcing IPv4
 const httpClient = axios.create({
     baseURL: BASE_URL,
     timeout: 60000,
@@ -27,7 +41,6 @@ const httpClient = axios.create({
         'Content-Type': 'application/json',
         'Authorization': MERCHANT_ID
     },
-    family: 4,
     httpAgent,
     httpsAgent
 });
