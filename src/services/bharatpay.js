@@ -5,6 +5,7 @@
  * API Key serves as both Authorization header and encryption key
  */
 
+require('dotenv').config();
 const axios = require('axios');
 const crypto = require('crypto');
 const http = require('http');
@@ -14,36 +15,43 @@ const dns = require('dns');
 // Force IPv4 for all DNS lookups in this module
 dns.setDefaultResultOrder('ipv4first');
 
-// Load config from environment
-const BASE_URL = process.env.BHARATPAY_BASE_URL || 'https://api-beta.bharatpay.cc';
-const MERCHANT_ID = process.env.BHARATPAY_MERCHANT_ID || '';
-const API_KEY = process.env.BHARATPAY_API_KEY || '';
+// Load config from environment - using getters to ensure latest values
+const getBaseUrl = () => process.env.BHARATPAY_BASE_URL || 'https://api-beta.bharatpay.cc';
+const getMerchantId = () => process.env.BHARATPAY_MERCHANT_ID || '';
+const getApiKey = () => process.env.BHARATPAY_API_KEY || '';
 
 // HTTP Keep-Alive agents
 const httpAgent = new http.Agent({ keepAlive: true, maxSockets: 50 });
 const httpsAgent = new https.Agent({ keepAlive: true, maxSockets: 50 });
 
-// Axios client with IPv4 enforcement
-const httpClient = axios.create({
-    baseURL: BASE_URL,
-    timeout: 60000,
-    headers: {
-        'Content-Type': 'application/json',
-        'Authorization': MERCHANT_ID
-    },
-    httpAgent,
-    httpsAgent
-});
+// Create axios client dynamically to use current env values
+function getHttpClient() {
+    return axios.create({
+        baseURL: getBaseUrl(),
+        timeout: 60000,
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': getMerchantId()
+        },
+        httpAgent,
+        httpsAgent
+    });
+}
 
 /**
  * AES-256-ECB Encryption
  * Mode: ECB, Padding: PKCS7, Key Length: 256 bits, Output: Base64
  */
-function aesEncrypt(data, key = API_KEY) {
-    const cipher = crypto.createCipheriv('aes-256-ecb', Buffer.from(key, 'utf8'), null);
+function aesEncrypt(data, key = null) {
+    const actualKey = key || getApiKey();
+    console.log(`[BharatPay] Encrypting with key length: ${actualKey.length}`);
+    const jsonStr = JSON.stringify(data);
+    console.log(`[BharatPay] Encrypting JSON: ${jsonStr}`);
+    const cipher = crypto.createCipheriv('aes-256-ecb', Buffer.from(actualKey, 'utf8'), null);
     cipher.setAutoPadding(true);
-    let encrypted = cipher.update(JSON.stringify(data), 'utf8', 'base64');
+    let encrypted = cipher.update(jsonStr, 'utf8', 'base64');
     encrypted += cipher.final('base64');
+    console.log(`[BharatPay] Encrypted result: ${encrypted}`);
     return encrypted;
 }
 
@@ -90,7 +98,7 @@ async function createPayinV1({ orderId, amount, notifyUrl, customerName, custome
             callbackUrl: notifyUrl
         };
 
-        const response = await httpClient.post('/api/channel/Credit/Set', requestData);
+        const response = await getHttpClient().post('/api/channel/Credit/Set', requestData);
         console.log('[BharatPay] V1 Response:', JSON.stringify(response.data, null, 2));
 
         if (response.data.code === 0 && response.data.result) {
@@ -146,7 +154,7 @@ async function createPayinV2({ orderId, amount, notifyUrl, customerName, custome
         const encryptedData = aesEncrypt(plainData);
         const requestData = { data: encryptedData };
 
-        const response = await httpClient.post('/api/channel/Credit/Place', requestData);
+        const response = await getHttpClient().post('/api/channel/Credit/Place', requestData);
         console.log('[BharatPay] V2 Response:', JSON.stringify(response.data, null, 2));
 
         if (response.data.code === 0 && response.data.result) {
@@ -206,7 +214,7 @@ async function createPayin(params) {
  */
 async function queryPayin(orderId) {
     try {
-        const response = await httpClient.post('/api/channel/Credit/Get', {
+        const response = await getHttpClient().post('/api/channel/Credit/Get', {
             sourceNo: orderId
         });
 
@@ -259,7 +267,7 @@ async function createPayout({ orderId, amount, accountNo, ifsc, name, upi, notif
             payeeAccountDetail: payeeAccountDetail
         };
 
-        const response = await httpClient.post('/api/channel/Debit/Set', requestData);
+        const response = await getHttpClient().post('/api/channel/Debit/Set', requestData);
         console.log('[BharatPay] Payout Response:', JSON.stringify(response.data, null, 2));
 
         if (response.data.code === 0 && response.data.result) {
@@ -290,7 +298,7 @@ async function createPayout({ orderId, amount, accountNo, ifsc, name, upi, notif
  */
 async function queryPayout(orderId) {
     try {
-        const response = await httpClient.post('/api/channel/Debit/Get', {
+        const response = await getHttpClient().post('/api/channel/Debit/Get', {
             sourceNo: orderId
         });
 
