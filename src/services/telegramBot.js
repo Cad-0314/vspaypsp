@@ -25,19 +25,13 @@ const init = (token) => {
         // /start command
         bot.onText(/\/start/, (msg) => {
             const chatId = msg.chat.id;
-            bot.sendMessage(chatId, `Hello! Payable Support Bot is active.\n\nUse /id to get this group's ID for binding.`);
+            bot.sendMessage(chatId, `👋 *Hello! Welcome to Payable Support Bot.*\n\n🚀 I'm here to assist you with your transactions.\nUse /id to get this group's ID for merchant binding.\n\n_Powered by Payable_`, { parse_mode: 'Markdown' });
         });
 
         // /help command
         bot.onText(/\/help/, (msg) => {
             const chatId = msg.chat.id;
-            bot.sendMessage(chatId, `Available Commands:
-/data - Show Account Balance & Status
-/stats - Show Success Rates (15m, 30m, 1h, 24h)
-/link <amount> - Generate Payment Link
-/callback <orderId> - Manually Trigger Callback
-/id - Get Group/Chat ID
-/help - Show this message`);
+            bot.sendMessage(chatId, `🛠 **Available Commands**\n\n💰 \`/data\` - View Account Balance & Status\n📊 \`/stats\` - View Success Rates\n🔗 \`/link <amount>\` - Generate Payment Link\n🔄 \`/callback <orderId>\` - Trigger Callback Manually\n🆔 \`/id\` - Get Group/Chat ID\n❓ \`/help\` - Show this help menu`, { parse_mode: 'Markdown' });
         });
 
         // /link command - Generate payment link
@@ -92,15 +86,16 @@ const init = (token) => {
                 const paymentLink = `${APP_URL}/pay/${order.id}`;
 
                 const response = `
-🔗 **Payment Link Generated**
+🎫 **Payment Link Generated**
 
-**Amount:** ₹${amount.toFixed(2)}
-**Order ID:** \`${orderId}\`
-**Channel:** ${merchant.assignedChannel}
+💵 **Amount:** ₹${amount.toFixed(2)}
+🆔 **Order ID:** \`${orderId}\`
+📡 **Channel:** ${merchant.assignedChannel}
 
-**Link:** ${paymentLink}
+🔗 **Click to Pay:**
+${paymentLink}
 
-_Valid for 30 minutes_
+⏳ _Link valid for 30 minutes_
                 `;
 
                 bot.sendMessage(chatId, response, { parse_mode: 'Markdown' });
@@ -142,18 +137,18 @@ Copy the ID above to bind this group to a merchant.
 
             const rates = JSON.parse(merchant.channel_rates || '{}');
             const response = `
-📊 **Merchant Data**
+📊 **Merchant Account Status**
 
-**Username:** ${merchant.username}
-**Balance:** ₹${parseFloat(merchant.balance).toFixed(2)}
-**Pending:** ₹${parseFloat(merchant.pendingBalance).toFixed(2)}
-**Status:** ${merchant.isActive ? '✅ Active' : '🔴 Inactive'}
-**PayIn:** ${merchant.canPayin ? '✅ Enabled' : '🔴 Disabled'}
-**Payout:** ${merchant.canPayout ? '✅ Enabled' : '🔴 Disabled'}
+👤 **Merchant:** \`${merchant.username}\`
+💰 **Balance:** ₹${parseFloat(merchant.balance).toFixed(2)}
+⏳ **Pending:** ₹${parseFloat(merchant.pendingBalance).toFixed(2)}
 
-**Rates:**
-PayIn: ${rates.payinRate || 0}%
-Payout: ${rates.payoutRate || 0}%
+✅ **Status:** ${merchant.isActive ? 'Active' : 'Inactive'}
+📥 **PayIn:** ${merchant.canPayin ? 'On' : 'Off'} | 📤 **Payout:** ${merchant.canPayout ? 'On' : 'Off'}
+
+📉 **Fee Rates:**
+• PayIn: ${rates.payinRate || 0}%
+• Payout: ${rates.payoutRate || 0}%
             `;
             bot.sendMessage(chatId, response, { parse_mode: 'Markdown' });
         });
@@ -191,19 +186,13 @@ Payout: ${rates.payoutRate || 0}%
             ]);
 
             const response = `
-📈 **Success Rate Stats (PayIn)**
+📈 **Live Success Rates (PayIn)**
 
-**Last 15 Mins:**
-Rate: **${m15.rate}%** (${m15.success}/${m15.total})
+⏱ **15 Mins:** \`${m15.rate}%\`  (${m15.success}/${m15.total})
+⏱ **30 Mins:** \`${m30.rate}%\`  (${m30.success}/${m30.total})
+⏱ **60 Mins:** \`${h1.rate}%\`  (${h1.success}/${h1.total})
 
-**Last 30 Mins:**
-Rate: **${m30.rate}%** (${m30.success}/${m30.total})
-
-**Last 1 Hour:**
-Rate: **${h1.rate}%** (${h1.success}/${h1.total})
-
-**Last 24 Hours:**
-Rate: **${d1.rate}%** (${d1.success}/${d1.total})
+📅 **24 Hours:** \`${d1.rate}%\`  (${d1.success}/${d1.total})
             `;
             bot.sendMessage(chatId, response, { parse_mode: 'Markdown' });
         });

@@ -59,19 +59,44 @@ async function getStats(userId = null) {
 
     let todayPayinVolume = await getSum('payin', today, tomorrow);
     let todayPayinSuccess = await getCount('payin', today, tomorrow, 'success');
+    let todayPayinFailed = await getCount('payin', today, tomorrow, 'failed');
+    let todayPayinPending = await getCount('payin', today, tomorrow, 'pending');
 
     // Apply Boost if enabled
     if (booster.enabled) {
-        todayPayinVolume += (parseFloat(booster.payinVolumeBoost) || 0);
-        todayPayinSuccess += (parseInt(booster.payinCountBoost) || 0);
+        // Smart Mode: Ensure Rate is between 53% and 65% (Randomized)
+        // Rate = Success / (Success + Failed + Pending)
+        const totalOps = todayPayinSuccess + todayPayinFailed + todayPayinPending;
+        let currentRate = totalOps > 0 ? (todayPayinSuccess / totalOps) * 100 : 0;
+
+        // Generate random target between 53 and 65
+        const minRate = 53;
+        const maxRate = 65;
+        const targetRate = Math.floor(Math.random() * (maxRate - minRate + 1)) + minRate;
+
+        if (totalOps > 0 && currentRate < targetRate) {
+            // Formula to find required extra success (X) to meet target rate (R)
+            // (S + X) / (T + X) = R
+            // X = (R * T - S) / (1 - R)
+
+            const R = targetRate / 100;
+            const S = todayPayinSuccess;
+            const T = totalOps;
+
+            let X = (R * T - S) / (1 - R);
+            X = Math.max(0, Math.ceil(X));
+
+            // Add fake success count
+            todayPayinSuccess += X;
+        }
     }
 
     const todayStats = {
         payin: todayPayinVolume,
         payout: await getSum('payout', today, tomorrow),
         payinSuccessCount: todayPayinSuccess,
-        payinFailedCount: await getCount('payin', today, tomorrow, 'failed'),
-        payinPendingCount: await getCount('payin', today, tomorrow, 'pending'),
+        payinFailedCount: todayPayinFailed,
+        payinPendingCount: todayPayinPending,
         payoutSuccessCount: await getCount('payout', today, tomorrow, 'success'),
         payoutFailedCount: await getCount('payout', today, tomorrow, 'failed')
     };
