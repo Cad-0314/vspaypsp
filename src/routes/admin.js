@@ -59,6 +59,52 @@ router.get('/stats', async (req, res) => {
 });
 
 /**
+ * GET /admin/api/boot-settings
+ * Get current booster settings
+ */
+router.get('/boost-settings', async (req, res) => {
+    try {
+        const fs = require('fs');
+        const path = require('path');
+        const configPath = path.join(__dirname, '../../config/booster.json');
+        let config = { enabled: false, payinCountBoost: 0, payinVolumeBoost: 0 };
+
+        if (fs.existsSync(configPath)) {
+            config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+        }
+        res.json({ success: true, config });
+    } catch (error) {
+        console.error('[Admin] Get boost settings error:', error);
+        res.status(500).json({ success: false, error: 'Failed' });
+    }
+});
+
+/**
+ * POST /admin/api/boost-settings
+ * Update booster settings
+ */
+router.post('/boost-settings', async (req, res) => {
+    try {
+        const { enabled, payinCountBoost, payinVolumeBoost } = req.body;
+        const fs = require('fs');
+        const path = require('path');
+        const configPath = path.join(__dirname, '../../config/booster.json');
+
+        const config = {
+            enabled: enabled === true,
+            payinCountBoost: parseInt(payinCountBoost) || 0,
+            payinVolumeBoost: parseFloat(payinVolumeBoost) || 0
+        };
+
+        fs.writeFileSync(configPath, JSON.stringify(config, null, 4));
+        res.json({ success: true, message: 'Settings updated' });
+    } catch (error) {
+        console.error('[Admin] Update boost settings error:', error);
+        res.status(500).json({ success: false, error: 'Failed' });
+    }
+});
+
+/**
  * GET /admin/api/chart
  * Get global chart data
  */

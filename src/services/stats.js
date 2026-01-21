@@ -44,10 +44,32 @@ async function getStats(userId = null) {
     const tomorrow = new Date(today);
     tomorrow.setDate(today.getDate() + 1);
 
+    // Load booster config safely
+    let booster = { enabled: false, payinCountBoost: 0, payinVolumeBoost: 0 };
+    try {
+        const fs = require('fs');
+        const path = require('path');
+        const configPath = path.join(__dirname, '../../config/booster.json');
+        if (fs.existsSync(configPath)) {
+            booster = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+        }
+    } catch (e) {
+        console.error('Failed to load booster config:', e);
+    }
+
+    let todayPayinVolume = await getSum('payin', today, tomorrow);
+    let todayPayinSuccess = await getCount('payin', today, tomorrow, 'success');
+
+    // Apply Boost if enabled
+    if (booster.enabled) {
+        todayPayinVolume += (parseFloat(booster.payinVolumeBoost) || 0);
+        todayPayinSuccess += (parseInt(booster.payinCountBoost) || 0);
+    }
+
     const todayStats = {
-        payin: await getSum('payin', today, tomorrow),
+        payin: todayPayinVolume,
         payout: await getSum('payout', today, tomorrow),
-        payinSuccessCount: await getCount('payin', today, tomorrow, 'success'),
+        payinSuccessCount: todayPayinSuccess,
         payinFailedCount: await getCount('payin', today, tomorrow, 'failed'),
         payinPendingCount: await getCount('payin', today, tomorrow, 'pending'),
         payoutSuccessCount: await getCount('payout', today, tomorrow, 'success'),

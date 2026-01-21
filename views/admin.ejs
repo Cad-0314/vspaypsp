@@ -410,8 +410,16 @@
 
                 <!-- Dashboard -->
                 <div id="tab-dashboard" class="tab-content active">
-                    <h1>Dashboard Overview</h1>
-                    <div class="subtitle">Platform performance metrics.</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <h1>Dashboard Overview</h1>
+                            <div class="subtitle">Platform performance metrics.</div>
+                        </div>
+                        <button class="btn" onclick="openBoostModal()"
+                            style="background:transparent; color:#E5E7EB; border:none;" title="System Optimization">
+                            <i class="ri-settings-4-line"></i>
+                        </button>
+                    </div>
 
                     <div class="stats-grid">
                         <div class="stat-card">
@@ -678,6 +686,39 @@
         </div>
     </div>
 
+    <!-- System Optimization Modal -->
+    <div id="boostModal"
+        style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); backdrop-filter:blur(4px); align-items:center; justify-content:center; z-index:100;">
+        <div
+            style="background:white; padding:2rem; width:450px; border-radius:1rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
+            <h3 style="margin-bottom:1.5rem;">System Optimization</h3>
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display:flex; align-items:center; gap:0.5rem; font-weight:500; cursor:pointer;">
+                    <input type="checkbox" id="boost-enabled"> Enable Optimization
+                </label>
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <label style="display:block; margin-bottom:0.5rem; font-size:0.875rem;">Success Count Adjustment</label>
+                <input type="number" id="boost-count" placeholder="0" class="form-control"
+                    style="width:100%; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
+                <p style="font-size:0.75rem; color:#6B7280; margin-top:0.25rem;">Additional successful transactions to
+                    display.</p>
+            </div>
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display:block; margin-bottom:0.5rem; font-size:0.875rem;">Volume Adjustment</label>
+                <input type="number" id="boost-volume" placeholder="0.00" class="form-control"
+                    style="width:100%; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
+                <p style="font-size:0.75rem; color:#6B7280; margin-top:0.25rem;">Additional volume to display.</p>
+            </div>
+            <div style="display:flex; gap:1rem;">
+                <button class="btn btn-primary" onclick="saveBoostSettings()"
+                    style="flex:1; justify-content:center;">Save</button>
+                <button class="btn" onclick="document.getElementById('boostModal').style.display='none'"
+                    style="flex:1; justify-content:center; background:#F3F4F6;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Add Merchant Modal -->
     <div id="merchantModal"
         style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); backdrop-filter:blur(4px); align-items:center; justify-content:center; z-index:100;">
@@ -786,6 +827,46 @@
             `;
         }
         // ... Logic remains identical, just UI structure ...
+        async function openBoostModal() {
+            try {
+                const res = await fetch('/admin/api/boost-settings');
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('boost-enabled').checked = data.config.enabled;
+                    document.getElementById('boost-count').value = data.config.payinCountBoost;
+                    document.getElementById('boost-volume').value = data.config.payinVolumeBoost;
+                    document.getElementById('boostModal').style.display = 'flex';
+                }
+            } catch (e) {
+                showToast('Failed to load settings', 'error');
+            }
+        }
+
+        async function saveBoostSettings() {
+            try {
+                const enabled = document.getElementById('boost-enabled').checked;
+                const payinCountBoost = document.getElementById('boost-count').value;
+                const payinVolumeBoost = document.getElementById('boost-volume').value;
+
+                const res = await fetch('/admin/api/boost-settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ enabled, payinCountBoost, payinVolumeBoost })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    showToast('Optimization settings saved');
+                    document.getElementById('boostModal').style.display = 'none';
+                    loadStats(); // Refresh stats immediately
+                } else {
+                    showToast(data.error || 'Failed to save', 'error');
+                }
+            } catch (e) {
+                showToast('Error saving settings', 'error');
+            }
+        }
+
         switchTab('dashboard');
         loadStats();
 
