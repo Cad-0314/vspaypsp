@@ -11,29 +11,19 @@ const http = require('http');
 const https = require('https');
 const dns = require('dns');
 
+// Force IPv4 for all DNS lookups in this module
+dns.setDefaultResultOrder('ipv4first');
+
 // Load config from environment
 const BASE_URL = process.env.BHARATPAY_BASE_URL || 'https://api-beta.bharatpay.cc';
 const MERCHANT_ID = process.env.BHARATPAY_MERCHANT_ID || '';
 const API_KEY = process.env.BHARATPAY_API_KEY || '';
 
-// Custom DNS lookup to force IPv4
-const lookupIPv4 = (hostname, options, callback) => {
-    dns.lookup(hostname, { family: 4 }, callback);
-};
+// HTTP Keep-Alive agents
+const httpAgent = new http.Agent({ keepAlive: true, maxSockets: 50 });
+const httpsAgent = new https.Agent({ keepAlive: true, maxSockets: 50 });
 
-// HTTP Keep-Alive agents with IPv4 only
-const httpAgent = new http.Agent({
-    keepAlive: true,
-    maxSockets: 50,
-    lookup: lookupIPv4
-});
-const httpsAgent = new https.Agent({
-    keepAlive: true,
-    maxSockets: 50,
-    lookup: lookupIPv4
-});
-
-// Axios client - forcing IPv4
+// Axios client with IPv4 enforcement
 const httpClient = axios.create({
     baseURL: BASE_URL,
     timeout: 60000,
