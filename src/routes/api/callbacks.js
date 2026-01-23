@@ -105,7 +105,10 @@ router.post('/:channel/payin', async (req, res) => {
         } else if (channelName === 'ckpay') {
             // CKPay: status 70/80=success, 60=failed
             orderId = req.body.accountOrder;
-            status = [70, 80, '70', '80'].includes(req.body.status) ? 'success' :
+            const isSuccess = [70, 80, '70', '80'].includes(req.body.status);
+            console.log(`[CKPay] Callback processing - Order: ${orderId}, Status: ${req.body.status}, IsSuccess: ${isSuccess}`);
+
+            status = isSuccess ? 'success' :
                 [60, '60'].includes(req.body.status) ? 'failed' : 'pending';
             utr = req.body.utr;
             actualAmount = parseFloat(req.body.amount);

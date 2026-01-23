@@ -46,8 +46,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Middleware to fix common Content-Type issues from providers (e.g. charset=UTF8 without hyphen)
 app.use((req, res, next) => {
     const contentType = req.headers['content-type'];
-    if (contentType && contentType.includes('charset=UTF8')) {
-        req.headers['content-type'] = contentType.replace('charset=UTF8', 'charset=utf-8');
+    // Log incoming content-type for debugging 415 errors
+    if (req.url.includes('/callback/ckpay')) {
+        console.log(`[CKPay] Incoming Content-Type: ${contentType}`);
+        console.log(`[CKPay] Raw Headers:`, JSON.stringify(req.headers));
+    }
+
+    if (contentType && (contentType.includes('charset=UTF8') || contentType.includes('charset="UTF8"'))) {
+        console.warn(`[Middleware] Fixing malformed charset in Content-Type: ${contentType}`);
+        req.headers['content-type'] = contentType.replace(/charset="?UTF8"?/i, 'charset=utf-8');
     }
     next();
 });
