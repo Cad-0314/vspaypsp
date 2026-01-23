@@ -54,7 +54,7 @@ async function createPayin({ orderId, amount, notifyUrl, returnUrl, customerName
     try {
         const payload = {
             merchant: MERCHANT_ID,
-            payCode: '101',
+            payCode: '32901',
             amount: String(parseFloat(amount).toFixed(2)),
             orderId: orderId,
             notifyUrl: notifyUrl,
@@ -127,7 +127,7 @@ async function createPayout({ orderId, amount, accountNo, ifsc, name, upi, notif
     try {
         const payload = {
             merchant: MERCHANT_ID,
-            payCode: '101',
+            payCode: '32911',
             amount: String(parseFloat(amount).toFixed(2)),
             orderId: orderId,
             notifyUrl: notifyUrl,
