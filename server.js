@@ -42,6 +42,16 @@ app.set('views', path.join(__dirname, 'views'));
 
 // Middleware
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Middleware to fix common Content-Type issues from providers (e.g. charset=UTF8 without hyphen)
+app.use((req, res, next) => {
+    const contentType = req.headers['content-type'];
+    if (contentType && contentType.includes('charset=UTF8')) {
+        req.headers['content-type'] = contentType.replace('charset=UTF8', 'charset=utf-8');
+    }
+    next();
+});
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 

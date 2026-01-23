@@ -50,6 +50,9 @@ router.post('/:channel/payin', async (req, res) => {
     const channelName = req.params.channel;
     console.log(`[Callback] Payin callback from ${channelName}:`, JSON.stringify(req.body));
 
+    // Determine success response based on channel
+    const successResponse = channelName === 'ckpay' ? 'OK' : 'success';
+
     try {
         // Verify callback signature (optional - some providers have issues)
         const isValid = channelRouter.verifyCallback(channelName, req.body);
@@ -129,7 +132,7 @@ router.post('/:channel/payin', async (req, res) => {
 
         if (!orderId) {
             console.error('[Callback] Missing orderId in callback');
-            return res.send('success');
+            return res.send(successResponse);
         }
 
         // Find order
@@ -139,13 +142,13 @@ router.post('/:channel/payin', async (req, res) => {
 
         if (!order) {
             console.error(`[Callback] Order not found: ${orderId}`);
-            return res.send('success');
+            return res.send(successResponse);
         }
 
         // Skip if already processed
         if (order.status === 'success' || order.status === 'failed') {
             console.log(`[Callback] Order ${orderId} already processed`);
-            return res.send('success');
+            return res.send(successResponse);
         }
 
         // Start transaction
@@ -214,11 +217,12 @@ router.post('/:channel/payin', async (req, res) => {
             throw error;
         }
 
-        return res.send(channelName === 'ckpay' ? 'OK' : 'success');
+        return res.send(successResponse);
 
     } catch (error) {
         console.error('[Callback] Payin error:', error);
-        return res.send('success');
+        // Need to define successResponse here too or re-derive it, but simpler to use channel check
+        return res.send(req.params.channel === 'ckpay' ? 'OK' : 'success');
     }
 });
 
@@ -229,6 +233,9 @@ router.post('/:channel/payin', async (req, res) => {
 router.post('/:channel/payout', async (req, res) => {
     const channelName = req.params.channel;
     console.log(`[Callback] Payout callback from ${channelName}:`, JSON.stringify(req.body));
+
+    // Determine success response based on channel
+    const successResponse = channelName === 'ckpay' ? 'OK' : 'success';
 
     try {
         let orderId, status, utr, providerOrderId;
@@ -286,7 +293,7 @@ router.post('/:channel/payout', async (req, res) => {
             providerOrderId = String(debitInfo.id || '');
         }
 
-        if (!orderId) return res.send('success');
+        if (!orderId) return res.send(successResponse);
 
         // Check if this is a batch payout (admin payout from scripts/hdpay-payout-batch.js)
         if (orderId.startsWith('BPOUT_')) {
@@ -308,11 +315,11 @@ router.post('/:channel/payout', async (req, res) => {
             } catch (batchErr) {
                 console.error(`[Callback] Batch payout update error: ${batchErr.message}`);
             }
-            return res.send('success');
+            return res.send(successResponse);
         }
 
         const order = await Order.findOne({ where: { orderId: orderId, type: 'payout' } });
-        if (!order || order.status === 'success' || order.status === 'failed') return res.send('success');
+        if (!order || order.status === 'success' || order.status === 'failed') return res.send(successResponse);
 
         const t = await sequelize.transaction();
 
@@ -352,11 +359,11 @@ router.post('/:channel/payout', async (req, res) => {
             throw error;
         }
 
-        return res.send(channelName === 'ckpay' ? 'OK' : 'success');
+        return res.send(successResponse);
 
     } catch (error) {
         console.error('[Callback] Payout error:', error);
-        return res.send('success');
+        return res.send(req.params.channel === 'ckpay' ? 'OK' : 'success');
     }
 });
 

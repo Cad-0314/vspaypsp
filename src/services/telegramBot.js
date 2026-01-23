@@ -230,8 +230,13 @@ Copy the ID above to bind this group to a merchant.
         });
 
         // Error handling
+        let lastErrorTime = 0;
         bot.on('polling_error', (error) => {
-            console.error('[Telegram] Polling Error:', error.code); // Log code to avoid spamming full stack
+            const now = Date.now();
+            if (now - lastErrorTime > 60000) { // Log at most once per minute to avoid spam
+                console.error(`[Telegram] Polling Error (throttled): ${error.code || error.message}`);
+                lastErrorTime = now;
+            }
         });
 
     } catch (error) {
