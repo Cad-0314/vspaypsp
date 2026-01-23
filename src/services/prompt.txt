@@ -1,0 +1,1 @@
+{"channel":"CKPay","success":true,"data":{"success":true,"payUrl":"https://checkout.touchpay.cloud/pay/HnZLtZ2YQFrDCPBed6LOxV8yJY1oaiV0Y9fb/gSNKBZzS6lHpmxWIZ32oZcOeoe5PAYINTHPYAPP12M01J26D151426A","providerOrderId":"260122142016670526","status":20}}]}  this is ckpay response for the merchent havinng ckpay as chennal send them directoly this link 
