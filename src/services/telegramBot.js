@@ -31,7 +31,7 @@ const init = (token) => {
         // /help command
         bot.onText(/\/help/, (msg) => {
             const chatId = msg.chat.id;
-            bot.sendMessage(chatId, `🛠 **Available Commands**\n\n💰 \`/data\` - View Account Balance & Status\n📊 \`/stats\` - View Success Rates\n🔗 \`/link <amount>\` - Generate Payment Link\n🔄 \`/callback <orderId>\` - Trigger Callback Manually\n🆔 \`/id\` - Get Group/Chat ID\n❓ \`/help\` - Show this help menu`, { parse_mode: 'Markdown' });
+            bot.sendMessage(chatId, `🛠 **Available Commands**\n\n💰 \`/data\` - View Account Balance & Status\n📊 \`/stats\` - View Success Rates\n🔗 \`/link <amount>\` - Generate Payment Link\n🔍 \`/check <orderId>\` - Check Order Status\n🔄 \`/callback <orderId>\` - Trigger Callback Manually\n🆔 \`/id\` - Get Group/Chat ID\n❓ \`/help\` - Show this help menu`, { parse_mode: 'Markdown' });
         });
 
         // /link command - Generate payment link
@@ -226,6 +226,53 @@ Copy the ID above to bind this group to a merchant.
                 }
             } catch (error) {
                 bot.sendMessage(chatId, `❌ Error: ${error.message}`);
+            }
+        });
+
+        // /check command - Check order status
+        bot.onText(/\/check (.+)/, async (msg, match) => {
+            const chatId = msg.chat.id;
+            const orderId = match[1].trim();
+
+            if (!orderId) {
+                return bot.sendMessage(chatId, '❌ Usage: /check <orderId>');
+            }
+
+            try {
+                const order = await Order.findOne({ where: { orderId: orderId } });
+
+                if (!order) {
+                    return bot.sendMessage(chatId, `❌ Order not found: \`${orderId}\``, { parse_mode: 'Markdown' });
+                }
+
+                // Status emoji
+                const statusEmoji = order.status === 'success' ? '✅' :
+                    order.status === 'failed' ? '❌' :
+                        order.status === 'pending' ? '⏳' : '🔄';
+
+                // Format dates
+                const createdAt = order.createdAt ? new Date(order.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) : 'N/A';
+                const updatedAt = order.updatedAt ? new Date(order.updatedAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) : 'N/A';
+
+                const response = `
+🔍 **Order Details**
+
+🆔 **Order ID:** \`${order.orderId}\`
+${statusEmoji} **Status:** ${order.status.toUpperCase()}
+💵 **Amount:** ₹${parseFloat(order.amount).toFixed(2)}
+📦 **Type:** ${order.type.toUpperCase()}
+
+${order.utr ? `🔗 **UTR:** \`${order.utr}\`` : '🔗 **UTR:** _Not available_'}
+
+📅 **Created:** ${createdAt}
+🔄 **Updated:** ${updatedAt}
+                `;
+
+                bot.sendMessage(chatId, response, { parse_mode: 'Markdown' });
+                console.log(`[Telegram] /check executed for order: ${orderId}`);
+            } catch (error) {
+                console.error('[Telegram] /check error:', error);
+                bot.sendMessage(chatId, `❌ Error checking order: ${error.message}`);
             }
         });
 
