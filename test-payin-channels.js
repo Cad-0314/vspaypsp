@@ -4,6 +4,7 @@ const caipayService = require('./src/services/caipay');
 const fendpayService = require('./src/services/fendpay');
 const silkpayService = require('./src/services/silkpay');
 const ckpayService = require('./src/services/ckpay');
+const cxpayService = require('./src/services/cxpay');
 const { v4: uuidv4 } = require('uuid');
 
 async function testChannels() {
@@ -88,6 +89,17 @@ async function testChannels() {
         results.push({ channel: 'CKPay', success: false, error: e.message });
     }
 
+    // 7. CXPay
+    try {
+        console.log('\nTesting CXPay...');
+        const res = await cxpayService.createPayin(dummyOrder);
+        console.log('CXPay Result:', JSON.stringify(res, null, 2));
+        results.push({ channel: 'CX Pay', success: res.success, data: res, error: res.error });
+    } catch (e) {
+        console.error('CXPay Error:', e.message);
+        results.push({ channel: 'CX Pay', success: false, error: e.message });
+    }
+
     console.log('\n--- Analysis Complete ---');
     return results;
 }
@@ -97,3 +109,4 @@ if (require.main === module) {
 }
 
 module.exports = testChannels;
+

@@ -131,6 +131,14 @@ router.post('/:channel/payin', async (req, res) => {
             utr = paymentInfo.utr || '';
             actualAmount = parseFloat(creditInfo.fiatAmount || req.body.amount);
             providerOrderId = String(creditInfo.id || '');
+        } else if (channelName === 'cxpay') {
+            // CXPay: status 0=pending, 1=success, 2=failed
+            orderId = req.body.orderId;
+            status = req.body.status === 1 || req.body.status === '1' ? 'success' :
+                req.body.status === 2 || req.body.status === '2' ? 'failed' : 'pending';
+            utr = req.body.utr;
+            actualAmount = parseFloat(req.body.amount);
+            providerOrderId = req.body.platOrderId;
         }
 
         if (!orderId) {
@@ -294,6 +302,13 @@ router.post('/:channel/payout', async (req, res) => {
                 [40, 60].includes(debitInfo.processCode) ? 'failed' : 'processing';
             utr = paymentInfo.utr || '';
             providerOrderId = String(debitInfo.id || '');
+        } else if (channelName === 'cxpay') {
+            // CXPay payout: status 0=pending, 1=success, 2=failed
+            orderId = req.body.orderId;
+            status = req.body.status === 1 || req.body.status === '1' ? 'success' :
+                req.body.status === 2 || req.body.status === '2' ? 'failed' : 'processing';
+            utr = req.body.utr;
+            providerOrderId = req.body.platOrderId;
         }
 
         if (!orderId) return res.send(successResponse);

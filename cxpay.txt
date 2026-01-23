@@ -1,0 +1,194 @@
+1、API Interface Description
+Request method
+All interface Request methods are post methods that can be submitted using JSON
+or form
+Signature
+The general steps for signature generation are as follows: The first step is to set all the data sent or received as set M, remove the sign
+parameter and the null parameter to obtain set N. Sort all the parameters in set N from
+small to large according to the ASCII code of the parameter name (dictionary order), and
+use the format of URL key value pairs (i.e. key1=value1&key2=value2...) to concatenate
+them into a string A. Step 2, concatenate the string A with&key=bHXJGsw6CsxkSb... to obtain the
+stringSignTemp string, stringSignTemp=”
+account=account&amount=amount&mchId=mchId&notifyUrl=notifyUrl&orderNo=order
+No&otherData=otherData&passageId=passageId&userName=userName&key=34797ffe
+c7814a...”
+Step three, perform MD5 operation on stringSignTemp, and then convert all
+characters of the resulting string to lowercase to obtain the sign value signValue, sign=MD5(stringSignTemp).toLowerCase()
+The data format returned by the interface
+{
+"code": 200,
+"success": true,
+"msg": null,
+"desc": null,
+"data":.....
+}
+Return parameter description
+Parameter Name type describe
+code int Request return code, see data dictionary for values
+success boolean Is the request successful msg string Reminder information
+desc string Error message will only appear if the request processing fails data object Request to return business data
+
+2、data dictionary
+ Return status code,code
+data describe
+200 success 400 Business Error 500 Other anomalies  Transaction Status,status
+data describe
+0 Payment submission
+1 pay success 2 Payment failed
+3、Create a collection order
+Request URL
+ /collect/create
+parameter
+Parameter
+Name
+required type describe merchant yes string Merchant account, platform assigned account
+payCode yes string Payment code, merchant backend query
+amount yes string Order amount, supports 2 decimal places orderId yes string Merchant order number (unique), with a character length of 32 or less notifyUrl yes string Asynchronous callback address callbackUrl no string
+Page bounce address (redirect to page after successful or failed customer payment operation) remark no string Bank note Brazil required: User CPF/CNPJ personal tax number customName no string
+Payer's name in Brazil is required: (Please provide real information to reduce risk
+
+control probability) number no string
+
+Payer's contact information in Brazil is required: (Please provide truthful
+
+information to reduce risk control probability) email no string
+
+Payer's email in Brazil is required: (Please provide real information to reduce risk
+
+control probability) sign yes string signature
+
+Json
+{
+"code": 200,
+"success": true,
+"msg": "success",
+"desc": "",
+"data": {
+"url": ""http://localhost:8888/pay/xxx"
+}
+}
+Return parameter description
+Parameter Name type describe url string Cashier address 4、Create a proxy payment order
+Request URL
+ /pay/create
+parameter
+Parameter
+Name
+required type describe merchant yes string Merchant account, platform assigned account
+payCode yes string Payment code, merchant backend query
+amount yes string
+
+Order amount, supports 2 decimal places
+
+Indonesia does not allow decimal points orderId yes string Merchant order number (unique), with a character length of 32 or less notifyUrl yes string Asynchronous callback address bankAccount yes string Recipient's bank account number customName yes string Beneficiary's Name
+
+remark no string
+
+Bank remarks Brazil requires account type (CPF. Personal Payment, CNPJ. Corporate Payment, Phone Number Payment, EMAIL. Email Payment, EPV. Key Payment)
+India requires IFSC code
+Indonesia and Nigeria require bank code number no string
+
+Payer's contact information (please fill in real information to reduce risk control
+
+probability) Brazil, India fill in mobile phone number email no string
+Payer's email (please fill in real information to reduce risk control probability)
+Brazil is required
+sign yes string signature
+
+Json
+{
+"code": 200,
+"success": true,
+"msg": "success",
+"desc": "",
+"data": {
+"platOrderId": "122145557788"
+}
+}
+Return parameter description
+Parameter Name type describe
+platOrderId string Platform order number 5、Order inquiry
+Brief description
+ Order inquiry for proxy payment and receipt
+Request URL
+ /order/query
+parameter
+Parameter Name required type describe merchant yes string Merchant account, platform assigned account orderId yes string Merchant order number sign yes string signature
+Json
+{
+"code": 200,
+"success": true,
+"msg": "success",
+"desc": "",
+"data": {
+"amount": 1000,
+"orderId": "e8a581fa692342ccbaf9cbd6f2598e48",
+"platOrderId": "236130395249311744",
+"status": 0,
+"utr":"310310600223",
+"fee":0
+}
+}
+
+Return parameter description
+Parameter
+Name
+
+type describe
+
+amount number The actual payment amount of the customer (please compare it with the submitted order amount to avoid losses caused by malicious modification of the payment amount by the user) orderId string Merchant order number platOrderId string Platform order number status int Transaction status, see data dictionary for values utr string 12 digit transaction code
+fee number commission 6、callback notification
+Brief description
+ After confirming the success or failure of collection or payment, the
+merchant will be notified asynchronously several times. When the merchant
+system receives peer-to-peer communication from the platform, it returns
+the lowercase string 'success', indicating successful reception. Otherwise, the platform will repeatedly push notifications to the merchant, with a total
+of 8 pushes within 40 minutes
+Request URL
+ The notifyURL received by the merchant for collection or
+payment
+Request method
+ Type:POST
+ Content-Type: application/json
+parameter
+Parameter Name type describe
+platOrderId string Platform order number orderId string Merchant order number amount number Actual payment amount status int Transaction status, see data dictionary for values
+reverse boolean Is it a reverse order
+remark string Reason for payment failure
+fee number commission
+
+sign string signature Request Example
+{
+"platOrderId": "236130395249311744",
+"orderId": "e8a581fa692342ccbaf9cbd6f2598e48",
+"amount": 1000,
+"status": 2,
+"reverse": false,
+"remark": "no",
+"fee": 0,
+"sign": "ec7d2b22c60056edbb4576ef5ecdbce4"
+}
+Return data
+success
+
+7、balance inquiry
+Request URL
+ /order/balance
+parameter
+Parameter Name required type describe merchant yes string Merchant account, platform assigned account sign yes string signature
+Json
+{
+"code": 200,
+"success": true,
+"msg": "success",
+"desc": "",
+"data": {
+"balanceAll": 1000,
+"balanceUsable": 1000
+}
+}
+Return parameter description
+Parameter Name type describe
+balanceAll number Total balance
+
+balanceUsable number available balance

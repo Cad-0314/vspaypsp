@@ -70,6 +70,21 @@ async function seedDatabase() {
                 minPayout: 100.00,
                 maxPayout: 100000.00,
                 usesCustomPayPage: false
+            },
+            {
+                name: 'cxpay',
+                displayName: 'CX Pay',
+                displayNameZh: 'CX Pay',
+                provider: 'cxpay',
+                payinRate: 5.00,
+                payoutRate: 3.00,
+                payoutFixedFee: 6.00,
+                isActive: true,
+                minPayin: 100.00,
+                maxPayin: 100000.00,
+                minPayout: 100.00,
+                maxPayout: 100000.00,
+                usesCustomPayPage: false
             }
         ];
 
