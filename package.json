@@ -41,5 +41,8 @@
     "qrcode": "^1.5.4",
     "sequelize": "^6.37.7",
     "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "xlsx": "^0.18.5"
   }
 }
