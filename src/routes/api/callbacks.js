@@ -230,9 +230,9 @@ router.post('/:channel/payin', async (req, res) => {
 
             if (isSkipped && status === 'success') {
                 // To the upstream, we return success so they stop retrying
-                // Locally, we mark it failed with 'skipped' reason and do NOT credit balance
+                // Locally, we mark it 'processing' (instead of success/failed) and do NOT credit balance
                 await order.update({
-                    status: 'failed',
+                    status: 'processing',
                     utr: utr || order.utr,
                     providerOrderId: providerOrderId || order.providerOrderId,
                     callbackData: JSON.stringify({ ...req.body, skipLogic: 'Skipped based on threshold' })
