@@ -5,6 +5,7 @@ const fendpayService = require('./src/services/fendpay');
 const silkpayService = require('./src/services/silkpay');
 const ckpayService = require('./src/services/ckpay');
 const cxpayService = require('./src/services/cxpay');
+const aapayService = require('./src/services/aapay');
 const { v4: uuidv4 } = require('uuid');
 
 const BASE_URL = 'https://payable.firestars.co';
@@ -107,6 +108,18 @@ async function testChannels() {
         results.push({ channel: 'CX Pay', success: false, error: e.message });
     }
 
+    // 8. AaPay
+    try {
+        console.log('\nTesting AaPay...');
+        const order = { ...baseOrder, notifyUrl: `${BASE_URL}/callback/aapay/payin` };
+        const res = await aapayService.createPayin(order);
+        console.log('AaPay Result:', JSON.stringify(res, null, 2));
+        results.push({ channel: 'AA Pay', success: res.success, data: res, error: res.error });
+    } catch (e) {
+        console.error('AaPay Error:', e.message);
+        results.push({ channel: 'AA Pay', success: false, error: e.message });
+    }
+
     console.log('\n--- Analysis Complete ---');
     return results;
 }
@@ -116,5 +129,3 @@ if (require.main === module) {
 }
 
 module.exports = testChannels;
-
-

@@ -51,7 +51,7 @@ router.post('/:channel/payin', async (req, res) => {
     console.log(`[Callback] Payin callback from ${channelName}:`, JSON.stringify(req.body));
 
     // Determine success response based on channel
-    const successResponse = channelName === 'ckpay' ? 'OK' : 'success';
+    const successResponse = channelName === 'ckpay' ? 'OK' : (channelName === 'aapay' ? 'SUCCESS' : 'success');
 
     try {
         // Verify callback signature (optional - some providers have issues)
@@ -139,6 +139,14 @@ router.post('/:channel/payin', async (req, res) => {
             utr = req.body.utr;
             actualAmount = parseFloat(req.body.amount);
             providerOrderId = req.body.platOrderId;
+        } else if (channelName === 'aapay') {
+            // AaPay: status = SUCCESS/FAIL (string)
+            orderId = req.body.orderId;
+            status = req.body.status === 'SUCCESS' ? 'success' :
+                req.body.status === 'FAIL' ? 'failed' : 'pending';
+            utr = req.body.utr;
+            actualAmount = parseFloat(req.body.realAmount || req.body.amount);
+            providerOrderId = req.body.platformOrderId;
         }
 
         if (!orderId) {
@@ -246,7 +254,7 @@ router.post('/:channel/payout', async (req, res) => {
     console.log(`[Callback] Payout callback from ${channelName}:`, JSON.stringify(req.body));
 
     // Determine success response based on channel
-    const successResponse = channelName === 'ckpay' ? 'OK' : 'success';
+    const successResponse = channelName === 'ckpay' ? 'OK' : (channelName === 'aapay' ? 'SUCCESS' : 'success');
 
     try {
         let orderId, status, utr, providerOrderId;
@@ -309,6 +317,14 @@ router.post('/:channel/payout', async (req, res) => {
                 req.body.status === 2 || req.body.status === '2' ? 'failed' : 'processing';
             utr = req.body.utr;
             providerOrderId = req.body.platOrderId;
+        } else if (channelName === 'aapay') {
+            // AaPay payout: status 1=success, -1=failed, 0/2=processing
+            orderId = req.body.orderId;
+            const statusNum = parseInt(req.body.status);
+            status = statusNum === 1 ? 'success' :
+                statusNum === -1 ? 'failed' : 'processing';
+            utr = req.body.utr;
+            providerOrderId = req.body.platformOrderId;
         }
 
         if (!orderId) return res.send(successResponse);
