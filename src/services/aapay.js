@@ -59,7 +59,7 @@ function verifySign(params) {
  * Create payin order (orderin/create)
  * POST /api/orderin/create
  */
-async function createPayin({ orderId, amount, notifyUrl, returnUrl, customerName, customerEmail, customerPhone }) {
+async function createPayin({ orderId, amount, notifyUrl, returnUrl, customerName, customerEmail, customerPhone, customerIp }) {
     try {
         const payload = {
             mId: MERCHANT_ID,
@@ -68,7 +68,8 @@ async function createPayin({ orderId, amount, notifyUrl, returnUrl, customerName
             name: customerName || 'User',
             email: customerEmail || 'user@example.com',
             phone: customerPhone || '9999999999',
-            callbackUrl: notifyUrl
+            callbackUrl: notifyUrl,
+            ip: customerIp || '127.0.0.1'
         };
 
         payload.sign = generateSign(payload);
