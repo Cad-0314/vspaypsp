@@ -14,7 +14,7 @@ const crypto = require('crypto');
 
 // FendPay Configuration
 const BASE_URL = process.env.FENDPAY_BASE_URL;
-const MERCHANT_ID = '2020234';
+const MERCHANT_ID = process.env.FENDPAY_MERCHANT_ID;
 const SECRET_KEY = process.env.FENDPAY_SECRET_KEY;
 
 // Payout Details

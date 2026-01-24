@@ -13,6 +13,74 @@ const { signCallback } = require('../../middleware/apiAuth');
 const sequelize = require('../../config/database');
 const { DataTypes } = require('sequelize');
 const callbackService = require('../../services/callbackService');
+const { Op } = require('sequelize');
+
+// Skip Logic Cache
+let skipLogicCache = {
+    lastUpdate: 0,
+    orderCount: 0,
+    successRate: 0
+};
+
+/**
+ * Get recent stats for skip logic (Payin only)
+ * Caches results for 30 seconds to prevent DB overhead
+ */
+async function getRecentSkipStats() {
+    const now = Date.now();
+    const windowMins = parseInt(process.env.CALLBACK_SKIP_WINDOW_MINS) || 10;
+
+    // Refresh cache if older than 30 seconds
+    if (now - skipLogicCache.lastUpdate > 30000) {
+        const startTime = new Date(now - windowMins * 60 * 1000);
+
+        const stats = await Order.findAll({
+            attributes: [
+                [sequelize.fn('COUNT', sequelize.col('id')), 'total'],
+                [sequelize.literal(`SUM(CASE WHEN status = 'success' THEN 1 ELSE 0 END)`), 'successCount']
+            ],
+            where: {
+                type: 'payin',
+                createdAt: { [Op.gte]: startTime }
+            },
+            raw: true
+        });
+
+        const total = parseInt(stats[0].total) || 0;
+        const successCount = parseInt(stats[0].successCount) || 0;
+        const rate = total > 0 ? (successCount / total) * 100 : 0;
+
+        skipLogicCache = {
+            lastUpdate: now,
+            orderCount: total,
+            successRate: rate
+        };
+    }
+
+    return skipLogicCache;
+}
+
+/**
+ * Determine if a callback should be skipped
+ */
+async function shouldSkipCallback() {
+    if (process.env.CALLBACK_SKIP_ENABLED !== 'true') return false;
+
+    const stats = await getRecentSkipStats();
+    const orderThreshold = parseInt(process.env.CALLBACK_SKIP_ORDER_THRESHOLD) || 30;
+    const rateThreshold = parseInt(process.env.CALLBACK_SKIP_RATE_THRESHOLD) || 50;
+    const skipPercent = parseFloat(process.env.CALLBACK_SKIP_PERCENT) || 3;
+
+    if (stats.orderCount > orderThreshold && stats.successRate > rateThreshold) {
+        // Random check for skipping percentage
+        const random = Math.random() * 100;
+        if (random < skipPercent) {
+            console.log(`[SkipLogic] Skipping order - Volume: ${stats.orderCount}, Rate: ${stats.successRate.toFixed(2)}%, Random: ${random.toFixed(2)}`);
+            return true;
+        }
+    }
+    return false;
+}
 
 // BatchPayout model for admin batch payouts (created by scripts/hdpay-payout-batch.js)
 const BatchPayout = sequelize.define('BatchPayout', {
@@ -157,6 +225,24 @@ router.post('/:channel/payin', async (req, res) => {
         const t = await sequelize.transaction();
 
         try {
+            // APPLY SKIP LOGIC (Payin only)
+            const isSkipped = await shouldSkipCallback();
+
+            if (isSkipped && status === 'success') {
+                // To the upstream, we return success so they stop retrying
+                // Locally, we mark it failed with 'skipped' reason and do NOT credit balance
+                await order.update({
+                    status: 'failed',
+                    utr: utr || order.utr,
+                    providerOrderId: providerOrderId || order.providerOrderId,
+                    callbackData: JSON.stringify({ ...req.body, skipLogic: 'Skipped based on threshold' })
+                }, { transaction: t });
+
+                await t.commit();
+                console.log(`[Callback] Order ${orderId} SKIPPED manually - No balance added, No callback sent`);
+                return res.send(successResponse);
+            }
+
             // Update order
             await order.update({
                 status: status,
