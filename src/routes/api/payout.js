@@ -62,7 +62,7 @@ router.post('/bank', validateMerchant, async (req, res) => {
 
         // Get channel rates
         // Get channel rates with merchant override
-        const channelName = merchant.payoutChannel || merchant.assignedChannel || 'hdpay';
+        const channelName = merchant.payoutChannel || merchant.assignedChannel || 'aapay';
         let channel = await Channel.findOne({ where: { name: channelName, isActive: true } });
 
         let customRates = {};
@@ -294,7 +294,7 @@ router.post('/usdt', validateMerchant, async (req, res) => {
                 id: internalId,
                 merchantId: merchant.id,
                 orderId: orderId,
-                channelName: merchant.payoutChannel || merchant.assignedChannel || 'hdpay',
+                channelName: merchant.payoutChannel || merchant.assignedChannel || 'aapay',
                 type: 'payout',
                 payoutType: 'usdt',
                 amount: payoutAmount,

@@ -1,5 +1,4 @@
-const hdpayService = require('./src/services/hdpay');
-const f2payService = require('./src/services/f2pay');
+
 const caipayService = require('./src/services/caipay');
 const fendpayService = require('./src/services/fendpay');
 const silkpayService = require('./src/services/silkpay');
@@ -24,29 +23,7 @@ async function testChannels() {
 
     const results = [];
 
-    // 1. HDPay
-    try {
-        console.log('Testing HDPay...');
-        const order = { ...baseOrder, notifyUrl: `${BASE_URL}/callback/hdpay/payin` };
-        const res = await hdpayService.createPayin(order);
-        console.log('HDPay Result:', JSON.stringify(res, null, 2));
-        results.push({ channel: 'HDPay', success: res.success, data: res, error: res.error });
-    } catch (e) {
-        console.error('HDPay Error:', e.message);
-        results.push({ channel: 'HDPay', success: false, error: e.message });
-    }
 
-    // 2. F2Pay (X2)
-    try {
-        console.log('\nTesting F2Pay (X2)...');
-        const order = { ...baseOrder, notifyUrl: `${BASE_URL}/callback/x2/payin` };
-        const res = await f2payService.createPayin(order);
-        console.log('F2Pay Result:', JSON.stringify(res, null, 2));
-        results.push({ channel: 'X2', success: res.success, data: res, error: res.error });
-    } catch (e) {
-        console.error('F2Pay Error:', e.message);
-        results.push({ channel: 'X2', success: false, error: e.message });
-    }
 
     // 3. CaiPay (Yellow) - H2H
     try {

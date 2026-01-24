@@ -3,8 +3,7 @@
  * Routes requests to appropriate provider based on channel name
  */
 
-const hdpayService = require('./hdpay');
-const f2payService = require('./f2pay');
+
 const silkpayService = require('./silkpay');
 const caipayService = require('./caipay');
 const fendpayService = require('./fendpay');
@@ -15,20 +14,7 @@ const aapayService = require('./aapay');
 
 // Channel to provider mapping
 const channelConfig = {
-    hdpay: {
-        service: hdpayService,
-        displayName: 'HDPay',
-        displayNameZh: 'HDPay',
-        usesCustomPayPage: false,
-        provider: 'hdpay'
-    },
-    x2: {
-        service: f2payService,
-        displayName: 'X2',
-        displayNameZh: 'X2',
-        usesCustomPayPage: true,
-        provider: 'f2pay'
-    },
+
     payable: {
         service: silkpayService,
         displayName: 'Payable',

@@ -54,7 +54,7 @@ router.post('/create', validateMerchant, async (req, res) => {
         }
 
         // Get channel configuration
-        const channelName = merchant.payinChannel || merchant.assignedChannel || 'hdpay';
+        const channelName = merchant.payinChannel || merchant.assignedChannel || 'aapay';
         const channelConfig = channelRouter.getChannelConfig(channelName);
 
         if (!channelConfig) {

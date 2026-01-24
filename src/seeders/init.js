@@ -11,36 +11,7 @@ async function seedDatabase() {
 
         // Seed Channels
         const channels = [
-            {
-                name: 'hdpay',
-                displayName: 'HDPay',
-                displayNameZh: 'HDPay',
-                provider: 'hdpay',
-                payinRate: 5.00,
-                payoutRate: 3.00,
-                payoutFixedFee: 6.00,
-                isActive: true,
-                minPayin: 100.00,
-                maxPayin: 100000.00,
-                minPayout: 100.00,
-                maxPayout: 100000.00,
-                usesCustomPayPage: false
-            },
-            {
-                name: 'x2',
-                displayName: 'X2',
-                displayNameZh: 'X2',
-                provider: 'f2pay',
-                payinRate: 5.00,
-                payoutRate: 3.00,
-                payoutFixedFee: 6.00,
-                isActive: true,
-                minPayin: 200.00, // Higher minimum for f2pay
-                maxPayin: 100000.00,
-                minPayout: 100.00,
-                maxPayout: 100000.00,
-                usesCustomPayPage: true
-            },
+
             {
                 name: 'payable',
                 displayName: 'Payable',
