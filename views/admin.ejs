@@ -808,6 +808,70 @@
         </div>
     </div>
 
+    <!-- Balance Adjustment Modal -->
+    <div id="balanceAdjModal"
+        style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); backdrop-filter:blur(4px); align-items:center; justify-content:center; z-index:100;">
+        <div
+            style="background:white; padding:2rem; width:450px; border-radius:1rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
+            <h3 style="margin-bottom:1.5rem;">
+                <%= t('balance_adjustment') %>
+            </h3>
+            <p id="adj-merchant-info" style="font-size:0.875rem; color:#6B7280; margin-bottom:1rem;"></p>
+            <input type="hidden" id="adj-m-id">
+
+            <div style="margin-bottom: 1rem;">
+                <label style="display:block; margin-bottom:0.5rem; font-size:0.875rem;">
+                    <%= t('adjustment_type') %>
+                </label>
+                <select id="adj-type"
+                    style="width:100%; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
+                    <option value="increase">
+                        <%= t('increase') %>
+                    </option>
+                    <option value="decrease">
+                        <%= t('decrease') %>
+                    </option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="display:block; margin-bottom:0.5rem; font-size:0.875rem;">
+                    <%= t('adjustment_amount') %>
+                </label>
+                <input type="number" id="adj-amount" placeholder="0.00"
+                    style="width:100%; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="display:block; margin-bottom:0.5rem; font-size:0.875rem;">
+                    <%= t('reason') %>
+                </label>
+                <textarea id="adj-note"
+                    style="width:100%; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;"
+                    placeholder="Internal note..."></textarea>
+            </div>
+
+            <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #F3F4F6;">
+                <label
+                    style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.875rem; color:var(--danger);">2FA
+                    TOTP Code</label>
+                <input type="text" id="adj-totp" placeholder="Enter 6-digit code"
+                    style="width: 100%; padding: 0.75rem; border: 2px solid #FEE2E2; border-radius:0.5rem; text-align:center; font-weight:bold; letter-spacing:4px;">
+            </div>
+
+            <div style="margin-top: 1.5rem; display:flex; gap: 1rem;">
+                <button class="btn btn-primary" onclick="saveBalanceAdjustment()"
+                    style="flex:1; justify-content:center;">
+                    <%= t('save') %>
+                </button>
+                <button class="btn" onclick="document.getElementById('balanceAdjModal').style.display='none'"
+                    style="flex:1; justify-content:center; background:#F3F4F6;">
+                    <%= t('cancel') %>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let merchantSearchTimeout = null;
 
@@ -1085,6 +1149,7 @@
                         </td>
                         <td style="display:flex; gap:0.5rem;">
                             <button class="btn" style="padding:0.25rem 0.5rem;" onclick="editMerchant('${m.id}')"><i class="ri-edit-line"></i></button>
+                            <button class="btn" style="padding:0.25rem 0.5rem; background:rgba(24, 144, 255, 0.1); color:var(--primary);" onclick="openBalanceAdjustment('${m.id}', '${m.username}', '${m.balance}')" title="<%= t('adjust_balance') %>"><i class="ri-exchange-funds-line"></i></button>
                         </td>
                     </tr>
                 `).join('');
@@ -1185,6 +1250,44 @@
                 loadMerchants();
             } else {
                 showToast(data.error || 'Failed to delete', 'error');
+            }
+        }
+
+        function openBalanceAdjustment(id, username, balance) {
+            document.getElementById('adj-m-id').value = id;
+            document.getElementById('adj-merchant-info').innerText = `${username} (Current: ₹${parseFloat(balance).toFixed(2)})`;
+            document.getElementById('adj-amount').value = '';
+            document.getElementById('adj-note').value = '';
+            document.getElementById('adj-totp').value = '';
+            document.getElementById('balanceAdjModal').style.display = 'flex';
+        }
+
+        async function saveBalanceAdjustment() {
+            const id = document.getElementById('adj-m-id').value;
+            const type = document.getElementById('adj-type').value;
+            const amount = document.getElementById('adj-amount').value;
+            const note = document.getElementById('adj-note').value;
+            const totpCode = document.getElementById('adj-totp').value;
+
+            if (!amount || amount <= 0) return showToast('Invalid amount', 'error');
+            if (!totpCode) return showToast('TOTP code required', 'error');
+
+            try {
+                const res = await fetch(`/admin/api/merchants/${id}/adjust-balance`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type, amount, note, totpCode })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('Balance adjusted successfully');
+                    document.getElementById('balanceAdjModal').style.display = 'none';
+                    loadMerchants();
+                } else {
+                    showToast(data.error || 'Failed to adjust balance', 'error');
+                }
+            } catch (e) {
+                showToast('Error adjusting balance', 'error');
             }
         }
 

@@ -101,5 +101,12 @@
     "volume_trends": "Volume Trends",
     "avail_balance": "Available Balance",
     "nav_broadcast": "Broadcast",
-    "broadcast_panel": "Broadcast Messages"
+    "broadcast_panel": "Broadcast Messages",
+    "adjust_balance": "Adjust Balance",
+    "balance_adjustment": "Balance Adjustment",
+    "adjustment_type": "Adjustment Type",
+    "increase": "Increase",
+    "decrease": "Decrease",
+    "adjustment_amount": "Amount",
+    "reason": "Reason/Note"
 }

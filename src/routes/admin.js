@@ -310,6 +310,62 @@ router.post('/merchants/:id/regenerate-key', async (req, res) => {
     }
 });
 
+/**
+ * POST /admin/api/merchants/:id/adjust-balance
+ * Manually adjust merchant balance (Incr/Decr)
+ */
+router.post('/merchants/:id/adjust-balance', async (req, res) => {
+    try {
+        const { type, amount, note, totpCode } = req.body;
+        if (!totpCode) return res.status(400).json({ success: false, error: 'TOTP code required' });
+
+        // Verify TOTP
+        const admin = await User.findByPk(req.session.user.id);
+        const isValid = otplib.authenticator.check(totpCode, admin.two_fa_secret);
+        if (!isValid) return res.status(400).json({ success: false, error: 'Invalid TOTP code' });
+
+        const merchant = await User.findByPk(req.params.id);
+        if (!merchant) return res.status(404).json({ success: false, error: 'Merchant not found' });
+
+        const adjAmount = parseFloat(amount);
+        if (isNaN(adjAmount) || adjAmount <= 0) {
+            return res.status(400).json({ success: false, error: 'Invalid amount' });
+        }
+
+        const t = await sequelize.transaction();
+
+        try {
+            if (type === 'increase') {
+                await merchant.update({
+                    balance: sequelize.literal(`balance + ${adjAmount}`)
+                }, { transaction: t });
+            } else if (type === 'decrease') {
+                if (parseFloat(merchant.balance) < adjAmount) {
+                    await t.rollback();
+                    return res.status(400).json({ success: false, error: 'Insufficient balance for deduction' });
+                }
+                await merchant.update({
+                    balance: sequelize.literal(`balance - ${adjAmount}`)
+                }, { transaction: t });
+            } else {
+                await t.rollback();
+                return res.status(400).json({ success: false, error: 'Invalid adjustment type' });
+            }
+
+            await t.commit();
+            console.log(`[Admin] Balance adjusted for ${merchant.username}: ${type} by ${adjAmount}. Note: ${note || 'None'}`);
+            res.json({ success: true, message: 'Balance adjusted successfully' });
+        } catch (error) {
+            await t.rollback();
+            throw error;
+        }
+
+    } catch (error) {
+        console.error('[Admin] Adjust balance error:', error);
+        res.status(500).json({ success: false, error: 'Failed to adjust balance' });
+    }
+});
+
 // ==========================================
 // Settlement Management
 // ==========================================

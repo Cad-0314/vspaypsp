@@ -101,5 +101,12 @@
     "volume_trends": "交易趋势",
     "avail_balance": "可用余额",
     "nav_broadcast": "广播",
-    "broadcast_panel": "广播消息"
+    "broadcast_panel": "广播消息",
+    "adjust_balance": "调整余额",
+    "balance_adjustment": "余额调整",
+    "adjustment_type": "调整类型",
+    "increase": "增加",
+    "decrease": "减少",
+    "adjustment_amount": "金额",
+    "reason": "原因/备注"
 }
