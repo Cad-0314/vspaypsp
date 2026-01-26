@@ -198,6 +198,13 @@ router.post('/:channel/payin', async (req, res) => {
             utr = req.body.utr;
             actualAmount = parseFloat(req.body.realAmount || req.body.amount);
             providerOrderId = req.body.platformOrderId;
+        } else if (channelName === 'ipay') {
+            // IPay: status 1=success
+            orderId = req.body.orderId;
+            status = req.body.status === '1' || req.body.status === 1 ? 'success' : 'failed';
+            utr = ''; // IPay payin callback does not provide UTR
+            actualAmount = parseFloat(req.body.amount);
+            providerOrderId = req.body.orderId;
         }
 
         if (!orderId) {
@@ -383,6 +390,13 @@ router.post('/:channel/payout', async (req, res) => {
                 statusNum === -1 ? 'failed' : 'processing';
             utr = req.body.utr;
             providerOrderId = req.body.platformOrderId;
+        } else if (channelName === 'ipay') {
+            // IPay: status 1=success, 2=failed
+            orderId = req.body.orderId;
+            status = req.body.status === '1' || req.body.status === 1 ? 'success' :
+                req.body.status === '2' || req.body.status === 2 ? 'failed' : 'processing';
+            utr = req.body.utr;
+            providerOrderId = req.body.orderId;
         }
 
         if (!orderId) return res.send(successResponse);
