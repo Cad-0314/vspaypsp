@@ -5,6 +5,7 @@ const silkpayService = require('./src/services/silkpay');
 const ckpayService = require('./src/services/ckpay');
 const cxpayService = require('./src/services/cxpay');
 const aapayService = require('./src/services/aapay');
+const ipayService = require('./src/services/ipay');
 const { v4: uuidv4 } = require('uuid');
 
 const BASE_URL = 'https://payable.firestars.co';
@@ -95,6 +96,18 @@ async function testChannels() {
     } catch (e) {
         console.error('AaPay Error:', e.message);
         results.push({ channel: 'AA Pay', success: false, error: e.message });
+    }
+
+    // 9. IPay
+    try {
+        console.log('\nTesting IPay...');
+        const order = { ...baseOrder, notifyUrl: `${BASE_URL}/callback/ipay/payin` };
+        const res = await ipayService.createPayin(order);
+        console.log('IPay Result:', JSON.stringify(res, null, 2));
+        results.push({ channel: 'IPay', success: res.success, data: res, error: res.error });
+    } catch (e) {
+        console.error('IPay Error:', e.message);
+        results.push({ channel: 'IPay', success: false, error: e.message });
     }
 
     console.log('\n--- Analysis Complete ---');
