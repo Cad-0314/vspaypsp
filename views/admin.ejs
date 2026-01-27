@@ -1475,6 +1475,15 @@
         async function loadSmartRanges() {
             try {
                 const res = await fetch('/admin/api/smart-ranges');
+
+                if (!res.ok) {
+                    console.error('API error:', res.status, res.statusText);
+                    document.getElementById('smart-ranges-table').querySelector('tbody').innerHTML = `
+                        <tr><td colspan="6" style="text-align:center; padding:2rem; color:#EF4444;">Failed to load ranges (${res.status}). Try refreshing.</td></tr>
+                    `;
+                    return;
+                }
+
                 const data = await res.json();
 
                 if (!data.success || !data.ranges || data.ranges.length === 0) {
@@ -1509,6 +1518,9 @@
                 `).join('');
             } catch (e) {
                 console.error('Error loading smart ranges:', e);
+                document.getElementById('smart-ranges-table').querySelector('tbody').innerHTML = `
+                    <tr><td colspan="6" style="text-align:center; padding:2rem; color:#EF4444;">Error: ${e.message}</td></tr>
+                `;
             }
         }
 
