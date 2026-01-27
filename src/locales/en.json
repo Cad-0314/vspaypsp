@@ -108,5 +108,14 @@
     "increase": "Increase",
     "decrease": "Decrease",
     "adjustment_amount": "Amount",
-    "reason": "Reason/Note"
+    "reason": "Reason/Note",
+    "nav_smart_channel": "Smart Channel",
+    "smart_channel_title": "Smart Channel Configuration",
+    "add_range": "Add Range",
+    "min_amount": "Min Amount",
+    "max_amount": "Max Amount",
+    "target_channel": "Target Channel",
+    "priority": "Priority",
+    "no_ranges": "No ranges configured. Add a range to enable Smart Channel.",
+    "range_config": "Amount Range Configuration"
 }

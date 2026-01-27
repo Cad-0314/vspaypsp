@@ -382,6 +382,9 @@
                 <div class="nav-item" onclick="switchTab('broadcast')"><i class="ri-broadcast-line"></i>
                     <%= t('nav_broadcast') %>
                 </div>
+                <div class="nav-item" onclick="switchTab('smartchannel')"><i class="ri-route-line"></i>
+                    <%= t('nav_smart_channel') %>
+                </div>
             </nav>
 
             <div style="padding: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
@@ -646,8 +649,127 @@
                     </div>
                 </div>
 
+                <!-- Smart Channel -->
+                <div id="tab-smartchannel" class="tab-content">
+                    <h1>
+                        <%= t('smart_channel_title') %>
+                    </h1>
+                    <div class="subtitle">
+                        <%= t('range_config') %>
+                    </div>
+                    <div style="display:flex; gap:1rem; margin:1.5rem 0;">
+                        <button class="btn btn-primary" onclick="showAddRangeModal()">
+                            <i class="ri-add-line"></i>
+                            <%= t('add_range') %>
+                        </button>
+                    </div>
+                    <div class="card" style="padding: 0; overflow: hidden;">
+                        <table class="data-table" id="smart-ranges-table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <%= t('min_amount') %>
+                                    </th>
+                                    <th>
+                                        <%= t('max_amount') %>
+                                    </th>
+                                    <th>
+                                        <%= t('target_channel') %>
+                                    </th>
+                                    <th>
+                                        <%= t('priority') %>
+                                    </th>
+                                    <th>
+                                        <%= t('status') %>
+                                    </th>
+                                    <th>
+                                        <%= t('actions') %>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="6" style="text-align:center; padding:2rem;">
+                                        <%= t('no_ranges') %>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
             </div>
         </main>
+    </div>
+
+    <!-- Smart Channel Range Modal -->
+    <div id="rangeModal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter:blur(4px); align-items: center; justify-content: center; z-index:100;">
+        <div
+            style="background: white; padding: 2rem; width: 450px; border-radius: 1rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
+            <h3 id="rangeModalTitle">
+                <%= t('add_range') %>
+            </h3>
+            <input type="hidden" id="range-id">
+            <div style="margin: 1.5rem 0;">
+                <label style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">
+                    <%= t('min_amount') %> (₹)
+                </label>
+                <input type="number" id="range-min" min="0" step="1"
+                    style="width: 100%; padding: 0.75rem; border: 1px solid #E5E7EB; border-radius:0.5rem;"
+                    placeholder="100">
+            </div>
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">
+                    <%= t('max_amount') %> (₹)
+                </label>
+                <input type="number" id="range-max" min="0" step="1"
+                    style="width: 100%; padding: 0.75rem; border: 1px solid #E5E7EB; border-radius:0.5rem;"
+                    placeholder="10000">
+            </div>
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">
+                    <%= t('target_channel') %>
+                </label>
+                <select id="range-channel"
+                    style="width: 100%; padding: 0.75rem; border: 1px solid #E5E7EB; border-radius:0.5rem;">
+                    <option value="">Select Channel...</option>
+                    <option value="aapay">AA Pay</option>
+                    <option value="payable">Payable</option>
+                    <option value="yellow">Yellow</option>
+                    <option value="upi super">UPI Super</option>
+                    <option value="ckpay">CKPay</option>
+                    <option value="bharatpay">BharatPay</option>
+                    <option value="cxpay">CX Pay</option>
+                    <option value="ipay">IPay</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">
+                    <%= t('priority') %>
+                </label>
+                <input type="number" id="range-priority" min="0" step="1" value="0"
+                    style="width: 100%; padding: 0.75rem; border: 1px solid #E5E7EB; border-radius:0.5rem;"
+                    placeholder="0">
+            </div>
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <input type="checkbox" id="range-active" checked>
+                    <span>
+                        <%= t('active') %>
+                    </span>
+                </label>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-primary" onclick="saveRange()"><i class="ri-save-line"></i>
+                    <%= t('save') %>
+                </button>
+                <button class="btn" onclick="closeRangeModal()">
+                    <%= t('cancel') %>
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Settlement Action Modal -->
@@ -744,6 +866,7 @@
                     <option value="bharatpay">BharatPay</option>
                     <option value="cxpay">CX Pay</option>
                     <option value="ipay">IPay</option>
+                    <option value="smart">Smart (智能支付)</option>
                 </select>
 
                 <label style="display:block; margin-bottom:0.25rem; font-size:0.875rem; color:#6B7280;">Payout
@@ -1344,6 +1467,129 @@
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = originalText;
+            }
+        }
+
+        // ===== Smart Channel Functions =====
+        async function loadSmartRanges() {
+            try {
+                const res = await fetch('/admin/api/smart-ranges');
+                const data = await res.json();
+
+                if (!data.success || !data.ranges || data.ranges.length === 0) {
+                    document.getElementById('smart-ranges-table').querySelector('tbody').innerHTML = `
+                        <tr><td colspan="6" style="text-align:center; padding:2rem;">No ranges configured. Add a range to enable Smart Channel.</td></tr>
+                    `;
+                    return;
+                }
+
+                const channelNames = {
+                    'aapay': 'AA Pay', 'payable': 'Payable', 'yellow': 'Yellow',
+                    'upi super': 'UPI Super', 'ckpay': 'CKPay', 'bharatpay': 'BharatPay',
+                    'cxpay': 'CX Pay', 'ipay': 'IPay'
+                };
+
+                document.getElementById('smart-ranges-table').querySelector('tbody').innerHTML = data.ranges.map(r => `
+                    <tr>
+                        <td>₹${parseFloat(r.minAmount).toLocaleString()}</td>
+                        <td>₹${parseFloat(r.maxAmount).toLocaleString()}</td>
+                        <td style="font-weight:600;">${channelNames[r.channelName] || r.channelName}</td>
+                        <td>${r.priority}</td>
+                        <td>${r.isActive ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-failed">Inactive</span>'}</td>
+                        <td>
+                            <button class="btn" style="padding:0.25rem 0.5rem; margin-right:0.25rem;" onclick="showEditRangeModal(${r.id}, ${r.minAmount}, ${r.maxAmount}, '${r.channelName}', ${r.priority}, ${r.isActive})">
+                                <i class="ri-edit-line"></i>
+                            </button>
+                            <button class="btn" style="padding:0.25rem 0.5rem; color:#EF4444;" onclick="deleteRange(${r.id})">
+                                <i class="ri-delete-bin-line"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error('Error loading smart ranges:', e);
+            }
+        }
+
+        function showAddRangeModal() {
+            document.getElementById('rangeModalTitle').textContent = 'Add Range';
+            document.getElementById('range-id').value = '';
+            document.getElementById('range-min').value = '';
+            document.getElementById('range-max').value = '';
+            document.getElementById('range-channel').value = '';
+            document.getElementById('range-priority').value = '0';
+            document.getElementById('range-active').checked = true;
+            document.getElementById('rangeModal').style.display = 'flex';
+        }
+
+        function showEditRangeModal(id, min, max, channel, priority, isActive) {
+            document.getElementById('rangeModalTitle').textContent = 'Edit Range';
+            document.getElementById('range-id').value = id;
+            document.getElementById('range-min').value = min;
+            document.getElementById('range-max').value = max;
+            document.getElementById('range-channel').value = channel;
+            document.getElementById('range-priority').value = priority;
+            document.getElementById('range-active').checked = isActive;
+            document.getElementById('rangeModal').style.display = 'flex';
+        }
+
+        function closeRangeModal() {
+            document.getElementById('rangeModal').style.display = 'none';
+        }
+
+        async function saveRange() {
+            const id = document.getElementById('range-id').value;
+            const minAmount = document.getElementById('range-min').value;
+            const maxAmount = document.getElementById('range-max').value;
+            const channelName = document.getElementById('range-channel').value;
+            const priority = document.getElementById('range-priority').value;
+            const isActive = document.getElementById('range-active').checked;
+
+            if (!minAmount || !maxAmount || !channelName) {
+                return showToast('Please fill all required fields', 'error');
+            }
+
+            if (parseFloat(minAmount) >= parseFloat(maxAmount)) {
+                return showToast('Min amount must be less than max amount', 'error');
+            }
+
+            try {
+                const url = id ? `/admin/api/smart-ranges/${id}` : '/admin/api/smart-ranges';
+                const method = id ? 'PUT' : 'POST';
+
+                const res = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ minAmount, maxAmount, channelName, priority, isActive })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    showToast(id ? 'Range updated successfully' : 'Range created successfully');
+                    closeRangeModal();
+                    loadSmartRanges();
+                } else {
+                    showToast(data.error || 'Failed to save range', 'error');
+                }
+            } catch (e) {
+                showToast('Error saving range', 'error');
+            }
+        }
+
+        async function deleteRange(id) {
+            if (!confirm('Are you sure you want to delete this range?')) return;
+
+            try {
+                const res = await fetch(`/admin/api/smart-ranges/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('Range deleted successfully');
+                    loadSmartRanges();
+                } else {
+                    showToast(data.error || 'Failed to delete range', 'error');
+                }
+            } catch (e) {
+                showToast('Error deleting range', 'error');
             }
         }
     </script>

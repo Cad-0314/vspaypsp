@@ -56,6 +56,11 @@ const Order = sequelize.define('Order', {
         allowNull: true,
         comment: 'Upstream provider order ID'
     },
+    actualChannel: {
+        type: DataTypes.STRING(50),
+        allowNull: true,
+        comment: 'Actual channel used when routed via smart channel'
+    },
     utr: {
         type: DataTypes.STRING(50),
         allowNull: true,

@@ -13,6 +13,15 @@ const cxpayService = require('./cxpay');
 const aapayService = require('./aapay');
 const ipayService = require('./ipay');
 
+// Lazy load customChannel to avoid circular dependency
+let customChannelService = null;
+function getCustomChannelService() {
+    if (!customChannelService) {
+        customChannelService = require('./customChannel');
+    }
+    return customChannelService;
+}
+
 // Channel to provider mapping
 const channelConfig = {
 
@@ -71,6 +80,14 @@ const channelConfig = {
         displayNameZh: 'IPay',
         usesCustomPayPage: false,
         provider: 'ipay'
+    },
+    smart: {
+        service: null, // Uses lazy loading via getCustomChannelService()
+        displayName: 'Smart',
+        displayNameZh: '智能支付',
+        usesCustomPayPage: false, // Depends on underlying channel
+        provider: 'smart',
+        isSmartChannel: true
     }
 };
 
@@ -98,8 +115,24 @@ async function createPayin(channelName, params) {
         return { success: false, error: 'Invalid channel' };
     }
 
-    const service = config.service;
     let result;
+
+    // Special handling for smart channel (range-based routing)
+    if (config.isSmartChannel) {
+        const customService = getCustomChannelService();
+        result = await customService.createPayin(params);
+
+        if (result.success) {
+            // Get the actual underlying channel's config
+            const actualConfig = getChannelConfig(result.actualChannel);
+            result.channelName = 'smart';
+            result.usesCustomPayPage = actualConfig ? actualConfig.usesCustomPayPage : false;
+            result.provider = 'smart';
+        }
+        return result;
+    }
+
+    const service = config.service;
 
     // For X2 (f2pay), try V2 first to get deeplinks
     if (channelName === 'x2' && service.createPayinV2) {

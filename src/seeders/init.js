@@ -86,6 +86,22 @@ async function seedDatabase() {
                 minPayout: 100.00,
                 maxPayout: 100000.00,
                 usesCustomPayPage: false
+            },
+            {
+                name: 'smart',
+                displayName: 'Smart',
+                displayNameZh: '智能支付',
+                provider: 'smart',
+                payinRate: 5.00,
+                payoutRate: 0.00, // Not used for payout
+                payoutFixedFee: 0.00,
+                isActive: true,
+                minPayin: 100.00,
+                maxPayin: 100000.00,
+                minPayout: 0.00, // Not used for payout
+                maxPayout: 0.00,
+                usesCustomPayPage: false,
+                config: JSON.stringify({ isSmartChannel: true, payinOnly: true })
             }
         ];
 

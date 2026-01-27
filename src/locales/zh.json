@@ -108,5 +108,14 @@
     "increase": "增加",
     "decrease": "减少",
     "adjustment_amount": "金额",
-    "reason": "原因/备注"
+    "reason": "原因/备注",
+    "nav_smart_channel": "智能通道",
+    "smart_channel_title": "智能通道配置",
+    "add_range": "添加范围",
+    "min_amount": "最小金额",
+    "max_amount": "最大金额",
+    "target_channel": "目标通道",
+    "priority": "优先级",
+    "no_ranges": "暂无范围配置。添加范围以启用智能通道。",
+    "range_config": "金额范围配置"
 }

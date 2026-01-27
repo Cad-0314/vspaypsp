@@ -3,6 +3,7 @@ const User = require('./User');
 const Channel = require('./Channel');
 const Order = require('./Order');
 const Settlement = require('./Settlement');
+const CustomChannelRange = require('./CustomChannelRange');
 
 // Define associations
 User.hasMany(Order, { foreignKey: 'merchantId', as: 'orders' });
@@ -17,5 +18,6 @@ module.exports = {
     User,
     Channel,
     Order,
-    Settlement
+    Settlement,
+    CustomChannelRange
 };

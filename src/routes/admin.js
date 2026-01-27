@@ -7,7 +7,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
-const { User, Channel, Order, Settlement, sequelize } = require('../models');
+const { User, Channel, Order, Settlement, CustomChannelRange, sequelize } = require('../models');
 const { getStats, getChartData } = require('../services/stats');
 const telegramBot = require('../services/telegramBot');
 const axios = require('axios');
@@ -549,6 +549,160 @@ router.post('/broadcast', async (req, res) => {
         res.json({ success: true, message: 'Broadcast queued' });
     } catch (error) {
         res.status(500).json({ success: false, error: 'Failed' });
+    }
+});
+
+// ==========================================
+// Smart Channel Range Management
+// ==========================================
+
+/**
+ * GET /admin/api/smart-ranges
+ * Get all smart channel ranges
+ */
+router.get('/smart-ranges', async (req, res) => {
+    try {
+        const ranges = await CustomChannelRange.findAll({
+            order: [['minAmount', 'ASC']]
+        });
+        res.json({ success: true, ranges });
+    } catch (error) {
+        console.error('[Admin] Get smart ranges error:', error);
+        res.status(500).json({ success: false, error: 'Failed to fetch ranges' });
+    }
+});
+
+/**
+ * POST /admin/api/smart-ranges
+ * Create a new range
+ */
+router.post('/smart-ranges', async (req, res) => {
+    try {
+        const { minAmount, maxAmount, channelName, isActive, priority } = req.body;
+        const { Op } = require('sequelize');
+
+        // Validate required fields
+        if (!minAmount || !maxAmount || !channelName) {
+            return res.status(400).json({ success: false, error: 'Missing required fields' });
+        }
+
+        const min = parseFloat(minAmount);
+        const max = parseFloat(maxAmount);
+
+        if (min >= max) {
+            return res.status(400).json({ success: false, error: 'Min amount must be less than max amount' });
+        }
+
+        // Check for overlapping ranges
+        const overlapping = await CustomChannelRange.findOne({
+            where: {
+                isActive: true,
+                [Op.or]: [
+                    // New range starts within an existing range
+                    { minAmount: { [Op.lte]: min }, maxAmount: { [Op.gte]: min } },
+                    // New range ends within an existing range
+                    { minAmount: { [Op.lte]: max }, maxAmount: { [Op.gte]: max } },
+                    // New range contains an existing range
+                    { minAmount: { [Op.gte]: min }, maxAmount: { [Op.lte]: max } }
+                ]
+            }
+        });
+
+        if (overlapping) {
+            return res.status(400).json({
+                success: false,
+                error: `Range overlaps with existing range ${overlapping.minAmount}-${overlapping.maxAmount}`
+            });
+        }
+
+        const range = await CustomChannelRange.create({
+            minAmount: min,
+            maxAmount: max,
+            channelName,
+            isActive: isActive !== false,
+            priority: parseInt(priority) || 0
+        });
+
+        res.json({ success: true, range });
+    } catch (error) {
+        console.error('[Admin] Create smart range error:', error);
+        res.status(500).json({ success: false, error: 'Failed to create range' });
+    }
+});
+
+/**
+ * PUT /admin/api/smart-ranges/:id
+ * Update a range
+ */
+router.put('/smart-ranges/:id', async (req, res) => {
+    try {
+        const { minAmount, maxAmount, channelName, isActive, priority } = req.body;
+        const { Op } = require('sequelize');
+
+        const range = await CustomChannelRange.findByPk(req.params.id);
+        if (!range) {
+            return res.status(404).json({ success: false, error: 'Range not found' });
+        }
+
+        const updates = {};
+        if (minAmount !== undefined) updates.minAmount = parseFloat(minAmount);
+        if (maxAmount !== undefined) updates.maxAmount = parseFloat(maxAmount);
+        if (channelName !== undefined) updates.channelName = channelName;
+        if (isActive !== undefined) updates.isActive = isActive;
+        if (priority !== undefined) updates.priority = parseInt(priority);
+
+        // Validate min/max if both are being updated
+        const newMin = updates.minAmount !== undefined ? updates.minAmount : parseFloat(range.minAmount);
+        const newMax = updates.maxAmount !== undefined ? updates.maxAmount : parseFloat(range.maxAmount);
+
+        if (newMin >= newMax) {
+            return res.status(400).json({ success: false, error: 'Min amount must be less than max amount' });
+        }
+
+        // Check for overlapping ranges (excluding current range)
+        const overlapping = await CustomChannelRange.findOne({
+            where: {
+                id: { [Op.ne]: range.id },
+                isActive: true,
+                [Op.or]: [
+                    { minAmount: { [Op.lte]: newMin }, maxAmount: { [Op.gte]: newMin } },
+                    { minAmount: { [Op.lte]: newMax }, maxAmount: { [Op.gte]: newMax } },
+                    { minAmount: { [Op.gte]: newMin }, maxAmount: { [Op.lte]: newMax } }
+                ]
+            }
+        });
+
+        if (overlapping && updates.isActive !== false) {
+            return res.status(400).json({
+                success: false,
+                error: `Range overlaps with existing range ${overlapping.minAmount}-${overlapping.maxAmount}`
+            });
+        }
+
+        await range.update(updates);
+        res.json({ success: true, message: 'Range updated', range });
+    } catch (error) {
+        console.error('[Admin] Update smart range error:', error);
+        res.status(500).json({ success: false, error: 'Failed to update range' });
+    }
+});
+
+/**
+ * DELETE /admin/api/smart-ranges/:id
+ * Delete a range
+ */
+router.delete('/smart-ranges/:id', async (req, res) => {
+    try {
+        const range = await CustomChannelRange.findByPk(req.params.id);
+        if (!range) {
+            return res.status(404).json({ success: false, error: 'Range not found' });
+        }
+
+        await range.destroy();
+        res.json({ success: true, message: 'Range deleted' });
+    } catch (error) {
+        console.error('[Admin] Delete smart range error:', error);
+        res.status(500).json({ success: false, error: 'Failed to delete range' });
     }
 });
 

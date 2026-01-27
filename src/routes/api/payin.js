@@ -121,7 +121,8 @@ router.post('/create', validateMerchant, async (req, res) => {
         }
 
         // Call upstream provider
-        const notifyUrl = `${APP_URL}/callback/${channelName}/payin`;
+        // For smart channel, the notifyUrl must use the actual routed channel
+        let notifyUrl = `${APP_URL}/callback/${channelName}/payin`;
         const providerResult = await channelRouter.createPayin(channelName, {
             orderId: orderId,
             amount: amount,
@@ -144,12 +145,16 @@ router.post('/create', validateMerchant, async (req, res) => {
             });
         }
 
+        // For smart channel, store the actual channel used for callback routing
+        const actualChannel = providerResult.actualChannel || null;
+
         // Update order with provider data
         await order.update({
             providerOrderId: providerResult.providerOrderId,
             payUrl: providerResult.payUrl,
             deepLinks: providerResult.deepLinks || null,
-            providerResponse: JSON.stringify(providerResult)
+            providerResponse: JSON.stringify(providerResult),
+            actualChannel: actualChannel
         });
 
         // Build response
