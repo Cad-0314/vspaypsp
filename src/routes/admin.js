@@ -793,7 +793,7 @@ router.post('/manual-payout', async (req, res) => {
 
         // Helper to get callback URL (adjust domain based on env or hardcoded for now)
         const getCallbackUrl = (channelName) => {
-            const domain = process.env.DOMAIN || 'https://api.vspay.co'; // Fallback to assumed domain if not in env
+            const domain = process.env.DOMAIN || 'https://payable.firestar.co'; // Fallback to provided domain
             return `${domain}/api/callback/${channelName}/payout`;
         };
 
