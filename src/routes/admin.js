@@ -791,6 +791,12 @@ router.post('/manual-payout', async (req, res) => {
             payoutDetails: payoutDetails
         });
 
+        // Helper to get callback URL (adjust domain based on env or hardcoded for now)
+        const getCallbackUrl = (channelName) => {
+            const domain = process.env.DOMAIN || 'https://api.vspay.co'; // Fallback to assumed domain if not in env
+            return `${domain}/api/callback/${channelName}/payout`;
+        };
+
         // Trigger Payout via ChannelRouter
         const payoutParams = {
             orderId,
@@ -800,7 +806,8 @@ router.post('/manual-payout', async (req, res) => {
             // Map params for specific channels (e.g., AaPay expects accountNo, name)
             accountNo: accountNumber,
             name: accountHolderName,
-            account: accountNumber
+            account: accountNumber,
+            notifyUrl: getCallbackUrl(channel)
         };
 
         // Call createPayout
