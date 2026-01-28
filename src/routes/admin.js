@@ -768,7 +768,8 @@ router.post('/manual-payout', async (req, res) => {
 
         const admin = await User.findByPk(req.session.user.id);
 
-        const orderId = `MPOUT_${Date.now()}_${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
+        // Remove underscores from Order ID as per request
+        const orderId = `MPOUT${Date.now()}${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
         const payoutDetails = {
             bankName,
             accountNumber,
@@ -784,7 +785,7 @@ router.post('/manual-payout', async (req, res) => {
             type: 'payout',
             payoutType: 'bank',
             amount: parseFloat(amount),
-            netAmount: parseFloat(amount), // No fee for admin manual payout? or maybe add logic later
+            netAmount: parseFloat(amount),
             fee: 0,
             status: 'pending',
             payoutDetails: payoutDetails
@@ -795,7 +796,11 @@ router.post('/manual-payout', async (req, res) => {
             orderId,
             amount: parseFloat(amount),
             ...payoutDetails,
-            bankAccount: accountNumber // Map consistency
+            bankAccount: accountNumber,
+            // Map params for specific channels (e.g., AaPay expects accountNo, name)
+            accountNo: accountNumber,
+            name: accountHolderName,
+            account: accountNumber
         };
 
         // Call createPayout
