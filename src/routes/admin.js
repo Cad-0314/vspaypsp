@@ -12,6 +12,7 @@ const { getStats, getChartData } = require('../services/stats');
 const telegramBot = require('../services/telegramBot');
 const axios = require('axios');
 const otplib = require('otplib');
+const channelRouter = require('../services/channelRouter');
 
 // Configure otplib
 otplib.authenticator.options = { window: 2, step: 30 };
@@ -703,6 +704,128 @@ router.delete('/smart-ranges/:id', async (req, res) => {
     } catch (error) {
         console.error('[Admin] Delete smart range error:', error);
         res.status(500).json({ success: false, error: 'Failed to delete range' });
+    }
+});
+// ==========================================
+// Manual Payout Management
+// ==========================================
+
+/**
+ * GET /admin/api/manual-payouts
+ * Get list of manual payouts created by admin
+ */
+router.get('/manual-payouts', async (req, res) => {
+    try {
+        const { page = 1, limit = 10, search } = req.query;
+        const offset = (page - 1) * limit;
+        const { Op } = require('sequelize');
+
+        const where = {
+            merchantId: req.session.user.id, // Admin's ID
+            type: 'payout',
+            payoutType: 'bank' // Filter for bank payouts specifically if needed, or just type='payout'
+        };
+
+        if (search) {
+            where[Op.or] = [
+                { orderId: { [Op.like]: `%${search}%` } },
+                { utr: { [Op.like]: `%${search}%` } },
+                { payoutDetails: { [Op.like]: `%${search}%` } }
+            ];
+        }
+
+        const { count, rows } = await Order.findAndCountAll({
+            where,
+            limit: parseInt(limit),
+            offset: parseInt(offset),
+            order: [['createdAt', 'DESC']]
+        });
+
+        res.json({
+            success: true,
+            payouts: rows,
+            pagination: { total: count, page: parseInt(page), pages: Math.ceil(count / limit) }
+        });
+    } catch (error) {
+        console.error('[Admin] Get manual payouts error:', error);
+        res.status(500).json({ success: false, error: 'Failed to fetch manual payouts' });
+    }
+});
+
+/**
+ * POST /admin/api/manual-payout
+ * Create a new manual payout
+ */
+router.post('/manual-payout', async (req, res) => {
+    try {
+        const { amount, bankName, accountNumber, ifsc, accountHolderName, channel, totpCode } = req.body;
+
+        if (!amount || !bankName || !accountNumber || !ifsc || !accountHolderName || !channel) {
+            return res.status(400).json({ success: false, error: 'Missing required fields' });
+        }
+
+        if (!totpCode) {
+            return res.status(400).json({ success: false, error: 'TOTP code required' });
+        }
+
+        // Verify TOTP
+        const admin = await User.findByPk(req.session.user.id);
+        const isValid = otplib.authenticator.check(totpCode, admin.two_fa_secret);
+        if (!isValid) return res.status(400).json({ success: false, error: 'Invalid TOTP code' });
+
+        const orderId = `MPOUT_${Date.now()}_${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
+        const payoutDetails = {
+            bankName,
+            accountNumber,
+            ifsc,
+            accountHolderName
+        };
+
+        // Create Order
+        const order = await Order.create({
+            merchantId: admin.id,
+            orderId,
+            channelName: channel,
+            type: 'payout',
+            payoutType: 'bank',
+            amount: parseFloat(amount),
+            netAmount: parseFloat(amount), // No fee for admin manual payout? or maybe add logic later
+            fee: 0,
+            status: 'pending',
+            payoutDetails: payoutDetails
+        });
+
+        // Trigger Payout via ChannelRouter
+        const payoutParams = {
+            orderId,
+            amount: parseFloat(amount),
+            ...payoutDetails,
+            bankAccount: accountNumber // Map consistency
+        };
+
+        // Call createPayout
+        // Note: channels usually expect specific params. We might need to adapt payoutParams based on channel.
+        // Most channels take: orderId, amount, bankName, accountNumber, ifsc, accountHolderName.
+        const result = await channelRouter.createPayout(channel, payoutParams);
+
+        if (result.success) {
+            await order.update({
+                status: result.status || 'processing', // Default to processing if success
+                providerOrderId: result.providerOrderId,
+                providerResponse: JSON.stringify(result)
+            });
+            res.json({ success: true, message: 'Payout initiated successfully', order });
+        } else {
+            await order.update({
+                status: 'failed',
+                providerResponse: JSON.stringify(result)
+            });
+            res.status(400).json({ success: false, error: result.error || 'Payout failed', order });
+        }
+
+    } catch (error) {
+        console.error('[Admin] Manual payout error:', error);
+        res.status(500).json({ success: false, error: 'Failed to process payout' });
     }
 });
 

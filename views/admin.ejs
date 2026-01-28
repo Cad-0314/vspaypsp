@@ -385,6 +385,9 @@
                 <div class="nav-item" onclick="switchTab('smartchannel')"><i class="ri-route-line"></i>
                     <%= t('nav_smart_channel') %>
                 </div>
+                <div class="nav-item" onclick="switchTab('manualpayout')"><i class="ri-bank-card-2-line"></i>
+                    Manual Payout
+                </div>
             </nav>
 
             <div style="padding: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
@@ -649,58 +652,171 @@
                     </div>
                 </div>
 
-                <!-- Smart Channel -->
-                <div id="tab-smartchannel" class="tab-content">
-                    <h1>
-                        <%= t('smart_channel_title') %>
-                    </h1>
-                    <div class="subtitle">
-                        <%= t('range_config') %>
+                <!-- Manual Payout -->
+                <div id="tab-manualpayout" class="tab-content">
+                    <h1>Manual Bank Payout</h1>
+                    <div class="subtitle">Process manual payouts to bank accounts via specific channels.</div>
+
+                    <div class="card" style="padding: 2rem; max-width: 800px; margin-bottom: 2rem;">
+                        <h3 style="margin-bottom: 1.5rem;">New Payout Request</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                            <div>
+                                <label
+                                    style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">Amount
+                                    (₹)</label>
+                                <input type="number" id="mp-amount" class="form-control" placeholder="0.00"
+                                    style="width:100%; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
+                            </div>
+                            <div>
+                                <label
+                                    style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">Channel</label>
+                                <select id="mp-channel" class="form-control"
+                                    style="width:100%; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
+                                    <option value="">Select Payout Channel...</option>
+                                    <option value="upi super">UPI Super</option>
+                                    <option value="payable">Payable</option>
+                                    <option value="yellow">Yellow</option>
+                                    <option value="ckpay">CKPay</option>
+                                    <option value="bharatpay">BharatPay</option>
+                                    <option value="cxpay">CXPay</option>
+                                    <option value="aapay">AAPay</option>
+                                    <option value="ipay">IPay</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label
+                                    style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">Bank
+                                    Name</label>
+                                <input type="text" id="mp-bank-name" class="form-control" placeholder="e.g. HDFC Bank"
+                                    style="width:100%; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
+                            </div>
+                            <div>
+                                <label
+                                    style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">Account
+                                    Number</label>
+                                <input type="text" id="mp-acc-num" class="form-control" placeholder="Account Number"
+                                    style="width:100%; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
+                            </div>
+                            <div>
+                                <label
+                                    style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">IFSC
+                                    Code</label>
+                                <input type="text" id="mp-ifsc" class="form-control" placeholder="IFSC Code"
+                                    style="width:100%; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
+                            </div>
+                            <div>
+                                <label
+                                    style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">Account
+                                    Holder Name</label>
+                                <input type="text" id="mp-holder-name" class="form-control"
+                                    placeholder="Name on Bank Account"
+                                    style="width:100%; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
+                            </div>
+                            <div style="grid-column: span 2;">
+                                <label
+                                    style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">Admin
+                                    TOTP Code</label>
+                                <input type="text" id="mp-totp" class="form-control" placeholder="Enter your 2FA Code"
+                                    style="width:100%; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
+                            </div>
+                        </div>
+                        <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
+                            <button class="btn btn-primary" onclick="submitManualPayout()">
+                                <i class="ri-send-plane-fill"></i> Process Payout
+                            </button>
+                        </div>
                     </div>
-                    <div style="display:flex; gap:1rem; margin:1.5rem 0;">
-                        <button class="btn btn-primary" onclick="showAddRangeModal()">
-                            <i class="ri-add-line"></i>
-                            <%= t('add_range') %>
-                        </button>
-                    </div>
-                    <div class="card" style="padding: 0; overflow: hidden;">
-                        <table class="data-table" id="smart-ranges-table">
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Recent Manual Payouts</div>
+                            <button class="btn" onclick="loadManualPayouts()"
+                                style="background:transparent; color:#6B7280;">
+                                <i class="ri-refresh-line"></i>
+                            </button>
+                        </div>
+                        <table id="manual-payouts-table">
                             <thead>
                                 <tr>
-                                    <th>
-                                        <%= t('min_amount') %>
-                                    </th>
-                                    <th>
-                                        <%= t('max_amount') %>
-                                    </th>
-                                    <th>
-                                        <%= t('target_channel') %>
-                                    </th>
-                                    <th>
-                                        <%= t('priority') %>
-                                    </th>
-                                    <th>
-                                        <%= t('status') %>
-                                    </th>
-                                    <th>
-                                        <%= t('actions') %>
-                                    </th>
+                                    <th>Order ID</th>
+                                    <th>Amount</th>
+                                    <th>Bank Details</th>
+                                    <th>Channel</th>
+                                    <th>Status</th>
+                                    <th>Time</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td colspan="6" style="text-align:center; padding:2rem;">
-                                        <%= t('no_ranges') %>
-                                    </td>
+                                    <td colspan="6" style="text-align:center;">Loading...</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
-
-
+                <h1>Broadcast Message</h1>
+                <div class="subtitle">Send system-wide announcements.</div>
+                <div class="card" style="padding: 2rem; max-width: 600px;">
+                    <textarea id="broadcast-msg" rows="4"
+                        style="width: 100%; border: 1px solid #E5E7EB; border-radius:0.5rem; padding: 1rem; margin-bottom: 1rem; background:#F9FAFB; font-family:inherit;"
+                        placeholder="Type message..."></textarea>
+                    <button class="btn btn-primary" onclick="sendBroadcast()"><i class="ri-send-plane-fill"></i>
+                        Send Broadcast</button>
+                </div>
             </div>
-        </main>
+
+            <!-- Smart Channel -->
+            <div id="tab-smartchannel" class="tab-content">
+                <h1>
+                    <%= t('smart_channel_title') %>
+                </h1>
+                <div class="subtitle">
+                    <%= t('range_config') %>
+                </div>
+                <div style="display:flex; gap:1rem; margin:1.5rem 0;">
+                    <button class="btn btn-primary" onclick="showAddRangeModal()">
+                        <i class="ri-add-line"></i>
+                        <%= t('add_range') %>
+                    </button>
+                </div>
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <table class="data-table" id="smart-ranges-table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <%= t('min_amount') %>
+                                </th>
+                                <th>
+                                    <%= t('max_amount') %>
+                                </th>
+                                <th>
+                                    <%= t('target_channel') %>
+                                </th>
+                                <th>
+                                    <%= t('priority') %>
+                                </th>
+                                <th>
+                                    <%= t('status') %>
+                                </th>
+                                <th>
+                                    <%= t('actions') %>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="6" style="text-align:center; padding:2rem;">
+                                    <%= t('no_ranges') %>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+    </div>
+    </main>
     </div>
 
     <!-- Smart Channel Range Modal -->
@@ -1094,6 +1210,7 @@
             if (tab === 'merchants') loadMerchants();
             if (tab === 'channels') loadChannels();
             if (tab === 'smartchannel') loadSmartRanges();
+            if (tab === 'manualpayout') loadManualPayouts();
         }
 
         async function loadStats() {
@@ -1603,6 +1720,78 @@
                 }
             } catch (e) {
                 showToast('Error deleting range', 'error');
+            }
+        }
+
+        // ===== Manual Payout Functions =====
+        async function loadManualPayouts(page = 1) {
+            try {
+                const res = await fetch(`/admin/api/manual-payouts?page=${page}`);
+                const data = await res.json();
+                const tbody = document.getElementById('manual-payouts-table').querySelector('tbody');
+
+                if (data.success && data.payouts.length > 0) {
+                    tbody.innerHTML = data.payouts.map(p => {
+                        const details = p.payoutDetails;
+                        const bankInfo = details ? `${details.bankName}<br><small>${details.accountNumber}</small>` : 'N/A';
+                        return `
+                        <tr>
+                            <td><small style="font-family:monospace;">${p.orderId}</small></td>
+                            <td>₹${p.amount}</td>
+                            <td>${bankInfo}</td>
+                            <td>${p.channelName}</td>
+                            <td><span class="badge badge-${p.status}">${p.status}</span></td>
+                            <td>${new Date(p.createdAt).toLocaleString()}</td>
+                        </tr>
+                    `}).join('');
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #9ca3af; padding:2rem;">No manual payouts found</td></tr>';
+                }
+            } catch (e) {
+                console.error('Error loading manual payouts:', e);
+            }
+        }
+
+        async function submitManualPayout() {
+            const amount = document.getElementById('mp-amount').value;
+            const channel = document.getElementById('mp-channel').value;
+            const bankName = document.getElementById('mp-bank-name').value;
+            const accountNumber = document.getElementById('mp-acc-num').value;
+            const ifsc = document.getElementById('mp-ifsc').value;
+            const accountHolderName = document.getElementById('mp-holder-name').value;
+            const totpCode = document.getElementById('mp-totp').value;
+
+            if (!amount || !channel || !bankName || !accountNumber || !ifsc || !accountHolderName) {
+                return showToast('Please fill all fields', 'error');
+            }
+            if (!totpCode) return showToast('TOTP code required', 'error');
+
+            if (!confirm('Are you sure you want to process this payout? Balance will be deducted from your Admin account (if applicable) or treated as a system payout.')) return;
+
+            try {
+                const res = await fetch('/admin/api/manual-payout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        amount, channel, bankName, accountNumber, ifsc, accountHolderName, totpCode
+                    })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    showToast('Payout initiated successfully');
+                    // Reset form
+                    document.getElementById('mp-amount').value = '';
+                    document.getElementById('mp-acc-num').value = '';
+                    document.getElementById('mp-ifsc').value = '';
+                    document.getElementById('mp-holder-name').value = '';
+                    document.getElementById('mp-totp').value = '';
+                    loadManualPayouts();
+                } else {
+                    showToast(data.error || 'Payout failed', 'error');
+                }
+            } catch (e) {
+                showToast('Error processing payout', 'error');
             }
         }
     </script>
