@@ -758,20 +758,15 @@ router.get('/manual-payouts', async (req, res) => {
  */
 router.post('/manual-payout', async (req, res) => {
     try {
-        const { amount, bankName, accountNumber, ifsc, accountHolderName, channel, totpCode } = req.body;
+        const { amount, bankName, accountNumber, ifsc, accountHolderName, channel } = req.body;
 
         if (!amount || !bankName || !accountNumber || !ifsc || !accountHolderName || !channel) {
             return res.status(400).json({ success: false, error: 'Missing required fields' });
         }
 
-        if (!totpCode) {
-            return res.status(400).json({ success: false, error: 'TOTP code required' });
-        }
+        // TOTP verification removed as per request
 
-        // Verify TOTP
         const admin = await User.findByPk(req.session.user.id);
-        const isValid = otplib.authenticator.check(totpCode, admin.two_fa_secret);
-        if (!isValid) return res.status(400).json({ success: false, error: 'Invalid TOTP code' });
 
         const orderId = `MPOUT_${Date.now()}_${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
         const payoutDetails = {

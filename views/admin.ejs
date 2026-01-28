@@ -712,13 +712,7 @@
                                     placeholder="Name on Bank Account"
                                     style="width:100%; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
                             </div>
-                            <div style="grid-column: span 2;">
-                                <label
-                                    style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">Admin
-                                    TOTP Code</label>
-                                <input type="text" id="mp-totp" class="form-control" placeholder="Enter your 2FA Code"
-                                    style="width:100%; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
-                            </div>
+
                         </div>
                         <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
                             <button class="btn btn-primary" onclick="submitManualPayout()">
@@ -1759,12 +1753,10 @@
             const accountNumber = document.getElementById('mp-acc-num').value;
             const ifsc = document.getElementById('mp-ifsc').value;
             const accountHolderName = document.getElementById('mp-holder-name').value;
-            const totpCode = document.getElementById('mp-totp').value;
 
             if (!amount || !channel || !bankName || !accountNumber || !ifsc || !accountHolderName) {
                 return showToast('Please fill all fields', 'error');
             }
-            if (!totpCode) return showToast('TOTP code required', 'error');
 
             if (!confirm('Are you sure you want to process this payout? Balance will be deducted from your Admin account (if applicable) or treated as a system payout.')) return;
 
@@ -1773,7 +1765,7 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        amount, channel, bankName, accountNumber, ifsc, accountHolderName, totpCode
+                        amount, channel, bankName, accountNumber, ifsc, accountHolderName
                     })
                 });
 
@@ -1785,7 +1777,6 @@
                     document.getElementById('mp-acc-num').value = '';
                     document.getElementById('mp-ifsc').value = '';
                     document.getElementById('mp-holder-name').value = '';
-                    document.getElementById('mp-totp').value = '';
                     loadManualPayouts();
                 } else {
                     showToast(data.error || 'Payout failed', 'error');
