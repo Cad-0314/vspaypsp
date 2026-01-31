@@ -20,87 +20,77 @@
         body {
             min-height: 100vh;
             display: flex;
-            background: #f5f9ff;
-        }
-
-        .login-wrapper {
-            display: flex;
-            width: 100%;
-            min-height: 100vh;
-        }
-
-        /* Left Side - Illustration */
-        .side-panel {
-            flex: 1;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-            display: flex;
             align-items: center;
             justify-content: center;
-            padding: 3rem;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             position: relative;
             overflow: hidden;
         }
 
-        .side-panel::before {
+        /* Decorative background elements */
+        body::before {
             content: '';
             position: absolute;
-            top: 10%;
-            left: 10%;
-            width: 200px;
-            height: 200px;
-            background: rgba(26, 86, 219, 0.2);
+            top: -10%;
+            left: -5%;
+            width: 400px;
+            height: 400px;
+            background: rgba(26, 86, 219, 0.15);
             border-radius: 50%;
-            filter: blur(60px);
+            filter: blur(80px);
         }
 
-        .side-panel::after {
+        body::after {
             content: '';
             position: absolute;
-            bottom: 10%;
-            right: 15%;
-            width: 150px;
-            height: 150px;
-            background: rgba(5, 150, 105, 0.2);
+            bottom: -10%;
+            right: -5%;
+            width: 350px;
+            height: 350px;
+            background: rgba(5, 150, 105, 0.15);
             border-radius: 50%;
-            filter: blur(60px);
+            filter: blur(80px);
         }
 
-        .side-illustration {
-            max-width: 85%;
-            max-height: 70vh;
-            object-fit: contain;
+        .login-card {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
             position: relative;
-            z-index: 2;
-            filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.1));
+            z-index: 10;
+            animation: slideUp 0.4s ease-out;
         }
 
-        /* Right Side - Form */
-        .form-panel {
-            width: 500px;
-            min-width: 420px;
-            background: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 3rem 3.5rem;
-            position: relative;
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .lang-switcher {
             position: absolute;
-            top: 1.5rem;
-            right: 1.5rem;
+            top: 1.25rem;
+            right: 1.25rem;
             display: flex;
-            gap: 0.5rem;
+            gap: 0.4rem;
         }
 
         .lang-btn {
-            padding: 0.4rem 0.8rem;
-            font-size: 0.8rem;
-            color: #666;
+            padding: 0.35rem 0.65rem;
+            font-size: 0.75rem;
+            color: #64748b;
             text-decoration: none;
             border-radius: 6px;
-            border: 1px solid #e0e0e0;
+            border: 1px solid #e2e8f0;
             background: white;
             transition: all 0.2s;
         }
@@ -113,32 +103,29 @@
         .lang-btn.active {
             background: linear-gradient(135deg, #1a56db 0%, #059669 100%);
             color: white;
-            border-color: #1a56db;
+            border-color: transparent;
         }
 
         .brand-section {
-            margin-bottom: 2.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
         }
 
         .brand-logo {
-            height: 48px;
-            margin-bottom: 1.5rem;
+            height: 56px;
+            margin-bottom: 1rem;
         }
 
         .brand-title {
-            font-size: 1.75rem;
+            font-size: 1.5rem;
             font-weight: 700;
-            color: #1a1a2e;
-            margin-bottom: 0.5rem;
+            color: #0f172a;
+            margin-bottom: 0.35rem;
         }
 
         .brand-subtitle {
-            font-size: 0.95rem;
-            color: #6b7280;
-        }
-
-        .login-form {
-            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #64748b;
         }
 
         .form-group {
@@ -147,10 +134,12 @@
 
         .form-label {
             display: block;
-            font-size: 0.875rem;
-            font-weight: 500;
+            font-size: 0.8rem;
+            font-weight: 600;
             color: #374151;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
         }
 
         .input-field {
@@ -162,67 +151,159 @@
             left: 1rem;
             top: 50%;
             transform: translateY(-50%);
-            color: #9ca3af;
+            color: #94a3b8;
             font-size: 1.1rem;
+            transition: color 0.2s;
         }
 
         .input-field input {
             width: 100%;
-            padding: 0.9rem 1rem 0.9rem 2.8rem;
-            border: 1.5px solid #e5e7eb;
-            border-radius: 8px;
+            padding: 0.85rem 1rem 0.85rem 2.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
             font-size: 0.95rem;
             transition: all 0.2s;
-            background: #fafbfc;
+            background: #f8fafc;
         }
 
         .input-field input:focus {
             outline: none;
             border-color: #1a56db;
             background: white;
-            box-shadow: 0 0 0 4px rgba(26, 86, 219, 0.12);
+            box-shadow: 0 0 0 4px rgba(26, 86, 219, 0.1);
+        }
+
+        .input-field input:focus+i,
+        .input-field:focus-within i {
+            color: #1a56db;
         }
 
         .input-field input::placeholder {
-            color: #9ca3af;
+            color: #94a3b8;
+        }
+
+        /* TOTP Section */
+        .totp-section {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .totp-section.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .totp-divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 0;
+            color: #94a3b8;
+            font-size: 0.8rem;
+        }
+
+        .totp-divider::before,
+        .totp-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+        }
+
+        .totp-divider span {
+            padding: 0 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .totp-divider i {
+            color: #059669;
+        }
+
+        .totp-input {
+            text-align: center;
+            font-size: 1.5rem !important;
+            letter-spacing: 0.5em;
+            font-weight: 600;
+            padding-left: 1rem !important;
         }
 
         .submit-btn {
             width: 100%;
-            padding: 1rem;
+            padding: 0.95rem;
             background: linear-gradient(135deg, #1a56db 0%, #059669 100%);
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 1rem;
+            border-radius: 10px;
+            font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            margin-top: 0.5rem;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
-            box-shadow: 0 4px 12px rgba(26, 86, 219, 0.25);
+            box-shadow: 0 4px 15px rgba(26, 86, 219, 0.3);
+            margin-top: 0.5rem;
         }
 
         .submit-btn:hover {
-            background: linear-gradient(135deg, #1e40af 0%, #047857 100%);
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(26, 86, 219, 0.35);
+            box-shadow: 0 8px 25px rgba(26, 86, 219, 0.4);
         }
 
         .submit-btn:active {
             transform: translateY(0);
         }
 
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .submit-btn .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        .submit-btn.loading .spinner {
+            display: block;
+        }
+
+        .submit-btn.loading .btn-text {
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
         .error-alert {
-            padding: 0.85rem 1rem;
-            background: #fff2f0;
-            border: 1px solid #ffccc7;
-            border-radius: 8px;
-            color: #cf1322;
-            font-size: 0.875rem;
+            padding: 0.8rem 1rem;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 10px;
+            color: #dc2626;
+            font-size: 0.85rem;
             margin-bottom: 1.25rem;
             display: flex;
             align-items: center;
@@ -230,73 +311,89 @@
         }
 
         .error-alert i {
-            font-size: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .success-alert {
+            padding: 0.8rem 1rem;
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            border-radius: 10px;
+            color: #059669;
+            font-size: 0.85rem;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Footer */
+        .login-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid #e2e8f0;
+            color: #94a3b8;
+            font-size: 0.8rem;
+        }
+
+        .login-footer span {
+            color: #1a56db;
+            font-weight: 600;
         }
 
         /* Responsive */
-        @media (max-width: 1024px) {
-            .side-panel {
-                display: none;
-            }
-
-            .form-panel {
-                width: 100%;
-                min-width: auto;
-                max-width: 100%;
-            }
-        }
-
         @media (max-width: 480px) {
-            .form-panel {
+            .login-card {
+                margin: 1rem;
                 padding: 2rem 1.5rem;
             }
 
             .brand-title {
-                font-size: 1.5rem;
+                font-size: 1.3rem;
             }
         }
     </style>
 </head>
 
 <body>
-    <div class="login-wrapper">
-        <!-- Left Side: Illustration -->
-        <div class="side-panel">
-            <img src="/images/login-side.png" alt="Illustration" class="side-illustration">
+    <div class="login-card">
+        <div class="lang-switcher">
+            <a href="?lang=en" class="lang-btn <%= currentLang === 'en' ? 'active' : '' %>">EN</a>
+            <a href="?lang=zh" class="lang-btn <%= currentLang === 'zh' ? 'active' : '' %>">中文</a>
         </div>
 
-        <!-- Right Side: Login Form -->
-        <div class="form-panel">
-            <div class="lang-switcher">
-                <a href="?lang=en" class="lang-btn <%= currentLang === 'en' ? 'active' : '' %>">EN</a>
-                <a href="?lang=zh" class="lang-btn <%= currentLang === 'zh' ? 'active' : '' %>">中文</a>
-            </div>
+        <div class="brand-section">
+            <img src="/images/logo-new.png" alt="Gaur Pay" class="brand-logo">
+            <h1 class="brand-title">
+                <%= t('header_welcome') || 'Welcome Back' %>
+            </h1>
+            <p class="brand-subtitle">
+                <%= t('subtitle_login') || 'Sign in to your account' %>
+            </p>
+        </div>
 
-            <div class="brand-section">
-                <img src="/images/logo-new.png" alt="Gaur Pay" class="brand-logo">
-                <h1 class="brand-title">
-                    <%= t('header_welcome') || 'Welcome Back' %>
-                </h1>
-                <p class="brand-subtitle">
-                    <%= t('subtitle_login') || 'Sign in to your merchant account' %>
-                </p>
+        <% if (message && message.length> 0) { %>
+            <div class="error-alert">
+                <i class="ri-error-warning-line"></i>
+                <%= message %>
             </div>
+            <% } %>
 
-            <% if (message && message.length> 0) { %>
-                <div class="error-alert">
-                    <i class="ri-error-warning-line"></i>
-                    <%= message %>
+                <div id="success-msg" class="success-alert" style="display:none;">
+                    <i class="ri-shield-check-line"></i>
+                    <span id="success-text"></span>
                 </div>
-                <% } %>
 
-                    <form action="/auth/login" method="POST" class="login-form">
+                <form id="loginForm" action="/auth/login" method="POST">
+                    <div id="credentials-section">
                         <div class="form-group">
                             <label class="form-label">
                                 <%= t('label_username') || 'Username' %>
                             </label>
                             <div class="input-field">
                                 <i class="ri-user-3-line"></i>
-                                <input type="text" name="username" required
+                                <input type="text" name="username" id="username" required
                                     placeholder="<%= t('ph_username') || 'Enter your username' %>">
                             </div>
                         </div>
@@ -307,18 +404,132 @@
                             </label>
                             <div class="input-field">
                                 <i class="ri-lock-password-line"></i>
-                                <input type="password" name="password" required
+                                <input type="password" name="password" id="password" required
                                     placeholder="<%= t('ph_password') || 'Enter your password' %>">
                             </div>
                         </div>
+                    </div>
 
-                        <button type="submit" class="submit-btn">
+                    <!-- Dynamic TOTP Section -->
+                    <div id="totp-section" class="totp-section">
+                        <div class="totp-divider">
+                            <span><i class="ri-shield-keyhole-line"></i> Two-Factor Authentication</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Authentication Code</label>
+                            <div class="input-field">
+                                <i class="ri-key-2-line"></i>
+                                <input type="text" name="token" id="totp-code" class="totp-input" placeholder="000000"
+                                    autocomplete="off" maxlength="6" pattern="[0-9]{6}" inputmode="numeric">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        <div class="spinner"></div>
+                        <span class="btn-text">
                             <i class="ri-login-box-line"></i>
                             <%= t('btn_login') || 'Login' %>
-                        </button>
-                    </form>
-        </div>
+                        </span>
+                    </button>
+                </form>
+
+                <div class="login-footer">
+                    Powered by <span>Gaur Pay</span> Gateway
+                </div>
     </div>
+
+    <script>
+        const form = document.getElementById('loginForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const totpSection = document.getElementById('totp-section');
+        const totpInput = document.getElementById('totp-code');
+        const successMsg = document.getElementById('success-msg');
+        const successText = document.getElementById('success-text');
+        const credentialsSection = document.getElementById('credentials-section');
+
+        let requires2FA = false;
+        let pendingUsername = '';
+        let pendingPassword = '';
+
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const token = totpInput.value;
+
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+
+            try {
+                const response = await fetch('/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password, token: token || undefined })
+                });
+
+                const data = await response.json();
+
+                if (data.requires2FA) {
+                    // Show TOTP field
+                    requires2FA = true;
+                    pendingUsername = username;
+                    pendingPassword = password;
+
+                    totpSection.classList.add('show');
+                    totpInput.required = true;
+                    totpInput.focus();
+
+                    // Update button text
+                    submitBtn.querySelector('.btn-text').innerHTML = '<i class="ri-shield-check-line"></i> Verify & Login';
+
+                    // Disable credentials
+                    document.getElementById('username').readOnly = true;
+                    document.getElementById('password').readOnly = true;
+                    credentialsSection.style.opacity = '0.6';
+
+                    successMsg.style.display = 'flex';
+                    successText.textContent = data.message || 'Enter your authentication code';
+
+                } else if (data.success) {
+                    // Login successful, redirect
+                    successMsg.style.display = 'flex';
+                    successText.textContent = 'Login successful! Redirecting...';
+                    window.location.href = data.redirect || '/';
+                } else {
+                    // Show error
+                    showError(data.message || 'Login failed');
+                }
+            } catch (error) {
+                showError('Connection error. Please try again.');
+            } finally {
+                submitBtn.classList.remove('loading');
+                submitBtn.disabled = false;
+            }
+        });
+
+        function showError(message) {
+            let errorDiv = document.querySelector('.error-alert');
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.className = 'error-alert';
+                errorDiv.innerHTML = '<i class="ri-error-warning-line"></i><span></span>';
+                form.parentNode.insertBefore(errorDiv, form);
+            }
+            errorDiv.querySelector('span') ? errorDiv.querySelector('span').textContent = message : errorDiv.innerHTML = '<i class="ri-error-warning-line"></i>' + message;
+            errorDiv.style.display = 'flex';
+
+            successMsg.style.display = 'none';
+        }
+
+        // Auto-focus and format TOTP input
+        totpInput.addEventListener('input', function (e) {
+            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);
+        });
+    </script>
 </body>
 
 </html>

@@ -16,24 +16,85 @@ router.get('/login', (req, res) => {
     res.render('login', { message: req.flash('error') });
 });
 
-// Login Handler
-router.post('/login', passport.authenticate('local', {
-    failureRedirect: '/auth/login',
-    failureFlash: true
-}), async (req, res) => {
-    const user = req.user;
-    req.session.tempUser = { id: user.id, username: user.username, role: user.role };
+// Login Handler - Supports JSON for dynamic 2FA
+router.post('/login', (req, res, next) => {
+    const isJsonRequest = req.headers['content-type']?.includes('application/json');
 
-    // Clear any old temp secret when starting fresh login
-    delete req.session.tempSecret;
-
-    if (user.two_fa_enabled) {
-        req.session.is2faPending = true;
-        res.redirect('/auth/2fa-verify');
-    } else {
-        res.redirect('/auth/2fa-setup');
+    // Check if this is a 2FA verification step
+    if (req.session.tempUser && req.body.token) {
+        // Handle 2FA verification
+        return handle2FAVerification(req, res, isJsonRequest);
     }
+
+    // Regular login with passport
+    passport.authenticate('local', (err, user, info) => {
+        if (err) {
+            return isJsonRequest
+                ? res.json({ success: false, message: 'Authentication error' })
+                : res.redirect('/auth/login');
+        }
+
+        if (!user) {
+            const message = info?.message || 'Invalid credentials';
+            return isJsonRequest
+                ? res.json({ success: false, message })
+                : (req.flash('error', message), res.redirect('/auth/login'));
+        }
+
+        // Store temp user in session
+        req.session.tempUser = { id: user.id, username: user.username, role: user.role };
+        delete req.session.tempSecret;
+
+        if (user.two_fa_enabled) {
+            req.session.is2faPending = true;
+            return isJsonRequest
+                ? res.json({ success: true, requires2FA: true, message: 'Enter your 2FA code' })
+                : res.redirect('/auth/2fa-verify');
+        } else {
+            // 2FA not setup - redirect to setup
+            return isJsonRequest
+                ? res.json({ success: true, redirect: '/auth/2fa-setup' })
+                : res.redirect('/auth/2fa-setup');
+        }
+    })(req, res, next);
 });
+
+// Handle 2FA verification within login flow
+async function handle2FAVerification(req, res, isJsonRequest) {
+    const { token } = req.body;
+    const user = await User.findByPk(req.session.tempUser.id);
+
+    if (!user || !user.two_fa_secret) {
+        return isJsonRequest
+            ? res.json({ success: false, message: 'Session expired. Please login again.' })
+            : res.redirect('/auth/login');
+    }
+
+    const cleanToken = String(token).replace(/\s/g, '').trim();
+    const isValid = otplib.authenticator.check(cleanToken, user.two_fa_secret);
+
+    console.log('--- 2FA VERIFY (Dynamic) ---');
+    console.log('Server Time:', new Date().toISOString());
+    console.log('User Token:', cleanToken);
+    console.log('Is Valid:', isValid);
+    console.log('----------------------------');
+
+    if (isValid) {
+        req.session.user = req.session.tempUser;
+        req.session.user.is2faAuthenticated = true;
+        delete req.session.tempUser;
+        delete req.session.is2faPending;
+
+        const redirectUrl = req.session.user.role === 'admin' ? '/admin' : '/merchant';
+        return isJsonRequest
+            ? res.json({ success: true, redirect: redirectUrl })
+            : res.redirect(redirectUrl);
+    } else {
+        return isJsonRequest
+            ? res.json({ success: false, message: 'Invalid authentication code. Please try again.' })
+            : res.render('2fa-verify', { error: 'Invalid code', serverTime: new Date().toISOString() });
+    }
+}
 
 // 2FA Setup Page
 router.get('/2fa-setup', async (req, res) => {
