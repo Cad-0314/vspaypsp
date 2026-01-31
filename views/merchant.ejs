@@ -412,80 +412,151 @@
             font-weight: 500;
             cursor: pointer;
             border: none;
-            background: #1890ff;
+            background: var(--sidebar-bg);
             color: white;
         }
 
         .filter-tab.green {
-            background: #52c41a;
+            background: var(--success);
         }
 
         .filter-tab.orange {
-            background: #fa8c16;
+            background: var(--warning);
         }
 
         .filter-tab.yellow {
-            background: #fadb14;
-            color: #333;
+            background: #FEF3C7;
+            color: #92400E;
         }
 
         .filter-tab.red {
-            background: #ff4d4f;
+            background: var(--danger);
         }
 
         .filter-tab.outline {
             background: white;
-            border: 1px solid var(--border);
-            color: var(--text-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            background: #fff;
+            padding: 1.25rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 1.25rem;
+        }
+
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .filter-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-label {
+            font-size: 0.85rem;
+            color: #374151;
+            font-weight: 500;
+            min-width: 70px;
+        }
+
+        .filter-input {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #D1D5DB;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            background: #fff;
+            min-width: 160px;
+        }
+
+        .filter-input:focus {
+            outline: none;
+            border-color: var(--sidebar-bg);
+        }
+
+        .filter-select {
+            padding: 0.5rem 2rem 0.5rem 0.75rem;
+            border: 1px solid #D1D5DB;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            background: #fff;
+            appearance: none;
+            min-width: 140px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
         }
 
         /* Forms */
         .form-control {
             width: 100%;
-            padding: 0.625rem 0.875rem;
-            border: 1px solid var(--border);
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #D1D5DB;
             border-radius: 4px;
-            font-size: 0.875rem;
-            transition: border 0.2s;
+            font-size: 0.85rem;
+            transition: border 0.15s;
         }
 
         .form-control:focus {
             outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+            border-color: var(--sidebar-bg);
         }
 
+        /* Buttons - New Design */
         .btn {
-            padding: 0.625rem 1rem;
+            padding: 0.45rem 1rem;
             border-radius: 4px;
             font-weight: 500;
-            font-size: 0.875rem;
+            font-size: 0.85rem;
             cursor: pointer;
             border: 1px solid transparent;
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            transition: all 0.2s;
+            gap: 0.35rem;
+            transition: all 0.15s;
         }
 
-        .btn-primary {
-            background: var(--primary);
+        .btn-primary,
+        .btn-search {
+            background: var(--sidebar-bg);
             color: white;
         }
 
         .btn-primary:hover {
-            background: var(--primary-dark);
+            opacity: 0.9;
         }
 
-        .btn-outline {
+        .btn-outline,
+        .btn-reset {
             background: white;
-            border-color: var(--border);
-            color: var(--text-dark);
+            border-color: #D1D5DB;
+            color: #374151;
         }
 
-        .btn-outline:hover {
-            border-color: var(--primary);
-            color: var(--primary);
+        .btn-outline:hover,
+        .btn-reset:hover {
+            background: #F3F4F6;
+        }
+
+        .btn-export {
+            background: #FEF3C7;
+            color: #92400E;
+            border-color: #FCD34D;
         }
 
         /* Tab Content */
