@@ -924,11 +924,9 @@
                                     <th>
                                         <%= t('status') || 'Status' %>
                                     </th>
+                                    <th>Callback</th>
                                     <th>
                                         <%= t('created') || 'Created' %>
-                                    </th>
-                                    <th>
-                                        <%= t('updated') || 'Updated' %>
                                     </th>
                                     <th>
                                         <%= t('actions') || 'Actions' %>
@@ -997,11 +995,9 @@
                                     <th>
                                         <%= t('status') || 'Status' %>
                                     </th>
+                                    <th>Callback</th>
                                     <th>
                                         <%= t('created') || 'Created' %>
-                                    </th>
-                                    <th>
-                                        <%= t('updated') || 'Updated' %>
                                     </th>
                                     <th>
                                         <%= t('actions') || 'Actions' %>
@@ -1451,20 +1447,30 @@
                     const data = await res.json();
 
                     if (data.success && data.orders.length > 0) {
-                        tbody.innerHTML = data.orders.map(o => `
-                        <tr>
-                            <td style="font-family: monospace; font-weight: 500;">${o.orderId}</td>
-                            <td>₹${o.amount}</td>
-                            <td><span class="badge badge-${o.status}">${o.status}</span></td>
-                            <td>${new Date(o.createdAt).toLocaleString()}</td>
-                            <td>${new Date(o.updatedAt).toLocaleString()}</td>
-                            <td>
-                                <button class="btn btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="resendCallback('${o.orderId}')">
-                                    <i class="ri-refresh-line"></i> Callback
-                                </button>
-                            </td>
-                        </tr>
-                    `).join('');
+                        tbody.innerHTML = data.orders.map(o => {
+                            const cbStatus = o.callbackStatus || 'pending';
+                            const cbClass = cbStatus === 'success' ? 'badge-success' : (cbStatus === 'failed' ? 'badge-failed' : 'badge-pending');
+                            const cbText = cbStatus === 'success' ? 'Pass' : (cbStatus === 'failed' ? 'Fail' : 'Pending');
+                            return `
+                            <tr>
+                                <td style="font-family: monospace; font-weight: 500;">${o.orderId}</td>
+                                <td>₹${o.amount}</td>
+                                <td><span class="badge badge-${o.status}">${o.status}</span></td>
+                                <td>
+                                    <span class="badge ${cbClass}">${cbText}</span>
+                                    ${o.callbackSentAt ? '<br><small style="color:#6B7280;">Sent</small>' : ''}
+                                </td>
+                                <td>${new Date(o.createdAt).toLocaleString()}</td>
+                                <td>
+                                    <button class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="viewOrderDetails('${o.orderId}')">
+                                        <i class="ri-eye-line"></i> Details
+                                    </button>
+                                    <button class="btn btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="resendCallback('${o.orderId}')">
+                                        <i class="ri-refresh-line"></i> Callback
+                                    </button>
+                                </td>
+                            </tr>
+                        `}).join('');
                         renderPagination(data.pagination, type + '-pagination', `loadOrders('${type}', {page})`);
                     } else {
                         tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="ri-inbox-line"></i><br>No transactions found</td></tr>';
@@ -1486,6 +1492,43 @@
 
             function loadPayinHistory(page) { loadOrders('payin', page); }
             function loadPayoutHistory(page) { loadOrders('payout', page); }
+
+            async function viewOrderDetails(orderId) {
+                try {
+                    const res = await fetch(`/api/merchant/order/${orderId}`);
+                    const data = await res.json();
+                    if (data.success) {
+                        const o = data.order;
+                        const cbStatus = o.callbackStatus || 'pending';
+                        const cbClass = cbStatus === 'success' ? 'badge-success' : (cbStatus === 'failed' ? 'badge-failed' : 'badge-pending');
+                        const cbText = cbStatus === 'success' ? 'Pass' : (cbStatus === 'failed' ? 'Fail' : 'Pending');
+                        const content = `
+                            <div style="display:grid; gap:0.75rem;">
+                                <div><strong>Order ID:</strong> ${o.orderId}</div>
+                                <div><strong>Amount:</strong> ₹${o.amount}</div>
+                                <div><strong>Status:</strong> <span class="badge badge-${o.status}">${o.status}</span></div>
+                                <div><strong>Type:</strong> ${o.type}</div>
+                                <div><strong>UTR:</strong> ${o.utr || 'N/A'}</div>
+                                <hr style="border:none;border-top:1px solid #E5E7EB;">
+                                <div><strong>Callback Status:</strong> <span class="badge ${cbClass}">${cbText}</span></div>
+                                <div><strong>Callback Sent:</strong> ${o.callbackSentAt ? new Date(o.callbackSentAt).toLocaleString() : 'Not sent'}</div>
+                                <div><strong>Callback Response:</strong> ${o.callbackResponse || 'N/A'}</div>
+                                <hr style="border:none;border-top:1px solid #E5E7EB;">
+                                <div><strong>Created:</strong> ${new Date(o.createdAt).toLocaleString()}</div>
+                                <div><strong>Updated:</strong> ${new Date(o.updatedAt).toLocaleString()}</div>
+                            </div>
+                        `;
+                        document.getElementById('order-detail-content').innerHTML = content;
+                        document.getElementById('order-detail-modal').classList.add('active');
+                    } else {
+                        showToast(data.error || 'Failed to load order details', 'error');
+                    }
+                } catch (e) { showToast('Error loading details', 'error'); }
+            }
+
+            function closeOrderDetailModal() {
+                document.getElementById('order-detail-modal').classList.remove('active');
+            }
 
             async function loadSettlements(page = 1) {
                 const tbody = document.getElementById('settlement-table').querySelector('tbody');
@@ -1716,6 +1759,23 @@
     </div> <!-- content-scroll -->
     </main>
     </div> <!-- dashboard-container -->
+
+    <!-- Order Details Modal -->
+    <div id="order-detail-modal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h3 style="margin: 0;">Order Details</h3>
+                <button onclick="closeOrderDetailModal()"
+                    style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6B7280;">&times;</button>
+            </div>
+            <div id="order-detail-content">
+                Loading...
+            </div>
+            <div style="margin-top: 1rem; text-align: right;">
+                <button class="btn btn-outline" onclick="closeOrderDetailModal()">Close</button>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
