@@ -722,7 +722,7 @@
                         <%= t('nav_settlements') %>
                     </div>
                     <div class="nav-item" onclick="switchTab('paylink')">
-                        <i class="ri-links-line"></i>
+                        <i class="ri-wallet-3-line"></i>
                         <%= t('nav_paylink') %>
                     </div>
                 </div>
@@ -1094,46 +1094,92 @@
                         style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem;"></div>
                 </div>
 
-                <!-- PayLink Tab -->
+                <!-- Add Topup Tab -->
                 <div id="tab-paylink" class="tab-content">
-                    <h2 style="margin-bottom: 1rem;">
+                    <h2 style="margin-bottom: 0.5rem;">
                         <%= t('payment_link') %>
                     </h2>
+                    <p style="color: #6B7280; font-size: 0.875rem; margin-bottom: 1.5rem;">Request funds to be added to
+                        your account balance</p>
 
-                    <div class="card" style="max-width: 500px;">
-                        <div class="card-header">
-                            <div class="card-title"><i class="ri-link-m"></i>
-                                <%= t('create_new_link') %>
+                    <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 1.5rem;">
+                        <!-- Topup Form -->
+                        <div class="card">
+                            <div class="card-header"
+                                style="background: linear-gradient(135deg, #2B5797 0%, #3668A8 100%); color: white;">
+                                <div class="card-title" style="color: white;"><i class="ri-add-circle-line"></i>
+                                    <%= t('create_new_link') %>
+                                </div>
+                            </div>
+                            <div class="card-body" style="padding: 1.5rem;">
+                                <form onsubmit="submitTopup(event)">
+                                    <label class="stat-label" style="display: block; margin-bottom: 0.5rem;">
+                                        <%= t('amount') %> (INR)
+                                    </label>
+                                    <div style="position: relative; margin-bottom: 1.25rem;">
+                                        <span
+                                            style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); font-size: 1.25rem; color: #6B7280;">₹</span>
+                                        <input type="number" id="topup-amount" class="form-control"
+                                            style="padding-left: 2.5rem; padding-right: 1rem; font-size: 1.25rem; height: 56px; border-radius: 8px;"
+                                            required min="100" placeholder="0.00">
+                                    </div>
+
+                                    <label class="stat-label" style="display: block; margin-bottom: 0.5rem;">Reference /
+                                        UTR (Optional)</label>
+                                    <input type="text" id="topup-reference" class="form-control"
+                                        style="margin-bottom: 1.25rem; border-radius: 8px;"
+                                        placeholder="Enter UTR or reference number">
+
+                                    <label class="stat-label" style="display: block; margin-bottom: 0.5rem;">Notes
+                                        (Optional)</label>
+                                    <textarea id="topup-notes" class="form-control" rows="2"
+                                        style="margin-bottom: 1.5rem; border-radius: 8px; resize: none;"
+                                        placeholder="Add notes for this topup"></textarea>
+
+                                    <button type="submit" class="btn btn-primary"
+                                        style="width: 100%; justify-content: center; padding: 0.875rem; font-size: 1rem; border-radius: 8px;">
+                                        <i class="ri-send-plane-fill"></i>
+                                        <%= t('generate_link') %>
+                                    </button>
+                                </form>
+
+                                <div id="topup-result"
+                                    style="display: none; margin-top: 1.5rem; padding: 1rem; background: #ECFDF5; border: 1px solid #10B981; border-radius: 8px;">
+                                    <div
+                                        style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+                                        <i class="ri-checkbox-circle-fill"
+                                            style="color: #10B981; font-size: 1.25rem;"></i>
+                                        <span style="font-weight: 600; color: #065F46;">Topup Request Submitted</span>
+                                    </div>
+                                    <p style="font-size: 0.875rem; color: #047857; margin: 0;">Your request has been
+                                        submitted for processing. You will be notified once approved.</p>
+                                </div>
                             </div>
                         </div>
-                        <div class="card-body">
-                            <form onsubmit="generatePayLink(event)">
-                                <label class="stat-label">
-                                    <%= t('amount') %>
-                                </label>
-                                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
-                                    <span
-                                        style="padding: 0.625rem 1rem; background: #f5f5f5; border: 1px solid var(--border); border-radius: 4px 0 0 4px;">₹</span>
-                                    <input type="number" id="link-amount" class="form-control"
-                                        style="border-radius: 0 4px 4px 0;" required min="10" placeholder="0.00">
-                                </div>
-                                <button type="submit" class="btn btn-primary"
-                                    style="width: 100%; justify-content: center;">
-                                    <%= t('generate_link') %> <i class="ri-arrow-right-line"></i>
-                                </button>
-                            </form>
 
-                            <div id="paylink-result"
-                                style="display: none; margin-top: 1.5rem; padding: 1rem; background: #f6ffed; border: 1px solid #b7eb8f; border-radius: 4px;">
-                                <label
-                                    style="font-size: 0.75rem; color: #52c41a; font-weight: 600; margin-bottom: 0.5rem; display: block;">Ready
-                                    to Share</label>
-                                <div style="display: flex; gap: 0.5rem;">
-                                    <input type="text" id="generated-link" class="form-control" readonly
-                                        style="background: white;">
-                                    <button class="btn btn-primary" onclick="copyLink()"><i
-                                            class="ri-file-copy-line"></i></button>
-                                </div>
+                        <!-- Topup History -->
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title"><i class="ri-history-line"></i> Topup History</div>
+                            </div>
+                            <div class="card-body" style="padding: 0;">
+                                <table id="topup-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Amount</th>
+                                            <th>Reference</th>
+                                            <th>Status</th>
+                                            <th>Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="5" class="empty-state"><i class="ri-inbox-line"></i><br>No
+                                                topup requests yet</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -1595,6 +1641,59 @@
 
                 btn.innerHTML = originalText;
                 btn.disabled = false;
+            }
+
+            async function submitTopup(e) {
+                e.preventDefault();
+                const btn = e.target.querySelector('button[type="submit"]');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Processing...';
+                btn.disabled = true;
+
+                const amount = document.getElementById('topup-amount').value;
+                const reference = document.getElementById('topup-reference').value;
+                const notes = document.getElementById('topup-notes').value;
+
+                try {
+                    const res = await fetch('/api/merchant/topup', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ amount, reference, notes })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        e.target.reset();
+                        document.getElementById('topup-result').style.display = 'block';
+                        loadTopupHistory();
+                        showToast('Topup request submitted successfully');
+                    } else {
+                        showToast(data.error || 'Failed to submit topup', 'error');
+                    }
+                } catch (err) { showToast('Error submitting topup request', 'error'); }
+
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+
+            async function loadTopupHistory() {
+                const tbody = document.getElementById('topup-table').querySelector('tbody');
+                try {
+                    const res = await fetch('/api/merchant/topups');
+                    const data = await res.json();
+                    if (data.success && data.topups && data.topups.length > 0) {
+                        tbody.innerHTML = data.topups.map(t => `
+                            <tr>
+                                <td style="font-family: monospace;">${t.id}</td>
+                                <td style="font-weight: 600;">₹${t.amount}</td>
+                                <td>${t.reference || '-'}</td>
+                                <td><span class="badge badge-${t.status}">${t.status}</span></td>
+                                <td>${new Date(t.createdAt).toLocaleString()}</td>
+                            </tr>
+                        `).join('');
+                    } else {
+                        tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><i class="ri-inbox-line"></i><br>No topup requests yet</td></tr>';
+                    }
+                } catch (err) { console.error(err); }
             }
 
             async function submitSettlement(e) {
