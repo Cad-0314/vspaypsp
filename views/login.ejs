@@ -32,7 +32,7 @@
         /* Left Side - Illustration */
         .side-panel {
             flex: 1;
-            background: linear-gradient(135deg, #e8f4fd 0%, #f0f7ff 50%, #e0f0ff 100%);
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -48,8 +48,9 @@
             left: 10%;
             width: 200px;
             height: 200px;
-            background: rgba(24, 144, 255, 0.08);
+            background: rgba(26, 86, 219, 0.2);
             border-radius: 50%;
+            filter: blur(60px);
         }
 
         .side-panel::after {
@@ -59,8 +60,9 @@
             right: 15%;
             width: 150px;
             height: 150px;
-            background: rgba(82, 196, 26, 0.08);
+            background: rgba(5, 150, 105, 0.2);
             border-radius: 50%;
+            filter: blur(60px);
         }
 
         .side-illustration {
@@ -104,14 +106,14 @@
         }
 
         .lang-btn:hover {
-            border-color: #1890ff;
-            color: #1890ff;
+            border-color: #1a56db;
+            color: #1a56db;
         }
 
         .lang-btn.active {
-            background: #1890ff;
+            background: linear-gradient(135deg, #1a56db 0%, #059669 100%);
             color: white;
-            border-color: #1890ff;
+            border-color: #1a56db;
         }
 
         .brand-section {
@@ -176,9 +178,9 @@
 
         .input-field input:focus {
             outline: none;
-            border-color: #1890ff;
+            border-color: #1a56db;
             background: white;
-            box-shadow: 0 0 0 4px rgba(24, 144, 255, 0.12);
+            box-shadow: 0 0 0 4px rgba(26, 86, 219, 0.12);
         }
 
         .input-field input::placeholder {
@@ -188,7 +190,7 @@
         .submit-btn {
             width: 100%;
             padding: 1rem;
-            background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
+            background: linear-gradient(135deg, #1a56db 0%, #059669 100%);
             color: white;
             border: none;
             border-radius: 8px;
@@ -201,12 +203,13 @@
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
+            box-shadow: 0 4px 12px rgba(26, 86, 219, 0.25);
         }
 
         .submit-btn:hover {
-            background: linear-gradient(135deg, #096dd9 0%, #1890ff 100%);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+            background: linear-gradient(135deg, #1e40af 0%, #047857 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(26, 86, 219, 0.35);
         }
 
         .submit-btn:active {
@@ -270,7 +273,7 @@
             </div>
 
             <div class="brand-section">
-                <img src="/images/logo.png" alt="Payable" class="brand-logo">
+                <img src="/images/logo-new.png" alt="Gaur Pay" class="brand-logo">
                 <h1 class="brand-title">
                     <%= t('header_welcome') || 'Welcome Back' %>
                 </h1>

@@ -117,7 +117,7 @@ async function validateMerchant(req, res, next) {
 
         // Set distinctive Payable API headers
         res.set({
-            'X-Powered-By': 'Payable-Gateway/2.1',
+            'X-Powered-By': 'Gaur-Pay-Gateway/2.1',
             'X-Api-Version': '2.1.0',
             'X-Request-Id': require('crypto').randomUUID(),
             'X-Merchant': merchant.username
