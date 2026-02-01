@@ -20,6 +20,11 @@ const paypageRoutes = require('./src/routes/paypage');
 const adminRoutes = require('./src/routes/admin');
 const merchantApiRoutes = require('./src/routes/merchant_api');
 
+// V2 API Routes
+const v2CollectionRoutes = require('./src/routes/api/v2/collection');
+const v2TransferRoutes = require('./src/routes/api/v2/transfer');
+const v2AccountRoutes = require('./src/routes/api/v2/account');
+
 // Seeder
 const seedDatabase = require('./src/seeders/init');
 
@@ -84,6 +89,13 @@ app.use(flash());
 app.use('/api/payin', payinRoutes);
 app.use('/api/payout', payoutRoutes);
 app.use('/api/balance', balanceRoutes);
+
+// ============================================
+// V2 API Routes (New Format)
+// ============================================
+app.use('/v2/collection', v2CollectionRoutes);
+app.use('/v2/transfer', v2TransferRoutes);
+app.use('/v2/account', v2AccountRoutes);
 
 // ============================================
 // Callback Routes (from upstream providers)

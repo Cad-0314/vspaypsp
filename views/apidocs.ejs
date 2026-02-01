@@ -355,18 +355,19 @@
             <a href="#auth" class="nav-item" data-i18n="authentication">Authentication</a>
             <a href="#errors" class="nav-item" data-i18n="error_codes">Error Codes</a>
 
-            <div class="nav-group" data-i18n="pay_in_deposits">Pay-In (Deposits)</div>
-            <a href="#payin-create" class="nav-item" data-i18n="create_order">Create Order</a>
-            <a href="#payin-callback" class="nav-item" data-i18n="payin_callback">Pay-In Callback</a>
-            <a href="#payin-query" class="nav-item" data-i18n="query_status">Query Status</a>
+            <div class="nav-group">Collection (Pay-In)</div>
+            <a href="#collection-initiate" class="nav-item">Initiate Collection</a>
+            <a href="#collection-callback" class="nav-item">Collection Callback</a>
+            <a href="#collection-status" class="nav-item">Query Status</a>
+            <a href="#collection-update-ref" class="nav-item">Update Reference</a>
 
-            <div class="nav-group" data-i18n="pay_out_withdrawals">Pay-Out (Withdrawals)</div>
-            <a href="#payout-bank" class="nav-item" data-i18n="bank_transfer">Bank Transfer</a>
-            <a href="#payout-usdt" class="nav-item" data-i18n="usdt_transfer">USDT Transfer</a>
-            <a href="#payout-callback" class="nav-item" data-i18n="payout_callback">Payout Callback</a>
-            <a href="#payout-query" class="nav-item" data-i18n="query_status">Query Status</a>
+            <div class="nav-group">Transfer (Pay-Out)</div>
+            <a href="#transfer-bank" class="nav-item">Bank Transfer</a>
+            <a href="#transfer-crypto" class="nav-item">Crypto Transfer</a>
+            <a href="#transfer-callback" class="nav-item">Transfer Callback</a>
+            <a href="#transfer-status" class="nav-item">Query Status</a>
 
-            <div class="nav-group" data-i18n="utilities">Utilities</div>
+            <div class="nav-group" data-i18n="utilities">Account</div>
             <a href="#balance" class="nav-item" data-i18n="check_balance">Check Balance</a>
         </nav>
     </aside>
@@ -378,7 +379,7 @@
             <p data-i18n="intro_desc">Welcome to the Gaur Pay API. This documentation provides a
                 comprehensive guide to integrating our secure payment solutions for deposits (Pay-In) and withdrawals
                 (Pay-Out).</p>
-            <p><strong data-i18n="version">Version:</strong> 2.1<br>
+            <p><strong data-i18n="version">Version:</strong> 2.0<br>
                 <strong data-i18n="base_url">Base URL:</strong> <code>https://api.gaurpay.com</code>
             </p>
             <div class="alert alert-info">
@@ -521,84 +522,103 @@ function generateSignature(params, secretKey) {
             </table>
         </section>
 
-        <!-- Pay-In Create -->
-        <section id="payin-create">
-            <h2 data-i18n="create_order">Create Pay-In Order / 创建充值订单</h2>
-            <p data-i18n="create_payin_desc">Generate a payment link to collect funds from a user.</p>
-            <p><span class="method post">POST</span><span class="endpoint">/api/payin/create</span></p>
+        <!-- Collection Initiate -->
+        <section id="collection-initiate">
+            <h2>Initiate Collection / 创建代收订单</h2>
+            <p>Create a payment link to collect funds from a customer.</p>
+            <p><span class="method post">POST</span><span class="endpoint">/v2/collection/initiate</span></p>
 
             <table class="param-table">
                 <tr>
-                    <th data-i18n="parameter">Parameter</th>
-                    <th data-i18n="param_type">Type</th>
-                    <th data-i18n="description">Description</th>
+                    <th>Parameter</th>
+                    <th>Type</th>
+                    <th>Description</th>
                 </tr>
                 <tr>
-                    <td><code>orderId</code></td>
+                    <td><code>merchant_order_id</code></td>
                     <td>String <span class="required">Required</span></td>
-                    <td>Unique Order ID (Max 64 chars) / 唯一订单号</td>
+                    <td>Your unique order ID (Max 64 chars) / 唯一订单号</td>
                 </tr>
                 <tr>
-                    <td><code>orderAmount</code></td>
+                    <td><code>amount</code></td>
                     <td>Number <span class="required">Required</span></td>
-                    <td>Amount to collect (Min ₹100) / 收款金额</td>
+                    <td>Amount to collect in INR (Min ₹100) / 收款金额</td>
                 </tr>
                 <tr>
-                    <td><code>callbackUrl</code></td>
+                    <td><code>notify_url</code></td>
                     <td>String <span class="required">Required</span></td>
                     <td>Webhook URL for notifications / 回调通知地址</td>
                 </tr>
                 <tr>
-                    <td><code>skipUrl</code></td>
+                    <td><code>redirect_url</code></td>
                     <td>String <span class="optional">Optional</span></td>
-                    <td>Redirect URL after payment / 支付后跳转地址</td>
+                    <td>Post-payment redirect URL / 支付后跳转地址</td>
                 </tr>
                 <tr>
-                    <td><code>param</code></td>
+                    <td><code>extra_data</code></td>
                     <td>String <span class="optional">Optional</span></td>
-                    <td>Custom data returned in callback / 自定义回传数据</td>
+                    <td>Custom pass-through data / 自定义回传数据</td>
+                </tr>
+                <tr>
+                    <td><code>customer_name</code></td>
+                    <td>String <span class="optional">Optional</span></td>
+                    <td>Customer name / 客户姓名</td>
+                </tr>
+                <tr>
+                    <td><code>customer_phone</code></td>
+                    <td>String <span class="optional">Optional</span></td>
+                    <td>Customer phone / 客户电话</td>
+                </tr>
+                <tr>
+                    <td><code>customer_email</code></td>
+                    <td>String <span class="optional">Optional</span></td>
+                    <td>Customer email / 客户邮箱</td>
                 </tr>
             </table>
 
-            <h3 data-i18n="ex_request">Example Request</h3>
+            <h3>Example Request</h3>
             <div class="code-block">
                 <button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
                 <pre><code>{
-    "orderId": "MC001-998877",
-    "orderAmount": 500,
-    "callbackUrl": "https://mysite.com/webhook",
-    "skipUrl": "https://mysite.com/success"
+    "merchant_order_id": "MC001-998877",
+    "amount": 500,
+    "notify_url": "https://mysite.com/webhook",
+    "redirect_url": "https://mysite.com/success",
+    "extra_data": "user_123",
+    "customer_name": "John Doe"
 }</code></pre>
             </div>
 
-            <h3 data-i18n="success_response">Success Response</h3>
+            <h3>Success Response</h3>
             <div class="code-block">
                 <button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
                 <pre><code>{
-    "code": 1,
-    "msg": "Order created",
+    "success": true,
+    "code": "SUCCESS",
+    "message": "Collection order created",
+    "timestamp": "2026-02-01T18:00:00.000Z",
     "data": {
-        "orderId": "MC001-998877",
-        "id": "e0b5...88",
-        "orderAmount": 500,
-        "fee": 25,
-        "paymentUrl": "https://payable.firestars.co/pay/DF-123456",
-        "deepLinks": {
-            "upi_phonepe": "phonepe://...",
-            "upi_paytm": "paytmmp://...",
-            "upi_gpay": "tez://upi/pay?pa=...",
-            "upi_scan": "upi://pay?..."
+        "merchant_order_id": "MC001-998877",
+        "platform_order_id": "e0b5...88",
+        "amount": 500.00,
+        "processing_fee": 25.00,
+        "payment_url": "https://pay.gaurpay.com/p/abc123",
+        "expires_at": "2026-02-01T18:30:00.000Z",
+        "app_links": {
+            "phonepe": "phonepe://pay?...",
+            "paytm": "paytmmp://pay?...",
+            "gpay": "tez://upi/pay?...",
+            "generic_upi": "upi://pay?..."
         }
     }
 }</code></pre>
             </div>
         </section>
 
-        <!-- Pay-In Callback -->
-        <section id="payin-callback">
-            <h2 data-i18n="payin_callback">Pay-In Callback / 充值回调</h2>
-            <p data-i18n="payin_callback_desc">We send a POST request to your callback URL when payment status changes.
-            </p>
+        <!-- Collection Callback -->
+        <section id="collection-callback">
+            <h2>Collection Callback / 代收回调</h2>
+            <p>We send a POST request to your notify_url when the collection status changes.</p>
 
             <h3>Callback Parameters / 回调参数</h3>
             <table class="param-table">
@@ -608,42 +628,57 @@ function generateSignature(params, secretKey) {
                     <th>Description</th>
                 </tr>
                 <tr>
-                    <td><code>status</code></td>
+                    <td><code>event_type</code></td>
+                    <td>String</td>
+                    <td>Event type: collection.completed / collection.failed</td>
+                </tr>
+                <tr>
+                    <td><code>timestamp</code></td>
+                    <td>String</td>
+                    <td>ISO 8601 timestamp / 时间戳</td>
+                </tr>
+                <tr>
+                    <td><code>data.merchant_order_id</code></td>
+                    <td>String</td>
+                    <td>Your order ID / 商户订单号</td>
+                </tr>
+                <tr>
+                    <td><code>data.platform_order_id</code></td>
+                    <td>String</td>
+                    <td>Platform transaction ID / 平台交易ID</td>
+                </tr>
+                <tr>
+                    <td><code>data.status</code></td>
+                    <td>String</td>
+                    <td>completed / failed / 完成/失败</td>
+                </tr>
+                <tr>
+                    <td><code>data.amount</code></td>
                     <td>Number</td>
-                    <td>1 = Success, 0 = Failed / 1成功 0失败</td>
+                    <td>Original order amount / 订单金额</td>
                 </tr>
                 <tr>
-                    <td><code>amount</code></td>
+                    <td><code>data.net_amount</code></td>
                     <td>Number</td>
-                    <td>Net amount after fees / 扣费后到账金额</td>
+                    <td>Net amount after fees / 扣费后金额</td>
                 </tr>
                 <tr>
-                    <td><code>orderAmount</code></td>
+                    <td><code>data.processing_fee</code></td>
                     <td>Number</td>
-                    <td>Original order amount / 原始订单金额</td>
+                    <td>Processing fee charged / 手续费</td>
                 </tr>
                 <tr>
-                    <td><code>orderId</code></td>
+                    <td><code>data.transaction_ref</code></td>
                     <td>String</td>
-                    <td>Your merchant order ID / 商户订单号</td>
+                    <td>Bank UTR / 银行流水号</td>
                 </tr>
                 <tr>
-                    <td><code>id</code></td>
+                    <td><code>data.extra_data</code></td>
                     <td>String</td>
-                    <td>Gateway transaction ID / 网关交易ID</td>
+                    <td>Your custom data / 自定义回传</td>
                 </tr>
                 <tr>
-                    <td><code>utr</code></td>
-                    <td>String</td>
-                    <td>Bank reference number / 银行流水号</td>
-                </tr>
-                <tr>
-                    <td><code>param</code></td>
-                    <td>String</td>
-                    <td>Your custom parameter / 自定义回传参数</td>
-                </tr>
-                <tr>
-                    <td><code>sign</code></td>
+                    <td><code>signature</code></td>
                     <td>String</td>
                     <td>MD5 signature / MD5签名</td>
                 </tr>
@@ -653,34 +688,38 @@ function generateSignature(params, secretKey) {
             <div class="code-block">
                 <button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
                 <pre><code>{
-    "status": 1,
-    "amount": 475.00,
-    "orderAmount": 500.00,
-    "orderId": "MC001-998877",
-    "id": "uuid-v4-string",
-    "utr": "123456789012",
-    "param": "custom-data",
-    "sign": "A1B2C3D4E5F6..."
+    "event_type": "collection.completed",
+    "timestamp": "2026-02-01T18:00:00.000Z",
+    "data": {
+        "merchant_order_id": "MC001-998877",
+        "platform_order_id": "e0b5...88",
+        "status": "completed",
+        "amount": 500.00,
+        "net_amount": 475.00,
+        "processing_fee": 25.00,
+        "transaction_ref": "123456789012",
+        "extra_data": "user_123"
+    },
+    "signature": "A1B2C3D4E5F6..."
 }</code></pre>
             </div>
 
             <div class="alert alert-warning">
-                <strong>Important / 重要:</strong> You must respond with plain text <code>OK</code> to acknowledge. We
-                retry up to 5 times if not received.<br>
+                <strong>Important / 重要:</strong> Return plain text <code>OK</code> to acknowledge.
+                We retry up to 5 times if not received.<br>
                 <strong>必须响应:</strong> 收到回调后需返回纯文本 <code>OK</code>。未收到确认将重试5次。
             </div>
         </section>
 
-        <!-- Pay-In Query -->
-        <section id="payin-query">
-            <h2 data-i18n="query_status">Query Pay-In Status / 查询充值状态</h2>
-            <p data-i18n="query_payin_desc">Check the real-time status of a deposit order.</p>
-            <p><span class="method post">POST</span><span class="endpoint">/api/payin/query</span></p>
+        <!-- Collection Status -->
+        <section id="collection-status">
+            <h2>Query Collection Status / 查询代收状态</h2>
+            <p>Check the real-time status of a collection order.</p>
+            <p><span class="method post">POST</span><span class="endpoint">/v2/collection/status</span></p>
             <div class="alert alert-info">
-                <strong>Public Alternative:</strong> Use <code>POST /api/payin/check</code> with <code>orderId</code>
-                and <code>userId</code> (no signature required).<br>
-                <strong>公开接口:</strong> 可使用 <code>/api/payin/check</code>，需传 <code>orderId</code> 和
-                <code>userId</code>（无需签名）
+                <strong>Public Alternative:</strong> Use <code>POST /v2/collection/verify</code> with
+                <code>merchant_order_id</code> and <code>merchant_id</code> (no signature required).<br>
+                <strong>公开接口:</strong> 可使用 <code>/v2/collection/verify</code>（无需签名）
             </div>
 
             <table class="param-table">
@@ -690,37 +729,39 @@ function generateSignature(params, secretKey) {
                     <th>Description</th>
                 </tr>
                 <tr>
-                    <td><code>orderId</code></td>
+                    <td><code>merchant_order_id</code></td>
                     <td>String <span class="required">Required</span></td>
                     <td>Your unique Order ID / 您的订单号</td>
                 </tr>
             </table>
 
-            <h3 data-i18n="success_response">Response</h3>
+            <h3>Success Response</h3>
             <div class="code-block">
                 <button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
                 <pre><code>{
-    "code": 1,
+    "success": true,
+    "code": "SUCCESS",
+    "timestamp": "2026-02-01T18:00:00.000Z",
     "data": {
-        "orderId": "MC001-998877",
-        "id": "e0b5...88",
-        "status": "success",
-        "amount": 500,
-        "orderAmount": 500,
-        "fee": 25,
-        "netAmount": 475,
-        "utr": "123456789012",
-        "createdAt": "2025-01-01T12:00:00Z"
+        "merchant_order_id": "MC001-998877",
+        "platform_order_id": "e0b5...88",
+        "status": "completed",
+        "amount": 500.00,
+        "processing_fee": 25.00,
+        "net_amount": 475.00,
+        "transaction_ref": "123456789012",
+        "created_at": "2026-02-01T17:30:00.000Z",
+        "completed_at": "2026-02-01T17:35:00.000Z"
     }
 }</code></pre>
             </div>
         </section>
 
-        <!-- Payout Bank -->
-        <section id="payout-bank">
-            <h2 data-i18n="bank_transfer">Bank Payout / 银行代付</h2>
-            <p data-i18n="bank_payout_desc">Transfer funds to a bank account via IMPS/NEFT.</p>
-            <p><span class="method post">POST</span><span class="endpoint">/api/payout/bank</span></p>
+        <!-- Update Reference -->
+        <section id="collection-update-ref">
+            <h2>Update Reference / 更新交易流水号</h2>
+            <p>Update UTR/transaction reference for an existing order.</p>
+            <p><span class="method post">POST</span><span class="endpoint">/v2/collection/update-ref</span></p>
 
             <table class="param-table">
                 <tr>
@@ -729,7 +770,57 @@ function generateSignature(params, secretKey) {
                     <th>Description</th>
                 </tr>
                 <tr>
-                    <td><code>orderId</code></td>
+                    <td><code>merchant_order_id</code></td>
+                    <td>String <span class="required">Required</span></td>
+                    <td>Your order ID / 您的订单号</td>
+                </tr>
+                <tr>
+                    <td><code>transaction_ref</code></td>
+                    <td>String <span class="required">Required</span></td>
+                    <td>New UTR/reference number / 新的流水号</td>
+                </tr>
+                <tr>
+                    <td><code>reason</code></td>
+                    <td>String <span class="optional">Optional</span></td>
+                    <td>Reason for update / 更新原因</td>
+                </tr>
+            </table>
+
+            <h3>Success Response</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
+                <pre><code>{
+    "success": true,
+    "code": "SUCCESS",
+    "message": "Reference updated successfully",
+    "timestamp": "2026-02-01T18:00:00.000Z",
+    "data": {
+        "merchant_order_id": "MC001-998877",
+        "platform_order_id": "e0b5...88",
+        "old_ref": "OLD123456",
+        "new_ref": "NEW789012",
+        "channel_response": {
+            "status": "accepted"
+        }
+    }
+}</code></pre>
+            </div>
+        </section>
+
+        <!-- Bank Transfer -->
+        <section id="transfer-bank">
+            <h2>Bank Transfer / 银行代付</h2>
+            <p>Transfer funds to a bank account via IMPS/NEFT.</p>
+            <p><span class="method post">POST</span><span class="endpoint">/v2/transfer/bank</span></p>
+
+            <table class="param-table">
+                <tr>
+                    <th>Parameter</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><code>merchant_order_id</code></td>
                     <td>String <span class="required">Required</span></td>
                     <td>Unique transaction ID / 唯一交易号</td>
                 </tr>
@@ -739,54 +830,57 @@ function generateSignature(params, secretKey) {
                     <td>Amount (Min ₹100) / 金额</td>
                 </tr>
                 <tr>
-                    <td><code>account</code></td>
+                    <td><code>account_number</code></td>
                     <td>String <span class="required">Required</span></td>
                     <td>Bank account number / 银行账号</td>
                 </tr>
                 <tr>
-                    <td><code>ifsc</code></td>
+                    <td><code>ifsc_code</code></td>
                     <td>String <span class="required">Required</span></td>
                     <td>IFSC code / IFSC代码</td>
                 </tr>
                 <tr>
-                    <td><code>personName</code></td>
+                    <td><code>beneficiary_name</code></td>
                     <td>String <span class="required">Required</span></td>
                     <td>Account holder name / 收款人姓名</td>
                 </tr>
                 <tr>
-                    <td><code>callbackUrl</code></td>
-                    <td>String <span class="optional">Optional</span></td>
+                    <td><code>notify_url</code></td>
+                    <td>String <span class="required">Required</span></td>
                     <td>Webhook URL / 回调地址</td>
                 </tr>
                 <tr>
-                    <td><code>param</code></td>
+                    <td><code>extra_data</code></td>
                     <td>String <span class="optional">Optional</span></td>
-                    <td>Custom data / 自定义数据</td>
+                    <td>Custom pass-through data / 自定义数据</td>
                 </tr>
             </table>
 
-            <h3 data-i18n="success_response">Success Response</h3>
+            <h3>Success Response</h3>
             <div class="code-block">
                 <button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
                 <pre><code>{
-    "code": 1,
-    "msg": "Payout submitted",
+    "success": true,
+    "code": "SUCCESS",
+    "message": "Transfer initiated",
+    "timestamp": "2026-02-01T18:00:00.000Z",
     "data": {
-        "orderId": "MC001-998877",
-        "id": "e0b5...88",
-        "amount": 500,
-        "fee": 21,
-        "status": "processing"
+        "merchant_order_id": "PO001-998877",
+        "platform_order_id": "e0b5...88",
+        "amount": 10000.00,
+        "processing_fee": 306.00,
+        "status": "processing",
+        "estimated_completion": "2026-02-01T18:15:00.000Z"
     }
 }</code></pre>
             </div>
         </section>
 
-        <!-- Payout USDT -->
-        <section id="payout-usdt">
-            <h2 data-i18n="usdt_transfer">USDT Payout / USDT代付</h2>
-            <p data-i18n="usdt_payout_desc">Transfer funds to a crypto wallet.</p>
-            <p><span class="method post">POST</span><span class="endpoint">/api/payout/usdt</span></p>
+        <!-- Crypto Transfer -->
+        <section id="transfer-crypto">
+            <h2>Crypto Transfer / USDT代付</h2>
+            <p>Transfer funds to a crypto wallet.</p>
+            <p><span class="method post">POST</span><span class="endpoint">/v2/transfer/crypto</span></p>
 
             <table class="param-table">
                 <tr>
@@ -795,53 +889,63 @@ function generateSignature(params, secretKey) {
                     <th>Description</th>
                 </tr>
                 <tr>
-                    <td><code>orderId</code></td>
+                    <td><code>merchant_order_id</code></td>
                     <td>String <span class="required">Required</span></td>
                     <td>Unique transaction ID / 交易号</td>
                 </tr>
                 <tr>
                     <td><code>amount</code></td>
                     <td>Number <span class="required">Required</span></td>
-                    <td>Amount in INR (Min 500 USDT eq) / INR金额</td>
+                    <td>Amount in INR (Min ₹100) / INR金额</td>
                 </tr>
                 <tr>
-                    <td><code>walletAddress</code></td>
+                    <td><code>wallet_address</code></td>
                     <td>String <span class="required">Required</span></td>
                     <td>Wallet address / 钱包地址</td>
                 </tr>
                 <tr>
                     <td><code>network</code></td>
-                    <td>String <span class="required">Required</span></td>
-                    <td>TRC20, ERC20, or BEP20 / 网络协议</td>
+                    <td>String <span class="optional">Optional</span></td>
+                    <td>TRC20, ERC20, or BEP20 (default: TRC20) / 网络协议</td>
                 </tr>
                 <tr>
-                    <td><code>callbackUrl</code></td>
-                    <td>String <span class="optional">Optional</span></td>
+                    <td><code>notify_url</code></td>
+                    <td>String <span class="required">Required</span></td>
                     <td>Webhook URL / 回调地址</td>
+                </tr>
+                <tr>
+                    <td><code>extra_data</code></td>
+                    <td>String <span class="optional">Optional</span></td>
+                    <td>Custom data / 自定义数据</td>
                 </tr>
             </table>
 
-            <h3 data-i18n="success_response">Response</h3>
+            <h3>Success Response</h3>
             <div class="code-block">
                 <button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
                 <pre><code>{
-    "code": 1,
-    "msg": "USDT payout submitted",
+    "success": true,
+    "code": "SUCCESS",
+    "message": "Crypto transfer submitted",
+    "timestamp": "2026-02-01T18:00:00.000Z",
     "data": {
-        "orderId": "MC001-998877",
-        "id": "e0b5...88",
-        "amount": 50000,
-        "fee": 0,
-        "status": "pending"
+        "merchant_order_id": "USDT001-998877",
+        "platform_order_id": "e0b5...88",
+        "inr_amount": 50000.00,
+        "usdt_amount": 526.32,
+        "exchange_rate": 95.00,
+        "processing_fee": 1000.00,
+        "status": "pending",
+        "network": "TRC20"
     }
 }</code></pre>
             </div>
         </section>
 
-        <!-- Payout Callback -->
-        <section id="payout-callback">
-            <h2 data-i18n="payout_callback">Payout Callback / 代付回调</h2>
-            <p data-i18n="payout_callback_desc">We send a POST request when payout status changes.</p>
+        <!-- Transfer Callback -->
+        <section id="transfer-callback">
+            <h2>Transfer Callback / 代付回调</h2>
+            <p>We send a POST request when transfer status changes.</p>
 
             <h3>Callback Parameters / 回调参数</h3>
             <table class="param-table">
@@ -851,42 +955,52 @@ function generateSignature(params, secretKey) {
                     <th>Description</th>
                 </tr>
                 <tr>
-                    <td><code>status</code></td>
-                    <td>Number</td>
-                    <td>1 = Success, 0 = Failed / 1成功 0失败</td>
-                </tr>
-                <tr>
-                    <td><code>amount</code></td>
-                    <td>Number</td>
-                    <td>Payout amount / 代付金额</td>
-                </tr>
-                <tr>
-                    <td><code>orderId</code></td>
+                    <td><code>event_type</code></td>
                     <td>String</td>
-                    <td>Your merchant order ID / 商户订单号</td>
+                    <td>transfer.completed / transfer.failed</td>
                 </tr>
                 <tr>
-                    <td><code>id</code></td>
+                    <td><code>timestamp</code></td>
                     <td>String</td>
-                    <td>Gateway transaction ID / 网关交易ID</td>
+                    <td>ISO 8601 timestamp / 时间戳</td>
                 </tr>
                 <tr>
-                    <td><code>utr</code></td>
+                    <td><code>data.merchant_order_id</code></td>
+                    <td>String</td>
+                    <td>Your order ID / 商户订单号</td>
+                </tr>
+                <tr>
+                    <td><code>data.platform_order_id</code></td>
+                    <td>String</td>
+                    <td>Platform transaction ID / 平台交易ID</td>
+                </tr>
+                <tr>
+                    <td><code>data.status</code></td>
+                    <td>String</td>
+                    <td>completed / failed</td>
+                </tr>
+                <tr>
+                    <td><code>data.amount</code></td>
+                    <td>Number</td>
+                    <td>Transfer amount / 代付金额</td>
+                </tr>
+                <tr>
+                    <td><code>data.processing_fee</code></td>
+                    <td>Number</td>
+                    <td>Fee charged / 手续费</td>
+                </tr>
+                <tr>
+                    <td><code>data.transaction_ref</code></td>
                     <td>String</td>
                     <td>Bank UTR / 银行流水号</td>
                 </tr>
                 <tr>
-                    <td><code>message</code></td>
+                    <td><code>data.extra_data</code></td>
                     <td>String</td>
-                    <td>Status message / 状态信息</td>
+                    <td>Your custom data / 自定义参数</td>
                 </tr>
                 <tr>
-                    <td><code>param</code></td>
-                    <td>String</td>
-                    <td>Your custom parameter / 自定义参数</td>
-                </tr>
-                <tr>
-                    <td><code>sign</code></td>
+                    <td><code>signature</code></td>
                     <td>String</td>
                     <td>MD5 signature / MD5签名</td>
                 </tr>
@@ -896,14 +1010,18 @@ function generateSignature(params, secretKey) {
             <div class="code-block">
                 <button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
                 <pre><code>{
-    "status": 1,
-    "amount": 500.00,
-    "orderId": "MC001-998877",
-    "id": "uuid-v4-string",
-    "utr": "123456789012",
-    "message": "success",
-    "param": "custom-data",
-    "sign": "A1B2C3D4E5F6..."
+    "event_type": "transfer.completed",
+    "timestamp": "2026-02-01T18:00:00.000Z",
+    "data": {
+        "merchant_order_id": "PO001-998877",
+        "platform_order_id": "e0b5...88",
+        "status": "completed",
+        "amount": 10000.00,
+        "processing_fee": 306.00,
+        "transaction_ref": "UTR123456789",
+        "extra_data": "user_123"
+    },
+    "signature": "A1B2C3D4E5F6..."
 }</code></pre>
             </div>
 
@@ -913,15 +1031,10 @@ function generateSignature(params, secretKey) {
             </div>
         </section>
 
-        <!-- Payout Query -->
-        <section id="payout-query">
-            <h2 data-i18n="query_status">Query Payout Status / 查询代付状态</h2>
-            <p><span class="method post">POST</span><span class="endpoint">/api/payout/query</span></p>
-            <div class="alert alert-info">
-                <strong>Public Alternative:</strong> Use <code>POST /api/payout/check</code> with <code>orderId</code>
-                and <code>userId</code>.<br>
-                <strong>公开接口:</strong> 可用 <code>/api/payout/check</code>，传 <code>orderId</code> 和 <code>userId</code>
-            </div>
+        <!-- Transfer Status -->
+        <section id="transfer-status">
+            <h2>Query Transfer Status / 查询代付状态</h2>
+            <p><span class="method post">POST</span><span class="endpoint">/v2/transfer/status</span></p>
 
             <table class="param-table">
                 <tr>
@@ -930,26 +1043,32 @@ function generateSignature(params, secretKey) {
                     <th>Description</th>
                 </tr>
                 <tr>
-                    <td><code>orderId</code></td>
+                    <td><code>merchant_order_id</code></td>
                     <td>String <span class="required">Required</span></td>
-                    <td>Payout Order ID / 代付订单号</td>
+                    <td>Transfer Order ID / 代付订单号</td>
                 </tr>
             </table>
 
-            <h3 data-i18n="success_response">Response</h3>
+            <h3>Success Response</h3>
             <div class="code-block">
                 <button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
                 <pre><code>{
-    "code": 1,
+    "success": true,
+    "code": "SUCCESS",
+    "message": "Transfer status retrieved",
+    "timestamp": "2026-02-01T18:00:00.000Z",
     "data": {
-        "orderId": "MC001-998877",
-        "id": "e0b5...88",
+        "merchant_order_id": "PO001-998877",
+        "platform_order_id": "e0b5...88",
         "type": "bank",
-        "status": "success",
-        "amount": 500,
-        "fee": 21,
-        "utr": "123456789012",
-        "createdAt": "2025-01-01T12:00:00Z"
+        "status": "completed",
+        "amount": 10000.00,
+        "processing_fee": 306.00,
+        "transaction_ref": "UTR123456789",
+        "beneficiary_name": "John Doe",
+        "account_number": "****7890",
+        "created_at": "2026-02-01T17:30:00.000Z",
+        "completed_at": "2026-02-01T17:45:00.000Z"
     }
 }</code></pre>
             </div>
@@ -957,21 +1076,24 @@ function generateSignature(params, secretKey) {
 
         <!-- Balance -->
         <section id="balance">
-            <h2 data-i18n="check_balance">Check Balance / 查询余额</h2>
-            <p data-i18n="check_balance_desc">Get your current available balance.</p>
-            <p><span class="method post">POST</span><span class="endpoint">/api/balance/query</span></p>
+            <h2>Check Balance / 查询余额</h2>
+            <p>Get your current account balance.</p>
+            <p><span class="method post">POST</span><span class="endpoint">/v2/account/balance</span></p>
             <p><strong>Body:</strong> <code>{}</code> (Empty JSON object / 空JSON对象)</p>
 
-            <h3 data-i18n="success_response">Response</h3>
+            <h3>Success Response</h3>
             <div class="code-block">
                 <button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
                 <pre><code>{
-    "code": 1,
-    "msg": "Success",
+    "success": true,
+    "code": "SUCCESS",
+    "message": "Balance retrieved",
+    "timestamp": "2026-02-01T18:00:00.000Z",
     "data": {
-        "availableAmount": 10050.00,
-        "pendingAmount": 0,
-        "totalAmount": 10050.00
+        "available_balance": 10050.00,
+        "pending_balance": 500.00,
+        "total_balance": 10550.00,
+        "currency": "INR"
     }
 }</code></pre>
             </div>
