@@ -358,44 +358,72 @@
 
         th,
         td {
-            padding: 0.75rem 1rem;
+            padding: 1rem 1.25rem;
             text-align: left;
             border-bottom: 1px solid var(--border);
             font-size: 0.875rem;
+            vertical-align: middle;
         }
 
         th {
-            background: #fafafa;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
             font-weight: 600;
-            color: var(--text-muted);
+            color: #475569;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+            padding: 0.875rem 1.25rem;
         }
 
-        tr:hover {
-            background: #fafafa;
+        tbody tr {
+            transition: all 0.15s ease;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #fafbfc;
+        }
+
+        tbody tr:hover {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            transform: translateX(2px);
         }
 
         /* Badges */
         .badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
         }
 
         .badge-success {
-            background: #f6ffed;
-            color: #52c41a;
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            color: #059669;
+            border: 1px solid #a7f3d0;
         }
 
         .badge-pending {
-            background: #fffbe6;
-            color: #faad14;
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            color: #d97706;
+            border: 1px solid #fcd34d;
         }
 
-        .badge-failed {
-            background: #fff2f0;
-            color: #ff4d4f;
+        .badge-processing {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            color: #2563eb;
+            border: 1px solid #93c5fd;
+        }
+
+        .badge-failed,
+        .badge-expired {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            color: #dc2626;
+            border: 1px solid #fca5a5;
         }
 
         /* Filter Badges */
@@ -1825,24 +1853,44 @@
                         tbody.innerHTML = data.orders.map(o => {
                             const cbStatus = o.callbackStatus || 'pending';
                             const cbClass = cbStatus === 'success' ? 'badge-success' : (cbStatus === 'failed' ? 'badge-failed' : 'badge-pending');
-                            const cbText = cbStatus === 'success' ? 'Pass' : (cbStatus === 'failed' ? 'Fail' : 'Pending');
+                            const cbIcon = cbStatus === 'success' ? 'ri-checkbox-circle-fill' : (cbStatus === 'failed' ? 'ri-close-circle-fill' : 'ri-time-line');
+                            const statusIcon = o.status === 'success' ? 'ri-checkbox-circle-fill' : (o.status === 'failed' || o.status === 'expired' ? 'ri-close-circle-fill' : (o.status === 'processing' ? 'ri-loader-4-line' : 'ri-time-line'));
+                            const formattedAmount = parseFloat(o.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+                            const formattedDate = new Date(o.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+                            const formattedTime = new Date(o.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
                             return `
                             <tr>
-                                <td style="font-family: monospace; font-weight: 500;">${o.orderId}</td>
-                                <td>₹${o.amount}</td>
-                                <td><span class="badge badge-${o.status}">${o.status}</span></td>
                                 <td>
-                                    <span class="badge ${cbClass}">${cbText}</span>
-                                    ${o.callbackSentAt ? '<br><small style="color:#6B7280;">Sent</small>' : ''}
+                                    <div style="display: flex; flex-direction: column; gap: 0.15rem;">
+                                        <span style="font-family: 'SF Mono', monospace; font-weight: 600; color: #1e293b; font-size: 0.85rem;">${o.orderId}</span>
+                                        ${o.utr ? `<span style="font-size: 0.7rem; color: #64748b;"><i class="ri-file-list-3-line"></i> UTR: ${o.utr}</span>` : ''}
+                                    </div>
                                 </td>
-                                <td>${new Date(o.createdAt).toLocaleString()}</td>
                                 <td>
-                                    <button class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="viewOrderDetails('${o.orderId}')">
-                                        <i class="ri-eye-line"></i> Details
-                                    </button>
-                                    <button class="btn btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="resendCallback('${o.orderId}')">
-                                        <i class="ri-refresh-line"></i> Callback
-                                    </button>
+                                    <div style="font-weight: 700; font-size: 1rem; color: #0f172a;">₹${formattedAmount}</div>
+                                    ${o.fee ? `<span style="font-size: 0.7rem; color: #94a3b8;">Fee: ₹${parseFloat(o.fee).toFixed(2)}</span>` : ''}
+                                </td>
+                                <td>
+                                    <span class="badge badge-${o.status}"><i class="${statusIcon}"></i> ${o.status}</span>
+                                </td>
+                                <td>
+                                    <span class="badge ${cbClass}"><i class="${cbIcon}"></i> ${cbStatus === 'success' ? 'Sent' : (cbStatus === 'failed' ? 'Failed' : 'Pending')}</span>
+                                </td>
+                                <td>
+                                    <div style="display: flex; flex-direction: column; gap: 0.15rem;">
+                                        <span style="font-weight: 500; color: #334155;">${formattedDate}</span>
+                                        <span style="font-size: 0.75rem; color: #94a3b8;">${formattedTime}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 0.5rem;">
+                                        <button class="btn" style="padding: 0.5rem; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 1px solid #93c5fd; border-radius: 6px; color: #2563eb;" onclick="viewOrderDetails('${o.orderId}')" title="View Details">
+                                            <i class="ri-eye-line"></i>
+                                        </button>
+                                        <button class="btn" style="padding: 0.5rem; background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border: 1px solid #c4b5fd; border-radius: 6px; color: #7c3aed;" onclick="resendCallback('${o.orderId}')" title="Resend Callback">
+                                            <i class="ri-refresh-line"></i>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         `}).join('');
