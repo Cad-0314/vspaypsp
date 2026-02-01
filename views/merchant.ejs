@@ -957,24 +957,28 @@
                                                 <%= user.apiKey.substring(0, 12) %>...
                                             </span>
                                         </div>
-                                        <div
-                                            style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px dashed #E5E7EB;">
-                                            <span style="color: #6B7280; font-size: 0.85rem;">Collection Rate</span>
-                                            <span style="font-weight: 600; color: #10B981; font-size: 0.85rem;">
-                                                <%= user.payinRate || 2.5 %>%
-                                            </span>
-                                        </div>
-                                        <div
-                                            style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px dashed #E5E7EB;">
-                                            <span style="color: #6B7280; font-size: 0.85rem;">POB Rate</span>
-                                            <span style="font-weight: 600; color: #F59E0B; font-size: 0.85rem;">
-                                                <%= user.payoutRate || 1.5 %>%
-                                            </span>
-                                        </div>
-                                        <div style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
-                                            <span style="color: #6B7280; font-size: 0.85rem;">Status</span>
-                                            <span class="badge badge-success" style="font-size: 0.75rem;">Active</span>
-                                        </div>
+                                        <% let dashRates={}; try { dashRates=JSON.parse(user.channel_rates || '{}' ); }
+                                            catch(e) {} %>
+                                            <div
+                                                style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px dashed #E5E7EB;">
+                                                <span style="color: #6B7280; font-size: 0.85rem;">Collection Rate</span>
+                                                <span style="font-weight: 600; color: #10B981; font-size: 0.85rem;">
+                                                    <%= dashRates.payinRate || 2.5 %>%
+                                                </span>
+                                            </div>
+                                            <div
+                                                style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px dashed #E5E7EB;">
+                                                <span style="color: #6B7280; font-size: 0.85rem;">POB Rate</span>
+                                                <span style="font-weight: 600; color: #F59E0B; font-size: 0.85rem;">
+                                                    <%= dashRates.payoutRate || 1.5 %>%
+                                                </span>
+                                            </div>
+                                            <div
+                                                style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
+                                                <span style="color: #6B7280; font-size: 0.85rem;">Status</span>
+                                                <span class="badge badge-success"
+                                                    style="font-size: 0.75rem;">Active</span>
+                                            </div>
                                     </div>
                                     <button onclick="switchTab('profile')"
                                         style="width: 100%; margin-top: 1rem; padding: 0.75rem; background: #F3F4F6; border: none; border-radius: 8px; color: #374151; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.85rem;">

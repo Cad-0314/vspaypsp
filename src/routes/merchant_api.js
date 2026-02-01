@@ -317,6 +317,31 @@ router.get('/export/orders', async (req, res) => {
     }
 });
 
+// Get single order details
+router.get('/order/:orderId', async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const order = await Order.findOne({
+            where: {
+                merchantId: req.session.user.id,
+                [require('sequelize').Op.or]: [
+                    { id: orderId },
+                    { orderId: orderId }
+                ]
+            }
+        });
+
+        if (!order) {
+            return res.status(404).json({ success: false, error: 'Order not found' });
+        }
+
+        res.json({ success: true, order });
+    } catch (error) {
+        console.error('[MerchantAPI] Order details error:', error);
+        res.status(500).json({ success: false, error: 'Failed to fetch order details' });
+    }
+});
+
 // Manual Callback Trigger
 router.post('/callback/:orderId', async (req, res) => {
     try {
@@ -324,16 +349,20 @@ router.post('/callback/:orderId', async (req, res) => {
         // Verify ownership (security check)
         const order = await Order.findOne({
             where: {
-                merchantId: req.user.id,
-                orderId: orderId
+                merchantId: req.session.user.id,
+                [require('sequelize').Op.or]: [
+                    { id: orderId },
+                    { orderId: orderId }
+                ]
             }
         });
 
         if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
 
-        const result = await require('../services/callbackService').manualCallback(orderId);
+        const result = await require('../services/callbackService').manualCallback(order.orderId);
         res.json(result);
     } catch (error) {
+        console.error('[MerchantAPI] Callback error:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 });
