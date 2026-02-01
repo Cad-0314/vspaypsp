@@ -1176,51 +1176,111 @@
 
                 <!-- Settlements Tab -->
                 <div id="tab-settlements" class="tab-content">
+                    <!-- Header with gradient -->
                     <div
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <h2>
-                            <%= t('settlements') %>
-                        </h2>
-                        <button class="btn btn-primary" onclick="openSettlementModal()">
-                            <i class="ri-add-line"></i>
-                            <%= t('request_settlement') %>
-                        </button>
+                        style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); border-radius: 16px; padding: 1.5rem 2rem; margin-bottom: 1.5rem; color: white; display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div
+                                style="width: 56px; height: 56px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="ri-exchange-funds-fill" style="font-size: 1.75rem;"></i>
+                            </div>
+                            <div>
+                                <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0;">Apply to U / Settlements
+                                </h2>
+                                <p style="opacity: 0.8; font-size: 0.875rem; margin: 0.25rem 0 0;">Request withdrawal to
+                                    your USDT wallet</p>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 0.75rem; opacity: 0.7; text-transform: uppercase;">Available Balance
+                            </div>
+                            <div style="font-size: 1.75rem; font-weight: 700;">₹<%=
+                                    parseFloat(user.balance).toLocaleString('en-IN') %>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="card" style="margin-bottom: 1.5rem;">
-                        <div class="card-body">
+                    <!-- Settlement Request Form -->
+                    <div class="card" style="margin-bottom: 1.5rem; border-radius: 12px; overflow: hidden;">
+                        <div class="card-header"
+                            style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); padding: 1rem 1.5rem;">
+                            <div class="card-title"
+                                style="color: white; display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="ri-add-circle-fill"></i> New Settlement Request
+                            </div>
+                        </div>
+                        <div class="card-body" style="padding: 1.5rem;">
                             <form id="settle-form" onsubmit="requestSettlement(event)">
                                 <div
-                                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                                    <!-- Amount Field -->
                                     <div>
-                                        <label class="stat-label">
-                                            <%= t('settlement_amount') || 'Settlement Amount' %> (₹)
+                                        <label
+                                            style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+                                            <i class="ri-money-rupee-circle-line" style="color: #10b981;"></i>
+                                            Settlement Amount (₹)
                                         </label>
-                                        <input type="number" id="s-amount" class="form-control" required min="100">
+                                        <div style="position: relative;">
+                                            <span
+                                                style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); font-size: 1.25rem; color: #94a3b8; font-weight: 600;">₹</span>
+                                            <input type="number" id="s-amount" class="form-control" required min="100"
+                                                style="padding-left: 2.5rem; height: 52px; font-size: 1.1rem; font-weight: 600; border-radius: 10px; border: 2px solid #e2e8f0;"
+                                                placeholder="Enter amount" max="<%= user.balance %>">
+                                        </div>
+                                        <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.5rem;">
+                                            <i class="ri-information-line"></i> Minimum: ₹100 | Maximum: ₹<%=
+                                                parseFloat(user.balance).toLocaleString('en-IN') %>
+                                        </div>
                                     </div>
+                                    <!-- Type Field -->
                                     <div>
-                                        <label class="stat-label">
-                                            <%= t('settlement_type') || 'Settlement Type' %>
+                                        <label
+                                            style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+                                            <i class="ri-currency-fill" style="color: #10b981;"></i> Settlement Type
                                         </label>
-                                        <select id="s-type" class="form-control">
-                                            <option value="usdt">USDT (TRC20)</option>
+                                        <select id="s-type" class="form-control"
+                                            style="height: 52px; font-size: 1rem; border-radius: 10px; border: 2px solid #e2e8f0;">
+                                            <option value="usdt">🔷 USDT (TRC20)</option>
                                         </select>
+                                        <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.5rem;">
+                                            <i class="ri-time-line"></i> Processing: 1-24 hours
+                                        </div>
                                     </div>
                                 </div>
-                                <label class="stat-label">
-                                    <%= t('usdt_address') || 'USDT Address / Notes' %>
-                                </label>
-                                <textarea id="s-notes" class="form-control" rows="2"
-                                    placeholder="Enter your TRC20 wallet address..."></textarea>
+
+                                <!-- Wallet Address Field -->
+                                <div style="margin-bottom: 1.5rem;">
+                                    <label
+                                        style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+                                        <i class="ri-wallet-3-line" style="color: #10b981;"></i> USDT Wallet Address
+                                        (TRC20)
+                                    </label>
+                                    <textarea id="s-notes" class="form-control" rows="2" required
+                                        style="border-radius: 10px; border: 2px solid #e2e8f0; font-family: 'SF Mono', monospace; font-size: 0.9rem;"
+                                        placeholder="Enter your TRC20 wallet address (e.g., TXyz...)"></textarea>
+                                    <div
+                                        style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; padding: 0.75rem; background: #fef3c7; border-radius: 8px;">
+                                        <i class="ri-error-warning-fill" style="color: #d97706;"></i>
+                                        <span style="font-size: 0.75rem; color: #92400e;">Double-check your wallet
+                                            address. Incorrect addresses cannot be recovered.</span>
+                                    </div>
+                                </div>
+
                                 <button type="submit" class="btn btn-primary"
-                                    style="width: 100%; margin-top: 1rem; justify-content: center;">
-                                    <%= t('btn_request_settlement') %>
+                                    style="width: 100%; padding: 1rem; font-size: 1rem; font-weight: 600; border-radius: 10px; background: linear-gradient(135deg, #059669 0%, #10b981 100%); border: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                    <i class="ri-send-plane-2-fill"></i> Submit Settlement Request
                                 </button>
                             </form>
                         </div>
                     </div>
 
-                    <div class="card">
+                    <!-- Recent Settlements Table -->
+                    <div class="card" style="border-radius: 12px; overflow: hidden;">
+                        <div class="card-header" style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                            <div class="card-title" style="display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="ri-history-line" style="color: #64748b;"></i> Settlement History
+                            </div>
+                        </div>
                         <table id="settlement-table">
                             <thead>
                                 <tr>
@@ -1255,9 +1315,7 @@
 
                 <!-- Add Topup Tab -->
                 <div id="tab-paylink" class="tab-content">
-                    <h2 style="margin-bottom: 0.5rem;">
-                        <%= t('payment_link') %>
-                    </h2>
+                    <h2 style="margin-bottom: 0.5rem;">Add Topup</h2>
                     <p style="color: #6B7280; font-size: 0.875rem; margin-bottom: 1.5rem;">Request funds to be added to
                         your account balance</p>
 
@@ -1267,7 +1325,7 @@
                             <div class="card-header"
                                 style="background: linear-gradient(135deg, #2B5797 0%, #3668A8 100%); color: white;">
                                 <div class="card-title" style="color: white;"><i class="ri-add-circle-line"></i>
-                                    <%= t('create_new_link') %>
+                                    New Topup Request
                                 </div>
                             </div>
                             <div class="card-body" style="padding: 1.5rem;">
