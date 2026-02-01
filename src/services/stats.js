@@ -120,8 +120,7 @@ async function getStats(userId = null) {
 /**
  * Get chart data for last 7 days
  */
-async function getChartData(userId = null) {
-    const days = 7;
+async function getChartData(userId = null, days = 7) {
     const labels = [];
     const payinData = [];
     const payoutData = [];

@@ -43,7 +43,8 @@ router.get('/stats', async (req, res) => {
  */
 router.get('/chart', async (req, res) => {
     try {
-        const data = await getChartData(req.session.user.id);
+        const days = parseInt(req.query.days) || 7;
+        const data = await getChartData(req.session.user.id, days);
         res.json({ success: true, ...data });
     } catch (error) {
         console.error('[MerchantAPI] Chart error:', error);

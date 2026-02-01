@@ -1750,29 +1750,56 @@
             }
 
             async function loadChart() {
+                const days = document.getElementById('chart-range').value || 7;
                 const ctx = document.getElementById('volumeChart').getContext('2d');
-                const res = await fetch('/api/merchant/chart');
+                const res = await fetch(`/api/merchant/chart?days=${days}`);
                 const data = await res.json();
 
                 if (chartInstance) chartInstance.destroy();
 
                 chartInstance = new Chart(ctx, {
-                    type: 'bar',
+                    type: 'line',
                     data: {
                         labels: data.labels,
                         datasets: [
-                            { label: 'Payin', data: data.payinData, backgroundColor: 'rgba(24, 144, 255, 0.8)' },
-                            { label: 'Payout', data: data.payoutData, backgroundColor: 'rgba(255, 77, 79, 0.8)' }
+                            {
+                                label: 'Payin',
+                                data: data.payinData,
+                                borderColor: 'rgba(24, 144, 255, 0.8)',
+                                backgroundColor: 'rgba(24, 144, 255, 0.2)',
+                                borderWidth: 2,
+                                tension: 0.4,
+                                fill: true
+                            },
+                            {
+                                label: 'Payout',
+                                data: data.payoutData,
+                                borderColor: 'rgba(255, 77, 79, 0.8)',
+                                backgroundColor: 'rgba(255, 77, 79, 0.2)',
+                                borderWidth: 2,
+                                tension: 0.4,
+                                fill: true
+                            }
                         ]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
+                        },
                         plugins: { legend: { position: 'top' } },
-                        scales: { y: { beginAtZero: true } }
+                        scales: {
+                            y: { beginAtZero: true, grid: { borderDash: [2, 4] } },
+                            x: { grid: { display: false } }
+                        }
                     }
                 });
             }
+
+            // Chart Range Listener
+            document.getElementById('chart-range').addEventListener('change', loadChart);
 
             async function loadOrders(type, page = 1) {
                 const tbody = document.getElementById(type + '-table').querySelector('tbody');
