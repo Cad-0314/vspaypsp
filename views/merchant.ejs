@@ -1678,6 +1678,7 @@
                 if (tab === 'payin') loadOrders('payin');
                 if (tab === 'payout') loadOrders('payout');
                 if (tab === 'settlements') loadSettlements();
+                if (tab === 'paylink') loadTopupHistory();
                 if (tab === 'profile') loadIps();
             }
 
@@ -2005,24 +2006,31 @@
 
             async function loadTopupHistory() {
                 const tbody = document.getElementById('topup-table').querySelector('tbody');
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><i class="ri-loader-4-line ri-spin"></i><br>Loading...</td></tr>';
+
                 try {
-                    const res = await fetch('/api/merchant/topups');
+                    const res = await fetch('/api/merchant/orders?type=payin&channel=manual_topup');
                     const data = await res.json();
-                    if (data.success && data.topups && data.topups.length > 0) {
-                        tbody.innerHTML = data.topups.map(t => `
-                            <tr>
-                                <td style="font-family: monospace;">${t.id}</td>
-                                <td style="font-weight: 600;">₹${t.amount}</td>
-                                <td>${t.reference || '-'}</td>
-                                <td><span class="badge badge-${t.status}">${t.status}</span></td>
-                                <td>${new Date(t.createdAt).toLocaleString()}</td>
-                            </tr>
+
+                    if (data.success && data.orders.length > 0) {
+                        tbody.innerHTML = data.orders.map(o => `
+                        <tr>
+                            <td style="font-family: monospace;">${o.orderId}</td>
+                            <td style="font-weight: 600;">₹${o.amount}</td>
+                            <td>${o.utr || '-'}</td>
+                            <td><span class="badge badge-${o.status}">${o.status}</span></td>
+                            <td>${new Date(o.createdAt).toLocaleString()}</td>
+                        </tr>
                         `).join('');
                     } else {
                         tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><i class="ri-inbox-line"></i><br>No topup requests yet</td></tr>';
                     }
-                } catch (err) { console.error(err); }
+                } catch (e) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><i class="ri-error-warning-line"></i><br>Error loading history</td></tr>';
+                }
             }
+
+
 
             async function submitSettlement(e) {
                 e.preventDefault();

@@ -58,13 +58,14 @@ router.get('/chart', async (req, res) => {
  */
 router.get('/orders', async (req, res) => {
     try {
-        const { type, status, startDate, endDate, page = 1, limit = 10, search } = req.query;
+        const { type, status, channel, startDate, endDate, page = 1, limit = 10, search } = req.query;
         const offset = (page - 1) * limit;
         const { Op } = require('sequelize');
 
         const where = { merchantId: req.session.user.id };
         if (type) where.type = type;
         if (status) where.status = status;
+        if (channel) where.channelName = channel;
         if (startDate || endDate) {
             where.createdAt = {};
             if (startDate) where.createdAt[Op.gte] = new Date(startDate);
@@ -492,6 +493,45 @@ router.post('/ips/remove', async (req, res) => {
     } catch (error) {
         console.error('[MerchantAPI] Remove IP error:', error);
         res.status(500).json({ success: false, error: 'Failed to remove IP' });
+    }
+});
+
+/**
+ * POST /api/merchant/topup
+ * Request manual topup
+ */
+router.post('/topup', async (req, res) => {
+    try {
+        const { amount, reference, notes } = req.body;
+        const merchantId = req.session.user.id;
+
+        const amt = parseFloat(amount);
+        if (isNaN(amt) || amt < 100) {
+            return res.status(400).json({ success: false, error: 'Invalid amount. Minimum is ₹100' });
+        }
+
+        const orderId = `TOP${Date.now()}${Math.floor(Math.random() * 100)}`;
+
+        const order = await Order.create({
+            id: uuidv4(),
+            orderId: orderId,
+            merchantId,
+            amount: amt,
+            netAmount: amt, // No fee for topup
+            fee: 0,
+            status: 'pending',
+            type: 'payin',
+            channelName: 'manual_topup',
+            utr: reference,
+            param: notes,
+            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+        });
+
+        res.json({ success: true, orderId });
+
+    } catch (error) {
+        console.error('[MerchantAPI] Topup error:', error);
+        res.status(500).json({ success: false, error: 'Failed to submit topup request' });
     }
 });
 
