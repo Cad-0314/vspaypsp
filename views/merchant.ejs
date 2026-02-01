@@ -734,6 +734,10 @@
                         <i class="ri-settings-3-line"></i>
                         <%= t('nav_profile') %>
                     </div>
+                    <div class="nav-item" onclick="switchTab('security')">
+                        <i class="ri-shield-keyhole-line"></i>
+                        <%= t('nav_security') || 'Security' %>
+                    </div>
                 </div>
             </nav>
 
@@ -1461,84 +1465,112 @@
                                 </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Security Settings Card -->
-                    <div class="card" style="border-radius: 12px; overflow: hidden;">
-                        <div class="card-header"
-                            style="background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); padding: 1rem 1.25rem;">
-                            <div class="card-title" style="color: white;"><i class="ri-shield-user-fill"></i>
-                                <%= t('security_settings') || 'Security Settings' %>
+                <!-- Security Tab -->
+                <div id="tab-security" class="tab-content">
+                    <!-- Security Header -->
+                    <div
+                        style="background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); border-radius: 16px; padding: 1.5rem 2rem; margin-bottom: 1.5rem; color: white; display: flex; align-items: center; gap: 1.5rem;">
+                        <div
+                            style="width: 64px; height: 64px; background: rgba(255,255,255,0.2); border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                            <i class="ri-shield-keyhole-fill" style="font-size: 2rem;"></i>
+                        </div>
+                        <div>
+                            <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem;">
+                                <%= t('security_settings') || 'Account Security' %>
+                            </h2>
+                            <p style="opacity: 0.9; font-size: 0.9rem; margin: 0;">Manage your password and two-factor
+                                authentication settings</p>
+                        </div>
+                    </div>
+
+                    <!-- Security Cards -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <!-- Change Password Card -->
+                        <div class="card" style="border-radius: 12px; overflow: hidden;">
+                            <div class="card-header"
+                                style="background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); padding: 1rem 1.25rem;">
+                                <div class="card-title" style="color: white;"><i class="ri-lock-password-fill"></i>
+                                    <%= t('change_password') || 'Change Password' %>
+                                </div>
+                            </div>
+                            <div class="card-body" style="padding: 1.5rem;">
+                                <p
+                                    style="color: #6B7280; font-size: 0.85rem; margin-bottom: 1.25rem; line-height: 1.5;">
+                                    <i class="ri-information-line" style="color: #3B82F6;"></i>
+                                    Update your account password regularly for better security.
+                                </p>
+                                <form onsubmit="changePassword(event)">
+                                    <div style="margin-bottom: 1rem;">
+                                        <label
+                                            style="display: block; font-size: 0.75rem; font-weight: 600; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">Current
+                                            Password</label>
+                                        <input type="password" id="current-password" class="form-control"
+                                            placeholder="Enter current password" required style="border-radius: 8px;">
+                                    </div>
+                                    <div style="margin-bottom: 1rem;">
+                                        <label
+                                            style="display: block; font-size: 0.75rem; font-weight: 600; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">New
+                                            Password</label>
+                                        <input type="password" id="new-password" class="form-control"
+                                            placeholder="Enter new password" required minlength="6"
+                                            style="border-radius: 8px;">
+                                    </div>
+                                    <div style="margin-bottom: 1.25rem;">
+                                        <label
+                                            style="display: block; font-size: 0.75rem; font-weight: 600; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">Confirm
+                                            Password</label>
+                                        <input type="password" id="confirm-password" class="form-control"
+                                            placeholder="Confirm new password" required style="border-radius: 8px;">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary"
+                                        style="width: 100%; border-radius: 8px; padding: 0.75rem;">
+                                        <i class="ri-check-line"></i>
+                                        Update Password
+                                    </button>
+                                </form>
                             </div>
                         </div>
-                        <div class="card-body" style="padding: 1.5rem;">
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                                <!-- Change Password -->
+
+                        <!-- Reset 2FA Card -->
+                        <div class="card" style="border-radius: 12px; overflow: hidden;">
+                            <div class="card-header"
+                                style="background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); padding: 1rem 1.25rem;">
+                                <div class="card-title" style="color: white;"><i class="ri-smartphone-fill"></i>
+                                    <%= t('reset_2fa') || 'Two-Factor Authentication' %>
+                                </div>
+                            </div>
+                            <div class="card-body" style="padding: 1.5rem;">
                                 <div
-                                    style="padding: 1.25rem; background: #F9FAFB; border-radius: 12px; border: 1px solid #E5E7EB;">
-                                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-                                        <div
-                                            style="width: 40px; height: 40px; background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                                            <i class="ri-lock-password-fill"
-                                                style="color: white; font-size: 1.25rem;"></i>
-                                        </div>
-                                        <div>
-                                            <div style="font-weight: 600; color: #111827;">
-                                                <%= t('change_password') || 'Change Password' %>
-                                            </div>
-                                            <div style="font-size: 0.75rem; color: #6B7280;">Update your account
-                                                password</div>
+                                    style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding: 1rem; background: #F3F4F6; border-radius: 10px;">
+                                    <div
+                                        style="width: 48px; height: 48px; background: #10B981; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                        <i class="ri-check-line" style="color: white; font-size: 1.5rem;"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 600; color: #111827;">2FA Enabled</div>
+                                        <div style="font-size: 0.8rem; color: #6B7280;">Google Authenticator is active
                                         </div>
                                     </div>
-                                    <form onsubmit="changePassword(event)">
-                                        <input type="password" id="current-password" class="form-control"
-                                            placeholder="<%= t('current_password') || 'Current Password' %>" required
-                                            style="margin-bottom: 0.75rem; border-radius: 8px;">
-                                        <input type="password" id="new-password" class="form-control"
-                                            placeholder="<%= t('new_password') || 'New Password' %>" required
-                                            minlength="6" style="margin-bottom: 0.75rem; border-radius: 8px;">
-                                        <input type="password" id="confirm-password" class="form-control"
-                                            placeholder="<%= t('confirm_password') || 'Confirm Password' %>" required
-                                            style="margin-bottom: 1rem; border-radius: 8px;">
-                                        <button type="submit" class="btn btn-primary"
-                                            style="width: 100%; border-radius: 8px;">
-                                            <i class="ri-check-line"></i>
-                                            <%= t('update_password') || 'Update Password' %>
-                                        </button>
-                                    </form>
                                 </div>
 
-                                <!-- Reset 2FA -->
                                 <div
-                                    style="padding: 1.25rem; background: #F9FAFB; border-radius: 12px; border: 1px solid #E5E7EB;">
-                                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-                                        <div
-                                            style="width: 40px; height: 40px; background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                                            <i class="ri-smartphone-fill" style="color: white; font-size: 1.25rem;"></i>
-                                        </div>
-                                        <div>
-                                            <div style="font-weight: 600; color: #111827;">
-                                                <%= t('reset_2fa') || 'Reset 2FA' %>
-                                            </div>
-                                            <div style="font-size: 0.75rem; color: #6B7280;">
-                                                <%= t('reset_2fa_desc') || 'Reset Google Authenticator' %>
-                                            </div>
+                                    style="padding: 1rem; background: #FEF3C7; border-radius: 8px; margin-bottom: 1.25rem;">
+                                    <div style="display: flex; align-items: flex-start; gap: 0.5rem;">
+                                        <i class="ri-error-warning-fill"
+                                            style="color: #D97706; font-size: 1.25rem;"></i>
+                                        <div style="font-size: 0.8rem; color: #92400E; line-height: 1.4;">
+                                            Resetting 2FA will require you to set up Google Authenticator again on your
+                                            next login. Only proceed if you've lost access to your authenticator app.
                                         </div>
                                     </div>
-                                    <div
-                                        style="padding: 1rem; background: #FEF3C7; border-radius: 8px; margin-bottom: 1rem;">
-                                        <div style="display: flex; align-items: flex-start; gap: 0.5rem;">
-                                            <i class="ri-error-warning-fill"
-                                                style="color: #D97706; font-size: 1.25rem;"></i>
-                                            <div style="font-size: 0.8rem; color: #92400E; line-height: 1.4;">Resetting
-                                                2FA will require you to set up Google Authenticator again on next login.
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <button onclick="reset2FA()" class="btn btn-outline"
-                                        style="width: 100%; border-radius: 8px; border-color: #EF4444; color: #EF4444;">
-                                        <i class="ri-refresh-line"></i> Request 2FA Reset
-                                    </button>
                                 </div>
+
+                                <button onclick="reset2FA()" class="btn"
+                                    style="width: 100%; border-radius: 8px; padding: 0.75rem; background: #FEE2E2; color: #DC2626; border: 1px solid #FECACA;">
+                                    <i class="ri-refresh-line"></i> Request 2FA Reset
+                                </button>
                             </div>
                         </div>
                     </div>

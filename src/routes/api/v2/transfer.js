@@ -1,7 +1,6 @@
 /**
  * V2 Transfer API Routes
  * POST /v2/transfer/bank - Bank transfer payout
- * POST /v2/transfer/crypto - USDT transfer payout
  * POST /v2/transfer/status - Query transfer status
  */
 
@@ -196,123 +195,6 @@ router.post('/bank', validateMerchant, async (req, res) => {
 
     } catch (error) {
         console.error('[V2 Transfer Bank] Error:', error);
-        return res.status(500).json(buildError('INTERNAL_ERROR', 'Internal server error'));
-    }
-});
-
-/**
- * POST /v2/transfer/crypto
- * Create USDT transfer payout
- */
-router.post('/crypto', validateMerchant, async (req, res) => {
-    try {
-        const {
-            merchant_order_id,
-            amount,
-            wallet_address,
-            network,
-            notify_url,
-            extra_data
-        } = req.body;
-
-        const merchant = req.merchant;
-
-        // Check if payout is suspended
-        if (merchant.canPayout === false) {
-            return res.json(buildError('SUSPENDED', 'Transfer service is temporarily suspended'));
-        }
-
-        // Validate required fields
-        const errors = [];
-        if (!merchant_order_id) errors.push({ field: 'merchant_order_id', message: 'Order ID is required' });
-        if (!amount) errors.push({ field: 'amount', message: 'Amount is required' });
-        if (!wallet_address) errors.push({ field: 'wallet_address', message: 'Wallet address is required' });
-        if (!notify_url) errors.push({ field: 'notify_url', message: 'Notification URL is required' });
-
-        if (errors.length > 0) {
-            return res.json(buildError('MISSING_PARAMS', 'Required parameters missing', errors));
-        }
-
-        const payoutAmount = parseFloat(amount);
-        if (isNaN(payoutAmount) || payoutAmount < 100) {
-            return res.json(buildError('INVALID_AMOUNT', 'Amount must be at least 100'));
-        }
-
-        // Check for duplicate
-        const existingOrder = await Order.findOne({
-            where: { merchantId: merchant.id, orderId: merchant_order_id }
-        });
-
-        if (existingOrder) {
-            return res.json(buildError('DUPLICATE_ORDER', 'Order ID already exists'));
-        }
-
-        // USDT Conversion Logic
-        const usdtRate = parseFloat(process.env.USDT_RATE || 95);
-        const usdtAmount = payoutAmount / usdtRate;
-        const fee = payoutAmount * 0.02; // 2% fee
-
-        // Check balance
-        const currentBalance = parseFloat(merchant.balance);
-        if (currentBalance < payoutAmount) {
-            return res.json(buildError('INSUFFICIENT_BALANCE',
-                `Insufficient balance. Required: ₹${payoutAmount.toFixed(2)}, Available: ₹${currentBalance.toFixed(2)}`));
-        }
-
-        const t = await sequelize.transaction();
-
-        try {
-            // Deduct balance
-            await User.update(
-                {
-                    balance: sequelize.literal(`balance - ${payoutAmount}`),
-                    pendingBalance: sequelize.literal(`pendingBalance + ${payoutAmount}`)
-                },
-                { where: { id: merchant.id }, transaction: t }
-            );
-
-            const internalId = uuidv4();
-
-            await Order.create({
-                id: internalId,
-                merchantId: merchant.id,
-                orderId: merchant_order_id,
-                channelName: 'usdt',
-                type: 'payout',
-                payoutType: 'usdt',
-                amount: payoutAmount,
-                fee: fee,
-                status: 'pending',
-                callbackUrl: notify_url,
-                param: extra_data || '',
-                walletAddress: wallet_address,
-                network: network || 'TRC20',
-                notes: JSON.stringify({
-                    usdtRate: usdtRate,
-                    usdtAmount: usdtAmount
-                })
-            }, { transaction: t });
-
-            await t.commit();
-
-            return res.json(buildResponse(true, 'SUCCESS', 'Crypto transfer submitted', {
-                merchant_order_id: merchant_order_id,
-                platform_order_id: internalId,
-                inr_amount: parseFloat(payoutAmount.toFixed(2)),
-                usdt_amount: parseFloat(usdtAmount.toFixed(4)),
-                exchange_rate: usdtRate,
-                processing_fee: parseFloat(fee.toFixed(2)),
-                status: 'pending',
-                network: network || 'TRC20'
-            }));
-
-        } catch (error) {
-            await t.rollback();
-            throw error;
-        }
-
-    } catch (error) {
-        console.error('[V2 Transfer Crypto] Error:', error);
         return res.status(500).json(buildError('INTERNAL_ERROR', 'Internal server error'));
     }
 });

@@ -363,7 +363,6 @@
 
             <div class="nav-group">Transfer (Pay-Out)</div>
             <a href="#transfer-bank" class="nav-item">Bank Transfer</a>
-            <a href="#transfer-crypto" class="nav-item">Crypto Transfer</a>
             <a href="#transfer-callback" class="nav-item">Transfer Callback</a>
             <a href="#transfer-status" class="nav-item">Query Status</a>
 
@@ -871,72 +870,6 @@ function generateSignature(params, secretKey) {
         "processing_fee": 306.00,
         "status": "processing",
         "estimated_completion": "2026-02-01T18:15:00.000Z"
-    }
-}</code></pre>
-            </div>
-        </section>
-
-        <!-- Crypto Transfer -->
-        <section id="transfer-crypto">
-            <h2>Crypto Transfer / USDT代付</h2>
-            <p>Transfer funds to a crypto wallet.</p>
-            <p><span class="method post">POST</span><span class="endpoint">/v2/transfer/crypto</span></p>
-
-            <table class="param-table">
-                <tr>
-                    <th>Parameter</th>
-                    <th>Type</th>
-                    <th>Description</th>
-                </tr>
-                <tr>
-                    <td><code>merchant_order_id</code></td>
-                    <td>String <span class="required">Required</span></td>
-                    <td>Unique transaction ID / 交易号</td>
-                </tr>
-                <tr>
-                    <td><code>amount</code></td>
-                    <td>Number <span class="required">Required</span></td>
-                    <td>Amount in INR (Min ₹100) / INR金额</td>
-                </tr>
-                <tr>
-                    <td><code>wallet_address</code></td>
-                    <td>String <span class="required">Required</span></td>
-                    <td>Wallet address / 钱包地址</td>
-                </tr>
-                <tr>
-                    <td><code>network</code></td>
-                    <td>String <span class="optional">Optional</span></td>
-                    <td>TRC20, ERC20, or BEP20 (default: TRC20) / 网络协议</td>
-                </tr>
-                <tr>
-                    <td><code>notify_url</code></td>
-                    <td>String <span class="required">Required</span></td>
-                    <td>Webhook URL / 回调地址</td>
-                </tr>
-                <tr>
-                    <td><code>extra_data</code></td>
-                    <td>String <span class="optional">Optional</span></td>
-                    <td>Custom data / 自定义数据</td>
-                </tr>
-            </table>
-
-            <h3>Success Response</h3>
-            <div class="code-block">
-                <button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
-                <pre><code>{
-    "success": true,
-    "code": "SUCCESS",
-    "message": "Crypto transfer submitted",
-    "timestamp": "2026-02-01T18:00:00.000Z",
-    "data": {
-        "merchant_order_id": "USDT001-998877",
-        "platform_order_id": "e0b5...88",
-        "inr_amount": 50000.00,
-        "usdt_amount": 526.32,
-        "exchange_rate": 95.00,
-        "processing_fee": 1000.00,
-        "status": "pending",
-        "network": "TRC20"
     }
 }</code></pre>
             </div>
