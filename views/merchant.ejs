@@ -826,7 +826,7 @@
                             </div>
                         </div>
 
-                        <!-- Today's POB -->
+                        <!-- Today's Payment Out -->
                         <div
                             style="background: white; border-radius: 12px; padding: 1.25rem; border: 1px solid #E5E7EB; position: relative; overflow: hidden;">
                             <div
@@ -835,7 +835,7 @@
                             </div>
                             <div
                                 style="font-size: 0.75rem; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">
-                                Today's POB</div>
+                                Today's Payment Out</div>
                             <div style="font-size: 1.75rem; font-weight: 700; color: #111827;" id="stat-payout-vol">
                                 ₹0.00</div>
                             <div
@@ -1432,7 +1432,7 @@
                                         style="text-align: center; padding: 1.25rem; background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); border-radius: 12px; border: 1px solid #FCD34D;">
                                         <div
                                             style="font-size: 0.75rem; font-weight: 600; color: #D97706; text-transform: uppercase; margin-bottom: 0.5rem;">
-                                            POB Fee</div>
+                                            Payment Out Fee</div>
                                         <div style="font-size: 2rem; font-weight: 700; color: #B45309;">
                                             <%= rates.payoutRate || 3 %>%
                                         </div>
@@ -1462,26 +1462,85 @@
                         </div>
                     </div>
 
-                    <!-- Support Banner -->
-                    <div
-                        style="background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 50%, #06B6D4 100%); border-radius: 16px; padding: 1.5rem 2rem; display: flex; align-items: center; justify-content: space-between; color: white;">
-                        <div style="display: flex; align-items: center; gap: 1.25rem;">
-                            <div
-                                style="width: 56px; height: 56px; background: rgba(255,255,255,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                                <i class="ri-customer-service-2-fill" style="font-size: 1.75rem;"></i>
-                            </div>
-                            <div>
-                                <h3 style="font-size: 1.125rem; font-weight: 700; margin-bottom: 0.25rem;">
-                                    <%= t('need_help') || 'Need Assistance?' %>
-                                </h3>
-                                <p style="opacity: 0.9; font-size: 0.875rem; margin: 0;">Our support team is available
-                                    24/7 to help you</p>
+                    <!-- Security Settings Card -->
+                    <div class="card" style="border-radius: 12px; overflow: hidden;">
+                        <div class="card-header"
+                            style="background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); padding: 1rem 1.25rem;">
+                            <div class="card-title" style="color: white;"><i class="ri-shield-user-fill"></i>
+                                <%= t('security_settings') || 'Security Settings' %>
                             </div>
                         </div>
-                        <a href="https://t.me/payable_support" target="_blank"
-                            style="background: white; color: #1E40AF; padding: 0.75rem 1.5rem; border-radius: 10px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
-                            <i class="ri-telegram-fill" style="font-size: 1.25rem;"></i> Contact Support
-                        </a>
+                        <div class="card-body" style="padding: 1.5rem;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                                <!-- Change Password -->
+                                <div
+                                    style="padding: 1.25rem; background: #F9FAFB; border-radius: 12px; border: 1px solid #E5E7EB;">
+                                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                                        <div
+                                            style="width: 40px; height: 40px; background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="ri-lock-password-fill"
+                                                style="color: white; font-size: 1.25rem;"></i>
+                                        </div>
+                                        <div>
+                                            <div style="font-weight: 600; color: #111827;">
+                                                <%= t('change_password') || 'Change Password' %>
+                                            </div>
+                                            <div style="font-size: 0.75rem; color: #6B7280;">Update your account
+                                                password</div>
+                                        </div>
+                                    </div>
+                                    <form onsubmit="changePassword(event)">
+                                        <input type="password" id="current-password" class="form-control"
+                                            placeholder="<%= t('current_password') || 'Current Password' %>" required
+                                            style="margin-bottom: 0.75rem; border-radius: 8px;">
+                                        <input type="password" id="new-password" class="form-control"
+                                            placeholder="<%= t('new_password') || 'New Password' %>" required
+                                            minlength="6" style="margin-bottom: 0.75rem; border-radius: 8px;">
+                                        <input type="password" id="confirm-password" class="form-control"
+                                            placeholder="<%= t('confirm_password') || 'Confirm Password' %>" required
+                                            style="margin-bottom: 1rem; border-radius: 8px;">
+                                        <button type="submit" class="btn btn-primary"
+                                            style="width: 100%; border-radius: 8px;">
+                                            <i class="ri-check-line"></i>
+                                            <%= t('update_password') || 'Update Password' %>
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <!-- Reset 2FA -->
+                                <div
+                                    style="padding: 1.25rem; background: #F9FAFB; border-radius: 12px; border: 1px solid #E5E7EB;">
+                                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                                        <div
+                                            style="width: 40px; height: 40px; background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="ri-smartphone-fill" style="color: white; font-size: 1.25rem;"></i>
+                                        </div>
+                                        <div>
+                                            <div style="font-weight: 600; color: #111827;">
+                                                <%= t('reset_2fa') || 'Reset 2FA' %>
+                                            </div>
+                                            <div style="font-size: 0.75rem; color: #6B7280;">
+                                                <%= t('reset_2fa_desc') || 'Reset Google Authenticator' %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div
+                                        style="padding: 1rem; background: #FEF3C7; border-radius: 8px; margin-bottom: 1rem;">
+                                        <div style="display: flex; align-items: flex-start; gap: 0.5rem;">
+                                            <i class="ri-error-warning-fill"
+                                                style="color: #D97706; font-size: 1.25rem;"></i>
+                                            <div style="font-size: 0.8rem; color: #92400E; line-height: 1.4;">Resetting
+                                                2FA will require you to set up Google Authenticator again on next login.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button onclick="reset2FA()" class="btn btn-outline"
+                                        style="width: 100%; border-radius: 8px; border-color: #EF4444; color: #EF4444;">
+                                        <i class="ri-refresh-line"></i> Request 2FA Reset
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
         </main>
@@ -2057,6 +2116,64 @@
                     }
                 } catch (e) {
                     showToast('Network error', 'error');
+                }
+            }
+
+            // Security Settings Functions
+            async function changePassword(e) {
+                e.preventDefault();
+                const currentPassword = document.getElementById('current-password').value;
+                const newPassword = document.getElementById('new-password').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+
+                if (newPassword !== confirmPassword) {
+                    showToast('New passwords do not match', 'error');
+                    return;
+                }
+
+                if (newPassword.length < 6) {
+                    showToast('Password must be at least 6 characters', 'error');
+                    return;
+                }
+
+                try {
+                    const res = await fetch('/api/merchant/change-password', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ currentPassword, newPassword })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showToast('Password updated successfully');
+                        document.getElementById('current-password').value = '';
+                        document.getElementById('new-password').value = '';
+                        document.getElementById('confirm-password').value = '';
+                    } else {
+                        showToast(data.error || 'Failed to update password', 'error');
+                    }
+                } catch (err) {
+                    showToast('Error updating password', 'error');
+                }
+            }
+
+            async function reset2FA() {
+                if (!confirm('Are you sure you want to reset your 2FA? You will need to set up Google Authenticator again on next login.')) {
+                    return;
+                }
+
+                try {
+                    const res = await fetch('/api/merchant/reset-2fa', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showToast('2FA has been reset. You will set up a new 2FA on next login.');
+                    } else {
+                        showToast(data.error || 'Failed to reset 2FA', 'error');
+                    }
+                } catch (err) {
+                    showToast('Error resetting 2FA', 'error');
                 }
             }
         </script>

@@ -119,5 +119,15 @@
     "no_ranges": "暂无范围配置。添加范围以启用智能路由。",
     "range_config": "金额范围配置",
     "today_trading": "今日活动",
-    "yesterday_trading": "昨日活动"
+    "yesterday_trading": "昨日活动",
+    "btn_request_settlement": "申请下发",
+    "security_settings": "安全设置",
+    "change_password": "修改密码",
+    "current_password": "当前密码",
+    "new_password": "新密码",
+    "confirm_password": "确认密码",
+    "update_password": "更新密码",
+    "reset_2fa": "重置2FA",
+    "reset_2fa_desc": "重置Google验证器",
+    "pob_fee": "代付手续费"
 }
