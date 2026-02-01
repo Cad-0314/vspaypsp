@@ -1982,22 +1982,80 @@
                         const o = data.order;
                         const cbStatus = o.callbackStatus || 'pending';
                         const cbClass = cbStatus === 'success' ? 'badge-success' : (cbStatus === 'failed' ? 'badge-failed' : 'badge-pending');
-                        const cbText = cbStatus === 'success' ? 'Pass' : (cbStatus === 'failed' ? 'Fail' : 'Pending');
+                        const statusClass = `badge-${o.status}`;
+
+                        const fee = o.fee ? parseFloat(o.fee) : 0;
+                        const net = o.netAmount ? parseFloat(o.netAmount) : (parseFloat(o.amount) - fee);
+
                         const content = `
-                            <div style="display:grid; gap:0.75rem;">
-                                <div><strong>Order ID:</strong> ${o.orderId}</div>
-                                <div><strong>Amount:</strong> ₹${o.amount}</div>
-                                <div><strong>Status:</strong> <span class="badge badge-${o.status}">${o.status}</span></div>
-                                <div><strong>Type:</strong> ${o.type}</div>
-                                <div><strong>UTR:</strong> ${o.utr || 'N/A'}</div>
-                                <hr style="border:none;border-top:1px solid #E5E7EB;">
-                                <div><strong>Callback Status:</strong> <span class="badge ${cbClass}">${cbText}</span></div>
-                                <div><strong>Callback Sent:</strong> ${o.callbackSentAt ? new Date(o.callbackSentAt).toLocaleString() : 'Not sent'}</div>
-                                <div><strong>Callback Response:</strong> ${o.callbackResponse || 'N/A'}</div>
-                                <hr style="border:none;border-top:1px solid #E5E7EB;">
-                                <div><strong>Created:</strong> ${new Date(o.createdAt).toLocaleString()}</div>
-                                <div><strong>Updated:</strong> ${new Date(o.updatedAt).toLocaleString()}</div>
+                            <div style="background: #F9FAFB; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                    <span style="color: #6B7280; font-size: 0.875rem;">Status</span>
+                                    <span class="badge ${statusClass}">${o.status.toUpperCase()}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: #6B7280; font-size: 0.875rem;">Order ID</span>
+                                    <span style="font-family: monospace; font-weight: 500; color: #111827;">${o.orderId}</span>
+                                </div>
                             </div>
+
+                            <div style="margin-bottom: 1.5rem;">
+                                <h4 style="font-size: 0.75rem; color: #6B7280; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Financials</h4>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem;">
+                                    <div style="padding: 0.75rem; border: 1px solid #E5E7EB; border-radius: 8px; text-align: center;">
+                                        <div style="font-size: 0.75rem; color: #6B7280; margin-bottom: 0.25rem;">Amount</div>
+                                        <div style="font-weight: 600; font-size: 1rem; color: #111827;">₹${parseFloat(o.amount).toFixed(2)}</div>
+                                    </div>
+                                    <div style="padding: 0.75rem; border: 1px solid #FECACA; border-radius: 8px; text-align: center; background: #FEF2F2;">
+                                        <div style="font-size: 0.75rem; color: #B91C1C; margin-bottom: 0.25rem;">Fees</div>
+                                        <div style="font-weight: 600; font-size: 1rem; color: #DC2626;">- ₹${fee.toFixed(2)}</div>
+                                    </div>
+                                    <div style="padding: 0.75rem; border: 1px solid #D1FAE5; border-radius: 8px; text-align: center; background: #ECFDF5;">
+                                        <div style="font-size: 0.75rem; color: #047857; margin-bottom: 0.25rem;">Net Credit</div>
+                                        <div style="font-weight: 700; font-size: 1rem; color: #059669;">+ ₹${net.toFixed(2)}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 1.5rem;">
+                                <h4 style="font-size: 0.75rem; color: #6B7280; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Details</h4>
+                                <div style="display: grid; gap: 0.75rem; font-size: 0.875rem;">
+                                    <div style="display: flex; justify-content: space-between; padding-bottom: 0.5rem; border-bottom: 1px dashed #E5E7EB;">
+                                        <span style="color: #6B7280;">Type</span>
+                                        <span style="font-weight: 500; text-transform: capitalize; color: #374151;">${o.type}</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; padding-bottom: 0.5rem; border-bottom: 1px dashed #E5E7EB;">
+                                        <span style="color: #6B7280;">UTR / Reference</span>
+                                        <span style="font-family: monospace; color: #374151;">${o.utr || '-'}</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; padding-bottom: 0.5rem; border-bottom: 1px dashed #E5E7EB;">
+                                        <span style="color: #6B7280;">Created At</span>
+                                        <span style="color: #374151;">${new Date(o.createdAt).toLocaleString()}</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span style="color: #6B7280;">Updated At</span>
+                                        <span style="color: #374151;">${new Date(o.updatedAt).toLocaleString()}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            ${o.callbackUrl ? `
+                            <div>
+                                <h4 style="font-size: 0.75rem; color: #6B7280; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Callback Info</h4>
+                                <div style="background: #F3F4F6; border-radius: 8px; padding: 1rem; font-size: 0.875rem;">
+                                    <div style="margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+                                        <span style="color: #6B7280;">Last Status</span>
+                                        <span class="badge ${cbClass}">${cbStatus.toUpperCase()}</span>
+                                    </div>
+                                    <div>
+                                        <span style="color: #6B7280; display: block; margin-bottom: 0.35rem; font-size: 0.75rem;">Last Response</span>
+                                        <div style="background: white; border: 1px solid #E5E7EB; border-radius: 4px; padding: 0.5rem; font-family: monospace; font-size: 0.75rem; color: #4B5563; max-height: 80px; overflow-y: auto;">
+                                            ${o.callbackResponse || 'No response recorded'}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            ` : ''}
                         `;
                         document.getElementById('order-detail-content').innerHTML = content;
                         document.getElementById('order-detail-modal').classList.add('active');
@@ -2415,17 +2473,27 @@
 
     <!-- Order Details Modal -->
     <div id="order-detail-modal" class="modal">
-        <div class="modal-content" style="max-width: 500px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h3 style="margin: 0;">Order Details</h3>
+        <div class="modal-content"
+            style="max-width: 500px; padding: 0; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);">
+            <div
+                style="background: white; padding: 1.25rem 1.5rem; border-bottom: 1px solid #F3F4F6; display: flex; justify-content: space-between; align-items: center;">
+                <h3
+                    style="margin: 0; font-size: 1.125rem; font-weight: 700; color: #111827; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="ri-file-list-3-line" style="color: #3B82F6;"></i> Transaction Details
+                </h3>
                 <button onclick="closeOrderDetailModal()"
-                    style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6B7280;">&times;</button>
+                    style="background: #F3F4F6; border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #6B7280; transition: all 0.2s;"
+                    onmouseover="this.style.background='#E5E7EB';this.style.color='#374151'"
+                    onmouseout="this.style.background='#F3F4F6';this.style.color='#6B7280'">
+                    <i class="ri-close-line" style="font-size: 1.25rem;"></i>
+                </button>
             </div>
-            <div id="order-detail-content">
-                Loading...
-            </div>
-            <div style="margin-top: 1rem; text-align: right;">
-                <button class="btn btn-outline" onclick="closeOrderDetailModal()">Close</button>
+            <div id="order-detail-content" style="padding: 1.5rem; max-height: 70vh; overflow-y: auto;">
+                <div style="text-align: center; padding: 2rem; color: #9CA3AF;">
+                    <i class="ri-loader-4-line ri-spin"
+                        style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
+                    <span>Loading details...</span>
+                </div>
             </div>
         </div>
     </div>
