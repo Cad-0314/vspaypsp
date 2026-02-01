@@ -402,28 +402,28 @@
         }
 
         .badge-success {
-            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
-            color: #059669;
-            border: 1px solid #a7f3d0;
+            background: #ECFDF5;
+            color: #047857;
+            border: 1px solid #A7F3D0;
         }
 
         .badge-pending {
-            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-            color: #d97706;
-            border: 1px solid #fcd34d;
+            background: #FFFBEB;
+            color: #B45309;
+            border: 1px solid #FDE68A;
         }
 
         .badge-processing {
-            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-            color: #2563eb;
-            border: 1px solid #93c5fd;
+            background: #EFF6FF;
+            color: #1D4ED8;
+            border: 1px solid #BFDBFE;
         }
 
         .badge-failed,
         .badge-expired {
-            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-            color: #dc2626;
-            border: 1px solid #fca5a5;
+            background: #FEF2F2;
+            color: #B91C1C;
+            border: 1px solid #FECACA;
         }
 
         /* Filter Badges */
@@ -2001,18 +2001,21 @@
 
                             <div style="margin-bottom: 1.5rem;">
                                 <h4 style="font-size: 0.75rem; color: #6B7280; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Financials</h4>
-                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem;">
-                                    <div style="padding: 0.75rem; border: 1px solid #E5E7EB; border-radius: 8px; text-align: center;">
-                                        <div style="font-size: 0.75rem; color: #6B7280; margin-bottom: 0.25rem;">Amount</div>
-                                        <div style="font-weight: 600; font-size: 1rem; color: #111827;">₹${parseFloat(o.amount).toFixed(2)}</div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                                    <div style="padding: 1rem; border: 1px solid #E5E7EB; border-radius: 12px; text-align: center; background: white; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                                        <div style="font-size: 1.25rem; color: #9CA3AF; margin-bottom: 0.5rem;"><i class="ri-wallet-3-line"></i></div>
+                                        <div style="font-size: 0.75rem; color: #6B7280; margin-bottom: 0.25rem; font-weight: 600; text-transform: uppercase;">Amount</div>
+                                        <div style="font-weight: 700; font-size: 1.125rem; color: #111827;">₹${parseFloat(o.amount).toFixed(2)}</div>
                                     </div>
-                                    <div style="padding: 0.75rem; border: 1px solid #FECACA; border-radius: 8px; text-align: center; background: #FEF2F2;">
-                                        <div style="font-size: 0.75rem; color: #B91C1C; margin-bottom: 0.25rem;">Fees</div>
-                                        <div style="font-weight: 600; font-size: 1rem; color: #DC2626;">- ₹${fee.toFixed(2)}</div>
+                                    <div style="padding: 1rem; border: 1px solid #FECACA; border-radius: 12px; text-align: center; background: white; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                                        <div style="font-size: 1.25rem; color: #EF4444; margin-bottom: 0.5rem;"><i class="ri-percent-line"></i></div>
+                                        <div style="font-size: 0.75rem; color: #991B1B; margin-bottom: 0.25rem; font-weight: 600; text-transform: uppercase;">Fees</div>
+                                        <div style="font-weight: 700; font-size: 1.125rem; color: #DC2626;">- ₹${fee.toFixed(2)}</div>
                                     </div>
-                                    <div style="padding: 0.75rem; border: 1px solid #D1FAE5; border-radius: 8px; text-align: center; background: #ECFDF5;">
-                                        <div style="font-size: 0.75rem; color: #047857; margin-bottom: 0.25rem;">Net Credit</div>
-                                        <div style="font-weight: 700; font-size: 1rem; color: #059669;">+ ₹${net.toFixed(2)}</div>
+                                    <div style="padding: 1rem; border: 1px solid #A7F3D0; border-radius: 12px; text-align: center; background: white; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                                        <div style="font-size: 1.25rem; color: #10B981; margin-bottom: 0.5rem;"><i class="ri-arrow-right-down-line"></i></div>
+                                        <div style="font-size: 0.75rem; color: #065F46; margin-bottom: 0.25rem; font-weight: 600; text-transform: uppercase;">Net Credit</div>
+                                        <div style="font-weight: 700; font-size: 1.125rem; color: #059669;">+ ₹${net.toFixed(2)}</div>
                                     </div>
                                 </div>
                             </div>
