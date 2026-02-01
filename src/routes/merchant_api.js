@@ -6,6 +6,8 @@
 const express = require('express');
 const router = express.Router();
 const { Order, Settlement, User, Channel, sequelize } = require('../models');
+const channelRouter = require('../services/channelRouter');
+const APP_URL = process.env.APP_URL || 'https://payable.firestars.co';
 const { getStats, getChartData } = require('../services/stats');
 const { v4: uuidv4 } = require('uuid');
 const otplib = require('otplib');
@@ -503,31 +505,53 @@ router.post('/ips/remove', async (req, res) => {
 router.post('/topup', async (req, res) => {
     try {
         const { amount, reference, notes } = req.body;
-        const merchantId = req.session.user.id;
+        const merchant = req.session.user; // Get user from session (User model instance usually attached by strategy, but here simpler to re-query if needed or trust session)
+
+        // Ensure we have refresh user data for rates
+        const user = await User.findByPk(merchant.id);
 
         const amt = parseFloat(amount);
         if (isNaN(amt) || amt < 100) {
             return res.status(400).json({ success: false, error: 'Invalid amount. Minimum is ₹100' });
         }
 
+        // Get channel configuration for fee
+        const channelName = user.payinChannel || user.assignedChannel || 'aapay';
+        let channelConfig = channelRouter.getChannelConfig(channelName);
+        const dbChannel = await Channel.findOne({ where: { name: channelName } });
+
+        // Calculate fees
+        let customRates = {};
+        try { customRates = JSON.parse(user.channel_rates || '{}'); } catch (e) { }
+
+        // Priority: Merchant Custom Rate > DB Channel Rate > Static Config > Default (5%)
+        const feeRate = customRates.payinRate || (dbChannel ? dbChannel.payinRate : (channelConfig ? channelConfig.payinRate : 5));
+        const fee = (amt * feeRate) / 100;
+        const netAmount = amt - fee;
+
         const orderId = `TOP${Date.now()}${Math.floor(Math.random() * 100)}`;
+        const internalId = uuidv4();
 
         const order = await Order.create({
-            id: uuidv4(),
+            id: internalId,
             orderId: orderId,
-            merchantId,
+            merchantId: user.id,
             amount: amt,
-            netAmount: amt, // No fee for topup
-            fee: 0,
+            netAmount: netAmount,
+            fee: fee,
             status: 'pending',
             type: 'payin',
-            channelName: 'manual_topup',
+            channelName: 'manual_topup', // Keep as manual_topup to distinguish, or use 'payin' with specific param
+            actualChannel: channelName, // Store the underlying channel used for calculation
             utr: reference,
             param: notes,
             expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
         });
 
-        res.json({ success: true, orderId });
+        // Generate Link
+        const link = `${APP_URL}/pay/${internalId}`;
+
+        res.json({ success: true, orderId, link });
 
     } catch (error) {
         console.error('[MerchantAPI] Topup error:', error);

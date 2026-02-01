@@ -765,7 +765,7 @@
                     </div>
                     <div class="nav-item" onclick="switchTab('security')">
                         <i class="ri-shield-keyhole-line"></i>
-                        <%= t('nav_security') || 'Security' %>
+                        Security
                     </div>
                 </div>
             </nav>
@@ -1356,7 +1356,7 @@
                                     <button type="submit" class="btn btn-primary"
                                         style="width: 100%; justify-content: center; padding: 0.875rem; font-size: 1rem; border-radius: 8px;">
                                         <i class="ri-send-plane-fill"></i>
-                                        <%= t('generate_link') %>
+                                        Generate Topup Link
                                     </button>
                                 </form>
 
@@ -2101,6 +2101,60 @@
                         document.getElementById('topup-result').style.display = 'block';
                         loadTopupHistory();
                         showToast('Topup request submitted successfully');
+                    } else {
+                        showToast(data.error || 'Failed to submit topup', 'error');
+                    }
+                } catch (err) { showToast('Error submitting topup request', 'error'); }
+
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+
+
+            async function submitTopup(e) {
+                e.preventDefault();
+                const btn = e.target.querySelector('button[type="submit"]');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Processing...';
+                btn.disabled = true;
+
+                const amount = document.getElementById('topup-amount').value;
+                const reference = document.getElementById('topup-reference').value;
+                const notes = document.getElementById('topup-notes').value;
+
+                try {
+                    const res = await fetch('/api/merchant/topup', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ amount, reference, notes })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        e.target.reset();
+                        const resultDiv = document.getElementById('topup-result');
+                        resultDiv.style.display = 'block';
+
+                        // Inject link content
+                        resultDiv.innerHTML = `
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+                                <i class="ri-checkbox-circle-fill" style="color: #10B981; font-size: 1.25rem;"></i>
+                                <span style="font-weight: 600; color: #065F46;">Payment Link Generated</span>
+                            </div>
+                            <div style="background: white; padding: 0.75rem; border: 1px solid #D1FAE5; border-radius: 6px; margin-bottom: 0.75rem; word-break: break-all; font-family: monospace; color: #047857; font-size: 0.9rem;">
+                                ${data.link}
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-sm" onclick="navigator.clipboard.writeText('${data.link}'); showToast('Copied!')" style="background: #ffffff; border: 1px solid #10B981; color: #10B981; flex: 1; justify-content: center;">
+                                    <i class="ri-file-copy-line"></i> Copy
+                                </button>
+                                <a href="${data.link}" target="_blank" class="btn btn-sm btn-primary" style="background: #10B981; border: none; flex: 1; justify-content: center; text-decoration: none;">
+                                    Pay Now <i class="ri-arrow-right-line"></i>
+                                </a>
+                            </div>
+                        `;
+
+                        loadTopupHistory();
+                        showToast('Topup link generated successfully');
                     } else {
                         showToast(data.error || 'Failed to submit topup', 'error');
                     }

@@ -80,18 +80,23 @@ router.post('/initiate', validateMerchant, async (req, res) => {
             return res.json(buildError('INVALID_AMOUNT', 'Amount must be at least 100'));
         }
 
-        // Get channel configuration
+        // Get channel configuration from DB to ensure correct rates
         const channelName = merchant.payinChannel || merchant.assignedChannel || 'aapay';
-        const channelConfig = channelRouter.getChannelConfig(channelName);
+        let channelConfig = channelRouter.getChannelConfig(channelName);
 
-        if (!channelConfig) {
+        // Fetch dynamic channel data from DB including rates
+        const dbChannel = await Channel.findOne({ where: { name: channelName } });
+
+        if (!channelConfig && !dbChannel) {
             return res.json(buildError('CHANNEL_ERROR', 'Payment channel not configured'));
         }
 
         // Calculate fees
         let customRates = {};
         try { customRates = JSON.parse(merchant.channel_rates || '{}'); } catch (e) { }
-        const feeRate = customRates.payinRate || channelConfig.payinRate || 5;
+
+        // Priority: Merchant Custom Rate > DB Channel Rate > Static Config > Default (5%)
+        const feeRate = customRates.payinRate || (dbChannel ? dbChannel.payinRate : (channelConfig.payinRate || 5));
         const fee = (orderAmount * feeRate) / 100;
         const internalId = uuidv4();
 
