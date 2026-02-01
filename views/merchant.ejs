@@ -195,6 +195,67 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            background: #F3F4F6;
+        }
+
+        /* Top Header */
+        .top-header {
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.75rem 2rem;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 1.5rem;
+            height: 64px;
+        }
+
+        .lang-switcher {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .lang-btn {
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-decoration: none;
+            color: var(--text-secondary);
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .lang-btn:hover {
+            background: #F3F4F6;
+            color: var(--text-primary);
+        }
+
+        .lang-btn.active {
+            background: #EFF6FF;
+            color: var(--sidebar-bg);
+            border-color: #BFDBFE;
+        }
+
+        .user-profile-head {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding-left: 1.5rem;
+            border-left: 1px solid var(--border-color);
+        }
+
+        .user-id-badge {
+            font-size: 0.75rem;
+            background: #F3F4F6;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            color: var(--text-secondary);
+            font-family: monospace;
         }
 
         .content-scroll {
@@ -718,7 +779,8 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header" style="justify-content: center;">
-                <img src="/images/logo-new.png" alt="Logo" style="height: 42px;">
+                <img src="/logo.jpg" alt="Logo"
+                    style="width: 100%; max-width: 180px; height: auto; max-height: 70px; object-fit: contain;">
             </div>
 
             <nav class="nav-links">
@@ -771,26 +833,8 @@
             </nav>
 
             <!-- User Info & Actions -->
+            <!-- User Info & Actions -->
             <div class="user-info">
-                <div class="user-card">
-                    <div class="user-avatar">
-                        <%= user.username.charAt(0).toUpperCase() %>
-                    </div>
-                    <div class="user-details">
-                        <div class="user-name">
-                            <%= user.username %>
-                        </div>
-                        <div class="user-role">Merchant Account</div>
-                    </div>
-                </div>
-                <div style="display:flex; gap:0.5rem; margin-bottom:0.75rem;">
-                    <a href="?lang=en"
-                        style="flex:1; text-align:center; padding:0.35rem; background:rgba(255,255,255,0.1); color:white; text-decoration:none; border-radius:4px; font-size:0.7rem;">🇬🇧
-                        EN</a>
-                    <a href="?lang=zh"
-                        style="flex:1; text-align:center; padding:0.35rem; background:rgba(255,255,255,0.1); color:white; text-decoration:none; border-radius:4px; font-size:0.7rem;">🇨🇳
-                        CN</a>
-                </div>
                 <a href="/auth/logout" class="btn"
                     style="width:100%; justify-content:center; background:rgba(220, 38, 38, 0.15); color:#fca5a5; border:1px solid rgba(220, 38, 38, 0.3); display:flex; align-items:center; gap:0.5rem; padding:0.5rem; border-radius:6px; text-decoration:none; font-size:0.875rem;">
                     <i class="ri-logout-box-r-line"></i> Logout
@@ -800,6 +844,29 @@
 
         <!-- Main Content -->
         <main class="main-content">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="lang-switcher">
+                    <a href="?lang=en" class="lang-btn <%= currentLang === 'en' ? 'active' : '' %>">
+                        <span>🇬🇧</span> English
+                    </a>
+                    <a href="?lang=zh" class="lang-btn <%= currentLang === 'zh' ? 'active' : '' %>">
+                        <span>🇨🇳</span> 中文
+                    </a>
+                </div>
+
+                <div class="user-profile-head">
+                    <div style="text-align: right;">
+                        <div style="font-size: 0.875rem; font-weight: 600; color: var(--text-primary);">
+                            <%= user.username %>
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Merchant</div>
+                    </div>
+                    <div class="user-avatar" style="width: 36px; height: 36px; background: var(--sidebar-bg);">
+                        <%= user.username.charAt(0).toUpperCase() %>
+                    </div>
+                </div>
+            </header>
             <div class="content-scroll">
                 <!-- Dashboard Tab -->
                 <div id="tab-dashboard" class="tab-content active">

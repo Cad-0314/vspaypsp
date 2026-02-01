@@ -3,6 +3,7 @@ const session = require('express-session');
 const passport = require('passport');
 const flash = require('connect-flash');
 const path = require('path');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
@@ -74,6 +75,9 @@ app.use(session({
     resave: false,
     saveUninitialized: false
 }));
+
+// Cookie Parser
+app.use(cookieParser());
 
 // i18n Middleware
 app.use(require('./src/middleware/i18n'));

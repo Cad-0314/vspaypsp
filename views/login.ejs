@@ -113,8 +113,12 @@
         }
 
         .brand-logo {
-            height: 56px;
-            margin-bottom: 1rem;
+            width: auto;
+            max-width: 280px;
+            height: auto;
+            max-height: 100px;
+            margin-bottom: 1.5rem;
+            object-fit: contain;
         }
 
         .brand-title {
@@ -365,7 +369,7 @@
         </div>
 
         <div class="brand-section">
-            <img src="/images/logo-new.png" alt="Gaur Pay" class="brand-logo">
+            <img src="/logo.jpg" alt="Gaur Pay" class="brand-logo">
             <h1 class="brand-title">
                 <%= t('header_welcome') || 'Welcome Back' %>
             </h1>

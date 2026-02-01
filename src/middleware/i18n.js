@@ -7,9 +7,14 @@ const locales = {
 };
 
 module.exports = function (req, res, next) {
-    // Check for lang query param and set session
+    // 1. Check for lang in query param (highest priority, sets cookie)
     if (req.query.lang && locales[req.query.lang]) {
         req.session.lang = req.query.lang;
+        res.cookie('lang', req.query.lang, { maxAge: 90 * 24 * 60 * 60 * 1000, httpOnly: true }); // 90 days
+    }
+    // 2. Check for lang in cookies
+    else if (req.cookies && req.cookies.lang && locales[req.cookies.lang]) {
+        req.session.lang = req.cookies.lang;
     }
 
     // Default to 'en' if no session lang
