@@ -1443,9 +1443,16 @@
                                     </div>
                                 </div>
                                 <div style="margin-bottom: 1.25rem;">
-                                    <label
-                                        style="display: block; font-size: 0.75rem; font-weight: 600; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">API
-                                        Secret Key</label>
+                                    <div
+                                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                        <label
+                                            style="display: block; font-size: 0.75rem; font-weight: 600; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">API
+                                            Secret Key</label>
+                                        <button class="btn btn-sm" onclick="showRegenKeyModal()"
+                                            style="font-size: 0.7rem; padding: 0.2rem 0.5rem; background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA;">
+                                            <i class="ri-refresh-line"></i> Regenerate
+                                        </button>
+                                    </div>
                                     <div style="position: relative;">
                                         <div id="secret-blur" class="blur-text form-control"
                                             style="font-family: 'Courier New', monospace; background: #F9FAFB; border-radius: 8px; font-size: 0.85rem; cursor: pointer; padding-right: 3rem;"
@@ -1504,58 +1511,7 @@
                         </div>
                     </div>
 
-                    <!-- Rates Card (Full Width) -->
-                    <div class="card" style="border-radius: 12px; overflow: hidden; margin-bottom: 1.5rem;">
-                        <div class="card-header"
-                            style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); padding: 1rem 1.25rem;">
-                            <div class="card-title" style="color: white;"><i class="ri-percent-fill"></i> Your Active
-                                Rates</div>
-                        </div>
-                        <div class="card-body" style="padding: 1.5rem;">
-                            <% let rates={}; try { rates=JSON.parse(user.channel_rates || '{}' ); } catch(e) {} %>
-                                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;">
-                                    <div
-                                        style="text-align: center; padding: 1.25rem; background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%); border-radius: 12px; border: 1px solid #A7F3D0;">
-                                        <div
-                                            style="font-size: 0.75rem; font-weight: 600; color: #059669; text-transform: uppercase; margin-bottom: 0.5rem;">
-                                            Collection Fee</div>
-                                        <div style="font-size: 2rem; font-weight: 700; color: #047857;">
-                                            <%= rates.payinRate || 5 %>%
-                                        </div>
-                                    </div>
-                                    <div
-                                        style="text-align: center; padding: 1.25rem; background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); border-radius: 12px; border: 1px solid #FCD34D;">
-                                        <div
-                                            style="font-size: 0.75rem; font-weight: 600; color: #D97706; text-transform: uppercase; margin-bottom: 0.5rem;">
-                                            Payment Out Fee</div>
-                                        <div style="font-size: 2rem; font-weight: 700; color: #B45309;">
-                                            <%= rates.payoutRate || 3 %>%
-                                        </div>
-                                    </div>
-                                    <div
-                                        style="text-align: center; padding: 1.25rem; background: linear-gradient(135deg, #EDE9FE 0%, #DDD6FE 100%); border-radius: 12px; border: 1px solid #C4B5FD;">
-                                        <div
-                                            style="font-size: 0.75rem; font-weight: 600; color: #7C3AED; text-transform: uppercase; margin-bottom: 0.5rem;">
-                                            Fixed Fee</div>
-                                        <div style="font-size: 2rem; font-weight: 700; color: #6D28D9;">₹<%=
-                                                rates.payoutFixedFee || 6 %>
-                                        </div>
-                                    </div>
-                                    <div
-                                        style="text-align: center; padding: 1.25rem; background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%); border-radius: 12px; border: 1px solid #D1D5DB;">
-                                        <div
-                                            style="font-size: 0.75rem; font-weight: 600; color: #6B7280; text-transform: uppercase; margin-bottom: 0.5rem;">
-                                            Status</div>
-                                        <div
-                                            style="font-size: 1.25rem; font-weight: 700; color: #059669; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-                                            <span
-                                                style="width: 10px; height: 10px; background: #10B981; border-radius: 50%;"></span>
-                                            Active
-                                        </div>
-                                    </div>
-                                </div>
-                        </div>
-                    </div>
+
                 </div>
 
                 <!-- Security Tab -->
@@ -1681,9 +1637,11 @@
                     <input type="text" id="totp-input" class="form-control" placeholder="123456" maxlength="6"
                         style="font-size: 1.25rem; text-align: center; letter-spacing: 0.5rem;">
                 </div>
-                <div style="display: flex; gap: 0.5rem;">
-                    <button class="btn btn-outline" style="flex: 1;" onclick="closeIpModal()">Cancel</button>
-                    <button class="btn btn-primary" style="flex: 1;" onclick="confirmIpAction()">Confirm</button>
+                <div style="flex: 1; display: flex; gap: 0.75rem;">
+                    <button class="btn btn-outline" style="flex: 1; justify-content: center;"
+                        onclick="closeIpModal()">Cancel</button>
+                    <button class="btn btn-primary" style="flex: 1; justify-content: center;"
+                        onclick="confirmSecurityAction()">Confirm</button>
                 </div>
             </div>
         </div>
@@ -2385,10 +2343,32 @@
                 pendingIpAction = null;
             }
 
-            async function confirmIpAction() {
+            async function confirmSecurityAction() {
                 if (!pendingIpAction) return;
                 const totpCode = document.getElementById('totp-input').value.trim();
                 if (!totpCode || totpCode.length !== 6) { showToast('Please enter 6-digit 2FA code', 'error'); return; }
+
+                if (pendingIpAction.action === 'regenerate_key') {
+                    try {
+                        const res = await fetch('/api/merchant/credentials/regenerate', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ totpCode })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            showToast(data.message, 'success');
+                            const secretEl = document.getElementById('secret-blur');
+                            secretEl.innerText = data.newSecret;
+                            secretEl.classList.remove('blur-text');
+                            document.getElementById('reveal-hint').style.display = 'none';
+                            closeIpModal();
+                        } else {
+                            showToast(data.error, 'error');
+                        }
+                    } catch (e) { showToast('Network error', 'error'); }
+                    return;
+                }
 
                 const endpoint = pendingIpAction.action === 'add' ? '/api/merchant/ips/add' : '/api/merchant/ips/remove';
                 try {
@@ -2410,6 +2390,14 @@
                 } catch (e) {
                     showToast('Network error', 'error');
                 }
+            }
+
+            function showRegenKeyModal() {
+                pendingIpAction = { action: 'regenerate_key' };
+                document.getElementById('ip-modal-title').innerText = 'Regenerate API Secret';
+                document.getElementById('ip-modal-desc').innerText = 'Enter 2FA to generate a new secret key. The old key will stop working immediately.';
+                document.getElementById('totp-input').value = '';
+                document.getElementById('ip-modal').classList.add('active');
             }
 
             // Security Settings Functions

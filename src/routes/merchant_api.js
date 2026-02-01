@@ -499,6 +499,35 @@ router.post('/ips/remove', async (req, res) => {
 });
 
 /**
+ * POST /api/merchant/credentials/regenerate
+ * Regenerate API Secret Key (requires 2FA)
+ */
+router.post('/credentials/regenerate', async (req, res) => {
+    try {
+        const { totpCode } = req.body;
+        const merchant = await User.findByPk(req.session.user.id);
+
+        if (!merchant.two_fa_enabled || !merchant.two_fa_secret) {
+            return res.status(400).json({ success: false, error: 'Please enable 2FA first to regenerate keys' });
+        }
+
+        if (!totpCode || !otplib.authenticator.check(totpCode, merchant.two_fa_secret)) {
+            return res.status(400).json({ success: false, error: 'Invalid 2FA code' });
+        }
+
+        const newSecret = 'sk_' + uuidv4().replace(/-/g, '');
+        await merchant.update({ apiSecret: newSecret });
+
+        console.log(`[MerchantAPI] API Key regenerated for ${merchant.username}`);
+        res.json({ success: true, message: 'API Secret regenerated successfully', newSecret });
+
+    } catch (error) {
+        console.error('[MerchantAPI] Key regen error:', error);
+        res.status(500).json({ success: false, error: 'Failed to regenerate key' });
+    }
+});
+
+/**
  * POST /api/merchant/topup
  * Request manual topup
  */
