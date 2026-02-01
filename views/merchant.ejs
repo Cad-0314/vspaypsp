@@ -1309,110 +1309,179 @@
 
                 <!-- Profile Tab -->
                 <div id="tab-profile" class="tab-content">
-                    <h2 style="margin-bottom: 1rem;">
-                        <%= t('profile_settings') %>
-                    </h2>
-
-                    <div class="card" style="margin-bottom: 1rem;">
-                        <div class="card-header">
-                            <div class="card-title"><i class="ri-key-2-line"></i> API Credentials</div>
+                    <!-- Settings Header -->
+                    <div
+                        style="background: linear-gradient(135deg, #1E293B 0%, #334155 100%); border-radius: 16px; padding: 1.5rem 2rem; margin-bottom: 1.5rem; color: white; display: flex; align-items: center; gap: 1.5rem;">
+                        <div
+                            style="width: 64px; height: 64px; background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                            <i class="ri-settings-4-fill" style="font-size: 2rem;"></i>
                         </div>
-                        <div class="card-body">
-                            <div style="margin-bottom: 1rem;">
-                                <label class="stat-label">Merchant ID (x-merchant-id)</label>
-                                <div style="display: flex; gap: 0.5rem;">
-                                    <input type="text" class="form-control" value="<%= user.apiKey %>" readonly
-                                        style="font-family: monospace; background: #f5f5f5;">
-                                    <button class="btn btn-outline"
-                                        onclick="navigator.clipboard.writeText('<%= user.apiKey %>'); showToast('Copied!')"><i
-                                            class="ri-file-copy-line"></i></button>
-                                </div>
-                            </div>
-                            <div style="margin-bottom: 1rem;">
-                                <label class="stat-label">API Secret</label>
-                                <div class="blur-text form-control" style="font-family: monospace; background: #f5f5f5;"
-                                    onclick="this.classList.remove('blur-text')">
-                                    <%= user.apiSecret %>
-                                </div>
-                                <small style="color: var(--text-muted);">Click to reveal. Never share this key.</small>
-                            </div>
-                            <div
-                                style="padding: 1rem; background: var(--primary-light); border-radius: 4px; display: flex; gap: 0.75rem; align-items: center;">
-                                <i class="ri-information-fill" style="color: var(--primary); font-size: 1.25rem;"></i>
-                                <span style="font-size: 0.875rem;">Check our <a href="/docs"
-                                        style="color: var(--primary);">API
-                                        Documentation</a> for integration guide.</span>
-                            </div>
+                        <div>
+                            <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem;">
+                                <%= t('profile_settings') %>
+                            </h2>
+                            <p style="opacity: 0.8; font-size: 0.9rem; margin: 0;">Manage your account credentials, IP
+                                whitelist, and view your rates</p>
                         </div>
                     </div>
 
-                    <div class="card" style="margin-bottom: 1rem;">
-                        <div class="card-header">
-                            <div class="card-title"><i class="ri-shield-keyhole-line"></i> IP Whitelist</div>
-                        </div>
-                        <div class="card-body">
-                            <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">
-                                Only these IPs can make API calls. Leave empty to allow all IPs.<br>
-                                只有这些IP可以调用API。留空则允许所有IP。
-                            </p>
-                            <div id="ip-list" style="margin-bottom: 1rem;">Loading...</div>
-                            <div style="display: flex; gap: 0.5rem;">
-                                <input type="text" id="new-ip-input" class="form-control" placeholder="192.168.1.1"
-                                    style="max-width: 200px;">
-                                <button class="btn btn-primary" onclick="showAddIpModal()"><i class="ri-add-line"></i>
-                                    Add
-                                    IP</button>
+                    <!-- Two Column Layout -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                        <!-- API Credentials Card -->
+                        <div class="card" style="border-radius: 12px; overflow: hidden;">
+                            <div class="card-header"
+                                style="background: linear-gradient(135deg, #2B5797 0%, #3668A8 100%); padding: 1rem 1.25rem;">
+                                <div class="card-title" style="color: white;"><i class="ri-key-2-fill"></i> API
+                                    Credentials</div>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title"><i class="ri-percent-line"></i> Active Rates</div>
-                        </div>
-                        <div class="card-body">
-                            <% let rates={}; try { rates=JSON.parse(user.channel_rates || '{}' ); } catch(e) {} %>
-                                <div
-                                    style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; text-align: center;">
-                                    <div style="padding: 1rem; background: #f5f5f5; border-radius: 4px;">
-                                        <div class="stat-label">Payin Fee</div>
-                                        <div style="font-size: 1.25rem; font-weight: 600; color: var(--primary);">
-                                            <%= rates.payinRate || 5 %>%
-                                        </div>
-                                    </div>
-                                    <div style="padding: 1rem; background: #f5f5f5; border-radius: 4px;">
-                                        <div class="stat-label">Payout Fee</div>
-                                        <div style="font-size: 1.25rem; font-weight: 600; color: var(--danger);">
-                                            <%= rates.payoutRate || 3 %>%
-                                        </div>
-                                    </div>
-                                    <div style="padding: 1rem; background: #f5f5f5; border-radius: 4px;">
-                                        <div class="stat-label">Fixed Fee</div>
-                                        <div style="font-size: 1.25rem; font-weight: 600;">₹<%= rates.payoutFixedFee ||
-                                                6 %>
-                                        </div>
+                            <div class="card-body" style="padding: 1.5rem;">
+                                <div style="margin-bottom: 1.25rem;">
+                                    <label
+                                        style="display: block; font-size: 0.75rem; font-weight: 600; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">Merchant
+                                        ID (x-merchant-id)</label>
+                                    <div style="display: flex; gap: 0.5rem;">
+                                        <input type="text" class="form-control" value="<%= user.apiKey %>" readonly
+                                            style="font-family: 'Courier New', monospace; background: #F9FAFB; border-radius: 8px; font-size: 0.85rem;">
+                                        <button class="btn btn-primary" style="border-radius: 8px; padding: 0 1rem;"
+                                            onclick="navigator.clipboard.writeText('<%= user.apiKey %>'); showToast('Merchant ID copied!')"><i
+                                                class="ri-file-copy-line"></i></button>
                                     </div>
                                 </div>
-                        </div>
-                    </div>
-
-                    <div class="card"
-                        style="margin-top: 1rem; border-color: var(--primary); background: var(--primary-light);">
-                        <div class="card-body" style="display: flex; align-items: center; gap: 1rem;">
-                            <i class="ri-customer-service-2-line" style="font-size: 2rem; color: var(--primary);"></i>
-                            <div>
-                                <h3 style="margin-bottom: 0.25rem;">
-                                    <%= t('need_help') || 'Need Assistance?' %>
-                                </h3>
-                                <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 0.75rem;">
-                                    Contact our
-                                    support team for any issues.</p>
-                                <a href="https://t.me/payable_support" target="_blank" class="btn btn-primary"
-                                    style="padding: 0.375rem 0.75rem;">
-                                    <i class="ri-telegram-fill"></i> Contact Support
+                                <div style="margin-bottom: 1.25rem;">
+                                    <label
+                                        style="display: block; font-size: 0.75rem; font-weight: 600; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">API
+                                        Secret Key</label>
+                                    <div style="position: relative;">
+                                        <div id="secret-blur" class="blur-text form-control"
+                                            style="font-family: 'Courier New', monospace; background: #F9FAFB; border-radius: 8px; font-size: 0.85rem; cursor: pointer; padding-right: 3rem;"
+                                            onclick="this.classList.remove('blur-text'); document.getElementById('reveal-hint').style.display='none';">
+                                            <%= user.apiSecret %>
+                                        </div>
+                                        <span id="reveal-hint"
+                                            style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); font-size: 0.7rem; color: #9CA3AF;">Click
+                                            to reveal</span>
+                                    </div>
+                                    <small
+                                        style="color: #EF4444; font-size: 0.75rem; display: flex; align-items: center; gap: 0.25rem; margin-top: 0.5rem;"><i
+                                            class="ri-error-warning-fill"></i> Never share your secret key with
+                                        anyone</small>
+                                </div>
+                                <a href="/docs"
+                                    style="display: block; padding: 0.875rem 1rem; background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%); border-radius: 8px; text-decoration: none; color: #2B5797;">
+                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                        <i class="ri-book-open-fill" style="font-size: 1.25rem;"></i>
+                                        <div>
+                                            <div style="font-weight: 600; font-size: 0.9rem;">API Documentation</div>
+                                            <div style="font-size: 0.75rem; opacity: 0.8;">View integration guide and
+                                                endpoints</div>
+                                        </div>
+                                        <i class="ri-arrow-right-line" style="margin-left: auto;"></i>
+                                    </div>
                                 </a>
                             </div>
                         </div>
+
+                        <!-- IP Whitelist Card -->
+                        <div class="card" style="border-radius: 12px; overflow: hidden;">
+                            <div class="card-header"
+                                style="background: linear-gradient(135deg, #059669 0%, #10B981 100%); padding: 1rem 1.25rem;">
+                                <div class="card-title" style="color: white;"><i class="ri-shield-keyhole-fill"></i> IP
+                                    Whitelist</div>
+                            </div>
+                            <div class="card-body" style="padding: 1.5rem;">
+                                <p style="color: #6B7280; font-size: 0.85rem; margin-bottom: 1rem; line-height: 1.5;">
+                                    <i class="ri-information-line" style="color: #10B981;"></i> Only these IPs can make
+                                    API calls. Leave empty to allow all.
+                                </p>
+                                <div id="ip-list"
+                                    style="margin-bottom: 1rem; min-height: 60px; background: #F9FAFB; border-radius: 8px; padding: 0.75rem;">
+                                    Loading...</div>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <input type="text" id="new-ip-input" class="form-control"
+                                        placeholder="Enter IP address (e.g., 192.168.1.1)"
+                                        style="border-radius: 8px; flex: 1;">
+                                    <button class="btn btn-primary" style="border-radius: 8px;"
+                                        onclick="showAddIpModal()">
+                                        <i class="ri-add-circle-fill"></i> Add IP
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rates Card (Full Width) -->
+                    <div class="card" style="border-radius: 12px; overflow: hidden; margin-bottom: 1.5rem;">
+                        <div class="card-header"
+                            style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); padding: 1rem 1.25rem;">
+                            <div class="card-title" style="color: white;"><i class="ri-percent-fill"></i> Your Active
+                                Rates</div>
+                        </div>
+                        <div class="card-body" style="padding: 1.5rem;">
+                            <% let rates={}; try { rates=JSON.parse(user.channel_rates || '{}' ); } catch(e) {} %>
+                                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;">
+                                    <div
+                                        style="text-align: center; padding: 1.25rem; background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%); border-radius: 12px; border: 1px solid #A7F3D0;">
+                                        <div
+                                            style="font-size: 0.75rem; font-weight: 600; color: #059669; text-transform: uppercase; margin-bottom: 0.5rem;">
+                                            Collection Fee</div>
+                                        <div style="font-size: 2rem; font-weight: 700; color: #047857;">
+                                            <%= rates.payinRate || 5 %>%
+                                        </div>
+                                    </div>
+                                    <div
+                                        style="text-align: center; padding: 1.25rem; background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); border-radius: 12px; border: 1px solid #FCD34D;">
+                                        <div
+                                            style="font-size: 0.75rem; font-weight: 600; color: #D97706; text-transform: uppercase; margin-bottom: 0.5rem;">
+                                            POB Fee</div>
+                                        <div style="font-size: 2rem; font-weight: 700; color: #B45309;">
+                                            <%= rates.payoutRate || 3 %>%
+                                        </div>
+                                    </div>
+                                    <div
+                                        style="text-align: center; padding: 1.25rem; background: linear-gradient(135deg, #EDE9FE 0%, #DDD6FE 100%); border-radius: 12px; border: 1px solid #C4B5FD;">
+                                        <div
+                                            style="font-size: 0.75rem; font-weight: 600; color: #7C3AED; text-transform: uppercase; margin-bottom: 0.5rem;">
+                                            Fixed Fee</div>
+                                        <div style="font-size: 2rem; font-weight: 700; color: #6D28D9;">₹<%=
+                                                rates.payoutFixedFee || 6 %>
+                                        </div>
+                                    </div>
+                                    <div
+                                        style="text-align: center; padding: 1.25rem; background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%); border-radius: 12px; border: 1px solid #D1D5DB;">
+                                        <div
+                                            style="font-size: 0.75rem; font-weight: 600; color: #6B7280; text-transform: uppercase; margin-bottom: 0.5rem;">
+                                            Status</div>
+                                        <div
+                                            style="font-size: 1.25rem; font-weight: 700; color: #059669; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                            <span
+                                                style="width: 10px; height: 10px; background: #10B981; border-radius: 50%;"></span>
+                                            Active
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+
+                    <!-- Support Banner -->
+                    <div
+                        style="background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 50%, #06B6D4 100%); border-radius: 16px; padding: 1.5rem 2rem; display: flex; align-items: center; justify-content: space-between; color: white;">
+                        <div style="display: flex; align-items: center; gap: 1.25rem;">
+                            <div
+                                style="width: 56px; height: 56px; background: rgba(255,255,255,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="ri-customer-service-2-fill" style="font-size: 1.75rem;"></i>
+                            </div>
+                            <div>
+                                <h3 style="font-size: 1.125rem; font-weight: 700; margin-bottom: 0.25rem;">
+                                    <%= t('need_help') || 'Need Assistance?' %>
+                                </h3>
+                                <p style="opacity: 0.9; font-size: 0.875rem; margin: 0;">Our support team is available
+                                    24/7 to help you</p>
+                            </div>
+                        </div>
+                        <a href="https://t.me/payable_support" target="_blank"
+                            style="background: white; color: #1E40AF; padding: 0.75rem 1.5rem; border-radius: 10px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem;">
+                            <i class="ri-telegram-fill" style="font-size: 1.25rem;"></i> Contact Support
+                        </a>
                     </div>
                 </div>
         </main>
