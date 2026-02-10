@@ -17,12 +17,14 @@ module.exports = function (req, res, next) {
         req.session.lang = req.cookies.lang;
     }
 
-    // Default to 'en' if no session lang
-    const currentLang = req.session.lang || 'en';
+    // Default to 'zh' (Chinese) if no session lang
+    const currentLang = req.session.lang || 'zh';
     const translations = locales[currentLang];
 
-    // Make 't' function and currentLang available in views
+    // Make 't' function, currentLang, and full translations available in views
     res.locals.currentLang = currentLang;
+    res.locals.translations = JSON.stringify(translations);
+    res.locals.allTranslations = JSON.stringify(locales);
     res.locals.t = (key, params = {}) => {
         let text = translations[key] || key;
         for (const prop in params) {

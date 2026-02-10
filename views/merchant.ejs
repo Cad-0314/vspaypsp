@@ -4,10 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Merchant Dashboard - Gaur Pay</title>
+    <title>
+        <%= t('merchant_dashboard_title') %>
+    </title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
@@ -35,13 +39,13 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
         /* Chinese Font Fix */
         html[lang="zh"] body,
         html[lang="zh"] * {
-            font-family: "Microsoft YaHei", "PingFang SC", "Heiti SC", "Inter", sans-serif !important;
+            font-family: 'Noto Sans SC', "Microsoft YaHei", "PingFang SC", "Heiti SC", "Inter", sans-serif !important;
         }
 
         body {
@@ -781,6 +785,16 @@
 </head>
 
 <body>
+    <script>
+        // Client-side translation system
+        const __translations = <% - allTranslations %>;
+        const __currentLang = '<%= currentLang %>';
+        function _t(key, params) {
+            let text = (__translations[__currentLang] && __translations[__currentLang][key]) || (__translations['en'] && __translations['en'][key]) || key;
+            if (params) { for (const p in params) { text = text.replace('{' + p + '}', params[p]); } }
+            return text;
+        }
+    </script>
     <div class="dashboard-container">
         <!-- Sidebar -->
         <aside class="sidebar">
@@ -897,25 +911,32 @@
                             style="position: absolute; right: 50px; bottom: -30px; width: 120px; height: 120px; background: rgba(255,255,255,0.05); border-radius: 50%;">
                         </div>
                         <div style="position: relative; z-index: 1;">
-                            <h1 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem;">Welcome back, <%=
-                                    user.username %>!</h1>
-                            <p style="opacity: 0.9; font-size: 0.95rem; margin-bottom: 1.5rem;">Here's what's happening
-                                with your account today</p>
+                            <h1 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem;">
+                                <%= t('welcome_back') %>
+                                    <%= user.username %>!
+                            </h1>
+                            <p style="opacity: 0.9; font-size: 0.95rem; margin-bottom: 1.5rem;">
+                                <%= t('account_today_desc') %>
+                            </p>
                             <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
                                 <div>
-                                    <div style="font-size: 0.8rem; opacity: 0.8; margin-bottom: 0.25rem;">Available
-                                        Balance</div>
+                                    <div style="font-size: 0.8rem; opacity: 0.8; margin-bottom: 0.25rem;">
+                                        <%= t('available_balance') %>
+                                    </div>
                                     <div style="font-size: 2rem; font-weight: 700;" id="stat-balance">₹<%=
                                             parseFloat(user.balance).toFixed(2) %>
                                     </div>
                                 </div>
                                 <div style="border-left: 1px solid rgba(255,255,255,0.3); padding-left: 2rem;">
-                                    <div style="font-size: 0.8rem; opacity: 0.8; margin-bottom: 0.25rem;">Account Status
+                                    <div style="font-size: 0.8rem; opacity: 0.8; margin-bottom: 0.25rem;">
+                                        <%= t('account_status') %>
                                     </div>
                                     <div style="display: flex; align-items: center; gap: 0.5rem;">
                                         <span
                                             style="width: 10px; height: 10px; background: #4ADE80; border-radius: 50%; animation: pulse 2s infinite;"></span>
-                                        <span style="font-weight: 600;">Active</span>
+                                        <span style="font-weight: 600;">
+                                            <%= t('active') %>
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -934,12 +955,14 @@
                             </div>
                             <div
                                 style="font-size: 0.75rem; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">
-                                Today's Collection</div>
+                                <%= t('todays_collection') %>
+                            </div>
                             <div style="font-size: 1.75rem; font-weight: 700; color: #111827;" id="stat-today-vol">₹0.00
                             </div>
                             <div
                                 style="font-size: 0.8rem; color: #10B981; margin-top: 0.5rem; display: flex; align-items: center; gap: 0.25rem;">
-                                <i class="ri-arrow-up-line"></i> <span id="stat-today-count">0</span> transactions
+                                <i class="ri-arrow-up-line"></i> <span id="stat-today-count">0</span>
+                                <%= t('transactions') %>
                             </div>
                         </div>
 
@@ -952,12 +975,14 @@
                             </div>
                             <div
                                 style="font-size: 0.75rem; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">
-                                Today's Payment Out</div>
+                                <%= t('todays_payment_out') %>
+                            </div>
                             <div style="font-size: 1.75rem; font-weight: 700; color: #111827;" id="stat-payout-vol">
                                 ₹0.00</div>
                             <div
                                 style="font-size: 0.8rem; color: #F59E0B; margin-top: 0.5rem; display: flex; align-items: center; gap: 0.25rem;">
-                                <i class="ri-arrow-up-line"></i> <span id="stat-payout-count">0</span> transactions
+                                <i class="ri-arrow-up-line"></i> <span id="stat-payout-count">0</span>
+                                <%= t('transactions') %>
                             </div>
                         </div>
 
@@ -970,10 +995,13 @@
                             </div>
                             <div
                                 style="font-size: 0.75rem; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">
-                                Success Rate</div>
+                                <%= t('success_rate') %>
+                            </div>
                             <div style="font-size: 1.75rem; font-weight: 700; color: #111827;" id="stat-success-rate">0%
                             </div>
-                            <div style="font-size: 0.8rem; color: #8B5CF6; margin-top: 0.5rem;">Last 24 hours</div>
+                            <div style="font-size: 0.8rem; color: #8B5CF6; margin-top: 0.5rem;">
+                                <%= t('last_24_hours') %>
+                            </div>
                         </div>
 
                         <!-- Pending -->
@@ -985,9 +1013,11 @@
                             </div>
                             <div
                                 style="font-size: 0.75rem; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">
-                                Pending</div>
+                                <%= t('pending') %>
+                            </div>
                             <div style="font-size: 1.75rem; font-weight: 700; color: #111827;" id="stat-pending">0</div>
-                            <div style="font-size: 0.8rem; color: #EC4899; margin-top: 0.5rem;">Awaiting processing
+                            <div style="font-size: 0.8rem; color: #EC4899; margin-top: 0.5rem;">
+                                <%= t('awaiting_processing') %>
                             </div>
                         </div>
                     </div>
@@ -1001,14 +1031,20 @@
                                     <div>
                                         <div class="card-title" style="font-weight: 600; color: #111827;"><i
                                                 class="ri-bar-chart-grouped-fill" style="color: #2B5797;"></i>
-                                            Transaction Overview</div>
-                                        <div style="font-size: 0.8rem; color: #6B7280; margin-top: 0.25rem;">Collection
-                                            vs POB trends</div>
+                                            <%= t('transaction_overview') %>
+                                        </div>
+                                        <div style="font-size: 0.8rem; color: #6B7280; margin-top: 0.25rem;">
+                                            <%= t('collection_vs_pob') %>
+                                        </div>
                                     </div>
                                     <select id="chart-range"
                                         style="padding: 0.5rem 1rem; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 0.875rem; background: white;">
-                                        <option value="7">Last 7 Days</option>
-                                        <option value="30">Last 30 Days</option>
+                                        <option value="7">
+                                            <%= t('last_7_days') %>
+                                        </option>
+                                        <option value="30">
+                                            <%= t('last_30_days') %>
+                                        </option>
                                     </select>
                                 </div>
                             </div>
@@ -1026,29 +1062,31 @@
                                 <div class="card-header"
                                     style="border-bottom: 1px solid #F3F4F6; padding: 1rem 1.25rem;">
                                     <div class="card-title" style="font-weight: 600; color: #111827;"><i
-                                            class="ri-flashlight-fill" style="color: #F59E0B;"></i> Quick Actions</div>
+                                            class="ri-flashlight-fill" style="color: #F59E0B;"></i>
+                                        <%= t('quick_actions') %>
+                                    </div>
                                 </div>
                                 <div class="card-body" style="padding: 1rem;">
                                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
                                         <button onclick="switchTab('paylink')"
                                             style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; border-radius: 10px; padding: 1rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; font-size: 0.8rem; transition: transform 0.2s;">
                                             <i class="ri-add-circle-fill" style="font-size: 1.5rem;"></i>
-                                            Add Topup
+                                            <%= t('add_topup') %>
                                         </button>
                                         <button onclick="switchTab('settlements')"
                                             style="background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); color: white; border: none; border-radius: 10px; padding: 1rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; font-size: 0.8rem; transition: transform 0.2s;">
                                             <i class="ri-send-plane-fill" style="font-size: 1.5rem;"></i>
-                                            Return U
+                                            <%= t('return_u') %>
                                         </button>
                                         <button onclick="switchTab('payin')"
                                             style="background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); color: white; border: none; border-radius: 10px; padding: 1rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; font-size: 0.8rem; transition: transform 0.2s;">
                                             <i class="ri-file-list-3-fill" style="font-size: 1.5rem;"></i>
-                                            Collections
+                                            <%= t('collections') %>
                                         </button>
                                         <button onclick="switchTab('profile')"
                                             style="background: linear-gradient(135deg, #EC4899 0%, #DB2777 100%); color: white; border: none; border-radius: 10px; padding: 1rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; font-size: 0.8rem; transition: transform 0.2s;">
                                             <i class="ri-settings-4-fill" style="font-size: 1.5rem;"></i>
-                                            Settings
+                                            <%= t('settings') %>
                                         </button>
                                     </div>
                                 </div>
@@ -1059,13 +1097,17 @@
                                 <div class="card-header"
                                     style="border-bottom: 1px solid #F3F4F6; padding: 1rem 1.25rem;">
                                     <div class="card-title" style="font-weight: 600; color: #111827;"><i
-                                            class="ri-user-3-fill" style="color: #2B5797;"></i> Account Info</div>
+                                            class="ri-user-3-fill" style="color: #2B5797;"></i>
+                                        <%= t('account_info') %>
+                                    </div>
                                 </div>
                                 <div class="card-body" style="padding: 1rem;">
                                     <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                                         <div
                                             style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px dashed #E5E7EB;">
-                                            <span style="color: #6B7280; font-size: 0.85rem;">Merchant ID</span>
+                                            <span style="color: #6B7280; font-size: 0.85rem;">
+                                                <%= t('merchant_id') %>
+                                            </span>
                                             <span style="font-family: monospace; font-weight: 500; font-size: 0.85rem;">
                                                 <%= user.apiKey.substring(0, 12) %>...
                                             </span>
@@ -1074,28 +1116,36 @@
                                             catch(e) {} %>
                                             <div
                                                 style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px dashed #E5E7EB;">
-                                                <span style="color: #6B7280; font-size: 0.85rem;">Collection Rate</span>
+                                                <span style="color: #6B7280; font-size: 0.85rem;">
+                                                    <%= t('collection_rate') %>
+                                                </span>
                                                 <span style="font-weight: 600; color: #10B981; font-size: 0.85rem;">
                                                     <%= dashRates.payinRate || 2.5 %>%
                                                 </span>
                                             </div>
                                             <div
                                                 style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px dashed #E5E7EB;">
-                                                <span style="color: #6B7280; font-size: 0.85rem;">POB Rate</span>
+                                                <span style="color: #6B7280; font-size: 0.85rem;">
+                                                    <%= t('pob_rate') %>
+                                                </span>
                                                 <span style="font-weight: 600; color: #F59E0B; font-size: 0.85rem;">
                                                     <%= dashRates.payoutRate || 1.5 %>%
                                                 </span>
                                             </div>
                                             <div
                                                 style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
-                                                <span style="color: #6B7280; font-size: 0.85rem;">Status</span>
-                                                <span class="badge badge-success"
-                                                    style="font-size: 0.75rem;">Active</span>
+                                                <span style="color: #6B7280; font-size: 0.85rem;">
+                                                    <%= t('status') %>
+                                                </span>
+                                                <span class="badge badge-success" style="font-size: 0.75rem;">
+                                                    <%= t('active') %>
+                                                </span>
                                             </div>
                                     </div>
                                     <button onclick="switchTab('profile')"
                                         style="width: 100%; margin-top: 1rem; padding: 0.75rem; background: #F3F4F6; border: none; border-radius: 8px; color: #374151; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.85rem;">
-                                        <i class="ri-external-link-line"></i> View Full Settings
+                                        <i class="ri-external-link-line"></i>
+                                        <%= t('view_full_settings') %>
                                     </button>
                                 </div>
                             </div>
@@ -1167,7 +1217,9 @@
                                     <th>
                                         <%= t('status') || 'Status' %>
                                     </th>
-                                    <th>Callback</th>
+                                    <th>
+                                        <%= t('reference') %>
+                                    </th>
                                     <th>
                                         <%= t('created') || 'Created' %>
                                     </th>
@@ -1178,7 +1230,9 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td colspan="6" class="empty-state"><i class="ri-inbox-line"></i><br>Loading...</td>
+                                    <td colspan="6" class="empty-state"><i class="ri-inbox-line"></i><br>
+                                        <%= t('loading') %>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1238,7 +1292,9 @@
                                     <th>
                                         <%= t('status') || 'Status' %>
                                     </th>
-                                    <th>Callback</th>
+                                    <th>
+                                        <%= t('reference') %>
+                                    </th>
                                     <th>
                                         <%= t('created') || 'Created' %>
                                     </th>
@@ -1269,14 +1325,17 @@
                                 <i class="ri-exchange-funds-fill" style="font-size: 1.75rem;"></i>
                             </div>
                             <div>
-                                <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0;">Apply to U / Settlements
+                                <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0;">
+                                    <%= t('settlement_history_title') %>
                                 </h2>
-                                <p style="opacity: 0.8; font-size: 0.875rem; margin: 0.25rem 0 0;">Request withdrawal to
-                                    your USDT wallet</p>
+                                <p style="opacity: 0.8; font-size: 0.875rem; margin: 0.25rem 0 0;">
+                                    <%= t('settlement_history_subtitle') %>
+                                </p>
                             </div>
                         </div>
                         <div style="text-align: right;">
-                            <div style="font-size: 0.75rem; opacity: 0.7; text-transform: uppercase;">Available Balance
+                            <div style="font-size: 0.75rem; opacity: 0.7; text-transform: uppercase;">
+                                <%= t('available_balance') %>
                             </div>
                             <div style="font-size: 1.75rem; font-weight: 700;">₹<%=
                                     parseFloat(user.balance).toLocaleString('en-IN') %>
@@ -1290,7 +1349,8 @@
                             style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); padding: 1rem 1.5rem;">
                             <div class="card-title"
                                 style="color: white; display: flex; align-items: center; gap: 0.5rem;">
-                                <i class="ri-add-circle-fill"></i> New Settlement Request
+                                <i class="ri-add-circle-fill"></i>
+                                <%= t('request_return_u') %>
                             </div>
                         </div>
                         <div class="card-body" style="padding: 1.5rem;">
@@ -1302,14 +1362,15 @@
                                         <label
                                             style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
                                             <i class="ri-money-rupee-circle-line" style="color: #10b981;"></i>
-                                            Settlement Amount (₹)
+                                            <%= t('settlement_amount') %>
                                         </label>
                                         <div style="position: relative;">
                                             <span
                                                 style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); font-size: 1.25rem; color: #94a3b8; font-weight: 600;">₹</span>
                                             <input type="number" id="s-amount" class="form-control" required min="100"
                                                 style="padding-left: 2.5rem; height: 52px; font-size: 1.1rem; font-weight: 600; border-radius: 10px; border: 2px solid #e2e8f0;"
-                                                placeholder="Enter amount" max="<%= user.balance %>">
+                                                placeholder="<%= t('settlement_amount_placeholder') %>"
+                                                max="<%= user.balance %>">
                                         </div>
                                         <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.5rem;">
                                             <i class="ri-information-line"></i> Minimum: ₹100 | Maximum: ₹<%=
@@ -1320,7 +1381,8 @@
                                     <div>
                                         <label
                                             style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
-                                            <i class="ri-currency-fill" style="color: #10b981;"></i> Settlement Type
+                                            <i class="ri-currency-fill" style="color: #10b981;"></i>
+                                            <%= t('settlement_method') %>
                                         </label>
                                         <select id="s-type" class="form-control"
                                             style="height: 52px; font-size: 1rem; border-radius: 10px; border: 2px solid #e2e8f0;">
@@ -1336,8 +1398,8 @@
                                 <div style="margin-bottom: 1.5rem;">
                                     <label
                                         style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
-                                        <i class="ri-wallet-3-line" style="color: #10b981;"></i> USDT Wallet Address
-                                        (TRC20)
+                                        <i class="ri-wallet-3-line" style="color: #10b981;"></i>
+                                        <%= t('usdt_address') %>
                                     </label>
                                     <textarea id="s-notes" class="form-control" rows="2" required
                                         style="border-radius: 10px; border: 2px solid #e2e8f0; font-family: 'SF Mono', monospace; font-size: 0.9rem;"
@@ -1352,7 +1414,8 @@
 
                                 <button type="submit" class="btn btn-primary"
                                     style="width: 100%; padding: 1rem; font-size: 1rem; font-weight: 600; border-radius: 10px; background: linear-gradient(135deg, #059669 0%, #10b981 100%); border: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-                                    <i class="ri-send-plane-2-fill"></i> Submit Settlement Request
+                                    <i class="ri-send-plane-2-fill"></i>
+                                    <%= t('submit_request') %>
                                 </button>
                             </form>
                         </div>
@@ -1362,7 +1425,8 @@
                     <div class="card" style="border-radius: 12px; overflow: hidden;">
                         <div class="card-header" style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
                             <div class="card-title" style="display: flex; align-items: center; gap: 0.5rem;">
-                                <i class="ri-history-line" style="color: #64748b;"></i> Settlement History
+                                <i class="ri-history-line" style="color: #64748b;"></i>
+                                <%= t('settlement_history_title') %>
                             </div>
                         </div>
                         <table id="settlement-table">
@@ -1399,9 +1463,12 @@
 
                 <!-- Add Topup Tab -->
                 <div id="tab-paylink" class="tab-content">
-                    <h2 style="margin-bottom: 0.5rem;">Add Topup</h2>
-                    <p style="color: #6B7280; font-size: 0.875rem; margin-bottom: 1.5rem;">Request funds to be added to
-                        your account balance</p>
+                    <h2 style="margin-bottom: 0.5rem;">
+                        <%= t('topup_title') %>
+                    </h2>
+                    <p style="color: #6B7280; font-size: 0.875rem; margin-bottom: 1.5rem;">
+                        <%= t('topup_subtitle') %>
+                    </p>
 
                     <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 1.5rem;">
                         <!-- Topup Form -->
@@ -1409,7 +1476,7 @@
                             <div class="card-header"
                                 style="background: linear-gradient(135deg, #2B5797 0%, #3668A8 100%); color: white;">
                                 <div class="card-title" style="color: white;"><i class="ri-add-circle-line"></i>
-                                    New Topup Request
+                                    <%= t('topup_title') %>
                                 </div>
                             </div>
                             <div class="card-body" style="padding: 1.5rem;">
@@ -1440,7 +1507,7 @@
                                     <button type="submit" class="btn btn-primary"
                                         style="width: 100%; justify-content: center; padding: 0.875rem; font-size: 1rem; border-radius: 8px;">
                                         <i class="ri-send-plane-fill"></i>
-                                        Generate Topup Link
+                                        <%= t('submit_topup') %>
                                     </button>
                                 </form>
 
@@ -1450,7 +1517,9 @@
                                         style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
                                         <i class="ri-checkbox-circle-fill"
                                             style="color: #10B981; font-size: 1.25rem;"></i>
-                                        <span style="font-weight: 600; color: #065F46;">Topup Request Submitted</span>
+                                        <span style="font-weight: 600; color: #065F46;">
+                                            <%= t('topup_created') %>
+                                        </span>
                                     </div>
                                     <p style="font-size: 0.875rem; color: #047857; margin: 0;">Your request has been
                                         submitted for processing. You will be notified once approved.</p>
@@ -1461,7 +1530,9 @@
                         <!-- Topup History -->
                         <div class="card">
                             <div class="card-header">
-                                <div class="card-title"><i class="ri-history-line"></i> Topup History</div>
+                                <div class="card-title"><i class="ri-history-line"></i>
+                                    <%= t('recent_topups') %>
+                                </div>
                             </div>
                             <div class="card-body" style="padding: 0;">
                                 <table id="topup-table">
@@ -1499,8 +1570,9 @@
                             <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem;">
                                 <%= t('profile_settings') %>
                             </h2>
-                            <p style="opacity: 0.8; font-size: 0.9rem; margin: 0;">Manage your account credentials, IP
-                                whitelist, and view your rates</p>
+                            <p style="opacity: 0.8; font-size: 0.9rem; margin: 0;">
+                                <%= t('api_configuration') %>
+                            </p>
                         </div>
                     </div>
 
@@ -1510,14 +1582,16 @@
                         <div class="card" style="border-radius: 12px; overflow: hidden;">
                             <div class="card-header"
                                 style="background: linear-gradient(135deg, #2B5797 0%, #3668A8 100%); padding: 1rem 1.25rem;">
-                                <div class="card-title" style="color: white;"><i class="ri-key-2-fill"></i> API
-                                    Credentials</div>
+                                <div class="card-title" style="color: white;"><i class="ri-key-2-fill"></i>
+                                    <%= t('api_credentials') %>
+                                </div>
                             </div>
                             <div class="card-body" style="padding: 1.5rem;">
                                 <div style="margin-bottom: 1.25rem;">
                                     <label
-                                        style="display: block; font-size: 0.75rem; font-weight: 600; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">Merchant
-                                        ID (x-merchant-id)</label>
+                                        style="display: block; font-size: 0.75rem; font-weight: 600; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">
+                                        <%= t('merchant_id') %>
+                                    </label>
                                     <div style="display: flex; gap: 0.5rem;">
                                         <input type="text" class="form-control" value="<%= user.apiKey %>" readonly
                                             style="font-family: 'Courier New', monospace; background: #F9FAFB; border-radius: 8px; font-size: 0.85rem;">
@@ -1534,7 +1608,8 @@
                                             Secret Key</label>
                                         <button class="btn btn-sm" onclick="showRegenKeyModal()"
                                             style="font-size: 0.7rem; padding: 0.2rem 0.5rem; background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA;">
-                                            <i class="ri-refresh-line"></i> Regenerate
+                                            <i class="ri-refresh-line"></i>
+                                            <%= t('regenerate') %>
                                         </button>
                                     </div>
                                     <div style="position: relative;">
@@ -1543,9 +1618,8 @@
                                             onclick="this.classList.remove('blur-text'); document.getElementById('reveal-hint').style.display='none';">
                                             <%= user.apiSecret %>
                                         </div>
-                                        <span id="reveal-hint"
-                                            style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); font-size: 0.7rem; color: #9CA3AF;">Click
-                                            to reveal</span>
+                                        style="position: absolute; right: 0.75rem; top: 50%; transform:
+                                        translateY(-50%); font-size: 0.7rem; color: #9CA3AF;"><%= t('show') %></span>
                                     </div>
                                     <small
                                         style="color: #EF4444; font-size: 0.75rem; display: flex; align-items: center; gap: 0.25rem; margin-top: 0.5rem;"><i
@@ -1571,8 +1645,8 @@
                         <div class="card" style="border-radius: 12px; overflow: hidden;">
                             <div class="card-header"
                                 style="background: linear-gradient(135deg, #059669 0%, #10B981 100%); padding: 1rem 1.25rem;">
-                                <div class="card-title" style="color: white;"><i class="ri-shield-keyhole-fill"></i> IP
-                                    Whitelist</div>
+                                <div class="card-title" style="color: white;"><i class="ri-shield-keyhole-fill"></i>
+                                    IP Whitelist</div>
                             </div>
                             <div class="card-body" style="padding: 1.5rem;">
                                 <p style="color: #6B7280; font-size: 0.85rem; margin-bottom: 1rem; line-height: 1.5;">
@@ -1588,7 +1662,8 @@
                                         style="border-radius: 8px; flex: 1;">
                                     <button class="btn btn-primary" style="border-radius: 8px;"
                                         onclick="showAddIpModal()">
-                                        <i class="ri-add-circle-fill"></i> Add IP
+                                        <i class="ri-add-circle-fill"></i>
+                                        <%= t('save') %>
                                     </button>
                                 </div>
                             </div>
@@ -1611,8 +1686,9 @@
                             <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem;">
                                 <%= t('security_settings') || 'Account Security' %>
                             </h2>
-                            <p style="opacity: 0.9; font-size: 0.9rem; margin: 0;">Manage your password and two-factor
-                                authentication settings</p>
+                            <p style="opacity: 0.9; font-size: 0.9rem; margin: 0;">
+                                <%= t('password_requirements') %>
+                            </p>
                         </div>
                     </div>
 
@@ -1635,30 +1711,33 @@
                                 <form onsubmit="changePassword(event)">
                                     <div style="margin-bottom: 1rem;">
                                         <label
-                                            style="display: block; font-size: 0.75rem; font-weight: 600; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">Current
-                                            Password</label>
+                                            style="display: block; font-size: 0.75rem; font-weight: 600; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">
+                                            <%= t('current_password') %>
+                                        </label>
                                         <input type="password" id="current-password" class="form-control"
                                             placeholder="Enter current password" required style="border-radius: 8px;">
                                     </div>
                                     <div style="margin-bottom: 1rem;">
                                         <label
-                                            style="display: block; font-size: 0.75rem; font-weight: 600; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">New
-                                            Password</label>
+                                            style="display: block; font-size: 0.75rem; font-weight: 600; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">
+                                            <%= t('new_password') %>
+                                        </label>
                                         <input type="password" id="new-password" class="form-control"
                                             placeholder="Enter new password" required minlength="6"
                                             style="border-radius: 8px;">
                                     </div>
                                     <div style="margin-bottom: 1.25rem;">
                                         <label
-                                            style="display: block; font-size: 0.75rem; font-weight: 600; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">Confirm
-                                            Password</label>
+                                            style="display: block; font-size: 0.75rem; font-weight: 600; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">
+                                            <%= t('confirm_password') %>
+                                        </label>
                                         <input type="password" id="confirm-password" class="form-control"
                                             placeholder="Confirm new password" required style="border-radius: 8px;">
                                     </div>
                                     <button type="submit" class="btn btn-primary"
                                         style="width: 100%; border-radius: 8px; padding: 0.75rem;">
                                         <i class="ri-check-line"></i>
-                                        Update Password
+                                        <%= t('update_password') %>
                                     </button>
                                 </form>
                             </div>
@@ -1680,8 +1759,10 @@
                                         <i class="ri-check-line" style="color: white; font-size: 1.5rem;"></i>
                                     </div>
                                     <div>
-                                        <div style="font-weight: 600; color: #111827;">2FA Enabled</div>
-                                        <div style="font-size: 0.8rem; color: #6B7280;">Google Authenticator is active
+                                        <div style="font-weight: 600; color: #111827;">
+                                            <%= t('enabled') %> 2FA
+                                        </div>
+                                        <div style="font-size: 0.8rem; color: #6B7280;">Google Authenticator
                                         </div>
                                     </div>
                                 </div>
@@ -1700,7 +1781,8 @@
 
                                 <button onclick="reset2FA()" class="btn"
                                     style="width: 100%; border-radius: 8px; padding: 0.75rem; background: #FEE2E2; color: #DC2626; border: 1px solid #FECACA;">
-                                    <i class="ri-refresh-line"></i> Request 2FA Reset
+                                    <i class="ri-refresh-line"></i>
+                                    <%= t('reset_2fa') %>
                                 </button>
                             </div>
                         </div>
@@ -1722,10 +1804,13 @@
                         style="font-size: 1.25rem; text-align: center; letter-spacing: 0.5rem;">
                 </div>
                 <div style="flex: 1; display: flex; gap: 0.75rem;">
-                    <button class="btn btn-outline" style="flex: 1; justify-content: center;"
-                        onclick="closeIpModal()">Cancel</button>
+                    <button class="btn btn-outline" style="flex: 1; justify-content: center;" onclick="closeIpModal()">
+                        <%= t('cancel') %>
+                    </button>
                     <button class="btn btn-primary" style="flex: 1; justify-content: center;"
-                        onclick="confirmSecurityAction()">Confirm</button>
+                        onclick="confirmSecurityAction()">
+                        <%= t('save') %>
+                    </button>
                 </div>
             </div>
         </div>
@@ -1734,27 +1819,38 @@
         <div id="settleModal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <div class="modal-title">Request Settlement</div>
+                    <div class="modal-title">
+                        <%= t('settlement_history_title') %>
+                    </div>
                     <i class="ri-close-line modal-close"
                         onclick="document.getElementById('settleModal').classList.remove('active')"></i>
                 </div>
                 <form onsubmit="submitSettlement(event)">
                     <div style="margin-bottom: 1rem;">
-                        <label class="stat-label">Amount (₹)</label>
+                        <label class="stat-label">
+                            <%= t('amount') %> (₹)
+                        </label>
                         <input type="number" id="settle-amount" class="form-control" required min="100"
                             max="<%= user.balance %>">
-                        <small style="color: var(--text-muted);">Available Balance: ₹<%=
-                                parseFloat(user.balance).toFixed(2) %></small>
+                        <small style="color: var(--text-muted);">
+                            <%= t('available_balance') %>: ₹<%= parseFloat(user.balance).toFixed(2) %>
+                        </small>
                     </div>
                     <div style="margin-bottom: 1rem;">
-                        <label class="stat-label">USDT Address / Notes</label>
+                        <label class="stat-label">
+                            <%= t('usdt_address') %>
+                        </label>
                         <textarea id="settle-notes" class="form-control" rows="2"
                             placeholder="Enter your TRC20 wallet address..."></textarea>
                     </div>
                     <div style="display: flex; gap: 0.5rem;">
                         <button type="button" class="btn btn-outline" style="flex: 1;"
-                            onclick="document.getElementById('settleModal').classList.remove('active')">Cancel</button>
-                        <button type="submit" class="btn btn-primary" style="flex: 1;">Submit</button>
+                            onclick="document.getElementById('settleModal').classList.remove('active')">
+                            <%= t('cancel') %>
+                        </button>
+                        <button type="submit" class="btn btn-primary" style="flex: 1;">
+                            <%= t('save') %>
+                        </button>
                     </div>
                 </form>
             </div>
@@ -1849,7 +1945,7 @@
                 successChartInstance = new Chart(ctx, {
                     type: 'doughnut',
                     data: {
-                        labels: ['Success', 'Other'],
+                        labels: [_t('success'), _t('other')],
                         datasets: [{
                             data: [success, failed || 1],
                             backgroundColor: ['#52c41a', '#f0f0f0'],
@@ -1892,7 +1988,7 @@
                         labels: data.labels,
                         datasets: [
                             {
-                                label: 'Payin',
+                                label: _t('payin'),
                                 data: data.payinData,
                                 borderColor: 'rgba(24, 144, 255, 0.8)',
                                 backgroundColor: 'rgba(24, 144, 255, 0.2)',
@@ -1901,7 +1997,7 @@
                                 fill: true
                             },
                             {
-                                label: 'Payout',
+                                label: _t('payout'),
                                 data: data.payoutData,
                                 borderColor: 'rgba(255, 77, 79, 0.8)',
                                 backgroundColor: 'rgba(255, 77, 79, 0.2)',
@@ -1932,7 +2028,7 @@
 
             async function loadOrders(type, page = 1) {
                 const tbody = document.getElementById(type + '-table').querySelector('tbody');
-                tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="ri-loader-4-line ri-spin"></i><br>Loading...</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="ri-loader-4-line ri-spin"></i><br>' + _t('loading') + '</td></tr>';
 
                 const start = document.getElementById(type + '-filter-start').value;
                 const end = document.getElementById(type + '-filter-end').value;
@@ -1963,18 +2059,18 @@
                                 <td>
                                     <div style="display: flex; flex-direction: column; gap: 0.15rem;">
                                         <span style="font-family: 'SF Mono', monospace; font-weight: 600; color: #1e293b; font-size: 0.85rem;">${o.orderId}</span>
-                                        ${o.utr ? `<span style="font-size: 0.7rem; color: #64748b;"><i class="ri-file-list-3-line"></i> UTR: ${o.utr}</span>` : ''}
+                                        ${o.utr ? `<span style="font-size: 0.7rem; color: #64748b;"><i class="ri-file-list-3-line"></i> ${_t('utr')}: ${o.utr}</span>` : ''}
                                     </div>
                                 </td>
                                 <td>
                                     <div style="font-weight: 700; font-size: 1rem; color: #0f172a;">₹${formattedAmount}</div>
-                                    ${o.fee ? `<span style="font-size: 0.7rem; color: #94a3b8;">Fee: ₹${parseFloat(o.fee).toFixed(2)}</span>` : ''}
+                                    ${o.fee ? `<span style="font-size: 0.7rem; color: #94a3b8;">${_t('fee')}: ₹${parseFloat(o.fee).toFixed(2)}</span>` : ''}
                                 </td>
                                 <td>
                                     <span class="badge badge-${o.status}"><i class="${statusIcon}"></i> ${o.status}</span>
                                 </td>
                                 <td>
-                                    <span class="badge ${cbClass}"><i class="${cbIcon}"></i> ${cbStatus === 'success' ? 'Sent' : (cbStatus === 'failed' ? 'Failed' : 'Pending')}</span>
+                                    <span class="badge ${cbClass}"><i class="${cbIcon}"></i> ${cbStatus === 'success' ? _t('sent') : (cbStatus === 'failed' ? _t('failed') : _t('pending'))}</span>
                                 </td>
                                 <td>
                                     <div style="display: flex; flex-direction: column; gap: 0.15rem;">
@@ -1996,7 +2092,7 @@
                         `}).join('');
                         renderPagination(data.pagination, type + '-pagination', `loadOrders('${type}', {page})`);
                     } else {
-                        tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="ri-inbox-line"></i><br>No transactions found</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="ri-inbox-line"></i><br>' + _t('no_transactions') + '</td></tr>';
                         document.getElementById(type + '-pagination').innerHTML = '';
                     }
                 } catch (e) { console.error(e); }
@@ -2032,53 +2128,53 @@
                         const content = `
                             <div style="background: #F9FAFB; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                                    <span style="color: #6B7280; font-size: 0.875rem;">Status</span>
+                                    <span style="color: #6B7280; font-size: 0.875rem;">${_t('status')}</span>
                                     <span class="badge ${statusClass}">${o.status.toUpperCase()}</span>
                                 </div>
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <span style="color: #6B7280; font-size: 0.875rem;">Order ID</span>
+                                    <span style="color: #6B7280; font-size: 0.875rem;">${_t('order_id')}</span>
                                     <span style="font-family: monospace; font-weight: 500; color: #111827;">${o.orderId}</span>
                                 </div>
                             </div>
 
                             <div style="margin-bottom: 1.5rem;">
-                                <h4 style="font-size: 0.75rem; color: #6B7280; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Financials</h4>
+                                <h4 style="font-size: 0.75rem; color: #6B7280; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">${_t('financials')}</h4>
                                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
                                     <div style="padding: 1rem; border: 1px solid #E5E7EB; border-radius: 12px; text-align: center; background: white; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
                                         <div style="font-size: 1.25rem; color: #9CA3AF; margin-bottom: 0.5rem;"><i class="ri-wallet-3-line"></i></div>
-                                        <div style="font-size: 0.75rem; color: #6B7280; margin-bottom: 0.25rem; font-weight: 600; text-transform: uppercase;">Amount</div>
+                                        <div style="font-size: 0.75rem; color: #6B7280; margin-bottom: 0.25rem; font-weight: 600; text-transform: uppercase;">${_t('amount')}</div>
                                         <div style="font-weight: 700; font-size: 1.125rem; color: #111827;">₹${parseFloat(o.amount).toFixed(2)}</div>
                                     </div>
                                     <div style="padding: 1rem; border: 1px solid #FECACA; border-radius: 12px; text-align: center; background: white; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
                                         <div style="font-size: 1.25rem; color: #EF4444; margin-bottom: 0.5rem;"><i class="ri-percent-line"></i></div>
-                                        <div style="font-size: 0.75rem; color: #991B1B; margin-bottom: 0.25rem; font-weight: 600; text-transform: uppercase;">Fees</div>
+                                        <div style="font-size: 0.75rem; color: #991B1B; margin-bottom: 0.25rem; font-weight: 600; text-transform: uppercase;">${_t('fee')}</div>
                                         <div style="font-weight: 700; font-size: 1.125rem; color: #DC2626;">- ₹${fee.toFixed(2)}</div>
                                     </div>
                                     <div style="padding: 1rem; border: 1px solid #A7F3D0; border-radius: 12px; text-align: center; background: white; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
                                         <div style="font-size: 1.25rem; color: #10B981; margin-bottom: 0.5rem;"><i class="ri-arrow-right-down-line"></i></div>
-                                        <div style="font-size: 0.75rem; color: #065F46; margin-bottom: 0.25rem; font-weight: 600; text-transform: uppercase;">Net Credit</div>
+                                        <div style="font-size: 0.75rem; color: #065F46; margin-bottom: 0.25rem; font-weight: 600; text-transform: uppercase;">${_t('net_credit')}</div>
                                         <div style="font-weight: 700; font-size: 1.125rem; color: #059669;">+ ₹${net.toFixed(2)}</div>
                                     </div>
                                 </div>
                             </div>
                             
                             <div style="margin-bottom: 1.5rem;">
-                                <h4 style="font-size: 0.75rem; color: #6B7280; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Details</h4>
+                                <h4 style="font-size: 0.75rem; color: #6B7280; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">${_t('details')}</h4>
                                 <div style="display: grid; gap: 0.75rem; font-size: 0.875rem;">
                                     <div style="display: flex; justify-content: space-between; padding-bottom: 0.5rem; border-bottom: 1px dashed #E5E7EB;">
-                                        <span style="color: #6B7280;">Type</span>
+                                        <span style="color: #6B7280;">${_t('type')}</span>
                                         <span style="font-weight: 500; text-transform: capitalize; color: #374151;">${o.type}</span>
                                     </div>
                                     <div style="display: flex; justify-content: space-between; padding-bottom: 0.5rem; border-bottom: 1px dashed #E5E7EB;">
-                                        <span style="color: #6B7280;">UTR / Reference</span>
+                                        <span style="color: #6B7280;">${_t('utr')} / ${_t('reference')}</span>
                                         <span style="font-family: monospace; color: #374151;">${o.utr || '-'}</span>
                                     </div>
                                     <div style="display: flex; justify-content: space-between; padding-bottom: 0.5rem; border-bottom: 1px dashed #E5E7EB;">
-                                        <span style="color: #6B7280;">Created At</span>
+                                        <span style="color: #6B7280;">${_t('created')}</span>
                                         <span style="color: #374151;">${new Date(o.createdAt).toLocaleString()}</span>
                                     </div>
                                     <div style="display: flex; justify-content: space-between;">
-                                        <span style="color: #6B7280;">Updated At</span>
+                                        <span style="color: #6B7280;">${_t('updated_at')}</span>
                                         <span style="color: #374151;">${new Date(o.updatedAt).toLocaleString()}</span>
                                     </div>
                                 </div>
@@ -2086,16 +2182,16 @@
 
                             ${o.callbackUrl ? `
                             <div>
-                                <h4 style="font-size: 0.75rem; color: #6B7280; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Callback Info</h4>
+                                <h4 style="font-size: 0.75rem; color: #6B7280; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">${_t('callback_info')}</h4>
                                 <div style="background: #F3F4F6; border-radius: 8px; padding: 1rem; font-size: 0.875rem;">
                                     <div style="margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
-                                        <span style="color: #6B7280;">Last Status</span>
+                                        <span style="color: #6B7280;">${_t('last_status')}</span>
                                         <span class="badge ${cbClass}">${cbStatus.toUpperCase()}</span>
                                     </div>
                                     <div>
-                                        <span style="color: #6B7280; display: block; margin-bottom: 0.35rem; font-size: 0.75rem;">Last Response</span>
+                                        <span style="color: #6B7280; display: block; margin-bottom: 0.35rem; font-size: 0.75rem;">${_t('last_response')}</span>
                                         <div style="background: white; border: 1px solid #E5E7EB; border-radius: 4px; padding: 0.5rem; font-family: monospace; font-size: 0.75rem; color: #4B5563; max-height: 80px; overflow-y: auto;">
-                                            ${o.callbackResponse || 'No response recorded'}
+                                            ${o.callbackResponse || _t('no_response')}
                                         </div>
                                     </div>
                                 </div>
@@ -2116,7 +2212,7 @@
 
             async function loadSettlements(page = 1) {
                 const tbody = document.getElementById('settlement-table').querySelector('tbody');
-                tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="ri-loader-4-line ri-spin"></i><br>Loading...</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="ri-loader-4-line ri-spin"></i><br>' + _t('loading') + '</td></tr>';
 
                 try {
                     const res = await fetch(`/api/merchant/settlements?page=${page}`);
@@ -2138,7 +2234,7 @@
                     `).join('');
                         renderPagination(data.pagination, 'settlements-pagination', `loadSettlements({page})`);
                     } else {
-                        tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="ri-inbox-line"></i><br>No settlements yet</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="ri-inbox-line"></i><br>' + _t('no_settlements') + '</td></tr>';
                         document.getElementById('settlements-pagination').innerHTML = '';
                     }
                 } catch (e) { console.error(e); }
@@ -2152,7 +2248,7 @@
                 e.preventDefault();
                 const btn = e.target.querySelector('button[type="submit"]');
                 const originalText = btn.innerHTML;
-                btn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Processing...';
+                btn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> ' + _t('processing');
                 btn.disabled = true;
 
                 const amount = document.getElementById('s-amount').value;
@@ -2171,7 +2267,7 @@
                         loadSettlements();
                         const currentBal = parseFloat(document.getElementById('stat-balance').innerText);
                         document.getElementById('stat-balance').innerText = (currentBal - parseFloat(amount)).toFixed(2);
-                        showToast('Settlement request submitted successfully');
+                        showToast(_t('settlement_submitted'));
                     } else {
                         showToast(data.error, 'error');
                     }
@@ -2185,7 +2281,7 @@
                 e.preventDefault();
                 const btn = e.target.querySelector('button[type="submit"]');
                 const originalText = btn.innerHTML;
-                btn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Processing...';
+                btn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> ' + _t('processing');
                 btn.disabled = true;
 
                 const amount = document.getElementById('topup-amount').value;
@@ -2203,7 +2299,7 @@
                         e.target.reset();
                         document.getElementById('topup-result').style.display = 'block';
                         loadTopupHistory();
-                        showToast('Topup request submitted successfully');
+                        showToast(_t('topup_submitted'));
                     } else {
                         showToast(data.error || 'Failed to submit topup', 'error');
                     }
@@ -2218,7 +2314,7 @@
                 e.preventDefault();
                 const btn = e.target.querySelector('button[type="submit"]');
                 const originalText = btn.innerHTML;
-                btn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Processing...';
+                btn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> ' + _t('processing');
                 btn.disabled = true;
 
                 const amount = document.getElementById('topup-amount').value;
@@ -2241,14 +2337,14 @@
                         resultDiv.innerHTML = `
                             <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
                                 <i class="ri-checkbox-circle-fill" style="color: #10B981; font-size: 1.25rem;"></i>
-                                <span style="font-weight: 600; color: #065F46;">Payment Link Generated</span>
+                                <span style="font-weight: 600; color: #065F46;">${_t('topup_created')}</span>
                             </div>
                             <div style="background: white; padding: 0.75rem; border: 1px solid #D1FAE5; border-radius: 6px; margin-bottom: 0.75rem; word-break: break-all; font-family: monospace; color: #047857; font-size: 0.9rem;">
                                 ${data.link}
                             </div>
                             <div style="display: flex; gap: 0.5rem;">
                                 <button class="btn btn-sm" onclick="navigator.clipboard.writeText('${data.link}'); showToast('Copied!')" style="background: #ffffff; border: 1px solid #10B981; color: #10B981; flex: 1; justify-content: center;">
-                                    <i class="ri-file-copy-line"></i> Copy
+                                    <i class="ri-file-copy-line"></i> ${_t('copy')}
                                 </button>
                                 <a href="${data.link}" target="_blank" class="btn btn-sm btn-primary" style="background: #10B981; border: none; flex: 1; justify-content: center; text-decoration: none;">
                                     Pay Now <i class="ri-arrow-right-line"></i>
@@ -2257,7 +2353,7 @@
                         `;
 
                         loadTopupHistory();
-                        showToast('Topup link generated successfully');
+                        showToast(_t('topup_submitted'));
                     } else {
                         showToast(data.error || 'Failed to submit topup', 'error');
                     }
@@ -2269,7 +2365,7 @@
 
             async function loadTopupHistory() {
                 const tbody = document.getElementById('topup-table').querySelector('tbody');
-                tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><i class="ri-loader-4-line ri-spin"></i><br>Loading...</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><i class="ri-loader-4-line ri-spin"></i><br>' + _t('loading') + '</td></tr>';
 
                 try {
                     const res = await fetch('/api/merchant/orders?type=payin&channel=manual_topup');
@@ -2286,10 +2382,10 @@
                         </tr>
                         `).join('');
                     } else {
-                        tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><i class="ri-inbox-line"></i><br>No topup requests yet</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><i class="ri-inbox-line"></i><br>' + _t('no_topups') + '</td></tr>';
                     }
                 } catch (e) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><i class="ri-error-warning-line"></i><br>Error loading history</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><i class="ri-error-warning-line"></i><br>' + _t('error_loading') + '</td></tr>';
                 }
             }
 
@@ -2299,7 +2395,7 @@
                 e.preventDefault();
                 const btn = e.target.querySelector('button[type="submit"]');
                 const originalText = btn.innerHTML;
-                btn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Processing...';
+                btn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> ' + _t('processing');
                 btn.disabled = true;
 
                 const amount = document.getElementById('settle-amount').value;
@@ -2317,11 +2413,11 @@
                         loadSettlements();
                         const currentBal = parseFloat(document.getElementById('stat-balance').innerText);
                         document.getElementById('stat-balance').innerText = (currentBal - parseFloat(amount)).toFixed(2);
-                        showToast('Settlement request submitted');
+                        showToast(_t('settlement_submitted'));
                     } else {
                         showToast(data.error, 'error');
                     }
-                } catch (e) { showToast('Error submitting request', 'error'); }
+                } catch (e) { showToast(_t('error_submitting'), 'error'); }
 
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -2346,19 +2442,19 @@
                 const el = document.getElementById('generated-link');
                 el.select();
                 document.execCommand('copy');
-                showToast('Copied to clipboard!');
+                showToast(_t('copied'));
             }
 
             async function resendCallback(orderId) {
-                if (!confirm('Resend callback for this order?')) return;
+                if (!confirm(_t('confirm_resend_callback'))) return;
                 try {
                     const res = await fetch(`/api/merchant/callback/${orderId}`, { method: 'POST' });
                     const data = await res.json();
                     if (data.success) {
-                        const status = data.isOk ? 'Merchant OK' : 'Merchant Error';
-                        showToast(`Callback Sent: ${status} (HTTP ${data.httpCode})`, data.isOk ? 'success' : 'warning');
+                        const status = data.isOk ? _t('callback_ok') : _t('callback_error');
+                        showToast(`${_t('callback_sent')}: ${status} (HTTP ${data.httpCode})`, data.isOk ? 'success' : 'warning');
                     } else {
-                        showToast(data.message || 'Callback failed', 'error');
+                        showToast(data.message || _t('callback_failed'), 'error');
                     }
                 } catch (e) {
                     showToast(e.message, 'error');
@@ -2378,7 +2474,7 @@
                         renderIpList(data.ips);
                     }
                 } catch (e) {
-                    document.getElementById('ip-list').innerHTML = '<div style="color: #ff4d4f;">Failed to load IPs</div>';
+                    document.getElementById('ip-list').innerHTML = '<div style="color: #ff4d4f;">' + _t('error_loading') + '</div>';
                 }
             }
 
@@ -2388,7 +2484,7 @@
                     container.innerHTML = `
                     <div style="padding: 1rem; background: #f5f5f5; border-radius: 4px; color: var(--text-muted); text-align: center;">
                         <i class="ri-global-line" style="font-size: 1.5rem;"></i><br>
-                        No IPs whitelisted - all IPs allowed
+                        ${_t('no_ips_whitelisted')}
                     </div>`;
                     return;
                 }
@@ -2396,7 +2492,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; background: #f5f5f5; border-radius: 4px; margin-bottom: 0.5rem;">
                     <span style="font-family: monospace;">${ip}</span>
                     <button class="btn" style="background: #fff2f0; color: #ff4d4f; padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="showRemoveIpModal('${ip}')">
-                        <i class="ri-delete-bin-line"></i> Remove
+                        <i class="ri-delete-bin-line"></i> ${_t('remove')}
                     </button>
                 </div>
             `).join('');
@@ -2404,20 +2500,20 @@
 
             function showAddIpModal() {
                 const ip = document.getElementById('new-ip-input').value.trim();
-                if (!ip) { showToast('Please enter an IP address', 'error'); return; }
+                if (!ip) { showToast(_t('enter_ip'), 'error'); return; }
                 const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
-                if (!ipRegex.test(ip)) { showToast('Invalid IP format', 'error'); return; }
+                if (!ipRegex.test(ip)) { showToast(_t('invalid_ip'), 'error'); return; }
                 pendingIpAction = { action: 'add', ip: ip };
-                document.getElementById('ip-modal-title').innerText = 'Add IP';
-                document.getElementById('ip-modal-desc').innerText = `Add ${ip} to whitelist`;
+                document.getElementById('ip-modal-title').innerText = _t('add_ip');
+                document.getElementById('ip-modal-desc').innerText = _t('add_ip_desc') + ': ' + ip;
                 document.getElementById('totp-input').value = '';
                 document.getElementById('ip-modal').classList.add('active');
             }
 
             function showRemoveIpModal(ip) {
                 pendingIpAction = { action: 'remove', ip: ip };
-                document.getElementById('ip-modal-title').innerText = 'Remove IP';
-                document.getElementById('ip-modal-desc').innerText = `Remove ${ip} from whitelist`;
+                document.getElementById('ip-modal-title').innerText = _t('remove_ip');
+                document.getElementById('ip-modal-desc').innerText = _t('remove_ip_desc') + ': ' + ip;
                 document.getElementById('totp-input').value = '';
                 document.getElementById('ip-modal').classList.add('active');
             }
@@ -2430,7 +2526,7 @@
             async function confirmSecurityAction() {
                 if (!pendingIpAction) return;
                 const totpCode = document.getElementById('totp-input').value.trim();
-                if (!totpCode || totpCode.length !== 6) { showToast('Please enter 6-digit 2FA code', 'error'); return; }
+                if (!totpCode || totpCode.length !== 6) { showToast(_t('enter_2fa_code'), 'error'); return; }
 
                 if (pendingIpAction.action === 'regenerate_key') {
                     try {
@@ -2472,14 +2568,14 @@
                         showToast(data.error, 'error');
                     }
                 } catch (e) {
-                    showToast('Network error', 'error');
+                    showToast(_t('network_error'), 'error');
                 }
             }
 
             function showRegenKeyModal() {
                 pendingIpAction = { action: 'regenerate_key' };
-                document.getElementById('ip-modal-title').innerText = 'Regenerate API Secret';
-                document.getElementById('ip-modal-desc').innerText = 'Enter 2FA to generate a new secret key. The old key will stop working immediately.';
+                document.getElementById('ip-modal-title').innerText = _t('regenerate_secret');
+                document.getElementById('ip-modal-desc').innerText = _t('regenerate_desc');
                 document.getElementById('totp-input').value = '';
                 document.getElementById('ip-modal').classList.add('active');
             }
@@ -2492,12 +2588,12 @@
                 const confirmPassword = document.getElementById('confirm-password').value;
 
                 if (newPassword !== confirmPassword) {
-                    showToast('New passwords do not match', 'error');
+                    showToast(_t('passwords_not_match'), 'error');
                     return;
                 }
 
                 if (newPassword.length < 6) {
-                    showToast('Password must be at least 6 characters', 'error');
+                    showToast(_t('password_too_short'), 'error');
                     return;
                 }
 
@@ -2509,20 +2605,20 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        showToast('Password updated successfully');
+                        showToast(_t('password_updated'));
                         document.getElementById('current-password').value = '';
                         document.getElementById('new-password').value = '';
                         document.getElementById('confirm-password').value = '';
                     } else {
-                        showToast(data.error || 'Failed to update password', 'error');
+                        showToast(data.error || _t('password_update_failed'), 'error');
                     }
                 } catch (err) {
-                    showToast('Error updating password', 'error');
+                    showToast(_t('error_submitting'), 'error');
                 }
             }
 
             async function reset2FA() {
-                if (!confirm('Are you sure you want to reset your 2FA? You will need to set up Google Authenticator again on next login.')) {
+                if (!confirm(_t('reset_2fa_confirm'))) {
                     return;
                 }
 
@@ -2533,12 +2629,12 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        showToast('2FA has been reset. You will set up a new 2FA on next login.');
+                        showToast(_t('reset_2fa_success'));
                     } else {
-                        showToast(data.error || 'Failed to reset 2FA', 'error');
+                        showToast(data.error || _t('reset_2fa_failed'), 'error');
                     }
                 } catch (err) {
-                    showToast('Error resetting 2FA', 'error');
+                    showToast(_t('error_submitting'), 'error');
                 }
             }
         </script>
@@ -2554,7 +2650,8 @@
                 style="background: white; padding: 1.25rem 1.5rem; border-bottom: 1px solid #F3F4F6; display: flex; justify-content: space-between; align-items: center;">
                 <h3
                     style="margin: 0; font-size: 1.125rem; font-weight: 700; color: #111827; display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="ri-file-list-3-line" style="color: #3B82F6;"></i> Transaction Details
+                    <i class="ri-file-list-3-line" style="color: #3B82F6;"></i>
+                    <%= t('order_details') %>
                 </h3>
                 <button onclick="closeOrderDetailModal()"
                     style="background: #F3F4F6; border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #6B7280; transition: all 0.2s;"
