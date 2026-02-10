@@ -7,7 +7,7 @@ const express = require('express');
 const router = express.Router();
 const { Order, Settlement, User, Channel, sequelize } = require('../models');
 const channelRouter = require('../services/channelRouter');
-const APP_URL = process.env.APP_URL || 'https://payable.firestars.co';
+const APP_URL = process.env.APP_URL || 'https://gaurpay.site';
 const { getStats, getChartData } = require('../services/stats');
 const { v4: uuidv4 } = require('uuid');
 const otplib = require('otplib');
@@ -249,7 +249,7 @@ router.post('/paylink', async (req, res) => {
         });
 
         // Use APP_URL from environment to generate proper production link
-        const APP_URL = process.env.APP_URL || 'https://payable.firestars.co';
+        const APP_URL = process.env.APP_URL || 'https://gaurpay.site';
         const link = `${APP_URL}/pay/${order.id}`;
 
         res.json({ success: true, link, orderId });

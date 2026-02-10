@@ -8,7 +8,7 @@ const aapayService = require('./src/services/aapay');
 const ipayService = require('./src/services/ipay');
 const { v4: uuidv4 } = require('uuid');
 
-const BASE_URL = 'https://payable.firestars.co';
+const BASE_URL = 'https://gaurpay.site';
 
 async function testChannels() {
     console.log('--- Starting Channel Analysis ---\n');

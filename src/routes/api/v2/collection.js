@@ -14,7 +14,7 @@ const channelRouter = require('../../../services/channelRouter');
 const { Order, Channel, User } = require('../../../models');
 const { v4: uuidv4 } = require('uuid');
 
-const APP_URL = process.env.APP_URL || 'https://payable.firestars.co';
+const APP_URL = process.env.APP_URL || 'https://gaurpay.site';
 
 // Helper function to build standard response
 function buildResponse(success, code, message, data = null) {

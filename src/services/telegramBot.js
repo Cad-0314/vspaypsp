@@ -60,7 +60,7 @@ const init = (token) => {
             try {
                 const { v4: uuidv4 } = require('uuid');
                 const orderId = `TG_${merchant.username.toUpperCase()}_${uuidv4().substring(0, 8).toUpperCase()}`;
-                const APP_URL = process.env.APP_URL || 'https://payable.firestars.co';
+                const APP_URL = process.env.APP_URL || 'https://gaurpay.site';
 
                 // Calculate fee based on merchant rates
                 const rates = JSON.parse(merchant.channel_rates || '{}');

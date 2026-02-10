@@ -37,6 +37,12 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
+        /* Chinese Font Fix */
+        html[lang="zh"] body,
+        html[lang="zh"] * {
+            font-family: "Microsoft YaHei", "PingFang SC", "Heiti SC", "Inter", sans-serif !important;
+        }
+
         body {
             background: var(--bg-main);
             color: var(--text-primary);
@@ -600,7 +606,9 @@
 
                 <!-- Transactions -->
                 <div class="nav-category">
-                    <div class="nav-category-header">Transactions</div>
+                    <div class="nav-category-header">
+                        <%= t('nav_transactions') %>
+                    </div>
                     <div class="nav-item" onclick="switchTab('orders')">
                         <i class="ri-file-list-3-line"></i>
                         <%= t('orders') %>
@@ -613,7 +621,9 @@
 
                 <!-- Management -->
                 <div class="nav-category">
-                    <div class="nav-category-header">Management</div>
+                    <div class="nav-category-header">
+                        <%= t('nav_management') %>
+                    </div>
                     <div class="nav-item" onclick="switchTab('merchants')">
                         <i class="ri-team-line"></i>
                         <%= t('merchants') %>
@@ -630,10 +640,12 @@
 
                 <!-- Operations -->
                 <div class="nav-category">
-                    <div class="nav-category-header">Operations</div>
+                    <div class="nav-category-header">
+                        <%= t('nav_operations') %>
+                    </div>
                     <div class="nav-item" onclick="switchTab('manualpayout')">
                         <i class="ri-bank-card-2-line"></i>
-                        Manual Payout
+                        <%= t('nav_manual_payout') %>
                     </div>
                     <div class="nav-item" onclick="switchTab('broadcast')">
                         <i class="ri-broadcast-line"></i>
@@ -645,7 +657,8 @@
             <div style="padding: 1rem; border-top: 1px solid rgba(255,255,255,0.08);">
                 <a href="/auth/logout" class="btn"
                     style="width:100%; justify-content:center; background:rgba(220, 38, 38, 0.15); color:#fca5a5; border:1px solid rgba(220, 38, 38, 0.3);">
-                    <i class="ri-logout-box-r-line"></i> Logout
+                    <i class="ri-logout-box-r-line"></i>
+                    <%= t('logout') %>
                 </a>
             </div>
         </aside>
@@ -656,10 +669,12 @@
 
                 <div class="lang-switcher">
                     <a href="?lang=en" class="lang-btn <%= currentLang === 'en' ? 'active' : '' %>">
-                        <span>🇬🇧</span> English
+                        <span>🇬🇧</span>
+                        <%= t('english') %>
                     </a>
                     <a href="?lang=zh" class="lang-btn <%= currentLang === 'zh' ? 'active' : '' %>">
-                        <span>🇨🇳</span> 中文
+                        <span>🇨🇳</span>
+                        <%= t('chinese') %>
                     </a>
                 </div>
 
@@ -668,7 +683,9 @@
                         <div style="font-size: 0.875rem; font-weight: 600; color: var(--text-primary);">
                             <%= user.username %>
                         </div>
-                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Administrator</div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary);">
+                            <%= t('user_role_admin') %>
+                        </div>
                     </div>
                     <div class="user-avatar-small"
                         style="width: 36px; height: 36px; background: var(--sidebar-bg); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-weight: 600;">
@@ -683,11 +700,16 @@
                 <div id="tab-dashboard" class="tab-content active">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <div>
-                            <h1>Dashboard Overview</h1>
-                            <div class="subtitle">Platform performance metrics.</div>
+                            <h1>
+                                <%= t('dashboard_overview') %>
+                            </h1>
+                            <div class="subtitle">
+                                <%= t('dashboard_subtitle') %>
+                            </div>
                         </div>
                         <button class="btn" onclick="openBoostModal()"
-                            style="background:transparent; color:#E5E7EB; border:none;" title="System Optimization">
+                            style="background:transparent; color:#E5E7EB; border:none;"
+                            title="<%= t('system_optimization') %>">
                             <i class="ri-settings-4-line"></i>
                         </button>
                     </div>
@@ -696,32 +718,48 @@
                         <div class="stat-card">
                             <div class="stat-info">
                                 <div class="stat-value">₹<span id="stat-profit">0.00</span></div>
-                                <div class="stat-label">Admin Profit</div>
-                                <div class="stat-sublabel">Today's earnings</div>
+                                <div class="stat-label">
+                                    <%= t('admin_profit') %>
+                                </div>
+                                <div class="stat-sublabel">
+                                    <%= t('todays_earnings') %>
+                                </div>
                             </div>
                             <i class="ri-star-fill stat-icon"></i>
                         </div>
                         <div class="stat-card purple">
                             <div class="stat-info">
                                 <div class="stat-value">₹<span id="stat-merchant-balance">0.00</span></div>
-                                <div class="stat-label">Total Balance</div>
-                                <div class="stat-sublabel">Merchant balance</div>
+                                <div class="stat-label">
+                                    <%= t('total_balance_merchant') %>
+                                </div>
+                                <div class="stat-sublabel">
+                                    <%= t('total_balance') %>
+                                </div>
                             </div>
                             <i class="ri-file-list-3-fill stat-icon purple"></i>
                         </div>
                         <div class="stat-card">
                             <div class="stat-info">
                                 <div class="stat-value">₹<span id="stat-today-payin">0.00</span></div>
-                                <div class="stat-label">PayIn Volume</div>
-                                <div class="stat-sublabel">Today's volume</div>
+                                <div class="stat-label">
+                                    <%= t('payin_volume') %>
+                                </div>
+                                <div class="stat-sublabel">
+                                    <%= t('todays_volume') %>
+                                </div>
                             </div>
                             <i class="ri-star-fill stat-icon"></i>
                         </div>
                         <div class="stat-card purple">
                             <div class="stat-info">
                                 <div class="stat-value"><span id="stat-merchants">0</span></div>
-                                <div class="stat-label">Merchants</div>
-                                <div class="stat-sublabel">Total count</div>
+                                <div class="stat-label">
+                                    <%= t('merchants_count') %>
+                                </div>
+                                <div class="stat-sublabel">
+                                    <%= t('total_count') %>
+                                </div>
                             </div>
                             <i class="ri-file-list-3-fill stat-icon purple"></i>
                         </div>
@@ -729,7 +767,9 @@
 
                     <div class="card">
                         <div class="card-header">
-                            <div class="card-title">Transaction Volume</div>
+                            <div class="card-title">
+                                <%= t('transaction_volume') %>
+                            </div>
                         </div>
                         <div style="padding: 1.5rem; height: 350px;">
                             <canvas id="adminChart"></canvas>
@@ -739,50 +779,84 @@
 
                 <!-- Orders -->
                 <div id="tab-orders" class="tab-content">
-                    <h1>Global Transactions</h1>
-                    <div class="subtitle">Search and view all platform transactions.</div>
+                    <h1>
+                        <%= t('global_transactions') %>
+                    </h1>
+                    <div class="subtitle">
+                        <%= t('global_transactions_subtitle') %>
+                    </div>
                     <div class="card">
                         <div style="padding: 1.5rem; border-bottom: 1px solid #F3F4F6;">
                             <div
                                 style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:1rem;">
-                                <input type="text" id="order-search" placeholder="Search Order ID / UTR..."
+                                <input type="text" id="order-search" placeholder="<%= t('search_order_placeholder') %>"
                                     class="form-control"
                                     style="background:#F9FAFB; border:1px solid #E5E7EB; padding:0.5rem; border-radius:0.5rem;">
                                 <select id="order-filter-type" class="form-control"
                                     style="padding:0.5rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
-                                    <option value="">All Types</option>
-                                    <option value="payin">Payin</option>
-                                    <option value="payout">Payout</option>
+                                    <option value="">
+                                        <%= t('all_types') %>
+                                    </option>
+                                    <option value="payin">
+                                        <%= t('payin') %>
+                                    </option>
+                                    <option value="payout">
+                                        <%= t('payout') %>
+                                    </option>
                                 </select>
                                 <select id="order-filter-status" class="form-control"
                                     style="padding:0.5rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
-                                    <option value="">All Status</option>
-                                    <option value="pending">Pending</option>
-                                    <option value="success">Success</option>
-                                    <option value="failed">Failed</option>
+                                    <option value="">
+                                        <%= t('all_status') %>
+                                    </option>
+                                    <option value="pending">
+                                        <%= t('pending') %>
+                                    </option>
+                                    <option value="success">
+                                        <%= t('success') %>
+                                    </option>
+                                    <option value="failed">
+                                        <%= t('failed') %>
+                                    </option>
                                 </select>
                                 <input type="date" id="order-filter-start" class="form-control"
                                     style="padding:0.5rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
                                 <input type="date" id="order-filter-end" class="form-control"
                                     style="padding:0.5rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
                                 <button onclick="loadGlobalOrders()" class="btn btn-primary"
-                                    style="justify-content:center;">Filter</button>
+                                    style="justify-content:center;">
+                                    <%= t('filter') %>
+                                </button>
                             </div>
                         </div>
                         <table id="global-orders-table">
                             <thead>
                                 <tr>
-                                    <th>Order ID</th>
-                                    <th>Merchant</th>
-                                    <th>Amount</th>
-                                    <th>Status</th>
-                                    <th>Created</th>
-                                    <th>Updated</th>
+                                    <th>
+                                        <%= t('order_id') %>
+                                    </th>
+                                    <th>
+                                        <%= t('user_role_merchant') %>
+                                    </th>
+                                    <th>
+                                        <%= t('amount') %>
+                                    </th>
+                                    <th>
+                                        <%= t('status') %>
+                                    </th>
+                                    <th>
+                                        <%= t('created_at') %>
+                                    </th>
+                                    <th>
+                                        <%= t('actions') %>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td colspan="6">Loading...</td>
+                                    <td colspan="6">
+                                        <%= t('loading') %>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -794,45 +868,78 @@
 
                 <!-- Settlements -->
                 <div id="tab-settlements" class="tab-content">
-                    <h1>Settlement Requests</h1>
-                    <div class="subtitle">Pending merchant withdrawal requests.</div>
+                    <h1>
+                        <%= t('settlement_requests') %>
+                    </h1>
+                    <div class="subtitle">
+                        <%= t('settlement_subtitle') %>
+                    </div>
                     <div class="card">
                         <div
                             style="padding: 1rem; border-bottom: 1px solid #F3F4F6; display:flex; gap:1rem; flex-wrap:wrap; align-items:center;">
-                            <input type="text" id="settle-search" placeholder="Search Settlement ID / Merchant..."
+                            <input type="text" id="settle-search"
+                                placeholder="<%= t('search_settlement_placeholder') %>"
                                 style="flex:1; min-width:200px; padding:0.5rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
                             <select id="settle-filter-status" class="form-control"
                                 style="max-width:150px; padding:0.5rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
-                                <option value="">All Status</option>
-                                <option value="pending">Pending</option>
-                                <option value="completed">Completed</option>
-                                <option value="rejected">Rejected</option>
+                                <option value="">
+                                    <%= t('all_status') %>
+                                </option>
+                                <option value="pending">
+                                    <%= t('pending') %>
+                                </option>
+                                <option value="completed">
+                                    <%= t('success') %>
+                                </option>
+                                <option value="rejected">
+                                    <%= t('failed') %>
+                                </option>
                             </select>
                             <select id="settle-filter-type" class="form-control"
                                 style="max-width:120px; padding:0.5rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
-                                <option value="">All Types</option>
-                                <option value="bank">Bank</option>
-                                <option value="usdt">USDT</option>
+                                <option value="">
+                                    <%= t('all_types') %>
+                                </option>
+                                <option value="bank">
+                                    <%= t('bank') %>
+                                </option>
+                                <option value="usdt">
+                                    <%= t('usdt') %>
+                                </option>
                             </select>
-                            <button onclick="loadSettlements()" class="btn btn-primary"
-                                style="padding:0.5rem 1rem;">Filter</button>
+                            <button onclick="loadSettlements()" class="btn btn-primary" style="padding:0.5rem 1rem;">
+                                <%= t('filter') %>
+                            </button>
                         </div>
                         <table id="settlements-table">
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>Merchant</th>
-                                    <th>Type</th>
-                                    <th>Amount</th>
-                                    <th>Status</th>
-                                    <th>Created</th>
-                                    <th>Updated</th>
-                                    <th>Action</th>
+                                    <th>
+                                        <%= t('merchants') %>
+                                    </th>
+                                    <th>
+                                        <%= t('type') %>
+                                    </th>
+                                    <th>
+                                        <%= t('amount') %>
+                                    </th>
+                                    <th>
+                                        <%= t('status') %>
+                                    </th>
+                                    <th>
+                                        <%= t('created_at') %>
+                                    </th>
+                                    <th>
+                                        <%= t('actions') %>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td colspan="8">Loading...</td>
+                                    <td colspan="8">
+                                        <%= t('loading') %>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>

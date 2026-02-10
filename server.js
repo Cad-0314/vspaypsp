@@ -165,12 +165,12 @@ app.get('/merchant', ensureAuthenticated, async (req, res) => {
     });
 });
 
-app.get('/docs', (req, res) => {
-    res.render('docs', { currentLang: req.query.lang || 'en' });
+app.get('/apidocument', (req, res) => {
+    res.render('apidocs', { currentLang: req.query.lang || 'en' });
 });
 
-app.get('/apidoc', (req, res) => {
-    res.render('apidocs');
+app.get('/docs', (req, res) => {
+    res.redirect('/apidocument');
 });
 
 app.get('/', (req, res) => {

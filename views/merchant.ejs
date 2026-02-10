@@ -38,6 +38,12 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
+        /* Chinese Font Fix */
+        html[lang="zh"] body,
+        html[lang="zh"] * {
+            font-family: "Microsoft YaHei", "PingFang SC", "Heiti SC", "Inter", sans-serif !important;
+        }
+
         body {
             background: var(--bg-main);
             color: var(--text-primary);
@@ -794,7 +800,9 @@
 
                 <!-- Transactions -->
                 <div class="nav-category">
-                    <div class="nav-category-header">Transactions</div>
+                    <div class="nav-category-header">
+                        <%= t('nav_transactions') %>
+                    </div>
                     <div class="nav-item" onclick="switchTab('payin')">
                         <i class="ri-arrow-left-down-line"></i>
                         <%= t('nav_payin') %>
@@ -807,7 +815,9 @@
 
                 <!-- Finance -->
                 <div class="nav-category">
-                    <div class="nav-category-header">Finance</div>
+                    <div class="nav-category-header">
+                        <%= t('nav_finance') %>
+                    </div>
                     <div class="nav-item" onclick="switchTab('settlements')">
                         <i class="ri-bank-card-line"></i>
                         <%= t('nav_settlements') %>
@@ -820,14 +830,16 @@
 
                 <!-- Profile -->
                 <div class="nav-category">
-                    <div class="nav-category-header">Settings</div>
+                    <div class="nav-category-header">
+                        <%= t('nav_profile') %>
+                    </div>
                     <div class="nav-item" onclick="switchTab('profile')">
                         <i class="ri-settings-3-line"></i>
                         <%= t('nav_profile') %>
                     </div>
                     <div class="nav-item" onclick="switchTab('security')">
                         <i class="ri-shield-keyhole-line"></i>
-                        Security
+                        <%= t('nav_security') %>
                     </div>
                 </div>
             </nav>
@@ -837,7 +849,8 @@
             <div class="user-info">
                 <a href="/auth/logout" class="btn"
                     style="width:100%; justify-content:center; background:rgba(220, 38, 38, 0.15); color:#fca5a5; border:1px solid rgba(220, 38, 38, 0.3); display:flex; align-items:center; gap:0.5rem; padding:0.5rem; border-radius:6px; text-decoration:none; font-size:0.875rem;">
-                    <i class="ri-logout-box-r-line"></i> Logout
+                    <i class="ri-logout-box-r-line"></i>
+                    <%= t('logout') %>
                 </a>
             </div>
         </aside>
@@ -848,10 +861,12 @@
             <header class="top-header">
                 <div class="lang-switcher">
                     <a href="?lang=en" class="lang-btn <%= currentLang === 'en' ? 'active' : '' %>">
-                        <span>🇬🇧</span> English
+                        <span>🇬🇧</span>
+                        <%= t('english') %>
                     </a>
                     <a href="?lang=zh" class="lang-btn <%= currentLang === 'zh' ? 'active' : '' %>">
-                        <span>🇨🇳</span> 中文
+                        <span>🇨🇳</span>
+                        <%= t('chinese') %>
                     </a>
                 </div>
 
@@ -860,7 +875,9 @@
                         <div style="font-size: 0.875rem; font-weight: 600; color: var(--text-primary);">
                             <%= user.username %>
                         </div>
-                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Merchant</div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary);">
+                            <%= t('user_role_merchant') %>
+                        </div>
                     </div>
                     <div class="user-avatar" style="width: 36px; height: 36px; background: var(--sidebar-bg);">
                         <%= user.username.charAt(0).toUpperCase() %>

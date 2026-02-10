@@ -53,7 +53,7 @@ const MAX_CONSECUTIVE_FAILURES = 3;
 const REQUEST_DELAY = 2000;
 
 // App URL for callbacks
-const APP_URL = process.env.APP_URL || 'https://payable.firestars.co';
+const APP_URL = process.env.APP_URL || 'https://gaurpay.site';
 
 // =====================================================
 // HDPay API Configuration

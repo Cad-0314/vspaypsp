@@ -1,1190 +1,912 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<%= currentLang %>">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gaur Pay - API Reference</title>
+    <title>Payable API Documentation</title>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --bg-light: #f8fafc;
-            --bg-card: #ffffff;
-            --text-dark: #1e293b;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg-body: #f8fafc;
+            --bg-sidebar: #ffffff;
+            --bg-content: #ffffff;
+            --text-main: #1e293b;
             --text-muted: #64748b;
             --border: #e2e8f0;
             --code-bg: #f1f5f9;
             --success: #10b981;
             --warning: #f59e0b;
             --error: #ef4444;
+            --sidebar-width: 280px;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            scroll-behavior: smooth;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--bg-light);
-            color: var(--text-dark);
-            line-height: 1.7;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
             display: flex;
+            min-height: 100vh;
         }
 
+        /* Sidebar */
         .sidebar {
-            width: 280px;
-            background: var(--bg-card);
+            width: var(--sidebar-width);
+            background-color: var(--bg-sidebar);
             border-right: 1px solid var(--border);
-            height: 100vh;
             position: fixed;
+            height: 100vh;
             overflow-y: auto;
-            padding: 1.5rem 0;
-            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04);
+            padding: 1.5rem;
+            z-index: 100;
         }
 
         .logo {
-            padding: 0 1.5rem 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            border-bottom: 1px solid var(--border);
-            margin-bottom: 1rem;
-        }
-
-        .logo h1 {
             font-size: 1.25rem;
             font-weight: 700;
             color: var(--primary);
-        }
-
-        .lang-toggle {
-            margin: 0 1rem 1rem;
-            padding: 0.5rem 1rem;
-            background: var(--bg-light);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            cursor: pointer;
+            margin-bottom: 2rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
+        }
+
+        .lang-switch {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            background: var(--bg-body);
+            padding: 0.25rem;
+            border-radius: 0.5rem;
+        }
+
+        .lang-btn {
+            flex: 1;
+            padding: 0.5rem;
+            text-align: center;
+            border-radius: 0.375rem;
             font-size: 0.875rem;
-            color: var(--text-dark);
+            font-weight: 500;
+            color: var(--text-muted);
+            text-decoration: none;
             transition: all 0.2s;
         }
 
-        .lang-toggle:hover {
-            background: var(--border);
-        }
-
-        .nav-group {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--text-muted);
-            margin: 1.25rem 1.5rem 0.5rem;
+        .lang-btn.active {
+            background-color: white;
+            color: var(--primary);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
             font-weight: 600;
         }
 
-        .nav-item {
-            display: block;
-            padding: 0.6rem 1.5rem;
+        .nav-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
             color: var(--text-muted);
-            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 0.5rem 0.75rem;
             font-size: 0.875rem;
-            transition: all 0.2s;
-            border-left: 3px solid transparent;
+            color: var(--text-main);
+            text-decoration: none;
+            border-radius: 0.375rem;
+            transition: background-color 0.2s;
+            margin-bottom: 0.25rem;
         }
 
-        .nav-item:hover,
-        .nav-item.active {
+        .nav-link:hover {
+            background-color: var(--bg-body);
             color: var(--primary);
-            background: rgba(99, 102, 241, 0.06);
-            border-left-color: var(--primary);
         }
 
-        .main {
-            margin-left: 280px;
-            padding: 2.5rem 3rem;
-            max-width: 900px;
-            width: 100%;
+        .nav-link.active {
+            background-color: #eff6ff;
+            color: var(--primary);
+            font-weight: 500;
         }
 
-        h1,
-        h2,
-        h3 {
-            color: var(--text-dark);
-            margin-bottom: 1rem;
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 3rem 4rem;
+            flex: 1;
+            max-width: 1000px;
+        }
+
+        section {
+            margin-bottom: 4rem;
+            scroll-margin-top: 2rem;
         }
 
         h1 {
-            font-size: 2rem;
-            border-bottom: 2px solid var(--border);
-            padding-bottom: 1rem;
+            font-size: 2.25rem;
             margin-bottom: 1.5rem;
+            color: var(--text-main);
         }
 
         h2 {
             font-size: 1.5rem;
-            margin-top: 2.5rem;
-            color: var(--primary);
-            border-bottom: 1px solid var(--border);
+            margin-bottom: 1rem;
             padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-main);
         }
 
         h3 {
-            font-size: 1.1rem;
-            margin-top: 1.5rem;
-            color: var(--text-dark);
+            font-size: 1.125rem;
+            margin: 1.5rem 0 1rem;
+            color: var(--text-main);
         }
 
-        p,
-        li {
+        p {
+            margin-bottom: 1rem;
             color: var(--text-muted);
-            margin-bottom: 0.75rem;
         }
 
-        ul {
-            padding-left: 1.5rem;
-        }
-
-        .code-block {
-            position: relative;
-            background: var(--code-bg);
+        /* Endpoint Badge */
+        .endpoint-badge {
+            display: inline-flex;
+            align-items: center;
+            background-color: var(--code-bg);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            margin-bottom: 1.5rem;
             border: 1px solid var(--border);
-            border-radius: 8px;
-            margin: 1rem 0;
         }
 
-        .code-block pre {
-            padding: 1.25rem;
-            overflow-x: auto;
-            margin: 0;
+        .method {
+            font-weight: 700;
+            margin-right: 0.75rem;
+            text-transform: uppercase;
         }
 
-        .copy-btn {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            padding: 0.4rem 0.7rem;
-            background: var(--bg-card);
+        .method.post {
+            color: var(--success);
+        }
+
+        .method.get {
+            color: var(--primary);
+        }
+
+        .url {
+            color: var(--text-main);
+        }
+
+        /* Request/Response Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
             border: 1px solid var(--border);
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.75rem;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background-color: var(--bg-body);
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        td {
             color: var(--text-muted);
-            transition: all 0.2s;
-        }
-
-        .copy-btn:hover {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
         }
 
         code {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-            color: var(--text-dark);
-        }
-
-        p code {
-            background: var(--code-bg);
-            padding: 0.15rem 0.4rem;
-            border-radius: 4px;
-            font-size: 0.8rem;
-        }
-
-        .method {
-            display: inline-block;
-            padding: 0.25rem 0.6rem;
-            border-radius: 4px;
-            font-weight: 600;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            margin-right: 0.5rem;
-        }
-
-        .post {
-            background: rgba(99, 102, 241, 0.15);
+            background-color: var(--code-bg);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-size: 0.8em;
             color: var(--primary);
-        }
-
-        .get {
-            background: rgba(16, 185, 129, 0.15);
-            color: var(--success);
-        }
-
-        .endpoint {
-            font-family: 'JetBrains Mono', monospace;
-            color: var(--text-dark);
-            font-size: 0.95rem;
-            font-weight: 500;
-        }
-
-        .param-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1rem 0;
-            font-size: 0.875rem;
-        }
-
-        .param-table th,
-        .param-table td {
-            padding: 0.75rem;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .param-table th {
-            color: var(--text-dark);
-            font-weight: 600;
-            background: var(--bg-light);
-        }
-
-        .param-table tr:hover {
-            background: var(--bg-light);
         }
 
         .required {
             color: var(--error);
-            font-size: 0.65rem;
-            background: rgba(239, 68, 68, 0.1);
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-left: 0.4rem;
-            text-transform: uppercase;
-            font-weight: 600;
-        }
-
-        .optional {
-            color: var(--text-muted);
-            font-size: 0.65rem;
-            background: rgba(100, 116, 139, 0.1);
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-left: 0.4rem;
-            text-transform: uppercase;
-            font-weight: 600;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 0.2rem 0.6rem;
-            border-radius: 99px;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: 500;
+            background: #fef2f2;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 0.5rem;
         }
 
-        .badge-warning {
-            background: rgba(245, 158, 11, 0.15);
-            color: var(--warning);
+        /* Code Blocks */
+        pre {
+            background-color: #1e293b;
+            color: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            margin-bottom: 1.5rem;
+            position: relative;
         }
 
-        .badge-success {
-            background: rgba(16, 185, 129, 0.15);
-            color: var(--success);
+        pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+            font-size: inherit;
         }
 
+        .copy-btn {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: background 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Alerts */
         .alert {
             padding: 1rem;
-            border-radius: 8px;
-            margin: 1rem 0;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
             border-left: 4px solid;
         }
 
         .alert-info {
-            background: rgba(99, 102, 241, 0.08);
+            background-color: #eff6ff;
             border-color: var(--primary);
+            color: #1e40af;
         }
 
         .alert-warning {
-            background: rgba(245, 158, 11, 0.08);
+            background-color: #fefce8;
             border-color: var(--warning);
+            color: #854d0e;
         }
 
-        .status-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1rem 0;
-        }
-
-        .status-table th,
-        .status-table td {
-            padding: 0.6rem;
-            text-align: left;
-            border: 1px solid var(--border);
-        }
-
-        .status-table th {
-            background: var(--bg-light);
-            font-weight: 600;
-        }
-
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             .sidebar {
-                display: none;
+                transform: translateX(-100%);
+                transition: transform 0.3s;
             }
 
-            .main {
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .main-content {
                 margin-left: 0;
-                padding: 1.5rem;
+                padding: 2rem;
+            }
+
+            .menu-toggle {
+                display: block;
+                position: fixed;
+                top: 1rem;
+                left: 1rem;
+                z-index: 200;
+                background: white;
+                border: 1px solid var(--border);
+                padding: 0.5rem;
+                border-radius: 0.25rem;
             }
         }
     </style>
 </head>
 
 <body>
+    <!-- Language Toggle Script -->
+    <script>
+        function setLang(lang) {
+            const url = new URL(window.location);
+            url.searchParams.set('lang', lang);
+            window.location.href = url.toString();
+        }
+    </script>
+
     <aside class="sidebar">
         <div class="logo">
-            <h1>Gaur Pay API</h1>
+            <i class="fas fa-layer-group"></i> Payable API
         </div>
-        <button id="langToggle" class="lang-toggle" onclick="window.changeLanguage()">
-            <span style="font-size:1.1rem;">🇺🇸</span> English
-        </button>
+
+        <div class="lang-switch">
+            <a href="?lang=en" class="lang-btn <%= currentLang === 'en' ? 'active' : '' %>">English</a>
+            <a href="?lang=zh" class="lang-btn <%= currentLang === 'zh' ? 'active' : '' %>">中文</a>
+        </div>
+
         <nav>
-            <div class="nav-group" data-i18n="getting_started">Getting Started</div>
-            <a href="#intro" class="nav-item" data-i18n="introduction">Introduction</a>
-            <a href="#auth" class="nav-item" data-i18n="authentication">Authentication</a>
-            <a href="#errors" class="nav-item" data-i18n="error_codes">Error Codes</a>
+            <div class="nav-group">
+                <div class="nav-title">
+                    <%= currentLang==='zh' ? '概览' : 'Overview' %>
+                </div>
+                <a href="#intro" class="nav-link">
+                    <%= currentLang==='zh' ? '简介' : 'Introduction' %>
+                </a>
+                <a href="#auth" class="nav-link">
+                    <%= currentLang==='zh' ? '身份验证' : 'Authentication' %>
+                </a>
+                <a href="#errors" class="nav-link">
+                    <%= currentLang==='zh' ? '错误代码' : 'Error Codes' %>
+                </a>
+            </div>
 
-            <div class="nav-group">Collection (Pay-In)</div>
-            <a href="#collection-initiate" class="nav-item">Initiate Collection</a>
-            <a href="#collection-callback" class="nav-item">Collection Callback</a>
-            <a href="#collection-status" class="nav-item">Query Status</a>
-            <a href="#collection-update-ref" class="nav-item">Update Reference</a>
+            <div class="nav-group">
+                <div class="nav-title">
+                    <%= currentLang==='zh' ? '收款 (Payin)' : 'Collection (Payin)' %>
+                </div>
+                <a href="#payin-create" class="nav-link">
+                    <%= currentLang==='zh' ? '创建订单' : 'Create Order' %>
+                </a>
+                <a href="#payin-status" class="nav-link">
+                    <%= currentLang==='zh' ? '查询状态' : 'Query Status' %>
+                </a>
+            </div>
 
-            <div class="nav-group">Transfer (Pay-Out)</div>
-            <a href="#transfer-bank" class="nav-item">Bank Transfer</a>
-            <a href="#transfer-callback" class="nav-item">Transfer Callback</a>
-            <a href="#transfer-status" class="nav-item">Query Status</a>
+            <div class="nav-group">
+                <div class="nav-title">
+                    <%= currentLang==='zh' ? '代付 (Payout)' : 'Transfer (Payout)' %>
+                </div>
+                <a href="#payout-create" class="nav-link">
+                    <%= currentLang==='zh' ? '创建代付' : 'Create Transfer' %>
+                </a>
+                <a href="#payout-status" class="nav-link">
+                    <%= currentLang==='zh' ? '查询状态' : 'Query Status' %>
+                </a>
+            </div>
 
-            <div class="nav-group" data-i18n="utilities">Account</div>
-            <a href="#balance" class="nav-item" data-i18n="check_balance">Check Balance</a>
+            <div class="nav-group">
+                <div class="nav-title">
+                    <%= currentLang==='zh' ? '账户' : 'Account' %>
+                </div>
+                <a href="#balance" class="nav-link">
+                    <%= currentLang==='zh' ? '查询余额' : 'Check Balance' %>
+                </a>
+            </div>
         </nav>
     </aside>
 
-    <main class="main">
-        <!-- Introduction -->
-        <section id="intro">
-            <h1 data-i18n="introduction">Introduction</h1>
-            <p data-i18n="intro_desc">Welcome to the Gaur Pay API. This documentation provides a
-                comprehensive guide to integrating our secure payment solutions for deposits (Pay-In) and withdrawals
-                (Pay-Out).</p>
-            <p><strong data-i18n="version">Version:</strong> 2.0<br>
-                <strong data-i18n="base_url">Base URL:</strong> <code>https://api.gaurpay.com</code>
-            </p>
-            <div class="alert alert-info">
-                <p data-i18n="req_https">All requests must be made over HTTPS with
-                    <code>Content-Type: application/json</code>.
-                </p>
-            </div>
-        </section>
+    <main class="main-content">
+        <% if (currentLang==='zh' ) { %>
+            <!-- CHINESE CONTENT -->
+            <section id="intro">
+                <h1>API 文档</h1>
+                <p>欢迎使用 Payable 支付网关 API。本文档将帮助您快速集成我们的安全支付解决方案。</p>
+                <div class="alert alert-info">
+                    <strong>注意：</strong> 所有请求必须使用 HTTPS 协议，且 Content-Type 为 <code>application/json</code>。
+                </div>
+            </section>
 
-        <!-- Authentication -->
-        <section id="auth">
-            <h2 data-i18n="authentication">Authentication</h2>
-            <p data-i18n="auth_desc">We use Header-Based Authentication with HMAC-MD5 signatures. Every API request must
-                be authenticated.</p>
+            <section id="auth">
+                <h2>身份验证</h2>
+                <p>所有 API 请求都需要通过 HTTP Header 进行身份验证。</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Header 名称</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>x-merchant-id</code></td>
+                            <td>您的商户 API Key</td>
+                        </tr>
+                        <tr>
+                            <td><code>x-signature</code></td>
+                            <td>请求参数的 MD5 签名</td>
+                        </tr>
+                    </tbody>
+                </table>
 
-            <h3 data-i18n="req_headers">Required Headers</h3>
-            <table class="param-table">
-                <tr>
-                    <th data-i18n="header_name">Header</th>
-                    <th data-i18n="example_val">Example</th>
-                    <th data-i18n="description">Description</th>
-                </tr>
-                <tr>
-                    <td><code>x-merchant-id</code></td>
-                    <td><code>550e8400-e29b...</code></td>
-                    <td data-i18n="merchant_uuid_desc">Your unique Merchant UUID</td>
-                </tr>
-                <tr>
-                    <td><code>x-signature</code></td>
-                    <td><code>A1B2C3D4E5...</code></td>
-                    <td data-i18n="sig_desc">MD5 hash signature</td>
-                </tr>
-            </table>
+                <h3>签名生成步骤</h3>
+                <ol style="margin-left: 1.5rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+                    <li>将所有请求参数按键名 ASCII 码从小到大排序（排除空值和 <code>sign</code> 字段）。</li>
+                    <li>使用 <code>&</code> 符号拼接参数为 <code>key=value</code> 格式。</li>
+                    <li>在拼接后的字符串末尾加上 <code>&secret=您的API密钥</code>。</li>
+                    <li>对最终字符串进行 MD5 加密，并转为大写。</li>
+                </ol>
+            </section>
 
-            <h3 data-i18n="gen_sig">Signature Generation</h3>
-            <div class="badge badge-warning" data-i18n="formula">Formula</div>
-            <ol style="margin-top:0.5rem;">
-                <li data-i18n="sig_step_1"><strong>Sort</strong> all body parameters alphabetically by key (ASCII)</li>
-                <li data-i18n="sig_step_2"><strong>Remove</strong> empty values and <code>sign</code> field</li>
-                <li data-i18n="sig_step_3"><strong>Join</strong> with <code>&</code> in <code>key=value</code> format
-                </li>
-                <li data-i18n="sig_step_4"><strong>Append</strong> <code>&secret=YOUR_SECRET_KEY</code></li>
-                <li data-i18n="sig_step_5"><strong>Hash</strong> using MD5 and convert to uppercase</li>
-            </ol>
+            <section id="payin-create">
+                <h2>创建收款订单</h2>
+                <p>生成支付链接以接收用户付款。</p>
+                <div class="endpoint-badge">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/payin/create</span>
+                </div>
 
-            <h4 data-i18n="node_ex">Node.js Example</h4>
-            <div class="code-block">
-                <button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
-                <pre><code>const crypto = require('crypto');
+                <h3>请求参数</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>参数</th>
+                            <th>类型</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>orderId</code></td>
+                            <td>String<span class="required">必填</span></td>
+                            <td>商户唯一订单号</td>
+                        </tr>
+                        <tr>
+                            <td><code>orderAmount</code></td>
+                            <td>Number<span class="required">必填</span></td>
+                            <td>订单金额</td>
+                        </tr>
+                        <tr>
+                            <td><code>customerName</code></td>
+                            <td>String</td>
+                            <td>客户姓名</td>
+                        </tr>
+                        <tr>
+                            <td><code>customerEmail</code></td>
+                            <td>String</td>
+                            <td>客户邮箱</td>
+                        </tr>
+                        <tr>
+                            <td><code>customerPhone</code></td>
+                            <td>String</td>
+                            <td>客户电话</td>
+                        </tr>
+                        <tr>
+                            <td><code>callbackUrl</code></td>
+                            <td>String<span class="required">必填</span></td>
+                            <td>异步通知回调地址</td>
+                        </tr>
+                        <tr>
+                            <td><code>returnUrl</code></td>
+                            <td>String</td>
+                            <td>支付成功后跳转地址</td>
+                        </tr>
+                    </tbody>
+                </table>
 
-function generateSignature(params, secretKey) {
-    const filtered = {};
-    Object.keys(params).forEach(key => {
-        if (key !== 'sign' && params[key] !== '' && params[key] != null) {
-            filtered[key] = params[key];
-        }
-    });
-    const sorted = Object.keys(filtered).sort();
-    const query = sorted.map(k => `${k}=${filtered[k]}`).join('&');
-    const str = `${query}&secret=${secretKey}`;
-    return crypto.createHash('md5').update(str).digest('hex').toUpperCase();
-}</code></pre>
-            </div>
-
-            <h4 data-i18n="php_ex">PHP Example</h4>
-            <div class="code-block">
-                <button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
-                <pre><code>function generateSignature($params, $secretKey) {
-    $filtered = array_filter($params, fn($v) => $v !== '' && $v !== null);
-    unset($filtered['sign']);
-    ksort($filtered);
-    $parts = [];
-    foreach ($filtered as $k => $v) $parts[] = "$k=$v";
-    $str = implode('&', $parts) . "&secret=$secretKey";
-    return strtoupper(md5($str));
-}</code></pre>
-            </div>
-        </section>
-
-        <!-- Error Codes -->
-        <section id="errors">
-            <h2 data-i18n="error_codes">Error Codes</h2>
-            <p data-i18n="error_codes_desc">Standard response codes returned by the API.</p>
-            <table class="status-table">
-                <tr>
-                    <th>Code</th>
-                    <th>Meaning / 含义</th>
-                </tr>
-                <tr>
-                    <td><code>1</code></td>
-                    <td>Success / 成功</td>
-                </tr>
-                <tr>
-                    <td><code>0</code></td>
-                    <td>Failed / 失败</td>
-                </tr>
-                <tr>
-                    <td><code>-1</code></td>
-                    <td>Invalid signature / 签名错误</td>
-                </tr>
-                <tr>
-                    <td><code>-2</code></td>
-                    <td>Missing parameters / 缺少参数</td>
-                </tr>
-                <tr>
-                    <td><code>-3</code></td>
-                    <td>Insufficient balance / 余额不足</td>
-                </tr>
-                <tr>
-                    <td><code>-4</code></td>
-                    <td>Order not found / 订单不存在</td>
-                </tr>
-                <tr>
-                    <td><code>-5</code></td>
-                    <td>IP not whitelisted</td>
-                </tr>
-            </table>
-            <h3>Status Values / 状态值</h3>
-            <table class="status-table">
-                <tr>
-                    <th>Status</th>
-                    <th>Meaning / 含义</th>
-                </tr>
-                <tr>
-                    <td><code>pending</code></td>
-                    <td>Awaiting payment / 等待支付</td>
-                </tr>
-                <tr>
-                    <td><code>processing</code></td>
-                    <td>Being processed / 处理中</td>
-                </tr>
-                <tr>
-                    <td><code>success</code></td>
-                    <td>Completed successfully / 成功完成</td>
-                </tr>
-                <tr>
-                    <td><code>failed</code></td>
-                    <td>Failed / 失败</td>
-                </tr>
-            </table>
-        </section>
-
-        <!-- Collection Initiate -->
-        <section id="collection-initiate">
-            <h2>Initiate Collection / 创建代收订单</h2>
-            <p>Create a payment link to collect funds from a customer.</p>
-            <p><span class="method post">POST</span><span class="endpoint">/v2/collection/initiate</span></p>
-
-            <table class="param-table">
-                <tr>
-                    <th>Parameter</th>
-                    <th>Type</th>
-                    <th>Description</th>
-                </tr>
-                <tr>
-                    <td><code>merchant_order_id</code></td>
-                    <td>String <span class="required">Required</span></td>
-                    <td>Your unique order ID (Max 64 chars) / 唯一订单号</td>
-                </tr>
-                <tr>
-                    <td><code>amount</code></td>
-                    <td>Number <span class="required">Required</span></td>
-                    <td>Amount to collect in INR (Min ₹100) / 收款金额</td>
-                </tr>
-                <tr>
-                    <td><code>notify_url</code></td>
-                    <td>String <span class="required">Required</span></td>
-                    <td>Webhook URL for notifications / 回调通知地址</td>
-                </tr>
-                <tr>
-                    <td><code>redirect_url</code></td>
-                    <td>String <span class="optional">Optional</span></td>
-                    <td>Post-payment redirect URL / 支付后跳转地址</td>
-                </tr>
-                <tr>
-                    <td><code>extra_data</code></td>
-                    <td>String <span class="optional">Optional</span></td>
-                    <td>Custom pass-through data / 自定义回传数据</td>
-                </tr>
-                <tr>
-                    <td><code>customer_name</code></td>
-                    <td>String <span class="optional">Optional</span></td>
-                    <td>Customer name / 客户姓名</td>
-                </tr>
-                <tr>
-                    <td><code>customer_phone</code></td>
-                    <td>String <span class="optional">Optional</span></td>
-                    <td>Customer phone / 客户电话</td>
-                </tr>
-                <tr>
-                    <td><code>customer_email</code></td>
-                    <td>String <span class="optional">Optional</span></td>
-                    <td>Customer email / 客户邮箱</td>
-                </tr>
-            </table>
-
-            <h3>Example Request</h3>
-            <div class="code-block">
-                <button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
+                <h3>成功响应</h3>
                 <pre><code>{
-    "merchant_order_id": "MC001-998877",
-    "amount": 500,
-    "notify_url": "https://mysite.com/webhook",
-    "redirect_url": "https://mysite.com/success",
-    "extra_data": "user_123",
-    "customer_name": "John Doe"
-}</code></pre>
-            </div>
-
-            <h3>Success Response</h3>
-            <div class="code-block">
-                <button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
-                <pre><code>{
-    "success": true,
-    "code": "SUCCESS",
-    "message": "Collection order created",
-    "timestamp": "2026-02-01T18:00:00.000Z",
-    "data": {
-        "merchant_order_id": "MC001-998877",
-        "platform_order_id": "e0b5...88",
-        "amount": 500.00,
-        "processing_fee": 25.00,
-        "payment_url": "https://pay.gaurpay.com/p/abc123",
-        "expires_at": "2026-02-01T18:30:00.000Z",
-        "app_links": {
-            "phonepe": "phonepe://pay?...",
-            "paytm": "paytmmp://pay?...",
-            "gpay": "tez://upi/pay?...",
-            "generic_upi": "upi://pay?..."
-        }
+    "status": "success",
+    "message": "Order created successfully",
+    "result": {
+        "merchantOrderId": "TEST_123",
+        "paymentUrl": "https://...",
+        "requestedAmount": 100.00
     }
 }</code></pre>
-            </div>
-        </section>
+            </section>
 
-        <!-- Collection Callback -->
-        <section id="collection-callback">
-            <h2>Collection Callback / 代收回调</h2>
-            <p>We send a POST request to your notify_url when the collection status changes.</p>
+            <section id="payin-status">
+                <h2>查询收款状态</h2>
+                <div class="endpoint-badge">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/payin/query</span>
+                </div>
+                <h3>请求参数</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>参数</th>
+                            <th>类型</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>orderId</code></td>
+                            <td>String<span class="required">必填</span></td>
+                            <td>商户订单号</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
 
-            <h3>Callback Parameters / 回调参数</h3>
-            <table class="param-table">
-                <tr>
-                    <th>Field</th>
-                    <th>Type</th>
-                    <th>Description</th>
-                </tr>
-                <tr>
-                    <td><code>event_type</code></td>
-                    <td>String</td>
-                    <td>Event type: collection.completed / collection.failed</td>
-                </tr>
-                <tr>
-                    <td><code>timestamp</code></td>
-                    <td>String</td>
-                    <td>ISO 8601 timestamp / 时间戳</td>
-                </tr>
-                <tr>
-                    <td><code>data.merchant_order_id</code></td>
-                    <td>String</td>
-                    <td>Your order ID / 商户订单号</td>
-                </tr>
-                <tr>
-                    <td><code>data.platform_order_id</code></td>
-                    <td>String</td>
-                    <td>Platform transaction ID / 平台交易ID</td>
-                </tr>
-                <tr>
-                    <td><code>data.status</code></td>
-                    <td>String</td>
-                    <td>completed / failed / 完成/失败</td>
-                </tr>
-                <tr>
-                    <td><code>data.amount</code></td>
-                    <td>Number</td>
-                    <td>Original order amount / 订单金额</td>
-                </tr>
-                <tr>
-                    <td><code>data.net_amount</code></td>
-                    <td>Number</td>
-                    <td>Net amount after fees / 扣费后金额</td>
-                </tr>
-                <tr>
-                    <td><code>data.processing_fee</code></td>
-                    <td>Number</td>
-                    <td>Processing fee charged / 手续费</td>
-                </tr>
-                <tr>
-                    <td><code>data.transaction_ref</code></td>
-                    <td>String</td>
-                    <td>Bank UTR / 银行流水号</td>
-                </tr>
-                <tr>
-                    <td><code>data.extra_data</code></td>
-                    <td>String</td>
-                    <td>Your custom data / 自定义回传</td>
-                </tr>
-                <tr>
-                    <td><code>signature</code></td>
-                    <td>String</td>
-                    <td>MD5 signature / MD5签名</td>
-                </tr>
-            </table>
+            <section id="payout-create">
+                <h2>创建代付订单</h2>
+                <p>发起单笔代付到银行账户。</p>
+                <div class="endpoint-badge">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/payout/bank</span>
+                </div>
 
-            <h3>Example Callback / 回调示例</h3>
-            <div class="code-block">
-                <button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
-                <pre><code>{
-    "event_type": "collection.completed",
-    "timestamp": "2026-02-01T18:00:00.000Z",
-    "data": {
-        "merchant_order_id": "MC001-998877",
-        "platform_order_id": "e0b5...88",
-        "status": "completed",
-        "amount": 500.00,
-        "net_amount": 475.00,
-        "processing_fee": 25.00,
-        "transaction_ref": "123456789012",
-        "extra_data": "user_123"
-    },
-    "signature": "A1B2C3D4E5F6..."
-}</code></pre>
-            </div>
+                <h3>请求参数</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>参数</th>
+                            <th>类型</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>orderId</code></td>
+                            <td>String<span class="required">必填</span></td>
+                            <td>商户唯一订单号</td>
+                        </tr>
+                        <tr>
+                            <td><code>amount</code></td>
+                            <td>Number<span class="required">必填</span></td>
+                            <td>代付金额</td>
+                        </tr>
+                        <tr>
+                            <td><code>account</code></td>
+                            <td>String<span class="required">必填</span></td>
+                            <td>收款银行账号</td>
+                        </tr>
+                        <tr>
+                            <td><code>ifsc</code></td>
+                            <td>String<span class="required">必填</span></td>
+                            <td>银行 IFSC 代码</td>
+                        </tr>
+                        <tr>
+                            <td><code>personName</code></td>
+                            <td>String<span class="required">必填</span></td>
+                            <td>收款人姓名</td>
+                        </tr>
+                        <tr>
+                            <td><code>callbackUrl</code></td>
+                            <td>String<span class="required">必填</span></td>
+                            <td>异步通知回调地址</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
 
-            <div class="alert alert-warning">
-                <strong>Important / 重要:</strong> Return plain text <code>OK</code> to acknowledge.
-                We retry up to 5 times if not received.<br>
-                <strong>必须响应:</strong> 收到回调后需返回纯文本 <code>OK</code>。未收到确认将重试5次。
-            </div>
-        </section>
+            <section id="payout-status">
+                <h2>查询代付状态</h2>
+                <div class="endpoint-badge">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/payout/query</span>
+                </div>
+                <h3>请求参数</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>参数</th>
+                            <th>类型</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>orderId</code></td>
+                            <td>String<span class="required">必填</span></td>
+                            <td>商户订单号</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
 
-        <!-- Collection Status -->
-        <section id="collection-status">
-            <h2>Query Collection Status / 查询代收状态</h2>
-            <p>Check the real-time status of a collection order.</p>
-            <p><span class="method post">POST</span><span class="endpoint">/v2/collection/status</span></p>
-            <div class="alert alert-info">
-                <strong>Public Alternative:</strong> Use <code>POST /v2/collection/verify</code> with
-                <code>merchant_order_id</code> and <code>merchant_id</code> (no signature required).<br>
-                <strong>公开接口:</strong> 可使用 <code>/v2/collection/verify</code>（无需签名）
-            </div>
+            <section id="balance">
+                <h2>查询余额</h2>
+                <div class="endpoint-badge">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/balance/query</span>
+                </div>
+                <p>无需参数，仅需签名验证。</p>
+            </section>
 
-            <table class="param-table">
-                <tr>
-                    <th>Parameter</th>
-                    <th>Type</th>
-                    <th>Description</th>
-                </tr>
-                <tr>
-                    <td><code>merchant_order_id</code></td>
-                    <td>String <span class="required">Required</span></td>
-                    <td>Your unique Order ID / 您的订单号</td>
-                </tr>
-            </table>
+            <section id="errors">
+                <h2>错误代码</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>代码</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>INVALID_SIGNATURE</code></td>
+                            <td>签名无效</td>
+                        </tr>
+                        <tr>
+                            <td><code>INVALID_MERCHANT</code></td>
+                            <td>商户无效或未找到</td>
+                        </tr>
+                        <tr>
+                            <td><code>INSUFFICIENT_BALANCE</code></td>
+                            <td>余额不足</td>
+                        </tr>
+                        <tr>
+                            <td><code>DUPLICATE_ORDER</code></td>
+                            <td>订单号重复</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
 
-            <h3>Success Response</h3>
-            <div class="code-block">
-                <button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
-                <pre><code>{
-    "success": true,
-    "code": "SUCCESS",
-    "timestamp": "2026-02-01T18:00:00.000Z",
-    "data": {
-        "merchant_order_id": "MC001-998877",
-        "platform_order_id": "e0b5...88",
-        "status": "completed",
-        "amount": 500.00,
-        "processing_fee": 25.00,
-        "net_amount": 475.00,
-        "transaction_ref": "123456789012",
-        "created_at": "2026-02-01T17:30:00.000Z",
-        "completed_at": "2026-02-01T17:35:00.000Z"
+            <% } else { %>
+                <!-- ENGLISH CONTENT -->
+                <section id="intro">
+                    <h1>API Documentation</h1>
+                    <p>Welcome to the Payable Payment Gateway API. This documentation will help you integrate our secure
+                        payment solutions.</p>
+                    <div class="alert alert-info">
+                        <strong>Note:</strong> All requests must be made over HTTPS with
+                        <code>Content-Type: application/json</code>.
+                    </div>
+                </section>
+
+                <section id="auth">
+                    <h2>Authentication</h2>
+                    <p>All API requests require authentication via HTTP Headers.</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Header Name</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>x-merchant-id</code></td>
+                                <td>Your Merchant API Key</td>
+                            </tr>
+                            <tr>
+                                <td><code>x-signature</code></td>
+                                <td>MD5 Signature of request parameters</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Signature Generation</h3>
+                    <ol style="margin-left: 1.5rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+                        <li>Sort all request parameters by key (ASCII ascending). Exclude empty values and
+                            <code>sign</code> field.</li>
+                        <li>Join parameters in <code>key=value</code> format using <code>&</code>.</li>
+                        <li>Append <code>&secret=YOUR_API_SECRET</code> to the string.</li>
+                        <li>Generate MD5 hash of the string and convert to UPPERCASE.</li>
+                    </ol>
+                </section>
+
+                <section id="payin-create">
+                    <h2>Create Collection Order</h2>
+                    <p>Generate a payment link to receive funds from users.</p>
+                    <div class="endpoint-badge">
+                        <span class="method post">POST</span>
+                        <span class="url">/api/payin/create</span>
+                    </div>
+
+                    <h3>Request Parameters</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>orderId</code></td>
+                                <td>String<span class="required">Required</span></td>
+                                <td>Unique Merchant Order ID</td>
+                            </tr>
+                            <tr>
+                                <td><code>orderAmount</code></td>
+                                <td>Number<span class="required">Required</span></td>
+                                <td>Transaction Amount</td>
+                            </tr>
+                            <tr>
+                                <td><code>customerName</code></td>
+                                <td>String</td>
+                                <td>Customer Name</td>
+                            </tr>
+                            <tr>
+                                <td><code>customerEmail</code></td>
+                                <td>String</td>
+                                <td>Customer Email</td>
+                            </tr>
+                            <tr>
+                                <td><code>customerPhone</code></td>
+                                <td>String</td>
+                                <td>Customer Phone</td>
+                            </tr>
+                            <tr>
+                                <td><code>callbackUrl</code></td>
+                                <td>String<span class="required">Required</span></td>
+                                <td>Webhook URL for notifications</td>
+                            </tr>
+                            <tr>
+                                <td><code>returnUrl</code></td>
+                                <td>String</td>
+                                <td>Redirect URL after success</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Success Response</h3>
+                    <pre><code>{
+    "status": "success",
+    "message": "Order created successfully",
+    "result": {
+        "merchantOrderId": "TEST_123",
+        "paymentUrl": "https://...",
+        "requestedAmount": 100.00
     }
 }</code></pre>
-            </div>
-        </section>
+                </section>
 
-        <!-- Update Reference -->
-        <section id="collection-update-ref">
-            <h2>Update Reference / 更新交易流水号</h2>
-            <p>Update UTR/transaction reference for an existing order.</p>
-            <p><span class="method post">POST</span><span class="endpoint">/v2/collection/update-ref</span></p>
+                <section id="payin-status">
+                    <h2>Query Collection Status</h2>
+                    <div class="endpoint-badge">
+                        <span class="method post">POST</span>
+                        <span class="url">/api/payin/query</span>
+                    </div>
+                    <h3>Request Parameters</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>orderId</code></td>
+                                <td>String<span class="required">Required</span></td>
+                                <td>Merchant Order ID</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
 
-            <table class="param-table">
-                <tr>
-                    <th>Parameter</th>
-                    <th>Type</th>
-                    <th>Description</th>
-                </tr>
-                <tr>
-                    <td><code>merchant_order_id</code></td>
-                    <td>String <span class="required">Required</span></td>
-                    <td>Your order ID / 您的订单号</td>
-                </tr>
-                <tr>
-                    <td><code>transaction_ref</code></td>
-                    <td>String <span class="required">Required</span></td>
-                    <td>New UTR/reference number / 新的流水号</td>
-                </tr>
-                <tr>
-                    <td><code>reason</code></td>
-                    <td>String <span class="optional">Optional</span></td>
-                    <td>Reason for update / 更新原因</td>
-                </tr>
-            </table>
+                <section id="payout-create">
+                    <h2>Create Transfer (Payout)</h2>
+                    <p>Initiate a bank transfer payout.</p>
+                    <div class="endpoint-badge">
+                        <span class="method post">POST</span>
+                        <span class="url">/api/payout/bank</span>
+                    </div>
 
-            <h3>Success Response</h3>
-            <div class="code-block">
-                <button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
-                <pre><code>{
-    "success": true,
-    "code": "SUCCESS",
-    "message": "Reference updated successfully",
-    "timestamp": "2026-02-01T18:00:00.000Z",
-    "data": {
-        "merchant_order_id": "MC001-998877",
-        "platform_order_id": "e0b5...88",
-        "old_ref": "OLD123456",
-        "new_ref": "NEW789012",
-        "channel_response": {
-            "status": "accepted"
-        }
-    }
-}</code></pre>
-            </div>
-        </section>
+                    <h3>Request Parameters</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>orderId</code></td>
+                                <td>String<span class="required">Required</span></td>
+                                <td>Unique Merchant Order ID</td>
+                            </tr>
+                            <tr>
+                                <td><code>amount</code></td>
+                                <td>Number<span class="required">Required</span></td>
+                                <td>Payout Amount</td>
+                            </tr>
+                            <tr>
+                                <td><code>account</code></td>
+                                <td>String<span class="required">Required</span></td>
+                                <td>Bank Account Number</td>
+                            </tr>
+                            <tr>
+                                <td><code>ifsc</code></td>
+                                <td>String<span class="required">Required</span></td>
+                                <td>Bank IFSC Code</td>
+                            </tr>
+                            <tr>
+                                <td><code>personName</code></td>
+                                <td>String<span class="required">Required</span></td>
+                                <td>Beneficiary Name</td>
+                            </tr>
+                            <tr>
+                                <td><code>callbackUrl</code></td>
+                                <td>String<span class="required">Required</span></td>
+                                <td>Webhook URL for notifications</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
 
-        <!-- Bank Transfer -->
-        <section id="transfer-bank">
-            <h2>Bank Transfer / 银行代付</h2>
-            <p>Transfer funds to a bank account via IMPS/NEFT.</p>
-            <p><span class="method post">POST</span><span class="endpoint">/v2/transfer/bank</span></p>
+                <section id="payout-status">
+                    <h2>Query Transfer Status</h2>
+                    <div class="endpoint-badge">
+                        <span class="method post">POST</span>
+                        <span class="url">/api/payout/query</span>
+                    </div>
+                    <h3>Request Parameters</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>orderId</code></td>
+                                <td>String<span class="required">Required</span></td>
+                                <td>Merchant Order ID</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
 
-            <table class="param-table">
-                <tr>
-                    <th>Parameter</th>
-                    <th>Type</th>
-                    <th>Description</th>
-                </tr>
-                <tr>
-                    <td><code>merchant_order_id</code></td>
-                    <td>String <span class="required">Required</span></td>
-                    <td>Unique transaction ID / 唯一交易号</td>
-                </tr>
-                <tr>
-                    <td><code>amount</code></td>
-                    <td>Number <span class="required">Required</span></td>
-                    <td>Amount (Min ₹100) / 金额</td>
-                </tr>
-                <tr>
-                    <td><code>account_number</code></td>
-                    <td>String <span class="required">Required</span></td>
-                    <td>Bank account number / 银行账号</td>
-                </tr>
-                <tr>
-                    <td><code>ifsc_code</code></td>
-                    <td>String <span class="required">Required</span></td>
-                    <td>IFSC code / IFSC代码</td>
-                </tr>
-                <tr>
-                    <td><code>beneficiary_name</code></td>
-                    <td>String <span class="required">Required</span></td>
-                    <td>Account holder name / 收款人姓名</td>
-                </tr>
-                <tr>
-                    <td><code>notify_url</code></td>
-                    <td>String <span class="required">Required</span></td>
-                    <td>Webhook URL / 回调地址</td>
-                </tr>
-                <tr>
-                    <td><code>extra_data</code></td>
-                    <td>String <span class="optional">Optional</span></td>
-                    <td>Custom pass-through data / 自定义数据</td>
-                </tr>
-            </table>
+                <section id="balance">
+                    <h2>Check Balance</h2>
+                    <div class="endpoint-badge">
+                        <span class="method post">POST</span>
+                        <span class="url">/api/balance/query</span>
+                    </div>
+                    <p>No parameters required. Authentication signature only.</p>
+                </section>
 
-            <h3>Success Response</h3>
-            <div class="code-block">
-                <button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
-                <pre><code>{
-    "success": true,
-    "code": "SUCCESS",
-    "message": "Transfer initiated",
-    "timestamp": "2026-02-01T18:00:00.000Z",
-    "data": {
-        "merchant_order_id": "PO001-998877",
-        "platform_order_id": "e0b5...88",
-        "amount": 10000.00,
-        "processing_fee": 306.00,
-        "status": "processing",
-        "estimated_completion": "2026-02-01T18:15:00.000Z"
-    }
-}</code></pre>
-            </div>
-        </section>
-
-        <!-- Transfer Callback -->
-        <section id="transfer-callback">
-            <h2>Transfer Callback / 代付回调</h2>
-            <p>We send a POST request when transfer status changes.</p>
-
-            <h3>Callback Parameters / 回调参数</h3>
-            <table class="param-table">
-                <tr>
-                    <th>Field</th>
-                    <th>Type</th>
-                    <th>Description</th>
-                </tr>
-                <tr>
-                    <td><code>event_type</code></td>
-                    <td>String</td>
-                    <td>transfer.completed / transfer.failed</td>
-                </tr>
-                <tr>
-                    <td><code>timestamp</code></td>
-                    <td>String</td>
-                    <td>ISO 8601 timestamp / 时间戳</td>
-                </tr>
-                <tr>
-                    <td><code>data.merchant_order_id</code></td>
-                    <td>String</td>
-                    <td>Your order ID / 商户订单号</td>
-                </tr>
-                <tr>
-                    <td><code>data.platform_order_id</code></td>
-                    <td>String</td>
-                    <td>Platform transaction ID / 平台交易ID</td>
-                </tr>
-                <tr>
-                    <td><code>data.status</code></td>
-                    <td>String</td>
-                    <td>completed / failed</td>
-                </tr>
-                <tr>
-                    <td><code>data.amount</code></td>
-                    <td>Number</td>
-                    <td>Transfer amount / 代付金额</td>
-                </tr>
-                <tr>
-                    <td><code>data.processing_fee</code></td>
-                    <td>Number</td>
-                    <td>Fee charged / 手续费</td>
-                </tr>
-                <tr>
-                    <td><code>data.transaction_ref</code></td>
-                    <td>String</td>
-                    <td>Bank UTR / 银行流水号</td>
-                </tr>
-                <tr>
-                    <td><code>data.extra_data</code></td>
-                    <td>String</td>
-                    <td>Your custom data / 自定义参数</td>
-                </tr>
-                <tr>
-                    <td><code>signature</code></td>
-                    <td>String</td>
-                    <td>MD5 signature / MD5签名</td>
-                </tr>
-            </table>
-
-            <h3>Example Callback / 回调示例</h3>
-            <div class="code-block">
-                <button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
-                <pre><code>{
-    "event_type": "transfer.completed",
-    "timestamp": "2026-02-01T18:00:00.000Z",
-    "data": {
-        "merchant_order_id": "PO001-998877",
-        "platform_order_id": "e0b5...88",
-        "status": "completed",
-        "amount": 10000.00,
-        "processing_fee": 306.00,
-        "transaction_ref": "UTR123456789",
-        "extra_data": "user_123"
-    },
-    "signature": "A1B2C3D4E5F6..."
-}</code></pre>
-            </div>
-
-            <div class="alert alert-warning">
-                <strong>Response Required:</strong> Return plain text <code>OK</code> to acknowledge.<br>
-                <strong>必须响应:</strong> 返回纯文本 <code>OK</code> 确认收到。
-            </div>
-        </section>
-
-        <!-- Transfer Status -->
-        <section id="transfer-status">
-            <h2>Query Transfer Status / 查询代付状态</h2>
-            <p><span class="method post">POST</span><span class="endpoint">/v2/transfer/status</span></p>
-
-            <table class="param-table">
-                <tr>
-                    <th>Parameter</th>
-                    <th>Type</th>
-                    <th>Description</th>
-                </tr>
-                <tr>
-                    <td><code>merchant_order_id</code></td>
-                    <td>String <span class="required">Required</span></td>
-                    <td>Transfer Order ID / 代付订单号</td>
-                </tr>
-            </table>
-
-            <h3>Success Response</h3>
-            <div class="code-block">
-                <button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
-                <pre><code>{
-    "success": true,
-    "code": "SUCCESS",
-    "message": "Transfer status retrieved",
-    "timestamp": "2026-02-01T18:00:00.000Z",
-    "data": {
-        "merchant_order_id": "PO001-998877",
-        "platform_order_id": "e0b5...88",
-        "type": "bank",
-        "status": "completed",
-        "amount": 10000.00,
-        "processing_fee": 306.00,
-        "transaction_ref": "UTR123456789",
-        "beneficiary_name": "John Doe",
-        "account_number": "****7890",
-        "created_at": "2026-02-01T17:30:00.000Z",
-        "completed_at": "2026-02-01T17:45:00.000Z"
-    }
-}</code></pre>
-            </div>
-        </section>
-
-        <!-- Balance -->
-        <section id="balance">
-            <h2>Check Balance / 查询余额</h2>
-            <p>Get your current account balance.</p>
-            <p><span class="method post">POST</span><span class="endpoint">/v2/account/balance</span></p>
-            <p><strong>Body:</strong> <code>{}</code> (Empty JSON object / 空JSON对象)</p>
-
-            <h3>Success Response</h3>
-            <div class="code-block">
-                <button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button>
-                <pre><code>{
-    "success": true,
-    "code": "SUCCESS",
-    "message": "Balance retrieved",
-    "timestamp": "2026-02-01T18:00:00.000Z",
-    "data": {
-        "available_balance": 10050.00,
-        "pending_balance": 500.00,
-        "total_balance": 10550.00,
-        "currency": "INR"
-    }
-}</code></pre>
-            </div>
-        </section>
+                <section id="errors">
+                    <h2>Error Codes</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>INVALID_SIGNATURE</code></td>
+                                <td>Signature verification failed</td>
+                            </tr>
+                            <tr>
+                                <td><code>INVALID_MERCHANT</code></td>
+                                <td>Merchant not found or invalid</td>
+                            </tr>
+                            <tr>
+                                <td><code>INSUFFICIENT_BALANCE</code></td>
+                                <td>Insufficient funds for transaction</td>
+                            </tr>
+                            <tr>
+                                <td><code>DUPLICATE_ORDER</code></td>
+                                <td>Order ID already exists</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+                <% } %>
     </main>
-
-    <script>
-        // i18n translations
-        const translations = {
-            en: {
-                getting_started: 'Getting Started',
-                introduction: 'Introduction',
-                authentication: 'Authentication',
-                error_codes: 'Error Codes',
-                pay_in_deposits: 'Pay-In (Deposits)',
-                pay_out_withdrawals: 'Pay-Out (Withdrawals)',
-                create_order: 'Create Order',
-                query_status: 'Query Status',
-                payin_callback: 'Pay-In Callback',
-                bank_transfer: 'Bank Transfer',
-                usdt_transfer: 'USDT Transfer',
-                payout_callback: 'Payout Callback',
-                utilities: 'Utilities',
-                check_balance: 'Check Balance',
-                intro_desc: 'Welcome to the Payable Payment Gateway API. This documentation provides a comprehensive guide to integrating our secure payment solutions for deposits (Pay-In) and withdrawals (Pay-Out).',
-                version: 'Version',
-                base_url: 'Base URL',
-                req_https: 'All requests must be made over HTTPS with Content-Type: application/json.',
-                auth_desc: 'We use Header-Based Authentication with HMAC-MD5 signatures. Every API request must be authenticated.',
-                req_headers: 'Required Headers',
-                header_name: 'Header',
-                example_val: 'Example',
-                description: 'Description',
-                merchant_uuid_desc: 'Your unique Merchant UUID',
-                sig_desc: 'MD5 hash signature',
-                gen_sig: 'Signature Generation',
-                formula: 'Formula',
-                sig_step_1: '<strong>Sort</strong> all body parameters alphabetically by key (ASCII)',
-                sig_step_2: '<strong>Remove</strong> empty values and <code>sign</code> field',
-                sig_step_3: '<strong>Join</strong> with <code>&</code> in <code>key=value</code> format',
-                sig_step_4: '<strong>Append</strong> <code>&secret=YOUR_SECRET_KEY</code>',
-                sig_step_5: '<strong>Hash</strong> using MD5 and convert to uppercase',
-                node_ex: 'Node.js Example',
-                php_ex: 'PHP Example',
-                error_codes_desc: 'Standard response codes returned by the API.',
-                parameter: 'Parameter',
-                param_type: 'Type',
-                ex_request: 'Example Request',
-                success_response: 'Success Response',
-                create_payin_desc: 'Generate a payment link to collect funds from a user.',
-                query_payin_desc: 'Check the real-time status of a deposit order.',
-                payin_callback_desc: 'We send a POST request to your callback URL when payment status changes.',
-                bank_payout_desc: 'Transfer funds to a bank account via IMPS/NEFT.',
-                usdt_payout_desc: 'Transfer funds to a crypto wallet.',
-                payout_callback_desc: 'We send a POST request when payout status changes.',
-                check_balance_desc: 'Get your current available balance.'
-            },
-            zh: {
-                getting_started: '开始使用',
-                introduction: '简介',
-                authentication: '身份验证',
-                error_codes: '错误代码',
-                pay_in_deposits: '收款 (Pay-In)',
-                pay_out_withdrawals: '代付 (Pay-Out)',
-                create_order: '创建订单',
-                query_status: '查询状态',
-                payin_callback: '充值回调',
-                bank_transfer: '银行转账',
-                usdt_transfer: 'USDT转账',
-                payout_callback: '代付回调',
-                utilities: '工具',
-                check_balance: '查询余额',
-                intro_desc: '欢迎使用 Payable 支付网关 API。本文档提供了集成我们安全支付解决方案的全面指南，包括收款（Pay-In）和代付（Pay-Out）。',
-                version: '版本',
-                base_url: '基础URL',
-                req_https: '所有请求必须通过 HTTPS 发送，Content-Type 为 application/json。',
-                auth_desc: '我们使用基于 Header 的身份验证和 HMAC-MD5 签名。每个 API 请求都必须经过身份验证。',
-                req_headers: '必需的头部',
-                header_name: '头部',
-                example_val: '示例',
-                description: '说明',
-                merchant_uuid_desc: '您的唯一商户 UUID',
-                sig_desc: 'MD5 哈希签名',
-                gen_sig: '签名生成',
-                formula: '公式',
-                sig_step_1: '<strong>排序</strong> 所有参数按键名 ASCII 码升序',
-                sig_step_2: '<strong>移除</strong> 空值和 <code>sign</code> 字段',
-                sig_step_3: '<strong>拼接</strong> 使用 <code>&</code> 连接 <code>key=value</code> 格式',
-                sig_step_4: '<strong>追加</strong> <code>&secret=您的密钥</code>',
-                sig_step_5: '<strong>哈希</strong> 使用 MD5 并转为大写',
-                node_ex: 'Node.js 示例',
-                php_ex: 'PHP 示例',
-                error_codes_desc: 'API 返回的标准响应代码。',
-                parameter: '参数',
-                param_type: '类型',
-                ex_request: '请求示例',
-                success_response: '成功响应',
-                create_payin_desc: '生成支付链接以向用户收款。',
-                query_payin_desc: '查询充值订单的实时状态。',
-                payin_callback_desc: '当支付状态变更时，我们会向您的回调 URL 发送 POST 请求。',
-                bank_payout_desc: '通过 IMPS/NEFT 将资金转入银行账户。',
-                usdt_payout_desc: '将资金转入加密钱包。',
-                payout_callback_desc: '当代付状态变更时，我们会发送 POST 请求。',
-                check_balance_desc: '获取您当前的可用余额。'
-            }
-        };
-
-        let currentLang = localStorage.getItem('apiDocLang') || 'en';
-
-        function applyTranslations(lang) {
-            const t = translations[lang];
-            if (!t) return;
-
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (t[key]) {
-                    el.innerHTML = t[key];
-                }
-            });
-
-            // Update language toggle button
-            const langToggle = document.getElementById('langToggle');
-            if (lang === 'zh') {
-                langToggle.innerHTML = '<span style="font-size:1.1rem;">🇨🇳</span> CN';
-            } else {
-                langToggle.innerHTML = '<span style="font-size:1.1rem;">🇺🇸</span> English';
-            }
-        }
-
-        window.changeLanguage = function () {
-            currentLang = currentLang === 'en' ? 'zh' : 'en';
-            localStorage.setItem('apiDocLang', currentLang);
-            applyTranslations(currentLang);
-        };
-
-        window.initLanguage = function () {
-            applyTranslations(currentLang);
-        };
-
-        function copyCode(btn) {
-            const code = btn.parentElement.querySelector('code').textContent;
-            navigator.clipboard.writeText(code).then(() => {
-                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-                setTimeout(() => btn.innerHTML = '<i class="fas fa-copy"></i> Copy', 2000);
-            });
-        }
-
-        // Active nav highlighting
-        document.querySelectorAll('.nav-item').forEach(link => {
-            link.addEventListener('click', function () {
-                document.querySelectorAll('.nav-item').forEach(l => l.classList.remove('active'));
-                this.classList.add('active');
-            });
-        });
-
-        // Initialize
-        applyTranslations(currentLang);
-    </script>
 </body>
 
 </html>

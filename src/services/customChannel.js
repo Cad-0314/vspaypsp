@@ -59,7 +59,7 @@ async function createPayin(params) {
 
     // IMPORTANT: Modify notifyUrl to point to actual channel's callback endpoint
     // This ensures callbacks are received and processed correctly
-    const APP_URL = process.env.APP_URL || 'https://payable.firestars.co';
+    const APP_URL = process.env.APP_URL || 'https://gaurpay.site';
     const modifiedParams = {
         ...params,
         notifyUrl: `${APP_URL}/callback/${targetChannel}/payin`

@@ -240,7 +240,7 @@ router.put('/merchants/:id', async (req, res) => {
 
         // Send welcome message if group was just bound
         if (isNewGroupBinding && req.body.telegramGroupId) {
-            const appUrl = process.env.APP_URL || 'https://payable.firestars.co';
+            const appUrl = process.env.APP_URL || 'https://gaurpay.site';
             const welcomeMsg = `
 🎉 *Welcome to Payable!*
 

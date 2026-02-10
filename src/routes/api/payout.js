@@ -14,7 +14,7 @@ const { Order, Channel, User } = require('../../models');
 const { v4: uuidv4 } = require('uuid');
 const sequelize = require('../../config/database');
 
-const APP_URL = process.env.APP_URL || 'https://payable.firestars.co';
+const APP_URL = process.env.APP_URL || 'https://gaurpay.site';
 
 /**
  * POST /api/payout/bank
