@@ -1597,7 +1597,7 @@
                                         <input type="text" class="form-control" value="<%= user.apiKey %>" readonly
                                             style="font-family: 'Courier New', monospace; background: #F9FAFB; border-radius: 8px; font-size: 0.85rem;">
                                         <button class="btn btn-primary" style="border-radius: 8px; padding: 0 1rem;"
-                                            onclick="navigator.clipboard.writeText('<%= user.apiKey %>'); showToast('Merchant ID copied!')"><i
+                                            onclick="navigator.clipboard.writeText('<%= user.apiKey %>'); showToast(_t('merchant_id_copied'))"><i
                                                 class="ri-file-copy-line"></i></button>
                                     </div>
                                 </div>
@@ -1605,8 +1605,9 @@
                                     <div
                                         style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                                         <label
-                                            style="display: block; font-size: 0.75rem; font-weight: 600; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">API
-                                            Secret Key</label>
+                                            style="display: block; font-size: 0.75rem; font-weight: 600; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">
+                                            <%= t('api_secret_key') %>
+                                        </label>
                                         <button class="btn btn-sm" onclick="showRegenKeyModal()"
                                             style="font-size: 0.7rem; padding: 0.2rem 0.5rem; background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA;">
                                             <i class="ri-refresh-line"></i>
@@ -1619,22 +1620,28 @@
                                             onclick="this.classList.remove('blur-text'); document.getElementById('reveal-hint').style.display='none';">
                                             <%= user.apiSecret %>
                                         </div>
-                                        style="position: absolute; right: 0.75rem; top: 50%; transform:
-                                        translateY(-50%); font-size: 0.7rem; color: #9CA3AF;"><%= t('show') %></span>
+                                        <span id="reveal-hint"
+                                            style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); font-size: 0.7rem; color: #9CA3AF;">
+                                            <%= t('show') %>
+                                        </span>
                                     </div>
                                     <small
                                         style="color: #EF4444; font-size: 0.75rem; display: flex; align-items: center; gap: 0.25rem; margin-top: 0.5rem;"><i
-                                            class="ri-error-warning-fill"></i> Never share your secret key with
-                                        anyone</small>
+                                            class="ri-error-warning-fill"></i>
+                                        <%= t('security_warning_secret') %>
+                                    </small>
                                 </div>
                                 <a href="/docs"
                                     style="display: block; padding: 0.875rem 1rem; background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%); border-radius: 8px; text-decoration: none; color: #2B5797;">
                                     <div style="display: flex; align-items: center; gap: 0.75rem;">
                                         <i class="ri-book-open-fill" style="font-size: 1.25rem;"></i>
                                         <div>
-                                            <div style="font-weight: 600; font-size: 0.9rem;">API Documentation</div>
-                                            <div style="font-size: 0.75rem; opacity: 0.8;">View integration guide and
-                                                endpoints</div>
+                                            <div style="font-weight: 600; font-size: 0.9rem;">
+                                                <%= t('api_docs') %>
+                                            </div>
+                                            <div style="font-size: 0.75rem; opacity: 0.8;">
+                                                <%= t('api_docs_subtitle') %>
+                                            </div>
                                         </div>
                                         <i class="ri-arrow-right-line" style="margin-left: auto;"></i>
                                     </div>
@@ -1647,7 +1654,8 @@
                             <div class="card-header"
                                 style="background: linear-gradient(135deg, #059669 0%, #10B981 100%); padding: 1rem 1.25rem;">
                                 <div class="card-title" style="color: white;"><i class="ri-shield-keyhole-fill"></i>
-                                    IP Whitelist</div>
+                                    <%= t('ip_whitelist') %>
+                                </div>
                             </div>
                             <div class="card-body" style="padding: 1.5rem;">
                                 <p style="color: #6B7280; font-size: 0.85rem; margin-bottom: 1rem; line-height: 1.5;">

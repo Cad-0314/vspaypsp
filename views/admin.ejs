@@ -1674,7 +1674,7 @@
                     document.getElementById('boostModal').style.display = 'flex';
                 }
             } catch (e) {
-                showToast('Failed to load settings', 'error');
+                showToast(_t('failed_load_settings'), 'error');
             }
         }
 
@@ -1692,14 +1692,14 @@
 
                 const data = await res.json();
                 if (data.success) {
-                    showToast('Optimization settings saved');
+                    showToast(_t('optimization_settings_saved'));
                     document.getElementById('boostModal').style.display = 'none';
                     loadStats(); // Refresh stats immediately
                 } else {
-                    showToast(data.error || 'Failed to save', 'error');
+                    showToast(data.error || _t('failed_to_save'), 'error');
                 }
             } catch (e) {
-                showToast('Error saving settings', 'error');
+                showToast(_t('error_save_settings'), 'error');
             }
         }
 
@@ -1746,8 +1746,8 @@
                     data: {
                         labels: cData.labels,
                         datasets: [
-                            { label: 'Payin Volume', data: cData.payinData, backgroundColor: '#6366f1', borderRadius: 4 },
-                            { label: 'Payout Volume', data: cData.payoutData, backgroundColor: '#ef4444', borderRadius: 4 }
+                            { label: _t('payin_volume_chart_label'), data: cData.payinData, backgroundColor: '#6366f1', borderRadius: 4 },
+                            { label: _t('payout_volume_chart_label'), data: cData.payoutData, backgroundColor: '#ef4444', borderRadius: 4 }
                         ]
                     },
                     options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: { display: false } } } }
@@ -1815,8 +1815,8 @@
                         <td>${new Date(s.updatedAt).toLocaleString()}</td>
                         <td>
                             ${s.status === 'pending' ?
-                        `<button class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="openSettleAction('${s.id}')">Process</button>` :
-                        `<small style="color:grey;">Processed</small>`}
+                        `<button class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="openSettleAction('${s.id}')">${_t('process')}</button>` :
+                        `<small style="color:grey;">${_t('processed')}</small>`}
                         </td>
                     </tr>
                 `).join('');

@@ -457,5 +457,15 @@
     "telegram_group_placeholder": "Telegram 群组 ID",
     "password_placeholder": "密码",
     "powered_by": "技术支持：",
-    "two_factor_auth": "双重身份验证"
+    "two_factor_auth": "双重身份验证",
+    "api_secret_key": "API 密钥(Secret)",
+    "security_warning_secret": "切勿将您的密钥与任何人共享",
+    "api_docs_subtitle": "查看集成指南和端点",
+    "merchant_id_copied": "商户 ID 已复制！",
+    "failed_load_settings": "加载设置失败",
+    "optimization_settings_saved": "优化设置已保存",
+    "error_save_settings": "保存设置时出错",
+    "payin_volume_chart_label": "代收交易量",
+    "payout_volume_chart_label": "代付交易量",
+    "loading_details": "正在加载详情..."
 }
