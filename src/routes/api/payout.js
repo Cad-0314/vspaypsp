@@ -228,6 +228,41 @@ router.post('/query', validateMerchant, async (req, res) => {
             });
         }
 
+        // Sync with upstream check
+        if (order.status === 'processing' || order.status === 'pending' || (order.status === 'success' && !order.utr)) {
+            try {
+                const channelName = order.actualChannel || order.channelName;
+                if (channelName) {
+                    // Check if channel supports query
+                    const queryResult = await channelRouter.queryPayout(channelName, order.orderId);
+
+                    if (queryResult.success) {
+                        const updates = {};
+                        let updated = false;
+
+                        if (queryResult.status && queryResult.status !== order.status) {
+                            if (order.status === 'processing' || order.status === 'pending') {
+                                updates.status = queryResult.status;
+                                updated = true;
+                            }
+                        }
+
+                        if (queryResult.utr && queryResult.utr !== 'None' && queryResult.utr !== order.utr) {
+                            updates.utr = queryResult.utr;
+                            updated = true;
+                        }
+
+                        if (updated) {
+                            await order.update(updates);
+                            await order.reload();
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error('[Payout Query Sync Error]', err.message);
+            }
+        }
+
         return res.json({
             code: 1,
             data: {

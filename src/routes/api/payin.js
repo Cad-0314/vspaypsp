@@ -228,6 +228,55 @@ router.post('/query', validateMerchant, async (req, res) => {
             });
         }
 
+        // Sync with upstream if order is not finalized or if we want to ensure latest UTR
+        // For performance, maybe only if pending? Or always?
+        // Let's sync if status is pending or if UTR is missing but status is success
+        if (order.status === 'pending' || (order.status === 'success' && !order.utr)) {
+            try {
+                // Get channel config
+                const channelName = order.actualChannel || order.channelName;
+                if (channelName) {
+                    const queryResult = await channelRouter.queryPayin(channelName, order.orderId);
+
+                    if (queryResult.success) {
+                        const updates = {};
+                        let updated = false;
+
+                        // Update status if changed
+                        if (queryResult.status && queryResult.status !== order.status) {
+                            // Only update if moving forward (pending -> success/failed)
+                            // or if we trust the upstream strictly
+                            if (order.status === 'pending') {
+                                updates.status = queryResult.status;
+                                updated = true;
+                            }
+                        }
+
+                        // Update UTR if available and not set
+                        if (queryResult.utr && queryResult.utr !== 'None' && queryResult.utr !== order.utr) {
+                            updates.utr = queryResult.utr;
+                            updated = true;
+                        }
+
+                        // Update amount if available (and valid)
+                        if (queryResult.amount && parseFloat(queryResult.amount) > 0 && parseFloat(queryResult.amount) !== parseFloat(order.amount)) {
+                            // Optional: Upate actual amount received? For now let's just log or store in metadata if needed.
+                            // But strict updates might be risky. Let's keep UTR and Status focus.
+                        }
+
+                        if (updated) {
+                            await order.update(updates);
+                            // Refresh order object
+                            await order.reload();
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error('[Payin Query Sync Error]', err.message);
+                // Continue to return DB state if sync fails
+            }
+        }
+
         return res.json({
             status: 'success',
             timestamp: new Date().toISOString(),

@@ -126,7 +126,8 @@ async function queryPayin(orderId) {
                 orderId: data.orderId,
                 status: mapPayinStatus(data.status),
                 amount: data.amount, // Actual amount received
-                commission: data.commission
+                commission: data.commission,
+                utr: data.utr
             };
         } else {
             return { success: false, error: response.data.msg || 'Query failed' };

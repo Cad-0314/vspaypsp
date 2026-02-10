@@ -142,6 +142,98 @@ const caipayService = {
         return receivedSign === calculatedSign;
     },
 
+    // Query Payin Status
+    queryPayin: async (orderId) => {
+        try {
+            const params = {
+                token: TOKEN,
+                tenantId: MERCHANT_ID,
+                customerOrderNo: orderId
+            };
+
+            params.signKey = generateSignature(params);
+
+            const queryString = new URLSearchParams(params).toString();
+            // Using searchPayInResult endpoint as per documentation
+            const url = `${BASE_URL}/searchPayInResult?${queryString}`;
+
+            console.log('[CaiPay] Querying Payin:', url);
+            const response = await httpClient.get(url);
+            // console.log('[CaiPay] Query Payin Response:', response.data);
+
+            if (response.data.code === 0 && response.data.ok) {
+                const data = response.data.data;
+                const statusMap = {
+                    'SUCCESS': 'success',
+                    'FAILED': 'failed',
+                    'PENDING': 'pending'
+                };
+
+                return {
+                    success: true,
+                    status: statusMap[data.status] || 'pending',
+                    providerOrderId: data.platOrderNo,
+                    amount: data.actualAmount || data.amount,
+                    utr: data.utr !== 'None' ? data.utr : null,
+                    raw: response.data
+                };
+            } else {
+                return { success: false, error: response.data.msg || 'Query Failed' };
+            }
+        } catch (error) {
+            console.error('[CaiPay] Query Payin Error:', error.message);
+            return { success: false, error: error.message };
+        }
+    },
+
+    // Query Payout Status
+    queryPayout: async (orderId) => {
+        try {
+            const params = {
+                token: TOKEN,
+                tenantId: MERCHANT_ID,
+                customerOrderNo: orderId
+            };
+
+            params.signKey = generateSignature(params);
+
+            const queryString = new URLSearchParams(params).toString();
+            // Using searchPayOutResult endpoint as per documentation
+            const url = `${BASE_URL}/searchPayOutResult?${queryString}`;
+
+            console.log('[CaiPay] Querying Payout:', url);
+            const response = await httpClient.get(url);
+            // console.log('[CaiPay] Query Payout Response:', response.data);
+
+            if (response.data.code === 0 && response.data.ok) {
+                const data = response.data.data;
+                const statusMap = {
+                    'SUCCESS': 'success',
+                    'FAILED': 'failed',
+                    'PENDING': 'pending'
+                };
+
+                // data.utr might be 'None' or actual UTR
+                let utr = data.utr;
+                if (utr === 'None') utr = null;
+
+                return {
+                    success: true,
+                    status: statusMap[data.status] || 'pending',
+                    providerOrderId: data.platOrderNo,
+                    amount: data.actualAmount || data.amount,
+                    utr: utr,
+                    raw: response.data
+                };
+            } else {
+                return { success: false, error: response.data.msg || 'Query Failed' };
+            }
+        } catch (error) {
+            console.error('[CaiPay] Query Payout Error:', error.message);
+            return { success: false, error: error.message };
+        }
+    },
+
     // Alias for channelRouter compatibility
     verifySign: function (params) {
         return this.verifySignature(params);

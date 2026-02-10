@@ -187,6 +187,80 @@ const fendpayService = {
         }
     },
 
+    // Query Payin Status
+    queryPayin: async (orderId) => {
+        try {
+            const params = {
+                merchantNumber: MERCHANT_ID,
+                outTradeNo: orderId
+            };
+            params.sign = generateSignature(params);
+
+            console.log('[FendPay] Querying Payin:', params);
+            const response = await httpClient.post(`${BASE_URL}/pay/query`, params);
+            console.log('[FendPay] Query Payin Response:', response.data);
+
+            if (response.data.code == 200) {
+                const data = response.data.data;
+                // status: 1 = success, others failed
+                let mappedStatus = 'pending';
+                if (data.status === 1) mappedStatus = 'success';
+
+                return {
+                    success: true,
+                    status: mappedStatus,
+                    providerOrderId: data.orderNo,
+                    amount: data.amount,
+                    utr: data.utr,
+                    raw: response.data
+                };
+            } else {
+                return { success: false, error: response.data.msg || 'Query Failed' };
+            }
+        } catch (error) {
+            console.error('[FendPay] Query Payin Error:', error.message);
+            return { success: false, error: error.message };
+        }
+    },
+
+    // Query Payout Status
+    queryPayout: async (orderId) => {
+        try {
+            const params = {
+                merchantNumber: MERCHANT_ID,
+                outTradeNo: orderId
+            };
+            params.sign = generateSignature(params);
+
+            console.log('[FendPay] Querying Payout:', params);
+            const response = await httpClient.post(`${BASE_URL}/pay/queryPayout`, params);
+            console.log('[FendPay] Query Payout Response:', response.data);
+
+            if (response.data.code == 200) {
+                const data = response.data.data;
+                // status: 0 = processing, 1 = success, others failed
+                let mappedStatus = 'pending';
+                if (data.status === 1) mappedStatus = 'success';
+                else if (data.status === 0) mappedStatus = 'processing';
+                else mappedStatus = 'failed';
+
+                return {
+                    success: true,
+                    status: mappedStatus,
+                    providerOrderId: data.orderNo,
+                    amount: data.amount,
+                    utr: data.utr,
+                    raw: response.data
+                };
+            } else {
+                return { success: false, error: response.data.msg || 'Query Failed' };
+            }
+        } catch (error) {
+            console.error('[FendPay] Query Payout Error:', error.message);
+            return { success: false, error: error.message };
+        }
+    },
+
     // Verify Callback Signature
     verifySignature: (params) => {
         const receivedSign = params.sign;

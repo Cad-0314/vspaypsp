@@ -138,7 +138,8 @@ async function queryPayin(orderId) {
                 success: true,
                 orderId: order.accountOrder,
                 providerOrderId: order.orderId,
-                status: mapPayinStatus(order.status)
+                status: mapPayinStatus(order.status),
+                utr: order.utr // Map UTR if available
             };
         } else {
             return { success: false, error: response.data.desc || 'Order not found' };
@@ -259,7 +260,8 @@ async function queryPayout(orderId) {
                 success: true,
                 orderId: order.accountOrder,
                 providerOrderId: order.orderId,
-                status: mapPayoutStatus(order.status)
+                status: mapPayoutStatus(order.status),
+                utr: order.utr // Map UTR if available
             };
         } else {
             return { success: false, error: response.data.desc || 'Order not found' };
