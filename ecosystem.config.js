@@ -1,6 +1,6 @@
 module.exports = {
     apps: [{
-        name: 'payable-api',
+        name: 'gaurpay-api',
         script: 'server.js',
         instances: 'max', // Uses all CPU cores
         exec_mode: 'cluster',

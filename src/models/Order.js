@@ -20,7 +20,7 @@ const Order = sequelize.define('Order', {
     channelName: {
         type: DataTypes.STRING(50),
         allowNull: false,
-        comment: 'Channel: hdpay, x2, payable'
+        comment: 'Channel: hdpay, x2, gaurpay'
     },
     type: {
         type: DataTypes.ENUM('payin', 'payout'),

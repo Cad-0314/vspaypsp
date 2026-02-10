@@ -1,6 +1,6 @@
 /**
  * Silkpay API Service
- * Provider for Payable channel/Silkpay
+ * Provider for GaurPay channel/Silkpay
  * Updated to use V2 endpoints and specific signature logic
  */
 

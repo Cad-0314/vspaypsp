@@ -115,7 +115,7 @@ async function validateMerchant(req, res, next) {
         // Attach merchant to request
         req.merchant = merchant;
 
-        // Set distinctive Payable API headers
+        // Set distinctive GaurPay API headers
         res.set({
             'X-Powered-By': 'Gaur-Pay-Gateway/2.1',
             'X-Api-Version': '2.1.0',

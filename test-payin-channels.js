@@ -50,16 +50,16 @@ async function testChannels() {
         results.push({ channel: 'UPI Super', success: false, error: e.message });
     }
 
-    // 5. Silkpay (Payable)
+    // 5. Silkpay (GaurPay)
     try {
-        console.log('\nTesting Silkpay (Payable)...');
-        const order = { ...baseOrder, notifyUrl: `${BASE_URL}/callback/payable/payin` };
+        console.log('\nTesting Silkpay (GaurPay)...');
+        const order = { ...baseOrder, notifyUrl: `${BASE_URL}/callback/gaurpay/payin` };
         const res = await silkpayService.createPayin(order);
         console.log('Silkpay Result:', JSON.stringify(res, null, 2));
-        results.push({ channel: 'Payable', success: res.success, data: res, error: res.error });
+        results.push({ channel: 'GaurPay', success: res.success, data: res, error: res.error });
     } catch (e) {
         console.error('Silkpay Error:', e.message);
-        results.push({ channel: 'Payable', success: false, error: e.message });
+        results.push({ channel: 'GaurPay', success: false, error: e.message });
     }
 
     // 6. CKPay

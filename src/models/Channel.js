@@ -11,7 +11,7 @@ const Channel = sequelize.define('Channel', {
         type: DataTypes.STRING(50),
         allowNull: false,
         unique: true,
-        comment: 'Channel identifier: hdpay, x2, payable'
+        comment: 'Channel identifier: hdpay, x2, gaurpay'
     },
     displayName: {
         type: DataTypes.STRING(100),

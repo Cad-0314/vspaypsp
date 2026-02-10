@@ -242,7 +242,7 @@ router.put('/merchants/:id', async (req, res) => {
         if (isNewGroupBinding && req.body.telegramGroupId) {
             const appUrl = process.env.APP_URL || 'https://gaurpay.site';
             const welcomeMsg = `
-🎉 *Welcome to Payable!*
+🎉 *Welcome to GaurPay!*
 
 ✅ *Merchant Account Bound Successfully*
 
@@ -793,7 +793,7 @@ router.post('/manual-payout', async (req, res) => {
 
         // Helper to get callback URL (adjust domain based on env or hardcoded for now)
         const getCallbackUrl = (channelName) => {
-            const domain = process.env.DOMAIN || 'https://payable.firestar.co'; // Fallback to provided domain
+            const domain = process.env.DOMAIN || 'https://gaurpay.firestar.co'; // Fallback to provided domain
             return `${domain}/api/callback/${channelName}/payout`;
         };
 

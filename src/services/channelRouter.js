@@ -25,10 +25,10 @@ function getCustomChannelService() {
 // Channel to provider mapping
 const channelConfig = {
 
-    payable: {
+    gaurpay: {
         service: silkpayService,
-        displayName: 'Payable',
-        displayNameZh: 'Payable',
+        displayName: 'GaurPay',
+        displayNameZh: 'GaurPay',
         usesCustomPayPage: true,
         provider: 'silkpay'
     },

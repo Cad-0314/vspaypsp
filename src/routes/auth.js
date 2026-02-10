@@ -113,7 +113,7 @@ router.get('/2fa-setup', async (req, res) => {
     const secret = req.session.tempSecret;
     const serverTime = new Date().toISOString();
 
-    qrcode.toDataURL(otplib.authenticator.keyuri(req.session.tempUser.username, 'Payable', secret), (err, data_url) => {
+    qrcode.toDataURL(otplib.authenticator.keyuri(req.session.tempUser.username, 'GaurPay', secret), (err, data_url) => {
         res.render('2fa-setup', {
             qr_code: data_url,
             secret: secret,
@@ -167,7 +167,7 @@ router.post('/2fa-setup', async (req, res) => {
     } else {
         // Keep the SAME secret and show error
         const serverTime = new Date().toISOString();
-        qrcode.toDataURL(otplib.authenticator.keyuri(req.session.tempUser.username, 'Payable', secret), (err, data_url) => {
+        qrcode.toDataURL(otplib.authenticator.keyuri(req.session.tempUser.username, 'GaurPay', secret), (err, data_url) => {
             res.render('2fa-setup', {
                 qr_code: data_url,
                 secret: secret,

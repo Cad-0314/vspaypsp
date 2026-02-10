@@ -13,9 +13,9 @@ async function seedDatabase() {
         const channels = [
 
             {
-                name: 'payable',
-                displayName: 'Payable',
-                displayNameZh: 'Payable',
+                name: 'gaurpay',
+                displayName: 'GaurPay',
+                displayNameZh: 'GaurPay',
                 provider: 'silkpay',
                 payinRate: 5.00,
                 payoutRate: 3.00,

@@ -25,7 +25,7 @@ const init = (token) => {
         // /start command
         bot.onText(/\/start/, (msg) => {
             const chatId = msg.chat.id;
-            bot.sendMessage(chatId, `👋 *Hello! Welcome to Payable Support Bot.*\n\n🚀 I'm here to assist you with your transactions.\nUse /id to get this group's ID for merchant binding.\n\n_Powered by Payable_`, { parse_mode: 'Markdown' });
+            bot.sendMessage(chatId, `👋 *Hello! Welcome to GaurPay Support Bot.*\n\n🚀 I'm here to assist you with your transactions.\nUse /id to get this group's ID for merchant binding.\n\n_Powered by GaurPay_`, { parse_mode: 'Markdown' });
         });
 
         // /help command

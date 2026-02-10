@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const search = 'payable.firestars.co';
+const search = 'gaurpay.firestars.co';
 const replace = 'gaurpay.site';
 const rootDir = path.resolve(__dirname, '..');
 

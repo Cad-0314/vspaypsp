@@ -3,7 +3,7 @@
  * 
  * This script initiates bank payouts from:
  * - F2Pay (X2 channel): ₹40,500 net
- * - Silkpay (Payable channel): ₹14,500 net
+ * - Silkpay (GaurPay channel): ₹14,500 net
  * 
  * Target Account:
  * - Account No: 9250024712
@@ -37,7 +37,7 @@ const PAYOUTS = [
     },
     {
         provider: 'silkpay',
-        channelName: 'Payable',
+        channelName: 'GaurPay',
         amount: 14500,
         service: silkpay
     }

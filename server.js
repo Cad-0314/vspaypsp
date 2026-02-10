@@ -71,7 +71,7 @@ app.use(express.json());
 
 // Session
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'secret_key_payable_backend',
+    secret: process.env.SESSION_SECRET || 'secret_key_gaurpay_backend',
     resave: false,
     saveUninitialized: false
 }));
@@ -88,7 +88,7 @@ app.use(passport.session());
 app.use(flash());
 
 // ============================================
-// API Routes (Payable Merchant API)
+// API Routes (GaurPay Merchant API)
 // ============================================
 app.use('/api/payin', payinRoutes);
 app.use('/api/payout', payoutRoutes);

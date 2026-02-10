@@ -1,4 +1,4 @@
-Payable API
+GaurPay API
 
 🇺🇸
 EN
@@ -18,7 +18,7 @@ Payout Callback
 Utilities
 Check Balance
 Introduction
-Welcome to the Payable Payment Gateway API. This documentation provides a comprehensive guide to integrating our secure payment solutions.
+Welcome to the GaurPay Payment Gateway API. This documentation provides a comprehensive guide to integrating our secure payment solutions.
 
 Version 2.1
 Base URL https://gaurpay.site

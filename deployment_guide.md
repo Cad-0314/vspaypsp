@@ -1,4 +1,4 @@
-# Deployment Guide: Payable PSP
+# Deployment Guide: GaurPay PSP
 
 ## 1. System Requirements
 - **Node.js**: v16 or higher (LTS recommended)
@@ -22,7 +22,7 @@ To run this project on a fresh server:
 3. **Install & Start**:
    ```bash
    npm install
-   pm2 start server.js --name "payable"
+   pm2 start server.js --name "gaurpay"
    ```
 
 ## 3. Workflow for Frequent Updates
@@ -34,7 +34,7 @@ For rapid iteration, use this automation script.
    echo "🚀 Deploying updates..."
    git pull origin main
    npm install --production
-   pm2 reload payable --update-env
+   pm2 reload gaurpay --update-env
    echo "✅ Deployment complete!"
    ```
 2. **Make executable**: `chmod +x deploy.sh`
@@ -46,7 +46,7 @@ To handle high traffic and ensure stability:
 ### PM2 Cluster Mode (Multi-Core)
 Utilize all CPU cores by running in cluster mode:
 ```bash
-pm2 start server.js -i max --name "payable"
+pm2 start server.js -i max --name "gaurpay"
 ```
 *Note: Ensure your `SESSION_SECRET` is consistent. For multi-server setups, use Redis for sessions.*
 

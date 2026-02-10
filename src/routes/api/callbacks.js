@@ -131,7 +131,7 @@ router.post('/:channel/payin', async (req, res) => {
         // Extract order info based on provider format
         let orderId, status, utr, actualAmount, providerOrderId;
 
-        if (channelName === 'payable' || channelName === 'silkpay') {
+        if (channelName === 'gaurpay' || channelName === 'silkpay') {
             // Silkpay V2 uses mOrderId for merchant order ID
             orderId = req.body.mOrderId || req.body.orderId;
             status = req.body.status === 1 || req.body.status === '1' ? 'success' :
@@ -336,7 +336,7 @@ router.post('/:channel/payout', async (req, res) => {
         let orderId, status, utr, providerOrderId;
 
         // ... Extraction logic remains essentially the same, but simplified for brevity in this replace ...
-        if (channelName === 'payable' || channelName === 'silkpay') {
+        if (channelName === 'gaurpay' || channelName === 'silkpay') {
             // Silkpay V2 payout callback uses mOrderId for merchant order ID
             // PAYOUT status codes: 1=processing, 2=success (with UTR), 3=failed
             orderId = req.body.mOrderId || req.body.orderId;

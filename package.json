@@ -1,5 +1,5 @@
 {
-  "name": "payablepsp",
+  "name": "gaurpaypsp",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -7,9 +7,9 @@
     "start": "node server.js",
     "dev": "node server.js",
     "pm2:start": "pm2 start ecosystem.config.js",
-    "pm2:stop": "pm2 stop payable-api",
-    "pm2:restart": "pm2 restart payable-api",
-    "pm2:logs": "pm2 logs payable-api",
+    "pm2:stop": "pm2 stop gaurpay-api",
+    "pm2:restart": "pm2 restart gaurpay-api",
+    "pm2:logs": "pm2 logs gaurpay-api",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
