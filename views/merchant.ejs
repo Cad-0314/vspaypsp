@@ -785,9 +785,10 @@
 </head>
 
 <body>
+    <script id="translations-data" type="application/json"><%- JSON.stringify(allTranslations) %></script>
     <script>
         // Client-side translation system
-        const __translations = <% - allTranslations %>;
+        const __translations = JSON.parse(document.getElementById('translations-data').textContent);
         const __currentLang = '<%= currentLang %>';
         function _t(key, params) {
             let text = (__translations[__currentLang] && __translations[__currentLang][key]) || (__translations['en'] && __translations['en'][key]) || key;

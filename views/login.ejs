@@ -448,6 +448,7 @@
                 </div>
     </div>
 
+    <script id="translations-data" type="application/json"><%- JSON.stringify(allTranslations || {}) %></script>
     <script>
         const form = document.getElementById('loginForm');
         const submitBtn = document.getElementById('submitBtn');
@@ -458,7 +459,7 @@
         const credentialsSection = document.getElementById('credentials-section');
 
         // Client-side translation helper
-        const translations = <% - JSON.stringify(allTranslations || {}) %>;
+        const translations = JSON.parse(document.getElementById('translations-data').textContent);
         function _t(key) {
             return translations[key] || key;
         }

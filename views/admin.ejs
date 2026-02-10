@@ -1611,10 +1611,11 @@
         </div>
     </div>
 
+    <script id="translations-data" type="application/json"><%- JSON.stringify(allTranslations) %></script>
     <script>
 
         // Inject translations
-        window.allTranslations = <% - JSON.stringify(allTranslations) %>;
+        window.allTranslations = JSON.parse(document.getElementById('translations-data').textContent);
 
         // Client-side translation helper
         function _t(key, params = {}) {
