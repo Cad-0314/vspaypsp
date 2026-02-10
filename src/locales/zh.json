@@ -441,5 +441,21 @@
     "network_error": "网络错误",
     "regenerate_desc": "输入2FA验证码以生成新密钥。旧密钥将立即失效。",
     "order_details": "交易详情",
-    "pay_now": "立即支付"
+    "pay_now": "立即支付",
+    "login_success": "登录成功！正在跳转...",
+    "login_failed": "登录失败",
+    "connection_error": "连接错误，请重试。",
+    "verify_login": "验证并登录",
+    "enter_auth_code": "请输入您的验证码",
+    "secret_key_label": "密钥（请准确复制）：",
+    "copy_secret_success": "密钥已复制！现在请将其添加到您的验证器应用中。",
+    "copy_secret_fallback": "按 Ctrl+C 复制",
+    "payin_percentage_placeholder": "代收 %",
+    "payout_percentage_placeholder": "代付 %",
+    "fixed_fee_placeholder": "固定费用",
+    "usdt_percentage_placeholder": "USDT %",
+    "telegram_group_placeholder": "Telegram 群组 ID",
+    "password_placeholder": "密码",
+    "powered_by": "技术支持：",
+    "two_factor_auth": "双重身份验证"
 }

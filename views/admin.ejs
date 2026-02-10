@@ -954,41 +954,68 @@
                     <div
                         style="display: flex; justify-content: space-between; align-items:center; margin-bottom: 1rem;">
                         <div>
-                            <h1>Merchants</h1>
-                            <div class="subtitle" style="margin-bottom:0">Manage registered merchants.</div>
+                            <h1>
+                                <%= t('merchants') %>
+                            </h1>
+                            <div class="subtitle" style="margin-bottom:0">
+                                <%= t('merchants_subtitle') %>
+                            </div>
                         </div>
                         <button class="btn btn-success" onclick="openMerchantModal()"><i class="ri-add-line"></i>
-                            Add
-                            Merchant</button>
+                            <%= t('add_merchant') %>
+                        </button>
                     </div>
                     <div class="card">
                         <div style="padding: 1rem; border-bottom: 1px solid #F3F4F6; display:flex; gap:1rem;">
-                            <input type="text" id="merchant-search" placeholder="Search by Username or API Key..."
+                            <input type="text" id="merchant-search"
+                                placeholder="<%= t('search_merchant_placeholder') %>"
                                 style="flex:1; padding: 0.5rem; border: 1px solid #E5E7EB; border-radius: 0.5rem;"
                                 onkeyup="searchMerchants()">
                             <select id="merchant-filter-status"
                                 style="padding: 0.5rem; border: 1px solid #E5E7EB; border-radius: 0.5rem;"
                                 onchange="loadMerchants()">
-                                <option value="">All Status</option>
-                                <option value="true">Active Only</option>
-                                <option value="false">Inactive Only</option>
+                                <option value="">
+                                    <%= t('all_status') %>
+                                </option>
+                                <option value="true">
+                                    <%= t('active_only') %>
+                                </option>
+                                <option value="false">
+                                    <%= t('inactive_only') %>
+                                </option>
                             </select>
                         </div>
                         <table id="merchants-table">
                             <thead>
                                 <tr>
-                                    <th>Username</th>
-                                    <th>API Key</th>
-                                    <th>Channels</th>
-                                    <th>Balance</th>
-                                    <th>Rates</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
+                                    <th>
+                                        <%= t('username') %>
+                                    </th>
+                                    <th>
+                                        <%= t('api_key') %>
+                                    </th>
+                                    <th>
+                                        <%= t('channels') %>
+                                    </th>
+                                    <th>
+                                        <%= t('balance') %>
+                                    </th>
+                                    <th>
+                                        <%= t('rates') %>
+                                    </th>
+                                    <th>
+                                        <%= t('status') %>
+                                    </th>
+                                    <th>
+                                        <%= t('actions') %>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td colspan="7">Loading...</td>
+                                    <td colspan="7">
+                                        <%= t('loading') %>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -997,23 +1024,40 @@
 
                 <!-- Channels -->
                 <div id="tab-channels" class="tab-content">
-                    <h1>Channels</h1>
-                    <div class="subtitle" style="margin-bottom:0">Configure upstream payment channels.</div>
+                    <h1>
+                        <%= t('channels') %>
+                    </h1>
+                    <div class="subtitle" style="margin-bottom:0">
+                        <%= t('channels_subtitle') %>
+                    </div>
                     <button class="btn btn-primary" onclick="analyzeChannels()" id="btn-analyze"
                         style="float:right; margin-top:-2rem;">
-                        <i class="ri-pulse-line"></i> Check Health
+                        <i class="ri-pulse-line"></i>
+                        <%= t('check_health') %>
                     </button>
                     <br style="clear:both; margin-bottom:1rem;">
                     <div class="card">
                         <table id="channels-table">
                             <thead>
                                 <tr>
-                                    <th>Name</th>
-                                    <th>Payin %</th>
-                                    <th>Payout %</th>
-                                    <th>Fixed ₹</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
+                                    <th>
+                                        <%= t('channel_name') %>
+                                    </th>
+                                    <th>
+                                        <%= t('payin_rate') %>
+                                    </th>
+                                    <th>
+                                        <%= t('payout_rate') %>
+                                    </th>
+                                    <th>
+                                        <%= t('fixed_fee') %>
+                                    </th>
+                                    <th>
+                                        <%= t('status') %>
+                                    </th>
+                                    <th>
+                                        <%= t('actions') %>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -1023,38 +1067,55 @@
 
                 <!-- Broadcast -->
                 <div id="tab-broadcast" class="tab-content">
-                    <h1>Broadcast Message</h1>
-                    <div class="subtitle">Send system-wide announcements.</div>
+                    <h1>
+                        <%= t('broadcast_message') %>
+                    </h1>
+                    <div class="subtitle">
+                        <%= t('broadcast_subtitle') %>
+                    </div>
                     <div class="card" style="padding: 2rem; max-width: 600px;">
                         <textarea id="broadcast-msg" rows="4"
                             style="width: 100%; border: 1px solid #E5E7EB; border-radius:0.5rem; padding: 1rem; margin-bottom: 1rem; background:#F9FAFB; font-family:inherit;"
-                            placeholder="Type message..."></textarea>
+                            placeholder="<%= t('type_message') %>"></textarea>
                         <button class="btn btn-primary" onclick="sendBroadcast()"><i class="ri-send-plane-fill"></i>
-                            Send Broadcast</button>
+                            <%= t('send_broadcast') %>
+                        </button>
                     </div>
                 </div>
 
                 <!-- Manual Payout -->
                 <div id="tab-manualpayout" class="tab-content">
-                    <h1>Manual Bank Payout</h1>
-                    <div class="subtitle">Process manual payouts to bank accounts via specific channels.</div>
+                    <h1>
+                        <%= t('manual_bank_payout') %>
+                    </h1>
+                    <div class="subtitle">
+                        <%= t('manual_payout_subtitle') %>
+                    </div>
 
                     <div class="card" style="padding: 2rem; max-width: 800px; margin-bottom: 2rem;">
-                        <h3 style="margin-bottom: 1.5rem;">New Payout Request</h3>
+                        <h3 style="margin-bottom: 1.5rem;">
+                            <%= t('new_payout_request') %>
+                        </h3>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                             <div>
                                 <label
-                                    style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">Amount
-                                    (₹)</label>
+                                    style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">
+                                    <%= t('amount') %>
+                                        (₹)
+                                </label>
                                 <input type="number" id="mp-amount" class="form-control" placeholder="0.00"
                                     style="width:100%; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
                             </div>
                             <div>
                                 <label
-                                    style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">Channel</label>
+                                    style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">
+                                    <%= t('target_channel') %>
+                                </label>
                                 <select id="mp-channel" class="form-control"
                                     style="width:100%; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
-                                    <option value="">Select Payout Channel...</option>
+                                    <option value="">
+                                        <%= t('select_channel') %>
+                                    </option>
                                     <option value="upi super">UPI Super</option>
                                     <option value="gaurpay">GaurPay</option>
                                     <option value="yellow">Yellow</option>
@@ -1067,29 +1128,33 @@
                             </div>
                             <div>
                                 <label
-                                    style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">Bank
-                                    Name</label>
+                                    style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">
+                                    <%= t('bank_name') %>
+                                </label>
                                 <input type="text" id="mp-bank-name" class="form-control" placeholder="e.g. HDFC Bank"
                                     style="width:100%; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
                             </div>
                             <div>
                                 <label
-                                    style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">Account
-                                    Number</label>
+                                    style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">
+                                    <%= t('account_number') %>
+                                </label>
                                 <input type="text" id="mp-acc-num" class="form-control" placeholder="Account Number"
                                     style="width:100%; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
                             </div>
                             <div>
                                 <label
-                                    style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">IFSC
-                                    Code</label>
+                                    style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">
+                                    <%= t('ifsc_code') %>
+                                </label>
                                 <input type="text" id="mp-ifsc" class="form-control" placeholder="IFSC Code"
                                     style="width:100%; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
                             </div>
                             <div>
                                 <label
-                                    style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">Account
-                                    Holder Name</label>
+                                    style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">
+                                    <%= t('account_holder_name') %>
+                                </label>
                                 <input type="text" id="mp-holder-name" class="form-control"
                                     placeholder="Name on Bank Account"
                                     style="width:100%; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
@@ -1098,14 +1163,17 @@
                         </div>
                         <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
                             <button class="btn btn-primary" onclick="submitManualPayout()">
-                                <i class="ri-send-plane-fill"></i> Process Payout
+                                <i class="ri-send-plane-fill"></i>
+                                <%= t('process_payout') %>
                             </button>
                         </div>
                     </div>
 
                     <div class="card">
                         <div class="card-header">
-                            <div class="card-title">Recent Manual Payouts</div>
+                            <div class="card-title">
+                                <%= t('recent_manual_payouts') %>
+                            </div>
                             <button class="btn" onclick="loadManualPayouts()"
                                 style="background:transparent; color:#6B7280;">
                                 <i class="ri-refresh-line"></i>
@@ -1114,17 +1182,31 @@
                         <table id="manual-payouts-table">
                             <thead>
                                 <tr>
-                                    <th>Order ID</th>
-                                    <th>Amount</th>
-                                    <th>Bank Details</th>
-                                    <th>Channel</th>
-                                    <th>Status</th>
-                                    <th>Time</th>
+                                    <th>
+                                        <%= t('order_id') %>
+                                    </th>
+                                    <th>
+                                        <%= t('amount') %>
+                                    </th>
+                                    <th>
+                                        <%= t('bank_details') %>
+                                    </th>
+                                    <th>
+                                        <%= t('target_channel') %>
+                                    </th>
+                                    <th>
+                                        <%= t('status') %>
+                                    </th>
+                                    <th>
+                                        <%= t('time') %>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td colspan="6" style="text-align:center;">Loading...</td>
+                                    <td colspan="6" style="text-align:center;">
+                                        <%= t('loading') %>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1269,33 +1351,43 @@
         style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter:blur(4px); align-items: center; justify-content: center; z-index:100;">
         <div
             style="background: white; padding: 2rem; width: 450px; border-radius: 1rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
-            <h3>Process Settlement</h3>
+            <h3>
+                <%= t('process_settlement') %>
+            </h3>
             <input type="hidden" id="settle-id">
             <div style="margin: 1.5rem 0;">
-                <label style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">UTR /
-                    Transaction ID</label>
+                <label style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">
+                    <%= t('utr_transaction_id') %>
+                </label>
                 <input type="text" id="settle-utr"
                     style="width: 100%; padding: 0.75rem; border: 1px solid #E5E7EB; border-radius:0.5rem;">
             </div>
             <div style="margin-bottom: 1.5rem;">
-                <label style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">Notes</label>
+                <label style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">
+                    <%= t('notes') %>
+                </label>
                 <textarea id="settle-notes"
                     style="width: 100%; padding: 0.75rem; border: 1px solid #E5E7EB; border-radius:0.5rem;"></textarea>
             </div>
             <div style="display: flex; gap: 1rem;">
                 <button class="btn btn-success" onclick="processSettlement('completed')"
-                    style="flex: 1; justify-content:center;">Approve</button>
+                    style="flex: 1; justify-content:center;">
+                    <%= t('approve') %>
+                </button>
                 <button class="btn btn-danger" onclick="processSettlement('rejected')"
-                    style="flex: 1; justify-content:center;">Reject</button>
+                    style="flex: 1; justify-content:center;">
+                    <%= t('reject') %>
+                </button>
                 <button class="btn" onclick="document.getElementById('settleActionModal').style.display='none'"
-                    style="flex: 1; justify-content:center; background:#F3F4F6;">Cancel</button>
+                    style="flex: 1; justify-content:center; background:#F3F4F6;">
+                    <%= t('cancel') %>
+                </button>
             </div>
             <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #F3F4F6;">
-                <label
-                    style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.875rem; color:var(--danger);">2FA
-                    TOTP Code (Required)</label>
-                <input type="text" id="settle-totp" placeholder="Enter 6-digit code"
-                    style="width: 100%; padding: 0.75rem; border: 2px solid #FEE2E2; border-radius:0.5rem; text-align:center; font-weight:bold; letter-spacing:4px;">
+                style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.875rem; color:var(--danger);">
+                <%= t('2fa_totp_required') %></label>
+                    <input type="text" id="settle-totp" placeholder="Enter 6-digit code"
+                        style="width: 100%; padding: 0.75rem; border: 2px solid #FEE2E2; border-radius:0.5rem; text-align:center; font-weight:bold; letter-spacing:4px;">
             </div>
         </div>
     </div>
@@ -1305,30 +1397,43 @@
         style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); backdrop-filter:blur(4px); align-items:center; justify-content:center; z-index:100;">
         <div
             style="background:white; padding:2rem; width:450px; border-radius:1rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
-            <h3 style="margin-bottom:1.5rem;">System Optimization</h3>
+            <h3 style="margin-bottom:1.5rem;">
+                <%= t('system_optimization') %>
+            </h3>
             <div style="margin-bottom: 1.5rem;">
                 <label style="display:flex; align-items:center; gap:0.5rem; font-weight:500; cursor:pointer;">
-                    <input type="checkbox" id="boost-enabled"> Enable Optimization
+                    <input type="checkbox" id="boost-enabled">
+                    <%= t('enable_optimization') %>
                 </label>
             </div>
             <div style="margin-bottom: 1rem;">
-                <label style="display:block; margin-bottom:0.5rem; font-size:0.875rem;">Success Count Adjustment</label>
+                <label style="display:block; margin-bottom:0.5rem; font-size:0.875rem;">
+                    <%= t('success_count_adj') %>
+                </label>
                 <input type="number" id="boost-count" placeholder="0" class="form-control"
                     style="width:100%; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
-                <p style="font-size:0.75rem; color:#6B7280; margin-top:0.25rem;">Additional successful transactions to
-                    display.</p>
+                <p style="font-size:0.75rem; color:#6B7280; margin-top:0.25rem;">
+                    <%= t('success_count_adj_desc') %>
+                </p>
             </div>
             <div style="margin-bottom: 1.5rem;">
-                <label style="display:block; margin-bottom:0.5rem; font-size:0.875rem;">Volume Adjustment</label>
+                <label style="display:block; margin-bottom:0.5rem; font-size:0.875rem;">
+                    <%= t('volume_adj') %>
+                </label>
                 <input type="number" id="boost-volume" placeholder="0.00" class="form-control"
                     style="width:100%; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
-                <p style="font-size:0.75rem; color:#6B7280; margin-top:0.25rem;">Additional volume to display.</p>
+                <p style="font-size:0.75rem; color:#6B7280; margin-top:0.25rem;">
+                    <%= t('volume_adj_desc') %>
+                </p>
             </div>
             <div style="display:flex; gap:1rem;">
-                <button class="btn btn-primary" onclick="saveBoostSettings()"
-                    style="flex:1; justify-content:center;">Save</button>
+                <button class="btn btn-primary" onclick="saveBoostSettings()" style="flex:1; justify-content:center;">
+                    <%= t('save') %>
+                </button>
                 <button class="btn" onclick="document.getElementById('boostModal').style.display='none'"
-                    style="flex:1; justify-content:center; background:#F3F4F6;">Cancel</button>
+                    style="flex:1; justify-content:center; background:#F3F4F6;">
+                    <%= t('cancel') %>
+                </button>
             </div>
         </div>
     </div>
@@ -1338,18 +1443,23 @@
         style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); backdrop-filter:blur(4px); align-items:center; justify-content:center; z-index:100;">
         <div
             style="background:white; padding:2rem; width:500px; border-radius:1rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
-            <h3 style="margin-bottom:1.5rem;">Add/Edit Merchant</h3>
+            <h3 style="margin-bottom:1.5rem;">
+                <%= t('add_edit_merchant') %>
+            </h3>
             <form id="merchantForm">
                 <input type="hidden" id="m-id">
-                <input type="text" id="m-username" placeholder="Username"
+                <input type="text" id="m-username" placeholder="<%= t('username') %>"
                     style="width:100%; margin-bottom:0.75rem; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
-                <input type="password" id="m-password" placeholder="Password (optional, default: username@777)"
+                <input type="password" id="m-password" placeholder="<%= t('password_placeholder') %>"
                     style="width:100%; margin-bottom:0.75rem; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
-                <label style="display:block; margin-bottom:0.25rem; font-size:0.875rem; color:#6B7280;">Payin
-                    Channel</label>
+                <label style="display:block; margin-bottom:0.25rem; font-size:0.875rem; color:#6B7280;">
+                    <%= t('payin_channel') %>
+                </label>
                 <select id="m-payin-channel"
                     style="width:100%; margin-bottom:0.75rem; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
-                    <option value="">Select Payin Channel...</option>
+                    <option value="">
+                        <%= t('select_channel') %>
+                    </option>
                     <option value="aapay">AA Pay</option>
                     <option value="gaurpay">GaurPay</option>
                     <option value="yellow">Yellow</option>
@@ -1361,11 +1471,14 @@
                     <option value="smart">Smart (智能支付)</option>
                 </select>
 
-                <label style="display:block; margin-bottom:0.25rem; font-size:0.875rem; color:#6B7280;">Payout
-                    Channel</label>
+                <label style="display:block; margin-bottom:0.25rem; font-size:0.875rem; color:#6B7280;">
+                    <%= t('payout_channel') %>
+                </label>
                 <select id="m-payout-channel"
                     style="width:100%; margin-bottom:0.75rem; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
-                    <option value="">Select Payout Channel...</option>
+                    <option value="">
+                        <%= t('select_channel') %>
+                    </option>
                     <option value="aapay">AA Pay</option>
                     <option value="gaurpay">GaurPay</option>
                     <option value="yellow">Yellow</option>
@@ -1375,29 +1488,32 @@
                     <option value="cxpay">CX Pay</option>
                     <option value="ipay">IPay</option>
                 </select>
-                <input type="text" id="m-telegramGroup" placeholder="Telegram Group ID (e.g. -100123456789)"
+                <input type="text" id="m-telegramGroup" placeholder="<%= t('telegram_group_placeholder') %>"
                     style="width:100%; margin-bottom:0.75rem; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem;">
-                    <input type="number" id="m-payin" placeholder="Payin %" value="5"
+                    <input type="number" id="m-payin" placeholder="<%= t('payin_percentage_placeholder') %>" value="5"
                         style="padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
-                    <input type="number" id="m-payout" placeholder="Payout %" value="3"
+                    <input type="number" id="m-payout" placeholder="<%= t('payout_percentage_placeholder') %>" value="3"
                         style="padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
-                    <input type="number" id="m-fixed" placeholder="Fixed ₹" value="6"
+                    <input type="number" id="m-fixed" placeholder="<%= t('fixed_fee_placeholder') %>" value="6"
                         style="padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
-                    <input type="number" id="m-usdt" placeholder="USDT %" value="0"
+                    <input type="number" id="m-usdt" placeholder="<%= t('usdt_percentage_placeholder') %>" value="0"
                         style="padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
                 </div>
 
                 <!-- Suspension & Status -->
                 <div style="margin-top:1rem; display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem;">
                     <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.875rem;">
-                        <input type="checkbox" id="m-isActive" checked> Account Active
+                        <input type="checkbox" id="m-isActive" checked>
+                        <%= t('account_active') %>
                     </label>
                     <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.875rem;">
-                        <input type="checkbox" id="m-canPayin" checked> Allow Payin
+                        <input type="checkbox" id="m-canPayin" checked>
+                        <%= t('allow_payin') %>
                     </label>
                     <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.875rem;">
-                        <input type="checkbox" id="m-canPayout" checked> Allow Payout
+                        <input type="checkbox" id="m-canPayout" checked>
+                        <%= t('allow_payout') %>
                     </label>
                 </div>
 
@@ -1413,13 +1529,19 @@
 
                 <div style="margin-top: 1.5rem; display:flex; gap: 1rem; flex-wrap:wrap;">
                     <button type="button" class="btn btn-primary" onclick="saveMerchant()"
-                        style="flex:1; min-width:120px; justify-content:center;">Save</button>
+                        style="flex:1; min-width:120px; justify-content:center;">
+                        <%= t('save') %>
+                    </button>
                     <button type="button" id="btn-delete-merchant" class="btn btn-danger"
                         onclick="deleteMerchantAction()"
-                        style="flex:1; min-width:120px; justify-content:center; display:none;">Delete</button>
+                        style="flex:1; min-width:120px; justify-content:center; display:none;">
+                        <%= t('delete') %>
+                    </button>
                     <button type="button" class="btn"
                         onclick="document.getElementById('merchantModal').style.display='none'"
-                        style="flex:1; min-width:120px; justify-content:center; background:#F3F4F6;">Cancel</button>
+                        style="flex:1; min-width:120px; justify-content:center; background:#F3F4F6;">
+                        <%= t('cancel') %>
+                    </button>
                 </div>
             </form>
         </div>
@@ -1490,6 +1612,20 @@
     </div>
 
     <script>
+
+        // Inject translations
+        window.allTranslations = <% - JSON.stringify(allTranslations) %>;
+
+        // Client-side translation helper
+        function _t(key, params = {}) {
+            const lang = document.cookie.split('; ').find(row => row.startsWith('lang='))?.split('=')[1] || 'zh';
+            let text = (window.allTranslations[lang] && window.allTranslations[lang][key]) || key;
+            Object.keys(params).forEach(k => {
+                text = text.replace(new RegExp(`{${k}}`, 'g'), params[k]);
+            });
+            return text;
+        }
+
         let merchantSearchTimeout = null;
 
         function showToast(message, type = 'success') {
@@ -1518,7 +1654,7 @@
             const nextAction = clickActionTemplate.replace('{page}', paging.page + 1);
 
             container.innerHTML = `
-                <span style="font-size:0.875rem; color:grey; margin-right:auto;">Page ${paging.page} of ${paging.pages} (${paging.total} items)</span>
+                <span style="font-size:0.875rem; color:grey; margin-right:auto;">${_t('page_info', { page: paging.page, pages: paging.pages, total: paging.total })}</span>
                 <button class="btn" style="padding:0.25rem 0.75rem; background:${paging.page > 1 ? 'white' : '#F3F4F6'}; border:1px solid #E5E7EB;" 
                     onclick="${prevAction}" ${paging.page <= 1 ? 'disabled' : ''}><i class="ri-arrow-left-s-line"></i></button>
                 <button class="btn" style="padding:0.25rem 0.75rem; background:${paging.page < paging.pages ? 'white' : '#F3F4F6'}; border:1px solid #E5E7EB;" 
@@ -1647,7 +1783,7 @@
                 `).join('');
                 renderPagination(data.pagination, 'orders-pagination', `loadGlobalOrders({page})`);
             } else {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #9ca3af; padding:2rem;">No orders found</td></tr>';
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #9ca3af; padding:2rem;">${_t('no_orders_found')}</td></tr>`;
                 document.getElementById('orders-pagination').innerHTML = '';
             }
         }
@@ -1685,7 +1821,7 @@
                 `).join('');
                 renderPagination(data.pagination, 'settlements-pagination', `loadSettlements({page})`);
             } else {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #9ca3af; padding:2rem;">No settlements found</td></tr>';
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: #9ca3af; padding:2rem;">${_t('no_settlements_found')}</td></tr>`;
                 document.getElementById('settlements-pagination').innerHTML = '';
             }
         }
@@ -1702,7 +1838,7 @@
             const notes = document.getElementById('settle-notes').value;
 
             const totpCode = document.getElementById('settle-totp').value;
-            if (!totpCode) return showToast('TOTP code required', 'error');
+            if (!totpCode) return showToast(_t('totp_required'), 'error');
 
             try {
                 const res = await fetch(`/admin/api/settlements/${id}`, {
@@ -1712,14 +1848,14 @@
                 });
                 const data = await res.json();
                 if (data.success) {
-                    showToast(`Settlement ${status} successfully`);
+                    showToast(_t('settlement_success'));
                     document.getElementById('settleActionModal').style.display = 'none';
                     loadSettlements();
                 } else {
                     showToast(data.error, 'error');
                 }
             } catch (e) {
-                showToast('Error processing settlement', 'error');
+                showToast(_t('error_processing_settlement'), 'error');
             }
         }
 
@@ -1748,22 +1884,22 @@
                         <td><small style="font-family:monospace; background:#F3F4F6; padding:2px 6px; border-radius:4px;">${m.apiKey || '-'}</small></td>
                         <td>
                             <div style="font-size:0.75rem; line-height:1.2;">
-                                <span style="color:#6B7280;">In:</span> ${m.payinChannel || m.assignedChannel || 'None'}<br>
-                                <span style="color:#6B7280;">Out:</span> ${m.payoutChannel || m.assignedChannel || 'None'}
+                                <span style="color:#6B7280;">${_t('in_label')}</span> ${m.payinChannel || m.assignedChannel || _t('none')}<br>
+                                <span style="color:#6B7280;">${_t('out_label')}</span> ${m.payoutChannel || m.assignedChannel || _t('none')}
                             </div>
                         </td>
                         <td>₹${parseFloat(m.balance).toFixed(2)}</td>
                         <td>
                             <div style="font-size:0.7rem; color:#6B7280; line-height:1.2;">
-                                Payin: ${JSON.parse(m.channel_rates || '{}').payinRate || 0}%<br>
-                                Payout: ${JSON.parse(m.channel_rates || '{}').payoutRate || 0}%
+                                ${_t('payin_label_short')} ${JSON.parse(m.channel_rates || '{}').payinRate || 0}%<br>
+                                ${_t('payout_label_short')} ${JSON.parse(m.channel_rates || '{}').payoutRate || 0}%
                             </div>
                         </td>
                         <td>
                             <div style="display:flex; gap:0.25rem;">
-                                ${m.isActive ? '<i class="ri-checkbox-circle-fill" style="color:var(--success)" title="Account Active"></i>' : '<i class="ri-close-circle-fill" style="color:var(--danger)" title="Account Suspended"></i>'}
-                                ${m.canPayin ? '<i class="ri-arrow-left-down-line" style="color:var(--success)" title="Payin Enabled"></i>' : '<i class="ri-arrow-left-down-line" style="color:var(--danger); text-decoration:line-through" title="Payin Disabled"></i>'}
-                                ${m.canPayout ? '<i class="ri-arrow-right-up-line" style="color:var(--success)" title="Payout Enabled"></i>' : '<i class="ri-arrow-right-up-line" style="color:var(--danger); text-decoration:line-through" title="Payout Disabled"></i>'}
+                                ${m.isActive ? `<i class="ri-checkbox-circle-fill" style="color:var(--success)" title="${_t('account_active_title')}"></i>` : `<i class="ri-close-circle-fill" style="color:var(--danger)" title="${_t('account_suspended_title')}"></i>`}
+                                ${m.canPayin ? `<i class="ri-arrow-left-down-line" style="color:var(--success)" title="${_t('payin_enabled')}"></i>` : `<i class="ri-arrow-left-down-line" style="color:var(--danger); text-decoration:line-through" title="${_t('payin_disabled')}"></i>`}
+                                ${m.canPayout ? `<i class="ri-arrow-right-up-line" style="color:var(--success)" title="${_t('payout_enabled')}"></i>` : `<i class="ri-arrow-right-up-line" style="color:var(--danger); text-decoration:line-through" title="${_t('payout_disabled')}"></i>`}
                             </div>
                         </td>
                         <td style="display:flex; gap:0.5rem;">
@@ -1774,7 +1910,7 @@
                 `).join('');
                 renderPagination(data.pagination, 'merchants-pagination', `loadMerchants({page})`);
             } else {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #9ca3af; padding:2rem;">No merchants found</td></tr>';
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #9ca3af; padding:2rem;">${_t('no_merchants_found')}</td></tr>`;
                 document.getElementById('merchants-pagination').innerHTML = '';
             }
         }
@@ -1782,7 +1918,7 @@
         async function editMerchant(id) {
             const res = await fetch(`/admin/api/merchants/${id}`);
             const data = await res.json();
-            if (!data.success) return alert('Failed to load merchant');
+            if (!data.success) return alert(_t('failed_to_load'));
 
             const m = data.merchant;
             document.getElementById('m-id').value = m.id;
@@ -1839,14 +1975,14 @@
 
             const data = await res.json();
             if (data.success) {
-                showToast('Merchant saved successfully');
+                showToast(_t('merchant_saved'));
                 document.getElementById('merchantModal').style.display = 'none';
                 loadMerchants();
                 document.getElementById('m-id').value = '';
                 document.getElementById('merchantForm').reset();
                 document.getElementById('btn-delete-merchant').style.display = 'none';
             } else {
-                showToast(data.error || 'Failed to save', 'error');
+                showToast(data.error || _t('failed_to_save'), 'error');
             }
         }
 
@@ -1854,8 +1990,8 @@
             const id = document.getElementById('m-id').value;
             const totpCode = document.getElementById('m-totp').value;
             if (!id) return;
-            if (!totpCode) return showToast('TOTP code required to delete', 'error');
-            if (!confirm('Are you sure you want to delete this merchant? This action cannot be undone.')) return;
+            if (!totpCode) return showToast(_t('totp_required_delete'), 'error');
+            if (!confirm(_t('confirm_delete_merchant'))) return;
 
             const res = await fetch(`/admin/api/merchants/${id}`, {
                 method: 'DELETE',
@@ -1864,11 +2000,11 @@
             });
             const data = await res.json();
             if (data.success) {
-                showToast('Merchant deleted successfully');
+                showToast(_t('merchant_deleted'));
                 document.getElementById('merchantModal').style.display = 'none';
                 loadMerchants();
             } else {
-                showToast(data.error || 'Failed to delete', 'error');
+                showToast(data.error || _t('failed_to_delete'), 'error');
             }
         }
 
@@ -1888,8 +2024,8 @@
             const note = document.getElementById('adj-note').value;
             const totpCode = document.getElementById('adj-totp').value;
 
-            if (!amount || amount <= 0) return showToast('Invalid amount', 'error');
-            if (!totpCode) return showToast('TOTP code required', 'error');
+            if (!amount || amount <= 0) return showToast(_t('invalid_amount'), 'error');
+            if (!totpCode) return showToast(_t('totp_required'), 'error');
 
             try {
                 const res = await fetch(`/admin/api/merchants/${id}/adjust-balance`, {
@@ -1899,14 +2035,14 @@
                 });
                 const data = await res.json();
                 if (data.success) {
-                    showToast('Balance adjusted successfully');
+                    showToast(_t('balance_adjusted'));
                     document.getElementById('balanceAdjModal').style.display = 'none';
                     loadMerchants();
                 } else {
-                    showToast(data.error || 'Failed to adjust balance', 'error');
+                    showToast(data.error || _t('failed_adjust_balance'), 'error');
                 }
             } catch (e) {
-                showToast('Error adjusting balance', 'error');
+                showToast(_t('error_adjust_balance'), 'error');
             }
         }
 
@@ -1917,7 +2053,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message })
             });
-            showToast('Broadcast sent!');
+            showToast(_t('broadcast_sent'));
         }
 
         async function loadChannels() {
@@ -1929,7 +2065,7 @@
                     <td>${c.payinRate}%</td>
                     <td>${c.payoutRate}%</td>
                     <td>₹${c.payoutFixedFee}</td>
-                    <td>${c.isActive ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-failed">Inactive</span>'}</td>
+                    <td>${c.isActive ? `<span class="badge badge-success">${_t('active')}</span>` : `<span class="badge badge-failed">${_t('inactive')}</span>`}</td>
                      <td><button class="btn" style="padding:0.25rem 0.5rem;"><i class="ri-settings-4-line"></i></button></td>
                 </tr>
              `).join('');
@@ -1939,25 +2075,25 @@
             const btn = document.getElementById('btn-analyze');
             const originalText = btn.innerHTML;
             btn.disabled = true;
-            btn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Checking...';
+            btn.innerHTML = `<i class="ri-loader-4-line ri-spin"></i> ${_t('checking')}`;
 
-            showToast('Starting channel analysis. This may take 10-20 seconds.', 'info');
+            showToast(_t('analysis_starting'), 'info');
 
             try {
                 const res = await fetch('/admin/api/channels/analyze', { method: 'POST' });
                 const data = await res.json();
 
                 if (data.success) {
-                    let msg = 'Analysis Complete:\n';
+                    let msg = _t('analysis_complete') + '\n';
                     data.results.forEach(r => {
                         msg += `${r.channel}: ${r.success ? '✅ OK' : '❌ ' + (r.error || 'Failed')} \n`;
                     });
                     alert(msg); // Using alert for simplicity as modal is not set up
                 } else {
-                    showToast('Analysis failed to run', 'error');
+                    showToast(_t('analysis_failed'), 'error');
                 }
             } catch (e) {
-                showToast('Error running analysis', 'error');
+                showToast(_t('error_analysis'), 'error');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = originalText;
@@ -1972,7 +2108,7 @@
                 if (!res.ok) {
                     console.error('API error:', res.status, res.statusText);
                     document.getElementById('smart-ranges-table').querySelector('tbody').innerHTML = `
-                        <tr><td colspan="6" style="text-align:center; padding:2rem; color:#EF4444;">Failed to load ranges (${res.status}). Try refreshing.</td></tr>
+                        <tr><td colspan="6" style="text-align:center; padding:2rem; color:#EF4444;">${_t('failed_load_ranges')} (${res.status}).</td></tr>
                     `;
                     return;
                 }
@@ -1981,7 +2117,7 @@
 
                 if (!data.success || !data.ranges || data.ranges.length === 0) {
                     document.getElementById('smart-ranges-table').querySelector('tbody').innerHTML = `
-                        <tr><td colspan="6" style="text-align:center; padding:2rem;">No ranges configured. Add a range to enable Smart Channel.</td></tr>
+                        <tr><td colspan="6" style="text-align:center; padding:2rem;">${_t('no_ranges_smart')}</td></tr>
                     `;
                     return;
                 }
@@ -1998,7 +2134,7 @@
                         <td>₹${parseFloat(r.maxAmount).toLocaleString()}</td>
                         <td style="font-weight:600;">${channelNames[r.channelName] || r.channelName}</td>
                         <td>${r.priority}</td>
-                        <td>${r.isActive ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-failed">Inactive</span>'}</td>
+                        <td>${r.isActive ? `<span class="badge badge-success">${_t('active')}</span>` : `<span class="badge badge-failed">${_t('inactive')}</span>`}</td>
                         <td>
                             <button class="btn" style="padding:0.25rem 0.5rem; margin-right:0.25rem;" onclick="showEditRangeModal(${r.id}, ${r.minAmount}, ${r.maxAmount}, '${r.channelName}', ${r.priority}, ${r.isActive})">
                                 <i class="ri-edit-line"></i>
@@ -2018,7 +2154,7 @@
         }
 
         function showAddRangeModal() {
-            document.getElementById('rangeModalTitle').textContent = 'Add Range';
+            document.getElementById('rangeModalTitle').textContent = _t('add_range');
             document.getElementById('range-id').value = '';
             document.getElementById('range-min').value = '';
             document.getElementById('range-max').value = '';
@@ -2029,7 +2165,7 @@
         }
 
         function showEditRangeModal(id, min, max, channel, priority, isActive) {
-            document.getElementById('rangeModalTitle').textContent = 'Edit Range';
+            document.getElementById('rangeModalTitle').textContent = _t('edit_range');
             document.getElementById('range-id').value = id;
             document.getElementById('range-min').value = min;
             document.getElementById('range-max').value = max;
@@ -2052,11 +2188,11 @@
             const isActive = document.getElementById('range-active').checked;
 
             if (!minAmount || !maxAmount || !channelName) {
-                return showToast('Please fill all required fields', 'error');
+                return showToast(_t('fill_required_fields'), 'error');
             }
 
             if (parseFloat(minAmount) >= parseFloat(maxAmount)) {
-                return showToast('Min amount must be less than max amount', 'error');
+                return showToast(_t('min_less_than_max'), 'error');
             }
 
             try {
@@ -2071,31 +2207,31 @@
 
                 const data = await res.json();
                 if (data.success) {
-                    showToast(id ? 'Range updated successfully' : 'Range created successfully');
+                    showToast(id ? _t('range_updated') : _t('range_created'));
                     closeRangeModal();
                     loadSmartRanges();
                 } else {
-                    showToast(data.error || 'Failed to save range', 'error');
+                    showToast(data.error || _t('failed_save_range'), 'error');
                 }
             } catch (e) {
-                showToast('Error saving range', 'error');
+                showToast(_t('error_save_range'), 'error');
             }
         }
 
         async function deleteRange(id) {
-            if (!confirm('Are you sure you want to delete this range?')) return;
+            if (!confirm(_t('confirm_delete_range'))) return;
 
             try {
                 const res = await fetch(`/admin/api/smart-ranges/${id}`, { method: 'DELETE' });
                 const data = await res.json();
                 if (data.success) {
-                    showToast('Range deleted successfully');
+                    showToast(_t('range_deleted'));
                     loadSmartRanges();
                 } else {
-                    showToast(data.error || 'Failed to delete range', 'error');
+                    showToast(data.error || _t('failed_delete_range'), 'error');
                 }
             } catch (e) {
-                showToast('Error deleting range', 'error');
+                showToast(_t('error_delete_range'), 'error');
             }
         }
 
@@ -2121,7 +2257,7 @@
                         </tr>
                     `}).join('');
                 } else {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #9ca3af; padding:2rem;">No manual payouts found</td></tr>';
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #9ca3af; padding:2rem;">${_t('no_manual_payouts')}</td></tr>`;
                 }
             } catch (e) {
                 console.error('Error loading manual payouts:', e);
@@ -2137,10 +2273,10 @@
             const accountHolderName = document.getElementById('mp-holder-name').value;
 
             if (!amount || !channel || !bankName || !accountNumber || !ifsc || !accountHolderName) {
-                return showToast('Please fill all fields', 'error');
+                return showToast(_t('fill_all_fields'), 'error');
             }
 
-            if (!confirm('Are you sure you want to process this payout? Balance will be deducted from your Admin account (if applicable) or treated as a system payout.')) return;
+            if (!confirm(_t('confirm_process_payout'))) return;
 
             try {
                 const res = await fetch('/admin/api/manual-payout', {
@@ -2153,7 +2289,7 @@
 
                 const data = await res.json();
                 if (data.success) {
-                    showToast('Payout initiated successfully');
+                    showToast(_t('payout_initiated'));
                     // Reset form
                     document.getElementById('mp-amount').value = '';
                     document.getElementById('mp-acc-num').value = '';
@@ -2161,10 +2297,10 @@
                     document.getElementById('mp-holder-name').value = '';
                     loadManualPayouts();
                 } else {
-                    showToast(data.error || 'Payout failed', 'error');
+                    showToast(data.error || _t('payout_failed'), 'error');
                 }
             } catch (e) {
-                showToast('Error processing payout', 'error');
+                showToast(_t('error_processing_payout'), 'error');
             }
         }
     </script>

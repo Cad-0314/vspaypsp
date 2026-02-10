@@ -371,10 +371,10 @@
         <div class="brand-section">
             <img src="/logo.jpg" alt="Gaur Pay" class="brand-logo">
             <h1 class="brand-title">
-                <%= t('header_welcome') || 'Welcome Back' %>
+                <%= t('header_welcome') %>
             </h1>
             <p class="brand-subtitle">
-                <%= t('subtitle_login') || 'Sign in to your account' %>
+                <%= t('subtitle_login') %>
             </p>
         </div>
 
@@ -394,23 +394,23 @@
                     <div id="credentials-section">
                         <div class="form-group">
                             <label class="form-label">
-                                <%= t('label_username') || 'Username' %>
+                                <%= t('label_username') %>
                             </label>
                             <div class="input-field">
                                 <i class="ri-user-3-line"></i>
                                 <input type="text" name="username" id="username" required
-                                    placeholder="<%= t('ph_username') || 'Enter your username' %>">
+                                    placeholder="<%= t('ph_username') %>">
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">
-                                <%= t('label_password') || 'Password' %>
+                                <%= t('label_password') %>
                             </label>
                             <div class="input-field">
                                 <i class="ri-lock-password-line"></i>
                                 <input type="password" name="password" id="password" required
-                                    placeholder="<%= t('ph_password') || 'Enter your password' %>">
+                                    placeholder="<%= t('ph_password') %>">
                             </div>
                         </div>
                     </div>
@@ -418,10 +418,14 @@
                     <!-- Dynamic TOTP Section -->
                     <div id="totp-section" class="totp-section">
                         <div class="totp-divider">
-                            <span><i class="ri-shield-keyhole-line"></i> Two-Factor Authentication</span>
+                            <span><i class="ri-shield-keyhole-line"></i>
+                                <%= t('two_factor_auth') %>
+                            </span>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Authentication Code</label>
+                            <label class="form-label">
+                                <%= t('label_code') %>
+                            </label>
                             <div class="input-field">
                                 <i class="ri-key-2-line"></i>
                                 <input type="text" name="token" id="totp-code" class="totp-input" placeholder="000000"
@@ -434,13 +438,13 @@
                         <div class="spinner"></div>
                         <span class="btn-text">
                             <i class="ri-login-box-line"></i>
-                            <%= t('btn_login') || 'Login' %>
+                            <%= t('btn_login') %>
                         </span>
                     </button>
                 </form>
 
                 <div class="login-footer">
-                    Powered by <span>Gaur Pay</span> Gateway
+                    <%= t('powered_by') %> <span>Gaur Pay</span> Gateway
                 </div>
     </div>
 
@@ -452,6 +456,12 @@
         const successMsg = document.getElementById('success-msg');
         const successText = document.getElementById('success-text');
         const credentialsSection = document.getElementById('credentials-section');
+
+        // Client-side translation helper
+        const translations = <% - JSON.stringify(allTranslations || {}) %>;
+        function _t(key) {
+            return translations[key] || key;
+        }
 
         let requires2FA = false;
         let pendingUsername = '';
@@ -489,7 +499,7 @@
                     totpInput.focus();
 
                     // Update button text
-                    submitBtn.querySelector('.btn-text').innerHTML = '<i class="ri-shield-check-line"></i> Verify & Login';
+                    submitBtn.querySelector('.btn-text').innerHTML = '<i class="ri-shield-check-line"></i> ' + _t('verify_login');
 
                     // Disable credentials
                     document.getElementById('username').readOnly = true;
@@ -497,19 +507,19 @@
                     credentialsSection.style.opacity = '0.6';
 
                     successMsg.style.display = 'flex';
-                    successText.textContent = data.message || 'Enter your authentication code';
+                    successText.textContent = data.message || _t('enter_auth_code');
 
                 } else if (data.success) {
                     // Login successful, redirect
                     successMsg.style.display = 'flex';
-                    successText.textContent = 'Login successful! Redirecting...';
+                    successText.textContent = _t('login_success');
                     window.location.href = data.redirect || '/';
                 } else {
                     // Show error
-                    showError(data.message || 'Login failed');
+                    showError(data.message || _t('login_failed'));
                 }
             } catch (error) {
-                showError('Connection error. Please try again.');
+                showError(_t('connection_error'));
             } finally {
                 submitBtn.classList.remove('loading');
                 submitBtn.disabled = false;

@@ -441,5 +441,21 @@
     "network_error": "Network error",
     "regenerate_desc": "Enter 2FA to generate a new secret key. The old key will stop working immediately.",
     "order_details": "Transaction Details",
-    "pay_now": "Pay Now"
+    "pay_now": "Pay Now",
+    "login_success": "Login successful! Redirecting...",
+    "login_failed": "Login failed",
+    "connection_error": "Connection error. Please try again.",
+    "verify_login": "Verify & Login",
+    "enter_auth_code": "Enter your authentication code",
+    "secret_key_label": "Secret Key (copy this exactly):",
+    "copy_secret_success": "Secret copied! Now add it to your Authenticator app.",
+    "copy_secret_fallback": "Press Ctrl+C to copy",
+    "payin_percentage_placeholder": "Payin %",
+    "payout_percentage_placeholder": "Payout %",
+    "fixed_fee_placeholder": "Fixed Fee",
+    "usdt_percentage_placeholder": "USDT %",
+    "telegram_group_placeholder": "Telegram Group ID",
+    "password_placeholder": "Password",
+    "powered_by": "Powered by",
+    "two_factor_auth": "Two-Factor Authentication"
 }
