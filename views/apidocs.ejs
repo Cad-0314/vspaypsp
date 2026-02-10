@@ -384,9 +384,6 @@
                 <a href="#payout-bank" class="nav-link">
                     <%= currentLang==='zh' ? '银行代付' : 'Bank Transfer' %>
                 </a>
-                <a href="#payout-usdt" class="nav-link">
-                    <%= currentLang==='zh' ? 'USDT 代付' : 'USDT Transfer' %>
-                </a>
                 <a href="#payout-query" class="nav-link">
                     <%= currentLang==='zh' ? '查询代付' : 'Query Payout' %>
                 </a>
@@ -619,50 +616,6 @@
                         </tr>
                     </tbody>
                 </table>
-            </section>
-
-            <section id="payout-usdt">
-                <h2>USDT 代付</h2>
-                <div class="endpoint-badge"><span class="method post">POST</span><span
-                        class="url">/api/payout/usdt</span></div>
-                <h3>请求参数</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>参数</th>
-                            <th>类型</th>
-                            <th>说明</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><code>orderId</code></td>
-                            <td>String<span class="required">必填</span></td>
-                            <td>商户唯一订单号</td>
-                        </tr>
-                        <tr>
-                            <td><code>amount</code></td>
-                            <td>Number<span class="required">必填</span></td>
-                            <td>代付金额 (INR)</td>
-                        </tr>
-                        <tr>
-                            <td><code>walletAddress</code></td>
-                            <td>String<span class="required">必填</span></td>
-                            <td>USDT 钱包地址</td>
-                        </tr>
-                        <tr>
-                            <td><code>network</code></td>
-                            <td>String<span class="required">必填</span></td>
-                            <td>网络 (TRC20, ERC20)</td>
-                        </tr>
-                        <tr>
-                            <td><code>callbackUrl</code></td>
-                            <td>String<span class="required">必填</span></td>
-                            <td>回调地址</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="alert alert-info">注意：USDT 代付汇率由平台配置。</div>
             </section>
 
             <section id="payout-query">
@@ -984,50 +937,7 @@
                     </table>
                 </section>
 
-                <section id="payout-usdt">
-                    <h2>USDT Transfer (Payout)</h2>
-                    <p>Initiate a crypto payout via USDT.</p>
-                    <div class="endpoint-badge"><span class="method post">POST</span><span
-                            class="url">/api/payout/usdt</span></div>
-                    <h3>Request Parameters</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Parameter</th>
-                                <th>Type</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>orderId</code></td>
-                                <td>String<span class="required">Required</span></td>
-                                <td>Unique Merchant Order ID</td>
-                            </tr>
-                            <tr>
-                                <td><code>amount</code></td>
-                                <td>Number<span class="required">Required</span></td>
-                                <td>Amount in INR (will be converted)</td>
-                            </tr>
-                            <tr>
-                                <td><code>walletAddress</code></td>
-                                <td>String<span class="required">Required</span></td>
-                                <td>USDT Wallet Address</td>
-                            </tr>
-                            <tr>
-                                <td><code>network</code></td>
-                                <td>String<span class="required">Required</span></td>
-                                <td>Network (TRC20, ERC20, BEP20)</td>
-                            </tr>
-                            <tr>
-                                <td><code>callbackUrl</code></td>
-                                <td>String<span class="required">Required</span></td>
-                                <td>Webhook URL</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div class="alert alert-info">Note: Exchange rates are configured directly on the platform.</div>
-                </section>
+
 
                 <section id="payout-query">
                     <h2>Query Transfer Status</h2>
