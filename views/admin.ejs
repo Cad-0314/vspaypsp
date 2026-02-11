@@ -2087,7 +2087,7 @@
                 if (data.success) {
                     let msg = _t('analysis_complete') + '\n';
                     data.results.forEach(r => {
-                        msg += `${r.channel}: ${r.success ? '✅ OK' : '❌ ' + (r.error || 'Failed')} \n`;
+                        msg += `${r.channel}: ${r.success ? '✅ OK' : '❌ ' + (r.error || _t('failed'))} \n`;
                     });
                     alert(msg); // Using alert for simplicity as modal is not set up
                 } else {

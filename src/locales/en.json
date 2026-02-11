@@ -467,5 +467,10 @@
     "error_save_settings": "Error saving settings",
     "payin_volume_chart_label": "Payin Volume",
     "payout_volume_chart_label": "Payout Volume",
-    "loading_details": "Loading details..."
+    "loading_details": "Loading details...",
+    "error_loading_details": "Error loading details",
+    "failed_load_order": "Failed to load order details",
+    "error_submitting_request": "Error submitting request",
+    "error_submitting_topup": "Error submitting topup request",
+    "failed_submit_topup": "Failed to submit topup"
 }

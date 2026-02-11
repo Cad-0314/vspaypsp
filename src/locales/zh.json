@@ -467,5 +467,10 @@
     "error_save_settings": "保存设置时出错",
     "payin_volume_chart_label": "代收交易量",
     "payout_volume_chart_label": "代付交易量",
-    "loading_details": "正在加载详情..."
+    "loading_details": "正在加载详情...",
+    "error_loading_details": "加载详情出错",
+    "failed_load_order": "加载订单详情失败",
+    "error_submitting_request": "提交请求出错",
+    "error_submitting_topup": "提交充值请求出错",
+    "failed_submit_topup": "提交充值失败"
 }

@@ -2210,9 +2210,9 @@
                         document.getElementById('order-detail-content').innerHTML = content;
                         document.getElementById('order-detail-modal').classList.add('active');
                     } else {
-                        showToast(data.error || 'Failed to load order details', 'error');
+                        showToast(data.error || _t('failed_load_order'), 'error');
                     }
-                } catch (e) { showToast('Error loading details', 'error'); }
+                } catch (e) { showToast(_t('error_loading_details'), 'error'); }
             }
 
             function closeOrderDetailModal() {
@@ -2280,7 +2280,7 @@
                     } else {
                         showToast(data.error, 'error');
                     }
-                } catch (e) { showToast('Error submitting request', 'error'); }
+                } catch (e) { showToast(_t('error_submitting_request'), 'error'); }
 
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -2310,9 +2310,9 @@
                         loadTopupHistory();
                         showToast(_t('topup_submitted'));
                     } else {
-                        showToast(data.error || 'Failed to submit topup', 'error');
+                        showToast(data.error || _t('failed_submit_topup'), 'error');
                     }
-                } catch (err) { showToast('Error submitting topup request', 'error'); }
+                } catch (err) { showToast(_t('error_submitting_topup'), 'error'); }
 
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -2352,11 +2352,11 @@
                                 ${data.link}
                             </div>
                             <div style="display: flex; gap: 0.5rem;">
-                                <button class="btn btn-sm" onclick="navigator.clipboard.writeText('${data.link}'); showToast('Copied!')" style="background: #ffffff; border: 1px solid #10B981; color: #10B981; flex: 1; justify-content: center;">
+                                <button class="btn btn-sm" onclick="navigator.clipboard.writeText('${data.link}'); showToast(_t('copied'))" style="background: #ffffff; border: 1px solid #10B981; color: #10B981; flex: 1; justify-content: center;">
                                     <i class="ri-file-copy-line"></i> ${_t('copy')}
                                 </button>
                                 <a href="${data.link}" target="_blank" class="btn btn-sm btn-primary" style="background: #10B981; border: none; flex: 1; justify-content: center; text-decoration: none;">
-                                    Pay Now <i class="ri-arrow-right-line"></i>
+                                    ${_t('pay_now')} <i class="ri-arrow-right-line"></i>
                                 </a>
                             </div>
                         `;
@@ -2364,9 +2364,9 @@
                         loadTopupHistory();
                         showToast(_t('topup_submitted'));
                     } else {
-                        showToast(data.error || 'Failed to submit topup', 'error');
+                        showToast(data.error || _t('failed_submit_topup'), 'error');
                     }
-                } catch (err) { showToast('Error submitting topup request', 'error'); }
+                } catch (err) { showToast(_t('error_submitting_topup'), 'error'); }
 
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -2555,7 +2555,7 @@
                         } else {
                             showToast(data.error, 'error');
                         }
-                    } catch (e) { showToast('Network error', 'error'); }
+                    } catch (e) { showToast(_t('network_error'), 'error'); }
                     return;
                 }
 

@@ -329,6 +329,7 @@
 
 <body>
     <script>
+        const currentLang = '<%= currentLang %>';
         function setLang(lang) {
             const url = new URL(window.location);
             url.searchParams.set('lang', lang);
@@ -338,7 +339,7 @@
             const code = btn.parentElement.querySelector('code').innerText;
             navigator.clipboard.writeText(code);
             const original = btn.innerHTML;
-            btn.innerHTML = 'Copied!';
+            btn.innerHTML = currentLang === 'zh' ? '已复制！' : 'Copied!';
             setTimeout(() => btn.innerHTML = original, 2000);
         }
     </script>

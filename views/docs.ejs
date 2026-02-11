@@ -277,30 +277,60 @@
         </div>
 
         <div class="nav-section">
-            <div class="nav-title">GUIDE</div>
-            <a href="#intro" class="nav-link">Introduction</a>
-            <a href="#auth" class="nav-link">Authentication</a>
-            <a href="#errors" class="nav-link">Response Format</a>
+            <div class="nav-title">
+                <%= currentLang==='zh' ? '指南' : 'GUIDE' %>
+            </div>
+            <a href="#intro" class="nav-link">
+                <%= currentLang==='zh' ? '简介' : 'Introduction' %>
+            </a>
+            <a href="#auth" class="nav-link">
+                <%= currentLang==='zh' ? '身份验证' : 'Authentication' %>
+            </a>
+            <a href="#errors" class="nav-link">
+                <%= currentLang==='zh' ? '响应格式' : 'Response Format' %>
+            </a>
         </div>
 
         <div class="nav-section">
-            <div class="nav-title">COLLECTION (PAY-IN)</div>
-            <a href="#collection-initiate" class="nav-link">Initiate Collection</a>
-            <a href="#collection-status" class="nav-link">Query Status</a>
-            <a href="#collection-update-ref" class="nav-link">Update Reference</a>
-            <a href="#collection-callback" class="nav-link">Callback</a>
+            <div class="nav-title">
+                <%= currentLang==='zh' ? '收款 (代收)' : 'COLLECTION (PAY-IN)' %>
+            </div>
+            <a href="#collection-initiate" class="nav-link">
+                <%= currentLang==='zh' ? '发起收款' : 'Initiate Collection' %>
+            </a>
+            <a href="#collection-status" class="nav-link">
+                <%= currentLang==='zh' ? '查询状态' : 'Query Status' %>
+            </a>
+            <a href="#collection-update-ref" class="nav-link">
+                <%= currentLang==='zh' ? '更新参考号' : 'Update Reference' %>
+            </a>
+            <a href="#collection-callback" class="nav-link">
+                <%= currentLang==='zh' ? '回调' : 'Callback' %>
+            </a>
         </div>
 
         <div class="nav-section">
-            <div class="nav-title">TRANSFER (PAY-OUT)</div>
-            <a href="#transfer-bank" class="nav-link">Bank Transfer</a>
-            <a href="#transfer-status" class="nav-link">Query Status</a>
-            <a href="#transfer-callback" class="nav-link">Callback</a>
+            <div class="nav-title">
+                <%= currentLang==='zh' ? '转账 (代付)' : 'TRANSFER (PAY-OUT)' %>
+            </div>
+            <a href="#transfer-bank" class="nav-link">
+                <%= currentLang==='zh' ? '银行转账' : 'Bank Transfer' %>
+            </a>
+            <a href="#transfer-status" class="nav-link">
+                <%= currentLang==='zh' ? '查询状态' : 'Query Status' %>
+            </a>
+            <a href="#transfer-callback" class="nav-link">
+                <%= currentLang==='zh' ? '回调' : 'Callback' %>
+            </a>
         </div>
 
         <div class="nav-section">
-            <div class="nav-title">ACCOUNT</div>
-            <a href="#balance" class="nav-link">Check Balance</a>
+            <div class="nav-title">
+                <%= currentLang==='zh' ? '账户' : 'ACCOUNT' %>
+            </div>
+            <a href="#balance" class="nav-link">
+                <%= currentLang==='zh' ? '查询余额' : 'Check Balance' %>
+            </a>
         </div>
     </aside>
 
