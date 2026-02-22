@@ -195,11 +195,12 @@ const init = (token) => {
             bot.sendMessage(chatId, '⏳ _Calculating success rates..._', { parse_mode: 'Markdown' });
 
             const now = new Date();
-            const getStatsForWindow = async (minutes) => {
+
+            const getStatsForWindow = async (minutes, type) => {
                 const startTime = new Date(now.getTime() - minutes * 60000);
                 const where = {
                     merchantId: merchant.id,
-                    type: 'payin',
+                    type: type,
                     createdAt: { [Op.gte]: startTime }
                 };
                 const total = await Order.count({ where });
@@ -208,11 +209,12 @@ const init = (token) => {
                 return { total, success, rate };
             };
 
-            const [m15, m30, h1, d1] = await Promise.all([
-                getStatsForWindow(15),
-                getStatsForWindow(30),
-                getStatsForWindow(60),
-                getStatsForWindow(1440)
+            const windows = [1, 5, 15, 30, 60, 240];
+            const labels = ['1 Min', '5 Min', '15 Min', '30 Min', '1 Hour', '4 Hours'];
+
+            const [payinStats, payoutStats] = await Promise.all([
+                Promise.all(windows.map(w => getStatsForWindow(w, 'payin'))),
+                Promise.all(windows.map(w => getStatsForWindow(w, 'payout'))),
             ]);
 
             const bar = (pct) => {
@@ -220,24 +222,27 @@ const init = (token) => {
                 return '█'.repeat(filled) + '░'.repeat(10 - filled);
             };
 
+            const formatSection = (stats, windowLabels) => {
+                return windowLabels.map((label, i) => {
+                    const s = stats[i];
+                    return `│ ${label.padEnd(8)} ${bar(s.rate)} \`${s.rate}%\` (${s.success}/${s.total})`;
+                }).join('\n');
+            };
+
             bot.sendMessage(chatId, [
-                `━━━━━━━━━━━━━━━━━━━━━`,
+                `━━━━━━━━━━━━━━━━━━━━━━━━━━`,
                 `  📈  *Success Rates*`,
-                `━━━━━━━━━━━━━━━━━━━━━`,
+                `━━━━━━━━━━━━━━━━━━━━━━━━━━`,
                 ``,
-                `⏱ *15 Min*`,
-                `${bar(m15.rate)} \`${m15.rate}%\`  (${m15.success}/${m15.total})`,
+                `┌─ 📥 *PayIn*`,
+                formatSection(payinStats, labels),
+                `└──────────────────────`,
                 ``,
-                `⏱ *30 Min*`,
-                `${bar(m30.rate)} \`${m30.rate}%\`  (${m30.success}/${m30.total})`,
+                `┌─ � *Payout*`,
+                formatSection(payoutStats, labels),
+                `└──────────────────────`,
                 ``,
-                `⏱ *60 Min*`,
-                `${bar(h1.rate)} \`${h1.rate}%\`  (${h1.success}/${h1.total})`,
-                ``,
-                `📅 *24 Hours*`,
-                `${bar(d1.rate)} \`${d1.rate}%\`  (${d1.success}/${d1.total})`,
-                ``,
-                `_Updated: ${now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' })}_`,
+                `_🕐 ${now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' })} IST_`,
             ].join('\n'), { parse_mode: 'Markdown' });
         });
 
