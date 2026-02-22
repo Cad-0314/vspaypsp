@@ -18,10 +18,23 @@ async function ensureUpstreamOrder(order, userIp) {
     if (order.payUrl || order.status !== 'pending') return true;
 
     const APP_URL = process.env.APP_URL || 'https://gaurpay.site';
-    const notifyUrl = `${APP_URL}/callback/${order.channelName}/payin`;
 
-    console.log(`[PayPage] Initializing upstream order for ${order.id} via ${order.channelName}`);
-    const result = await channelRouter.createPayin(order.channelName, {
+    // Use actualChannel if channelName is not a real channel (e.g. manual_topup, paylinks)
+    let effectiveChannel = order.channelName;
+    if (!channelRouter.isValidChannel(effectiveChannel) || effectiveChannel === 'manual_topup') {
+        effectiveChannel = order.actualChannel || order.channelName;
+    }
+
+    // If still not valid, abort
+    if (!channelRouter.isValidChannel(effectiveChannel)) {
+        console.error(`[PayPage] No valid channel for order ${order.id}: channelName=${order.channelName}, actualChannel=${order.actualChannel}`);
+        return false;
+    }
+
+    const notifyUrl = `${APP_URL}/callback/${effectiveChannel}/payin`;
+
+    console.log(`[PayPage] Initializing upstream order for ${order.id} via ${effectiveChannel}`);
+    const result = await channelRouter.createPayin(effectiveChannel, {
         orderId: order.orderId,
         amount: parseFloat(order.amount),
         notifyUrl,
@@ -37,7 +50,8 @@ async function ensureUpstreamOrder(order, userIp) {
             providerOrderId: result.providerOrderId,
             payUrl: result.payUrl,
             deepLinks: result.deepLinks || null,
-            providerResponse: JSON.stringify(result)
+            providerResponse: JSON.stringify(result),
+            channelName: effectiveChannel // Update to the real channel for callback routing
         });
         return true;
     } else {
