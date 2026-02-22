@@ -12,7 +12,7 @@
     <!-- Fonts & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
@@ -35,7 +35,13 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', 'Noto Sans SC', sans-serif;
+        }
+
+        /* Chinese Font Fix */
+        html[lang="zh"] body,
+        html[lang="zh"] * {
+            font-family: 'Inter', 'Noto Sans SC', "Microsoft YaHei", "PingFang SC", -apple-system, sans-serif !important;
         }
 
         body {

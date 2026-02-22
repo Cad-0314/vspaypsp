@@ -8,14 +8,22 @@
         <%= t('title_login') %>
     </title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: 'Inter', 'Noto Sans SC', -apple-system, sans-serif;
+        }
+
+        /* Chinese Font Fix */
+        html[lang="zh"] body,
+        html[lang="zh"] * {
+            font-family: 'Inter', 'Noto Sans SC', "Microsoft YaHei", "PingFang SC", -apple-system, sans-serif !important;
         }
 
         body {
