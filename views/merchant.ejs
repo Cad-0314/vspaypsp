@@ -1615,15 +1615,10 @@
                                         </button>
                                     </div>
                                     <div style="position: relative;">
-                                        <div id="secret-blur" class="blur-text form-control"
-                                            style="font-family: 'Courier New', monospace; background: #F9FAFB; border-radius: 8px; font-size: 0.85rem; cursor: pointer; padding-right: 3rem;"
-                                            onclick="this.classList.remove('blur-text'); document.getElementById('reveal-hint').style.display='none';">
+                                        <div id="secret-blur" class="form-control"
+                                            style="font-family: 'Courier New', monospace; background: #F9FAFB; border-radius: 8px; font-size: 0.85rem; padding-right: 3rem;">
                                             <%= user.apiSecret %>
                                         </div>
-                                        <span id="reveal-hint"
-                                            style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); font-size: 0.7rem; color: #9CA3AF;">
-                                            <%= t('show') %>
-                                        </span>
                                     </div>
                                     <small
                                         style="color: #EF4444; font-size: 0.75rem; display: flex; align-items: center; gap: 0.25rem; margin-top: 0.5rem;"><i
