@@ -335,12 +335,11 @@ sequelize.sync().then(async () => {
         const merchants = await User.findAll({ where: { role: 'merchant' } });
         for (const m of merchants) {
             let updates = {};
-            // Generate API key starting with 'star' (8-12 chars) if missing or doesn't start with 'star'
-            if (!m.apiKey || !m.apiKey.startsWith('star')) {
-                const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-                const randomLength = 4 + Math.floor(Math.random() * 5); // 4-8 random chars
-                let key = 'star';
-                for (let i = 0; i < randomLength; i++) {
+            // Generate random 6-char alphanumeric API key if missing
+            if (!m.apiKey) {
+                const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+                let key = '';
+                for (let i = 0; i < 6; i++) {
                     key += chars.charAt(Math.floor(Math.random() * chars.length));
                 }
                 updates.apiKey = key;

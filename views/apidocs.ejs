@@ -597,106 +597,105 @@
     </aside>
 
     <main class="content">
-        
-            <section id="intro">
-                <% if(currentLang==='zh' ){ %>
-                    <h1>GaurPay API 文档 <small>安全、可靠的支付网关接口 — 版本 2.1</small></h1>
-                    <p>欢迎使用 GaurPay 支付网关 API。本文档提供完整的集成指南，涵盖收款（代收）和转账（代付）功能。</p>
-                    <div class="alert alert-info"><strong>基础 URL：</strong> <code>https://gaurpay.site</code><br>所有请求必须通过
-                        HTTPS 发送，Content-Type 为 <code>application/json</code>。</div>
-                    <% } else { %>
-                        <h1>GaurPay API Documentation <small>Secure, reliable payment gateway integration — Version
-                                2.1</small></h1>
-                        <p>Welcome to the GaurPay Payment Gateway API. This documentation provides a comprehensive guide
-                            for integrating our secure collection (pay-in) and transfer (pay-out) solutions.</p>
-                        <div class="alert alert-info"><strong>Base URL:</strong>
-                            <code>https://gaurpay.site</code><br>All requests must be made over HTTPS with
-                            <code>Content-Type: application/json</code>.</div>
-                        <% } %>
-            </section>
 
-            
-                <section id="auth">
-                    <% if(currentLang==='zh' ){ %>
-                        <h2>身份验证</h2>
-                        <p>所有 API 请求需要通过 HTTP Header 进行身份验证。请在商户后台获取您的 API Key 和 Secret。</p>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Header</th>
-                                    <th>说明</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><code>x-merchant-id</code></td>
-                                    <td>您的商户 API Key</td>
-                                </tr>
-                                <tr>
-                                    <td><code>x-signature</code></td>
-                                    <td>请求参数的 MD5 签名（大写）</td>
-                                </tr>
-                                <tr>
-                                    <td><code>Content-Type</code></td>
-                                    <td><code>application/json</code></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <h3>签名生成步骤</h3>
-                        <ol class="step-list">
-                            <li>将所有请求体参数按键名 ASCII 升序排序（排除空值和 <code>sign</code> 字段）</li>
-                            <li>拼接为 <code>key1=value1&key2=value2</code> 格式的字符串</li>
-                            <li>在末尾追加 <code>&secret=YOUR_SECRET_KEY</code></li>
-                            <li>计算 MD5 哈希并转换为<strong>大写</strong></li>
-                        </ol>
-                        <h3>代码示例</h3>
-                        <% } else { %>
-                            <h2>Authentication</h2>
-                            <p>All API requests require header-based authentication. Obtain your API Key and Secret from
-                                the merchant dashboard settings page.</p>
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Header</th>
-                                        <th>Description</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td><code>x-merchant-id</code></td>
-                                        <td>Your unique Merchant API Key</td>
-                                    </tr>
-                                    <tr>
-                                        <td><code>x-signature</code></td>
-                                        <td>MD5 signature of request parameters (uppercase)</td>
-                                    </tr>
-                                    <tr>
-                                        <td><code>Content-Type</code></td>
-                                        <td><code>application/json</code></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <h3>Signature Generation Steps</h3>
-                            <ol class="step-list">
-                                <li>Sort all request body parameters alphabetically by key name (ASCII ascending).
-                                    Exclude empty values and the <code>sign</code> parameter.</li>
-                                <li>Concatenate into a query string: <code>key1=value1&key2=value2</code></li>
-                                <li>Append your secret key: <code>&secret=YOUR_SECRET_KEY</code></li>
-                                <li>Generate the MD5 hash and convert to <strong>UPPERCASE</strong></li>
-                            </ol>
-                            <h3>Code Examples</h3>
-                            <% } %>
-                                <div class="tabs" data-tabs="auth">
-                                    <button class="tab-btn active"
-                                        onclick="switchTab(this,'auth','js')">JavaScript</button>
-                                    <button class="tab-btn" onclick="switchTab(this,'auth','python')">Python</button>
-                                    <button class="tab-btn" onclick="switchTab(this,'auth','php')">PHP</button>
-                                    <button class="tab-btn" onclick="switchTab(this,'auth','curl')">cURL</button>
-                                </div>
-                                <div class="tab-content active" data-tab="auth-js">
-                                    <div class="code-block"><button class="copy-btn"
-                                            onclick="copyCode(this)">Copy</button>
-                                        <pre><code class="language-javascript">const crypto = require('crypto');
+        <section id="intro">
+            <% if(currentLang==='zh' ){ %>
+                <h1>GaurPay API 文档 <small>安全、可靠的支付网关接口 — 版本 2.1</small></h1>
+                <p>欢迎使用 GaurPay 支付网关 API。本文档提供完整的集成指南，涵盖收款（代收）和转账（代付）功能。</p>
+                <div class="alert alert-info"><strong>基础 URL：</strong> <code>https://gaurpay.site</code><br>所有请求必须通过
+                    HTTPS 发送，Content-Type 为 <code>application/json</code>。</div>
+                <% } else { %>
+                    <h1>GaurPay API Documentation <small>Secure, reliable payment gateway integration — Version
+                            2.1</small></h1>
+                    <p>Welcome to the GaurPay Payment Gateway API. This documentation provides a comprehensive guide
+                        for integrating our secure collection (pay-in) and transfer (pay-out) solutions.</p>
+                    <div class="alert alert-info"><strong>Base URL:</strong>
+                        <code>https://gaurpay.site</code><br>All requests must be made over HTTPS with
+                        <code>Content-Type: application/json</code>.
+                    </div>
+                    <% } %>
+        </section>
+
+
+        <section id="auth">
+            <% if(currentLang==='zh' ){ %>
+                <h2>身份验证</h2>
+                <p>所有 API 请求需要通过 HTTP Header 进行身份验证。请在商户后台获取您的 API Key 和 Secret。</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Header</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>x-merchant-id</code></td>
+                            <td>您的商户 API Key</td>
+                        </tr>
+                        <tr>
+                            <td><code>x-signature</code></td>
+                            <td>请求参数的 MD5 签名（大写）</td>
+                        </tr>
+                        <tr>
+                            <td><code>Content-Type</code></td>
+                            <td><code>application/json</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <h3>签名生成步骤</h3>
+                <ol class="step-list">
+                    <li>将所有请求体参数按键名 ASCII 升序排序（排除空值和 <code>sign</code> 字段）</li>
+                    <li>拼接为 <code>key1=value1&key2=value2</code> 格式的字符串</li>
+                    <li>在末尾追加 <code>&secret=YOUR_SECRET_KEY</code></li>
+                    <li>计算 MD5 哈希并转换为<strong>大写</strong></li>
+                </ol>
+                <h3>代码示例</h3>
+                <% } else { %>
+                    <h2>Authentication</h2>
+                    <p>All API requests require header-based authentication. Obtain your API Key and Secret from
+                        the merchant dashboard settings page.</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Header</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>x-merchant-id</code></td>
+                                <td>Your unique Merchant API Key</td>
+                            </tr>
+                            <tr>
+                                <td><code>x-signature</code></td>
+                                <td>MD5 signature of request parameters (uppercase)</td>
+                            </tr>
+                            <tr>
+                                <td><code>Content-Type</code></td>
+                                <td><code>application/json</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>Signature Generation Steps</h3>
+                    <ol class="step-list">
+                        <li>Sort all request body parameters alphabetically by key name (ASCII ascending).
+                            Exclude empty values and the <code>sign</code> parameter.</li>
+                        <li>Concatenate into a query string: <code>key1=value1&key2=value2</code></li>
+                        <li>Append your secret key: <code>&secret=YOUR_SECRET_KEY</code></li>
+                        <li>Generate the MD5 hash and convert to <strong>UPPERCASE</strong></li>
+                    </ol>
+                    <h3>Code Examples</h3>
+                    <% } %>
+                        <div class="tabs" data-tabs="auth">
+                            <button class="tab-btn active" onclick="switchTab(this,'auth','js')">JavaScript</button>
+                            <button class="tab-btn" onclick="switchTab(this,'auth','python')">Python</button>
+                            <button class="tab-btn" onclick="switchTab(this,'auth','php')">PHP</button>
+                            <button class="tab-btn" onclick="switchTab(this,'auth','curl')">cURL</button>
+                        </div>
+                        <div class="tab-content active" data-tab="auth-js">
+                            <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                <pre><code class="language-javascript">const crypto = require('crypto');
 
 function generateSignature(params, secretKey) {
     const filtered = {};
@@ -724,12 +723,11 @@ const response = await fetch('https://gaurpay.site/api/payin/create', {
     },
     body: JSON.stringify(params)
 });</code></pre>
-                                    </div>
-                                </div>
-                                <div class="tab-content" data-tab="auth-python">
-                                    <div class="code-block"><button class="copy-btn"
-                                            onclick="copyCode(this)">Copy</button>
-                                        <pre><code class="language-python">import hashlib, json, requests
+                            </div>
+                        </div>
+                        <div class="tab-content" data-tab="auth-python">
+                            <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                <pre><code class="language-python">import hashlib, json, requests
 
 def generate_signature(params, secret_key):
     filtered = {k: v for k, v in params.items() if k != 'sign' and v not in ('', None)}
@@ -748,12 +746,11 @@ response = requests.post('https://gaurpay.site/api/payin/create',
         'x-merchant-id': 'YOUR_API_KEY',
         'x-signature': signature
     })</code></pre>
-                                    </div>
-                                </div>
-                                <div class="tab-content" data-tab="auth-php">
-                                    <div class="code-block"><button class="copy-btn"
-                                            onclick="copyCode(this)">Copy</button>
-                                        <pre><code class="language-php">&lt;?php
+                            </div>
+                        </div>
+                        <div class="tab-content" data-tab="auth-php">
+                            <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                <pre><code class="language-php">&lt;?php
 function generateSignature($params, $secretKey) {
     $filtered = array_filter($params, function($v, $k) {
         return $k !== 'sign' && $v !== '' && $v !== null;
@@ -779,12 +776,11 @@ curl_setopt_array($ch, [
     CURLOPT_POSTFIELDS => json_encode($params)
 ]);
 $response = curl_exec($ch);</code></pre>
-                                    </div>
-                                </div>
-                                <div class="tab-content" data-tab="auth-curl">
-                                    <div class="code-block"><button class="copy-btn"
-                                            onclick="copyCode(this)">Copy</button>
-                                        <pre><code class="language-bash">curl -X POST https://gaurpay.site/api/payin/create \
+                            </div>
+                        </div>
+                        <div class="tab-content" data-tab="auth-curl">
+                            <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                <pre><code class="language-bash">curl -X POST https://gaurpay.site/api/payin/create \
   -H "Content-Type: application/json" \
   -H "x-merchant-id: YOUR_API_KEY" \
   -H "x-signature: YOUR_GENERATED_SIGNATURE" \
@@ -793,229 +789,222 @@ $response = curl_exec($ch);</code></pre>
     "orderAmount": 500,
     "callbackUrl": "https://yoursite.com/webhook"
   }'</code></pre>
-                                    </div>
-                                </div>
-                </section>
+                            </div>
+                        </div>
+        </section>
 
-                
-                    <section id="format">
-                        <% if(currentLang==='zh' ){ %>
-                            <h2>请求与响应格式</h2>
-                            <p>所有 API 响应遵循统一的 JSON 格式：</p>
-                            <h3>成功响应</h3>
-                            <% } else { %>
-                                <h2>Request & Response Format</h2>
-                                <p>All API responses follow a standardized JSON envelope structure:</p>
-                                <h3>Success Response</h3>
-                                <% } %>
-                                    <div class="code-block"><button class="copy-btn"
-                                            onclick="copyCode(this)">Copy</button>
-                                        <pre><code class="language-json">{
+
+        <section id="format">
+            <% if(currentLang==='zh' ){ %>
+                <h2>请求与响应格式</h2>
+                <p>所有 API 响应遵循统一的 JSON 格式：</p>
+                <h3>成功响应</h3>
+                <% } else { %>
+                    <h2>Request & Response Format</h2>
+                    <p>All API responses follow a standardized JSON envelope structure:</p>
+                    <h3>Success Response</h3>
+                    <% } %>
+                        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-json">{
     "status": "success",
     "message": "Operation completed successfully",
     "timestamp": "2026-02-10T12:00:00.000Z",
     "result": { ... }
 }</code></pre>
-                                    </div>
-                                    <% if(currentLang==='zh' ){ %>
-                                        <h3>错误响应</h3>
-                                        <% } else { %>
-                                            <h3>Error Response</h3>
-                                            <% } %>
-                                                <div class="code-block"><button class="copy-btn"
-                                                        onclick="copyCode(this)">Copy</button>
-                                                    <pre><code class="language-json">{
+                        </div>
+                        <% if(currentLang==='zh' ){ %>
+                            <h3>错误响应</h3>
+                            <% } else { %>
+                                <h3>Error Response</h3>
+                                <% } %>
+                                    <div class="code-block"><button class="copy-btn"
+                                            onclick="copyCode(this)">Copy</button>
+                                        <pre><code class="language-json">{
     "status": "error",
     "errorCode": "INVALID_PARAMS",
     "message": "Missing required parameter: orderId",
     "timestamp": "2026-02-10T12:00:00.000Z"
 }</code></pre>
-                                                </div>
-                                                <% if(currentLang==='zh' ){ %>
-                                                    <h3>订单状态</h3>
-                                                    <table>
-                                                        <thead>
-                                                            <tr>
-                                                                <th>状态</th>
-                                                                <th>说明</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <tr>
-                                                                <td><span class="status-badge pending">pending</span>
-                                                                </td>
-                                                                <td>订单已创建，等待支付</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td><span
-                                                                        class="status-badge processing">processing</span>
-                                                                </td>
-                                                                <td>支付处理中</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td><span class="status-badge success">success</span>
-                                                                </td>
-                                                                <td>支付/转账成功</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td><span class="status-badge failed">failed</span></td>
-                                                                <td>支付/转账失败</td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                    <% } else { %>
-                                                        <h3>Order Statuses</h3>
-                                                        <table>
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>Status</th>
-                                                                    <th>Description</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                <tr>
-                                                                    <td><span
-                                                                            class="status-badge pending">pending</span>
-                                                                    </td>
-                                                                    <td>Order created, awaiting payment</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td><span
-                                                                            class="status-badge processing">processing</span>
-                                                                    </td>
-                                                                    <td>Payment is being processed</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td><span
-                                                                            class="status-badge success">success</span>
-                                                                    </td>
-                                                                    <td>Payment / transfer completed successfully</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td><span class="status-badge failed">failed</span>
-                                                                    </td>
-                                                                    <td>Payment / transfer failed</td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                        <% } %>
-                    </section>
-
-                    
-                        <section id="payin-create">
-                            <% if(currentLang==='zh' ){ %>
-                                <h2>创建收款订单</h2>
-                                <p>创建新的收款订单以接收客户付款。系统将返回支付链接供客户完成支付。</p>
-                                <% } else { %>
-                                    <h2>Create Collection Order</h2>
-                                    <p>Create a new collection order to accept payment from a customer. The API returns
-                                        a payment URL to redirect the customer.</p>
-                                    <% } %>
-                                        <div class="endpoint"><span class="method post">POST</span> /api/payin/create
-                                        </div>
-                                        <h3>
-                                            <%= currentLang==='zh' ?'请求参数':'Request Parameters' %>
-                                        </h3>
+                                    </div>
+                                    <% if(currentLang==='zh' ){ %>
+                                        <h3>订单状态</h3>
                                         <table>
                                             <thead>
                                                 <tr>
-                                                    <th>
-                                                        <%= currentLang==='zh' ?'参数':'Parameter' %>
-                                                    </th>
-                                                    <th>
-                                                        <%= currentLang==='zh' ?'类型':'Type' %>
-                                                    </th>
-                                                    <th>
-                                                        <%= currentLang==='zh' ?'说明':'Description' %>
-                                                    </th>
+                                                    <th>状态</th>
+                                                    <th>说明</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <tr>
-                                                    <td><code>orderId</code></td>
-                                                    <td>String<span class="required">
-                                                            <%= currentLang==='zh' ?'必填':'Required' %>
-                                                        </span></td>
-                                                    <td>
-                                                        <%= currentLang==='zh' ?'商户唯一订单号（最大64字符，不含特殊字符）':'Unique
-                                                            merchant order ID (max 64 chars, no special characters)' %>
+                                                    <td><span class="status-badge pending">pending</span>
                                                     </td>
+                                                    <td>订单已创建，等待支付</td>
                                                 </tr>
                                                 <tr>
-                                                    <td><code>orderAmount</code></td>
-                                                    <td>Number<span class="required">
-                                                            <%= currentLang==='zh' ?'必填':'Required' %>
-                                                        </span></td>
-                                                    <td>
-                                                        <%= currentLang==='zh' ?'收款金额，单位 INR（最低 ₹100）':'Collection
-                                                            amount in INR (minimum ₹100)' %>
+                                                    <td><span class="status-badge processing">processing</span>
                                                     </td>
+                                                    <td>支付处理中</td>
                                                 </tr>
                                                 <tr>
-                                                    <td><code>callbackUrl</code></td>
-                                                    <td>String<span class="required">
-                                                            <%= currentLang==='zh' ?'必填':'Required' %>
-                                                        </span></td>
-                                                    <td>
-                                                        <%= currentLang==='zh' ?'异步回调通知地址（需 HTTPS）':'Async webhook URL
-                                                            for payment notifications (HTTPS recommended)' %>
+                                                    <td><span class="status-badge success">success</span>
                                                     </td>
+                                                    <td>支付/转账成功</td>
                                                 </tr>
                                                 <tr>
-                                                    <td><code>customerName</code></td>
-                                                    <td>String<span class="optional">
-                                                            <%= currentLang==='zh' ?'可选':'Optional' %>
-                                                        </span></td>
-                                                    <td>
-                                                        <%= currentLang==='zh' ?'客户姓名':'Customer full name' %>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td><code>customerEmail</code></td>
-                                                    <td>String<span class="optional">
-                                                            <%= currentLang==='zh' ?'可选':'Optional' %>
-                                                        </span></td>
-                                                    <td>
-                                                        <%= currentLang==='zh' ?'客户邮箱':'Customer email address' %>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td><code>customerPhone</code></td>
-                                                    <td>String<span class="optional">
-                                                            <%= currentLang==='zh' ?'可选':'Optional' %>
-                                                        </span></td>
-                                                    <td>
-                                                        <%= currentLang==='zh' ?'客户电话':'Customer phone number' %>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td><code>returnUrl</code></td>
-                                                    <td>String<span class="optional">
-                                                            <%= currentLang==='zh' ?'可选':'Optional' %>
-                                                        </span></td>
-                                                    <td>
-                                                        <%= currentLang==='zh' ?'支付成功后同步跳转地址':'Redirect URL after
-                                                            successful payment' %>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td><code>param</code></td>
-                                                    <td>String<span class="optional">
-                                                            <%= currentLang==='zh' ?'可选':'Optional' %>
-                                                        </span></td>
-                                                    <td>
-                                                        <%= currentLang==='zh' ?'自定义透传数据（回调时原样返回）':'Custom pass-through
-                                                            data (returned in callback)' %>
-                                                    </td>
+                                                    <td><span class="status-badge failed">failed</span></td>
+                                                    <td>支付/转账失败</td>
                                                 </tr>
                                             </tbody>
                                         </table>
-                                        <h3>
-                                            <%= currentLang==='zh' ?'请求示例':'Example Request' %>
-                                        </h3>
-                                        <div class="code-block"><button class="copy-btn"
-                                                onclick="copyCode(this)">Copy</button>
-                                            <pre><code class="language-bash">curl -X POST https://gaurpay.site/api/payin/create \
+                                        <% } else { %>
+                                            <h3>Order Statuses</h3>
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        <th>Status</th>
+                                                        <th>Description</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td><span class="status-badge pending">pending</span>
+                                                        </td>
+                                                        <td>Order created, awaiting payment</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><span class="status-badge processing">processing</span>
+                                                        </td>
+                                                        <td>Payment is being processed</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><span class="status-badge success">success</span>
+                                                        </td>
+                                                        <td>Payment / transfer completed successfully</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><span class="status-badge failed">failed</span>
+                                                        </td>
+                                                        <td>Payment / transfer failed</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <% } %>
+        </section>
+
+
+        <section id="payin-create">
+            <% if(currentLang==='zh' ){ %>
+                <h2>创建收款订单</h2>
+                <p>创建新的收款订单以接收客户付款。系统将返回支付链接供客户完成支付。</p>
+                <% } else { %>
+                    <h2>Create Collection Order</h2>
+                    <p>Create a new collection order to accept payment from a customer. The API returns
+                        a payment URL to redirect the customer.</p>
+                    <% } %>
+                        <div class="endpoint"><span class="method post">POST</span> /api/payin/create
+                        </div>
+                        <h3>
+                            <%= currentLang==='zh' ?'请求参数':'Request Parameters' %>
+                        </h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <%= currentLang==='zh' ?'参数':'Parameter' %>
+                                    </th>
+                                    <th>
+                                        <%= currentLang==='zh' ?'类型':'Type' %>
+                                    </th>
+                                    <th>
+                                        <%= currentLang==='zh' ?'说明':'Description' %>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>orderId</code></td>
+                                    <td>String<span class="required">
+                                            <%= currentLang==='zh' ?'必填':'Required' %>
+                                        </span></td>
+                                    <td>
+                                        <%= currentLang==='zh' ?'商户唯一订单号（最大64字符，不含特殊字符）':'Unique merchant order ID (max
+                                            64 chars, no special characters)' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><code>orderAmount</code></td>
+                                    <td>Number<span class="required">
+                                            <%= currentLang==='zh' ?'必填':'Required' %>
+                                        </span></td>
+                                    <td>
+                                        <%= currentLang==='zh' ?'收款金额，单位 INR（最低 ₹100）':'Collection amount in INR
+                                            (minimum ₹100)' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><code>callbackUrl</code></td>
+                                    <td>String<span class="required">
+                                            <%= currentLang==='zh' ?'必填':'Required' %>
+                                        </span></td>
+                                    <td>
+                                        <%= currentLang==='zh' ?'异步回调通知地址（需 HTTPS）':'Async webhook URL for payment
+                                            notifications (HTTPS recommended)' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><code>customerName</code></td>
+                                    <td>String<span class="optional">
+                                            <%= currentLang==='zh' ?'可选':'Optional' %>
+                                        </span></td>
+                                    <td>
+                                        <%= currentLang==='zh' ?'客户姓名':'Customer full name' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><code>customerEmail</code></td>
+                                    <td>String<span class="optional">
+                                            <%= currentLang==='zh' ?'可选':'Optional' %>
+                                        </span></td>
+                                    <td>
+                                        <%= currentLang==='zh' ?'客户邮箱':'Customer email address' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><code>customerPhone</code></td>
+                                    <td>String<span class="optional">
+                                            <%= currentLang==='zh' ?'可选':'Optional' %>
+                                        </span></td>
+                                    <td>
+                                        <%= currentLang==='zh' ?'客户电话':'Customer phone number' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><code>returnUrl</code></td>
+                                    <td>String<span class="optional">
+                                            <%= currentLang==='zh' ?'可选':'Optional' %>
+                                        </span></td>
+                                    <td>
+                                        <%= currentLang==='zh' ?'支付成功后同步跳转地址':'Redirect URL after successful payment' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><code>param</code></td>
+                                    <td>String<span class="optional">
+                                            <%= currentLang==='zh' ?'可选':'Optional' %>
+                                        </span></td>
+                                    <td>
+                                        <%= currentLang==='zh' ?'自定义透传数据（回调时原样返回）':'Custom pass-through data (returned
+                                            in callback)' %>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h3>
+                            <%= currentLang==='zh' ?'请求示例':'Example Request' %>
+                        </h3>
+                        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-bash">curl -X POST https://gaurpay.site/api/payin/create \
   -H "Content-Type: application/json" \
   -H "x-merchant-id: YOUR_API_KEY" \
   -H "x-signature: A1B2C3D4E5F6..." \
@@ -1027,13 +1016,12 @@ $response = curl_exec($ch);</code></pre>
     "customerName": "Test User",
     "param": "user_123"
   }'</code></pre>
-                                        </div>
-                                        <h3>
-                                            <%= currentLang==='zh' ?'成功响应':'Success Response' %>
-                                        </h3>
-                                        <div class="code-block"><button class="copy-btn"
-                                                onclick="copyCode(this)">Copy</button>
-                                            <pre><code class="language-json">{
+                        </div>
+                        <h3>
+                            <%= currentLang==='zh' ?'成功响应':'Success Response' %>
+                        </h3>
+                        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-json">{
     "status": "success",
     "message": "Order created successfully",
     "timestamp": "2026-02-10T12:00:00.000Z",
@@ -1046,56 +1034,55 @@ $response = curl_exec($ch);</code></pre>
         "expiresIn": 1800
     }
 }</code></pre>
-                                        </div>
-                        </section>
+                        </div>
+        </section>
 
-                        
-                            <section id="payin-query">
-                                <% if(currentLang==='zh' ){ %>
-                                    <h2>查询收款订单</h2>
-                                    <p>查询收款订单的实时状态，包括交易参考号（UTR）。</p>
-                                    <% } else { %>
-                                        <h2>Query Collection Status</h2>
-                                        <p>Check the real-time status of a collection order, including the transaction
-                                            reference (UTR).</p>
-                                        <% } %>
-                                            <div class="endpoint"><span class="method post">POST</span> /api/payin/query
-                                            </div>
-                                            <h3>
-                                                <%= currentLang==='zh' ?'请求参数':'Request Parameters' %>
-                                            </h3>
-                                            <table>
-                                                <thead>
-                                                    <tr>
-                                                        <th>
-                                                            <%= currentLang==='zh' ?'参数':'Parameter' %>
-                                                        </th>
-                                                        <th>
-                                                            <%= currentLang==='zh' ?'类型':'Type' %>
-                                                        </th>
-                                                        <th>
-                                                            <%= currentLang==='zh' ?'说明':'Description' %>
-                                                        </th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td><code>orderId</code></td>
-                                                        <td>String<span class="required">
-                                                                <%= currentLang==='zh' ?'必填':'Required' %>
-                                                            </span></td>
-                                                        <td>
-                                                            <%= currentLang==='zh' ?'商户订单号':'Merchant Order ID' %>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                            <h3>
-                                                <%= currentLang==='zh' ?'成功响应':'Success Response' %>
-                                            </h3>
-                                            <div class="code-block"><button class="copy-btn"
-                                                    onclick="copyCode(this)">Copy</button>
-                                                <pre><code class="language-json">{
+
+        <section id="payin-query">
+            <% if(currentLang==='zh' ){ %>
+                <h2>查询收款订单</h2>
+                <p>查询收款订单的实时状态，包括交易参考号（UTR）。</p>
+                <% } else { %>
+                    <h2>Query Collection Status</h2>
+                    <p>Check the real-time status of a collection order, including the transaction
+                        reference (UTR).</p>
+                    <% } %>
+                        <div class="endpoint"><span class="method post">POST</span> /api/payin/query
+                        </div>
+                        <h3>
+                            <%= currentLang==='zh' ?'请求参数':'Request Parameters' %>
+                        </h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <%= currentLang==='zh' ?'参数':'Parameter' %>
+                                    </th>
+                                    <th>
+                                        <%= currentLang==='zh' ?'类型':'Type' %>
+                                    </th>
+                                    <th>
+                                        <%= currentLang==='zh' ?'说明':'Description' %>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>orderId</code></td>
+                                    <td>String<span class="required">
+                                            <%= currentLang==='zh' ?'必填':'Required' %>
+                                        </span></td>
+                                    <td>
+                                        <%= currentLang==='zh' ?'商户订单号':'Merchant Order ID' %>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h3>
+                            <%= currentLang==='zh' ?'成功响应':'Success Response' %>
+                        </h3>
+                        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-json">{
     "status": "success",
     "timestamp": "2026-02-10T12:05:00.000Z",
     "result": {
@@ -1109,24 +1096,23 @@ $response = curl_exec($ch);</code></pre>
         "createdAt": "2026-02-10T12:00:00.000Z"
     }
 }</code></pre>
-                                            </div>
-                            </section>
+                        </div>
+        </section>
 
-                            
-                                <section id="payin-callback">
-                                    <% if(currentLang==='zh' ){ %>
-                                        <h2>收款回调（Webhook）</h2>
-                                        <p>当订单状态发生变更（成功或失败）时，系统将向您的 <code>callbackUrl</code> 发送 POST 请求。</p>
-                                        <h3>回调参数</h3>
-                                        <% } else { %>
-                                            <h2>Collection Callback (Webhook)</h2>
-                                            <p>When the payment status changes (success or failure), the system sends a
-                                                POST request to your <code>callbackUrl</code>.</p>
-                                            <h3>Callback Payload</h3>
-                                            <% } %>
-                                                <div class="code-block"><button class="copy-btn"
-                                                        onclick="copyCode(this)">Copy</button>
-                                                    <pre><code class="language-json">{
+
+        <section id="payin-callback">
+            <% if(currentLang==='zh' ){ %>
+                <h2>收款回调（Webhook）</h2>
+                <p>当订单状态发生变更（成功或失败）时，系统将向您的 <code>callbackUrl</code> 发送 POST 请求。</p>
+                <h3>回调参数</h3>
+                <% } else { %>
+                    <h2>Collection Callback (Webhook)</h2>
+                    <p>When the payment status changes (success or failure), the system sends a
+                        POST request to your <code>callbackUrl</code>.</p>
+                    <h3>Callback Payload</h3>
+                    <% } %>
+                        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-json">{
     "orderId": "ORD_20260210_001",
     "amount": "500.00",
     "status": "SUCCESS",
@@ -1134,22 +1120,21 @@ $response = curl_exec($ch);</code></pre>
     "param": "user_123",
     "sign": "A1B2C3D4E5F6..."
 }</code></pre>
-                                                </div>
-                                                <div class="alert alert-warning">
-                                                    <%= currentLang==='zh' ?'<strong>重要：</strong>收到回调后，请使用您的 Secret Key
-                                                        验证 <code>sign</code> 签名。验证成功后，请返回纯文本 <code>SUCCESS</code>
-                                                        确认接收。如果未确认，系统将重试最多 3 次。':'<strong>Important:</strong> Verify the
-                                                        <code>sign</code> signature using your Secret Key upon receiving
-                                                        the callback. Return plain text <code>SUCCESS</code> to
-                                                        acknowledge receipt. The system will retry up to 3 times if not
-                                                        acknowledged.' %>
-                                                </div>
-                                                <h3>
-                                                    <%= currentLang==='zh' ?'签名验证示例':'Signature Verification Example' %>
-                                                </h3>
-                                                <div class="code-block"><button class="copy-btn"
-                                                        onclick="copyCode(this)">Copy</button>
-                                                    <pre><code class="language-javascript">// Verify the callback signature
+                        </div>
+                        <div class="alert alert-warning">
+                            <%= currentLang==='zh' ?'<strong>重要：</strong>收到回调后，请使用您的 Secret Key
+                                验证 <code>sign</code> 签名。验证成功后，请返回纯文本 <code>SUCCESS</code>
+                                确认接收。如果未确认，系统将重试最多 3 次。':'<strong>Important:</strong> Verify the
+                                <code>sign</code> signature using your Secret Key upon receiving
+                                the callback. Return plain text <code>SUCCESS</code> to
+                                acknowledge receipt. The system will retry up to 3 times if not
+                                acknowledged.' %>
+                        </div>
+                        <h3>
+                            <%= currentLang==='zh' ?'签名验证示例':'Signature Verification Example' %>
+                        </h3>
+                        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-javascript">// Verify the callback signature
 const { sign, ...params } = callbackBody;
 const expectedSign = generateSignature(params, 'YOUR_SECRET_KEY');
 if (sign === expectedSign) {
@@ -1160,118 +1145,110 @@ if (sign === expectedSign) {
     console.error('Invalid signature!');
     res.status(400).send('FAIL');
 }</code></pre>
-                                                </div>
-                                </section>
+                        </div>
+        </section>
 
-                                
-                                    <section id="payout-bank">
-                                        <% if(currentLang==='zh' ){ %>
-                                            <h2>银行转账（代付）</h2>
-                                            <p>发起银行转账，通过 IMPS/NEFT 将资金转入收款人银行账户。</p>
-                                            <% } else { %>
-                                                <h2>Bank Transfer (Payout)</h2>
-                                                <p>Initiate a direct bank transfer (IMPS/NEFT) to a beneficiary's bank
-                                                    account.</p>
-                                                <% } %>
-                                                    <div class="endpoint"><span class="method post">POST</span>
-                                                        /api/payout/bank</div>
-                                                    <h3>
-                                                        <%= currentLang==='zh' ?'请求参数':'Request Parameters' %>
-                                                    </h3>
-                                                    <table>
-                                                        <thead>
-                                                            <tr>
-                                                                <th>
-                                                                    <%= currentLang==='zh' ?'参数':'Parameter' %>
-                                                                </th>
-                                                                <th>
-                                                                    <%= currentLang==='zh' ?'类型':'Type' %>
-                                                                </th>
-                                                                <th>
-                                                                    <%= currentLang==='zh' ?'说明':'Description' %>
-                                                                </th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <tr>
-                                                                <td><code>orderId</code></td>
-                                                                <td>String<span class="required">
-                                                                        <%= currentLang==='zh' ?'必填':'Required' %>
-                                                                    </span></td>
-                                                                <td>
-                                                                    <%= currentLang==='zh' ?'商户唯一订单号':'Unique merchant
-                                                                        order ID' %>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td><code>amount</code></td>
-                                                                <td>Number<span class="required">
-                                                                        <%= currentLang==='zh' ?'必填':'Required' %>
-                                                                    </span></td>
-                                                                <td>
-                                                                    <%= currentLang==='zh' ?'转账金额，单位 INR（最低
-                                                                        ₹100）':'Transfer amount in INR (minimum ₹100)'
-                                                                        %>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td><code>account</code></td>
-                                                                <td>String<span class="required">
-                                                                        <%= currentLang==='zh' ?'必填':'Required' %>
-                                                                    </span></td>
-                                                                <td>
-                                                                    <%= currentLang==='zh' ?'收款人银行账号':'Beneficiary bank
-                                                                        account number' %>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td><code>ifsc</code></td>
-                                                                <td>String<span class="required">
-                                                                        <%= currentLang==='zh' ?'必填':'Required' %>
-                                                                    </span></td>
-                                                                <td>
-                                                                    <%= currentLang==='zh' ?'银行 IFSC 代码':'Bank IFSC
-                                                                        code' %>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td><code>personName</code></td>
-                                                                <td>String<span class="required">
-                                                                        <%= currentLang==='zh' ?'必填':'Required' %>
-                                                                    </span></td>
-                                                                <td>
-                                                                    <%= currentLang==='zh' ?'收款人姓名':'Beneficiary full
-                                                                        name' %>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td><code>callbackUrl</code></td>
-                                                                <td>String<span class="required">
-                                                                        <%= currentLang==='zh' ?'必填':'Required' %>
-                                                                    </span></td>
-                                                                <td>
-                                                                    <%= currentLang==='zh' ?'异步回调通知地址':'Webhook URL for
-                                                                        status updates' %>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td><code>param</code></td>
-                                                                <td>String<span class="optional">
-                                                                        <%= currentLang==='zh' ?'可选':'Optional' %>
-                                                                    </span></td>
-                                                                <td>
-                                                                    <%= currentLang==='zh' ?'自定义透传数据':'Custom
-                                                                        pass-through data' %>
-                                                                </td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                    <h3>
-                                                        <%= currentLang==='zh' ?'请求示例':'Example Request' %>
-                                                    </h3>
-                                                    <div class="code-block"><button class="copy-btn"
-                                                            onclick="copyCode(this)">Copy</button>
-                                                        <pre><code class="language-bash">curl -X POST https://gaurpay.site/api/payout/bank \
+
+        <section id="payout-bank">
+            <% if(currentLang==='zh' ){ %>
+                <h2>银行转账（代付）</h2>
+                <p>发起银行转账，通过 IMPS/NEFT 将资金转入收款人银行账户。</p>
+                <% } else { %>
+                    <h2>Bank Transfer (Payout)</h2>
+                    <p>Initiate a direct bank transfer (IMPS/NEFT) to a beneficiary's bank
+                        account.</p>
+                    <% } %>
+                        <div class="endpoint"><span class="method post">POST</span>
+                            /api/payout/bank</div>
+                        <h3>
+                            <%= currentLang==='zh' ?'请求参数':'Request Parameters' %>
+                        </h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <%= currentLang==='zh' ?'参数':'Parameter' %>
+                                    </th>
+                                    <th>
+                                        <%= currentLang==='zh' ?'类型':'Type' %>
+                                    </th>
+                                    <th>
+                                        <%= currentLang==='zh' ?'说明':'Description' %>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>orderId</code></td>
+                                    <td>String<span class="required">
+                                            <%= currentLang==='zh' ?'必填':'Required' %>
+                                        </span></td>
+                                    <td>
+                                        <%= currentLang==='zh' ?'商户唯一订单号':'Unique merchant order ID' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><code>amount</code></td>
+                                    <td>Number<span class="required">
+                                            <%= currentLang==='zh' ?'必填':'Required' %>
+                                        </span></td>
+                                    <td>
+                                        <%= currentLang==='zh' ?'转账金额，单位 INR（最低 ₹100）':'Transfer amount in INR (minimum
+                                            ₹100)' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><code>account</code></td>
+                                    <td>String<span class="required">
+                                            <%= currentLang==='zh' ?'必填':'Required' %>
+                                        </span></td>
+                                    <td>
+                                        <%= currentLang==='zh' ?'收款人银行账号':'Beneficiary bank account number' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><code>ifsc</code></td>
+                                    <td>String<span class="required">
+                                            <%= currentLang==='zh' ?'必填':'Required' %>
+                                        </span></td>
+                                    <td>
+                                        <%= currentLang==='zh' ?'银行 IFSC 代码':'Bank IFSC code' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><code>personName</code></td>
+                                    <td>String<span class="required">
+                                            <%= currentLang==='zh' ?'必填':'Required' %>
+                                        </span></td>
+                                    <td>
+                                        <%= currentLang==='zh' ?'收款人姓名':'Beneficiary full name' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><code>callbackUrl</code></td>
+                                    <td>String<span class="required">
+                                            <%= currentLang==='zh' ?'必填':'Required' %>
+                                        </span></td>
+                                    <td>
+                                        <%= currentLang==='zh' ?'异步回调通知地址':'Webhook URL for status updates' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><code>param</code></td>
+                                    <td>String<span class="optional">
+                                            <%= currentLang==='zh' ?'可选':'Optional' %>
+                                        </span></td>
+                                    <td>
+                                        <%= currentLang==='zh' ?'自定义透传数据':'Custom pass-through data' %>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h3>
+                            <%= currentLang==='zh' ?'请求示例':'Example Request' %>
+                        </h3>
+                        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-bash">curl -X POST https://gaurpay.site/api/payout/bank \
   -H "Content-Type: application/json" \
   -H "x-merchant-id: YOUR_API_KEY" \
   -H "x-signature: A1B2C3D4E5F6..." \
@@ -1283,13 +1260,12 @@ if (sign === expectedSign) {
     "personName": "Recipient Name",
     "callbackUrl": "https://yoursite.com/webhook/payout"
   }'</code></pre>
-                                                    </div>
-                                                    <h3>
-                                                        <%= currentLang==='zh' ?'成功响应':'Success Response' %>
-                                                    </h3>
-                                                    <div class="code-block"><button class="copy-btn"
-                                                            onclick="copyCode(this)">Copy</button>
-                                                        <pre><code class="language-json">{
+                        </div>
+                        <h3>
+                            <%= currentLang==='zh' ?'成功响应':'Success Response' %>
+                        </h3>
+                        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-json">{
     "status": "success",
     "message": "Payout submitted successfully",
     "timestamp": "2026-02-10T12:00:00.000Z",
@@ -1301,133 +1277,128 @@ if (sign === expectedSign) {
         "orderStatus": "processing"
     }
 }</code></pre>
-                                                    </div>
-                                    </section>
+                        </div>
+        </section>
 
-                                    
-                                        <section id="payout-query">
-                                            <% if(currentLang==='zh' ){ %>
-                                                <h2>查询代付状态</h2>
-                                                <p>查询代付订单的实时状态。</p>
-                                                <% } else { %>
-                                                    <h2>Query Transfer Status</h2>
-                                                    <p>Check the real-time status of a payout / transfer order.</p>
-                                                    <% } %>
-                                                        <div class="endpoint"><span class="method post">POST</span>
-                                                            /api/payout/query</div>
-                                                        <h3>
-                                                            <%= currentLang==='zh' ?'请求参数':'Request Parameters' %>
-                                                        </h3>
-                                                        <table>
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>
-                                                                        <%= currentLang==='zh' ?'参数':'Parameter' %>
-                                                                    </th>
-                                                                    <th>
-                                                                        <%= currentLang==='zh' ?'类型':'Type' %>
-                                                                    </th>
-                                                                    <th>
-                                                                        <%= currentLang==='zh' ?'说明':'Description' %>
-                                                                    </th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                <tr>
-                                                                    <td><code>orderId</code></td>
-                                                                    <td>String<span class="required">
-                                                                            <%= currentLang==='zh' ?'必填':'Required' %>
-                                                                        </span></td>
-                                                                    <td>
-                                                                        <%= currentLang==='zh' ?'商户订单号':'Merchant Order
-                                                                            ID' %>
-                                                                    </td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                        <h3>
-                                                            <%= currentLang==='zh' ?'成功响应':'Success Response' %>
-                                                        </h3>
-                                                        <div class="code-block"><button class="copy-btn"
-                                                                onclick="copyCode(this)">Copy</button>
-                                                            <pre><code class="language-json">{
-    "code": 1,
-    "data": {
+
+        <section id="payout-query">
+            <% if(currentLang==='zh' ){ %>
+                <h2>查询代付状态</h2>
+                <p>查询代付订单的实时状态。</p>
+                <% } else { %>
+                    <h2>Query Transfer Status</h2>
+                    <p>Check the real-time status of a payout / transfer order.</p>
+                    <% } %>
+                        <div class="endpoint"><span class="method post">POST</span>
+                            /api/payout/query</div>
+                        <h3>
+                            <%= currentLang==='zh' ?'请求参数':'Request Parameters' %>
+                        </h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <%= currentLang==='zh' ?'参数':'Parameter' %>
+                                    </th>
+                                    <th>
+                                        <%= currentLang==='zh' ?'类型':'Type' %>
+                                    </th>
+                                    <th>
+                                        <%= currentLang==='zh' ?'说明':'Description' %>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>orderId</code></td>
+                                    <td>String<span class="required">
+                                            <%= currentLang==='zh' ?'必填':'Required' %>
+                                        </span></td>
+                                    <td>
+                                        <%= currentLang==='zh' ?'商户订单号':'Merchant Order ID' %>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h3>
+                            <%= currentLang==='zh' ?'成功响应':'Success Response' %>
+                        </h3>
+                        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-json">{
+    "status": "success",
+    "timestamp": "2026-02-10T12:05:00.000Z",
+    "result": {
         "orderId": "PO_20260210_001",
-        "id": "b2c3d4e5-f6a7-...",
+        "platformOrderId": "b2c3d4e5-f6a7-...",
         "type": "bank",
-        "status": "success",
+        "orderStatus": "success",
         "amount": 10000.00,
-        "fee": 306.00,
+        "processingFee": 306.00,
         "utr": "UTR998877665544",
         "createdAt": "2026-02-10T12:00:00.000Z"
     }
 }</code></pre>
-                                                        </div>
-                                        </section>
+                        </div>
+        </section>
 
-                                        
-                                            <section id="payout-callback">
-                                                <% if(currentLang==='zh' ){ %>
-                                                    <h2>代付回调（Webhook）</h2>
-                                                    <p>代付完成后，系统向您的 <code>callbackUrl</code> 推送结果。</p>
-                                                    <h3>回调参数</h3>
-                                                    <% } else { %>
-                                                        <h2>Transfer Callback (Webhook)</h2>
-                                                        <p>When the transfer completes or fails, we POST the result to
-                                                            your <code>callbackUrl</code>.</p>
-                                                        <h3>Callback Payload</h3>
-                                                        <% } %>
-                                                            <div class="code-block"><button class="copy-btn"
-                                                                    onclick="copyCode(this)">Copy</button>
-                                                                <pre><code class="language-json">{
+
+        <section id="payout-callback">
+            <% if(currentLang==='zh' ){ %>
+                <h2>代付回调（Webhook）</h2>
+                <p>代付完成后，系统向您的 <code>callbackUrl</code> 推送结果。</p>
+                <h3>回调参数</h3>
+                <% } else { %>
+                    <h2>Transfer Callback (Webhook)</h2>
+                    <p>When the transfer completes or fails, we POST the result to
+                        your <code>callbackUrl</code>.</p>
+                    <h3>Callback Payload</h3>
+                    <% } %>
+                        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-json">{
     "orderId": "PO_20260210_001",
     "amount": "10000.00",
     "status": "SUCCESS",
     "utr": "UTR998877665544",
     "sign": "X1Y2Z3A4B5C6..."
 }</code></pre>
-                                                            </div>
-                                                            <div class="alert alert-warning">
-                                                                <%= currentLang==='zh' ?'<strong>重要：</strong>请验证签名后返回纯文本
-                                                                    <code>SUCCESS</code>
-                                                                    确认接收。':'<strong>Important:</strong> Verify the
-                                                                    signature and return plain text <code>SUCCESS</code>
-                                                                    to acknowledge.' %>
-                                                            </div>
-                                            </section>
+                        </div>
+                        <div class="alert alert-warning">
+                            <%= currentLang==='zh' ?'<strong>重要：</strong>请验证签名后返回纯文本
+                                <code>SUCCESS</code>
+                                确认接收。':'<strong>Important:</strong> Verify the
+                                signature and return plain text <code>SUCCESS</code>
+                                to acknowledge.' %>
+                        </div>
+        </section>
 
-                                            
-                                                <section id="balance">
-                                                    <% if(currentLang==='zh' ){ %>
-                                                        <h2>查询余额</h2>
-                                                        <p>查询当前商户账户的可用余额、冻结余额和总余额。无需请求参数，仅需签名验证。</p>
-                                                        <% } else { %>
-                                                            <h2>Check Balance</h2>
-                                                            <p>Retrieve your current account balances. No request body
-                                                                parameters required — only header authentication is
-                                                                needed.</p>
-                                                            <% } %>
-                                                                <div class="endpoint"><span
-                                                                        class="method post">POST</span>
-                                                                    /api/balance/query</div>
-                                                                <h3>
-                                                                    <%= currentLang==='zh' ?'请求示例':'Example Request' %>
-                                                                </h3>
-                                                                <div class="code-block"><button class="copy-btn"
-                                                                        onclick="copyCode(this)">Copy</button>
-                                                                    <pre><code class="language-bash">curl -X POST https://gaurpay.site/api/balance/query \
+
+        <section id="balance">
+            <% if(currentLang==='zh' ){ %>
+                <h2>查询余额</h2>
+                <p>查询当前商户账户的可用余额、冻结余额和总余额。无需请求参数，仅需签名验证。</p>
+                <% } else { %>
+                    <h2>Check Balance</h2>
+                    <p>Retrieve your current account balances. No request body
+                        parameters required — only header authentication is
+                        needed.</p>
+                    <% } %>
+                        <div class="endpoint"><span class="method post">POST</span>
+                            /api/balance/query</div>
+                        <h3>
+                            <%= currentLang==='zh' ?'请求示例':'Example Request' %>
+                        </h3>
+                        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-bash">curl -X POST https://gaurpay.site/api/balance/query \
   -H "Content-Type: application/json" \
   -H "x-merchant-id: YOUR_API_KEY" \
   -H "x-signature: YOUR_SIGNATURE" \
   -d '{}'</code></pre>
-                                                                </div>
-                                                                <h3>
-                                                                    <%= currentLang==='zh' ?'成功响应':'Success Response' %>
-                                                                </h3>
-                                                                <div class="code-block"><button class="copy-btn"
-                                                                        onclick="copyCode(this)">Copy</button>
-                                                                    <pre><code class="language-json">{
+                        </div>
+                        <h3>
+                            <%= currentLang==='zh' ?'成功响应':'Success Response' %>
+                        </h3>
+                        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-json">{
     "status": "success",
     "timestamp": "2026-02-10T12:00:00.000Z",
     "result": {
@@ -1437,288 +1408,284 @@ if (sign === expectedSign) {
         "currency": "INR"
     }
 }</code></pre>
-                                                                </div>
-                                                </section>
+                        </div>
+        </section>
 
-                                                
-                                                    <section id="errors">
-                                                        <% if(currentLang==='zh' ){ %>
-                                                            <h2>错误代码</h2>
-                                                            <p>以下是 API 可能返回的所有错误代码及其说明：</p>
-                                                            <table>
-                                                                <thead>
-                                                                    <tr>
-                                                                        <th>HTTP 状态</th>
-                                                                        <th>错误代码</th>
-                                                                        <th>说明</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    <tr>
-                                                                        <td>400</td>
-                                                                        <td><code>INVALID_PARAMS</code></td>
-                                                                        <td>参数缺失或格式错误</td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td>401</td>
-                                                                        <td><code>INVALID_SIGNATURE</code></td>
-                                                                        <td>签名验证失败</td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td>401</td>
-                                                                        <td><code>INVALID_MERCHANT</code></td>
-                                                                        <td>商户 ID 无效或未激活</td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td>403</td>
-                                                                        <td><code>IP_NOT_WHITELISTED</code></td>
-                                                                        <td>请求 IP 不在白名单中</td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td>403</td>
-                                                                        <td><code>SERVICE_SUSPENDED</code></td>
-                                                                        <td>商户服务已暂停</td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td>409</td>
-                                                                        <td><code>DUPLICATE_ORDER</code></td>
-                                                                        <td>订单号已存在</td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td>404</td>
-                                                                        <td><code>ORDER_NOT_FOUND</code></td>
-                                                                        <td>订单未找到</td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td>402</td>
-                                                                        <td><code>INSUFFICIENT_BALANCE</code></td>
-                                                                        <td>余额不足（代付）</td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td>500</td>
-                                                                        <td><code>CHANNEL_ERROR</code></td>
-                                                                        <td>支付通道错误</td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td>500</td>
-                                                                        <td><code>INTERNAL_ERROR</code></td>
-                                                                        <td>服务器内部错误</td>
-                                                                    </tr>
-                                                                </tbody>
-                                                            </table>
-                                                            <% } else { %>
-                                                                <h2>Error Codes</h2>
-                                                                <p>Below is a comprehensive list of all error codes that
-                                                                    may be returned by the API:</p>
-                                                                <table>
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <th>HTTP Status</th>
-                                                                            <th>Error Code</th>
-                                                                            <th>Description</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
-                                                                        <tr>
-                                                                            <td>400</td>
-                                                                            <td><code>INVALID_PARAMS</code></td>
-                                                                            <td>Missing or invalid request parameters
-                                                                            </td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td>401</td>
-                                                                            <td><code>INVALID_SIGNATURE</code></td>
-                                                                            <td>Signature verification failed</td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td>401</td>
-                                                                            <td><code>INVALID_MERCHANT</code></td>
-                                                                            <td>Merchant API Key not found or account
-                                                                                inactive</td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td>403</td>
-                                                                            <td><code>IP_NOT_WHITELISTED</code></td>
-                                                                            <td>Request IP address is not in the
-                                                                                whitelist</td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td>403</td>
-                                                                            <td><code>SERVICE_SUSPENDED</code></td>
-                                                                            <td>Merchant service has been suspended</td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td>409</td>
-                                                                            <td><code>DUPLICATE_ORDER</code></td>
-                                                                            <td>Order ID already exists for this
-                                                                                merchant</td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td>404</td>
-                                                                            <td><code>ORDER_NOT_FOUND</code></td>
-                                                                            <td>No order found with the given ID</td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td>402</td>
-                                                                            <td><code>INSUFFICIENT_BALANCE</code></td>
-                                                                            <td>Insufficient balance for payout
-                                                                                transaction</td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td>500</td>
-                                                                            <td><code>CHANNEL_ERROR</code></td>
-                                                                            <td>Payment channel configuration error</td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td>500</td>
-                                                                            <td><code>INTERNAL_ERROR</code></td>
-                                                                            <td>Internal server error</td>
-                                                                        </tr>
-                                                                    </tbody>
-                                                                </table>
-                                                                <% } %>
-                                                    </section>
 
-                                                    
-                                                        <section id="ip-whitelist">
-                                                            <% if(currentLang==='zh' ){ %>
-                                                                <h2>IP 白名单</h2>
-                                                                <p>为了增强安全性，您可以在商户后台配置 IP 白名单。配置后，只有白名单中的 IP 地址才能调用 API。
-                                                                </p>
-                                                                <div class="alert alert-info">
-                                                                    <strong>注意：</strong>如果未配置任何 IP 白名单，则允许所有 IP
-                                                                    访问。建议在生产环境中始终配置白名单。</div>
-                                                                <% } else { %>
-                                                                    <h2>IP Whitelist</h2>
-                                                                    <p>For enhanced security, configure IP whitelisting
-                                                                        from your merchant dashboard. When configured,
-                                                                        only requests from whitelisted IP addresses will
-                                                                        be accepted.</p>
-                                                                    <div class="alert alert-info"><strong>Note:</strong>
-                                                                        If no IPs are whitelisted, all IPs are allowed
-                                                                        by default. It is strongly recommended to
-                                                                        configure a whitelist in production.</div>
-                                                                    <% } %>
-                                                        </section>
+        <section id="errors">
+            <% if(currentLang==='zh' ){ %>
+                <h2>错误代码</h2>
+                <p>以下是 API 可能返回的所有错误代码及其说明：</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>HTTP 状态</th>
+                            <th>错误代码</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>400</td>
+                            <td><code>INVALID_PARAMS</code></td>
+                            <td>参数缺失或格式错误</td>
+                        </tr>
+                        <tr>
+                            <td>401</td>
+                            <td><code>INVALID_SIGNATURE</code></td>
+                            <td>签名验证失败</td>
+                        </tr>
+                        <tr>
+                            <td>401</td>
+                            <td><code>INVALID_MERCHANT</code></td>
+                            <td>商户 ID 无效或未激活</td>
+                        </tr>
+                        <tr>
+                            <td>403</td>
+                            <td><code>IP_NOT_WHITELISTED</code></td>
+                            <td>请求 IP 不在白名单中</td>
+                        </tr>
+                        <tr>
+                            <td>403</td>
+                            <td><code>SERVICE_SUSPENDED</code></td>
+                            <td>商户服务已暂停</td>
+                        </tr>
+                        <tr>
+                            <td>409</td>
+                            <td><code>DUPLICATE_ORDER</code></td>
+                            <td>订单号已存在</td>
+                        </tr>
+                        <tr>
+                            <td>404</td>
+                            <td><code>ORDER_NOT_FOUND</code></td>
+                            <td>订单未找到</td>
+                        </tr>
+                        <tr>
+                            <td>402</td>
+                            <td><code>INSUFFICIENT_BALANCE</code></td>
+                            <td>余额不足（代付）</td>
+                        </tr>
+                        <tr>
+                            <td>500</td>
+                            <td><code>CHANNEL_ERROR</code></td>
+                            <td>支付通道错误</td>
+                        </tr>
+                        <tr>
+                            <td>500</td>
+                            <td><code>INTERNAL_ERROR</code></td>
+                            <td>服务器内部错误</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <% } else { %>
+                    <h2>Error Codes</h2>
+                    <p>Below is a comprehensive list of all error codes that
+                        may be returned by the API:</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>HTTP Status</th>
+                                <th>Error Code</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>400</td>
+                                <td><code>INVALID_PARAMS</code></td>
+                                <td>Missing or invalid request parameters
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>401</td>
+                                <td><code>INVALID_SIGNATURE</code></td>
+                                <td>Signature verification failed</td>
+                            </tr>
+                            <tr>
+                                <td>401</td>
+                                <td><code>INVALID_MERCHANT</code></td>
+                                <td>Merchant API Key not found or account
+                                    inactive</td>
+                            </tr>
+                            <tr>
+                                <td>403</td>
+                                <td><code>IP_NOT_WHITELISTED</code></td>
+                                <td>Request IP address is not in the
+                                    whitelist</td>
+                            </tr>
+                            <tr>
+                                <td>403</td>
+                                <td><code>SERVICE_SUSPENDED</code></td>
+                                <td>Merchant service has been suspended</td>
+                            </tr>
+                            <tr>
+                                <td>409</td>
+                                <td><code>DUPLICATE_ORDER</code></td>
+                                <td>Order ID already exists for this
+                                    merchant</td>
+                            </tr>
+                            <tr>
+                                <td>404</td>
+                                <td><code>ORDER_NOT_FOUND</code></td>
+                                <td>No order found with the given ID</td>
+                            </tr>
+                            <tr>
+                                <td>402</td>
+                                <td><code>INSUFFICIENT_BALANCE</code></td>
+                                <td>Insufficient balance for payout
+                                    transaction</td>
+                            </tr>
+                            <tr>
+                                <td>500</td>
+                                <td><code>CHANNEL_ERROR</code></td>
+                                <td>Payment channel configuration error</td>
+                            </tr>
+                            <tr>
+                                <td>500</td>
+                                <td><code>INTERNAL_ERROR</code></td>
+                                <td>Internal server error</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <% } %>
+        </section>
 
-                                                        
-                                                            <section id="best-practices">
-                                                                <% if(currentLang==='zh' ){ %>
-                                                                    <h2>最佳实践</h2>
-                                                                    <h3>幂等性</h3>
-                                                                    <p>使用唯一的 <code>orderId</code> 确保每笔交易只处理一次。重复的订单号将返回
-                                                                        <code>DUPLICATE_ORDER</code> 错误。</p>
-                                                                    <h3>Webhook 可靠性</h3>
-                                                                    <p>回调可能因网络问题延迟。建议使用查询 API 主动轮询订单状态，不要仅依赖回调。</p>
-                                                                    <h3>签名安全</h3>
-                                                                    <p>妥善保管您的 Secret Key，不要在客户端代码中暴露。所有签名应在服务端生成和验证。</p>
-                                                                    <h3>重试策略</h3>
-                                                                    <p>如果请求超时或收到 5xx 错误，请在 5-10 秒后重试，最多重试 3 次。对于 4xx
-                                                                        错误，请检查请求参数后再重试。</p>
-                                                                    <% } else { %>
-                                                                        <h2>Best Practices</h2>
-                                                                        <h3>Idempotency</h3>
-                                                                        <p>Use a unique <code>orderId</code> for every
-                                                                            transaction to ensure each payment is
-                                                                            processed exactly once. Duplicate order IDs
-                                                                            return a <code>DUPLICATE_ORDER</code> error.
-                                                                        </p>
-                                                                        <h3>Webhook Reliability</h3>
-                                                                        <p>Callbacks may be delayed due to network
-                                                                            issues. Always use the Query API to poll for
-                                                                            order status instead of relying solely on
-                                                                            webhooks.</p>
-                                                                        <h3>Signature Security</h3>
-                                                                        <p>Keep your Secret Key confidential — never
-                                                                            expose it in client-side code. All
-                                                                            signatures must be generated and verified
-                                                                            server-side.</p>
-                                                                        <h3>Retry Strategy</h3>
-                                                                        <p>For timeouts or 5xx errors, retry after 5–10
-                                                                            seconds with a maximum of 3 retries. For 4xx
-                                                                            errors, verify your request parameters
-                                                                            before retrying.</p>
-                                                                        <% } %>
-                                                            </section>
 
-                                                            
-                                                                <section id="changelog">
-                                                                    <% if(currentLang==='zh' ){ %>
-                                                                        <h2>更新日志</h2>
-                                                                        <table>
-                                                                            <thead>
-                                                                                <tr>
-                                                                                    <th>版本</th>
-                                                                                    <th>日期</th>
-                                                                                    <th>更新内容</th>
-                                                                                </tr>
-                                                                            </thead>
-                                                                            <tbody>
-                                                                                <tr>
-                                                                                    <td><span
-                                                                                            class="version-badge">v2.1</span>
-                                                                                    </td>
-                                                                                    <td>2026-02-11</td>
-                                                                                    <td>完善 API 文档，增加多语言代码示例，增加 IP 白名单说明
-                                                                                    </td>
-                                                                                </tr>
-                                                                                <tr>
-                                                                                    <td><span
-                                                                                            class="version-badge">v2.0</span>
-                                                                                    </td>
-                                                                                    <td>2026-02-01</td>
-                                                                                    <td>新增 V2 API 接口，标准化响应格式</td>
-                                                                                </tr>
-                                                                                <tr>
-                                                                                    <td><span
-                                                                                            class="version-badge">v1.0</span>
-                                                                                    </td>
-                                                                                    <td>2025-12-01</td>
-                                                                                    <td>初始 API 发布</td>
-                                                                                </tr>
-                                                                            </tbody>
-                                                                        </table>
-                                                                        <% } else { %>
-                                                                            <h2>Changelog</h2>
-                                                                            <table>
-                                                                                <thead>
-                                                                                    <tr>
-                                                                                        <th>Version</th>
-                                                                                        <th>Date</th>
-                                                                                        <th>Changes</th>
-                                                                                    </tr>
-                                                                                </thead>
-                                                                                <tbody>
-                                                                                    <tr>
-                                                                                        <td><span
-                                                                                                class="version-badge">v2.1</span>
-                                                                                        </td>
-                                                                                        <td>2026-02-11</td>
-                                                                                        <td>Enhanced API documentation,
-                                                                                            added multi-language code
-                                                                                            samples, IP whitelist docs
-                                                                                        </td>
-                                                                                    </tr>
-                                                                                    <tr>
-                                                                                        <td><span
-                                                                                                class="version-badge">v2.0</span>
-                                                                                        </td>
-                                                                                        <td>2026-02-01</td>
-                                                                                        <td>Introduced V2 API endpoints,
-                                                                                            standardized response format
-                                                                                        </td>
-                                                                                    </tr>
-                                                                                    <tr>
-                                                                                        <td><span
-                                                                                                class="version-badge">v1.0</span>
-                                                                                        </td>
-                                                                                        <td>2025-12-01</td>
-                                                                                        <td>Initial API release</td>
-                                                                                    </tr>
-                                                                                </tbody>
-                                                                            </table>
-                                                                            <% } %>
-                                                                </section>
+        <section id="ip-whitelist">
+            <% if(currentLang==='zh' ){ %>
+                <h2>IP 白名单</h2>
+                <p>为了增强安全性，您可以在商户后台配置 IP 白名单。配置后，只有白名单中的 IP 地址才能调用 API。
+                </p>
+                <div class="alert alert-info">
+                    <strong>注意：</strong>如果未配置任何 IP 白名单，则允许所有 IP
+                    访问。建议在生产环境中始终配置白名单。
+                </div>
+                <% } else { %>
+                    <h2>IP Whitelist</h2>
+                    <p>For enhanced security, configure IP whitelisting
+                        from your merchant dashboard. When configured,
+                        only requests from whitelisted IP addresses will
+                        be accepted.</p>
+                    <div class="alert alert-info"><strong>Note:</strong>
+                        If no IPs are whitelisted, all IPs are allowed
+                        by default. It is strongly recommended to
+                        configure a whitelist in production.</div>
+                    <% } %>
+        </section>
+
+
+        <section id="best-practices">
+            <% if(currentLang==='zh' ){ %>
+                <h2>最佳实践</h2>
+                <h3>幂等性</h3>
+                <p>使用唯一的 <code>orderId</code> 确保每笔交易只处理一次。重复的订单号将返回
+                    <code>DUPLICATE_ORDER</code> 错误。
+                </p>
+                <h3>Webhook 可靠性</h3>
+                <p>回调可能因网络问题延迟。建议使用查询 API 主动轮询订单状态，不要仅依赖回调。</p>
+                <h3>签名安全</h3>
+                <p>妥善保管您的 Secret Key，不要在客户端代码中暴露。所有签名应在服务端生成和验证。</p>
+                <h3>重试策略</h3>
+                <p>如果请求超时或收到 5xx 错误，请在 5-10 秒后重试，最多重试 3 次。对于 4xx
+                    错误，请检查请求参数后再重试。</p>
+                <% } else { %>
+                    <h2>Best Practices</h2>
+                    <h3>Idempotency</h3>
+                    <p>Use a unique <code>orderId</code> for every
+                        transaction to ensure each payment is
+                        processed exactly once. Duplicate order IDs
+                        return a <code>DUPLICATE_ORDER</code> error.
+                    </p>
+                    <h3>Webhook Reliability</h3>
+                    <p>Callbacks may be delayed due to network
+                        issues. Always use the Query API to poll for
+                        order status instead of relying solely on
+                        webhooks.</p>
+                    <h3>Signature Security</h3>
+                    <p>Keep your Secret Key confidential — never
+                        expose it in client-side code. All
+                        signatures must be generated and verified
+                        server-side.</p>
+                    <h3>Retry Strategy</h3>
+                    <p>For timeouts or 5xx errors, retry after 5–10
+                        seconds with a maximum of 3 retries. For 4xx
+                        errors, verify your request parameters
+                        before retrying.</p>
+                    <% } %>
+        </section>
+
+
+        <section id="changelog">
+            <% if(currentLang==='zh' ){ %>
+                <h2>更新日志</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>版本</th>
+                            <th>日期</th>
+                            <th>更新内容</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="version-badge">v2.1</span>
+                            </td>
+                            <td>2026-02-11</td>
+                            <td>完善 API 文档，增加多语言代码示例，增加 IP 白名单说明
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><span class="version-badge">v2.0</span>
+                            </td>
+                            <td>2026-02-01</td>
+                            <td>新增 V2 API 接口，标准化响应格式</td>
+                        </tr>
+                        <tr>
+                            <td><span class="version-badge">v1.0</span>
+                            </td>
+                            <td>2025-12-01</td>
+                            <td>初始 API 发布</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <% } else { %>
+                    <h2>Changelog</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Version</th>
+                                <th>Date</th>
+                                <th>Changes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="version-badge">v2.1</span>
+                                </td>
+                                <td>2026-02-11</td>
+                                <td>Enhanced API documentation,
+                                    added multi-language code
+                                    samples, IP whitelist docs
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="version-badge">v2.0</span>
+                                </td>
+                                <td>2026-02-01</td>
+                                <td>Introduced V2 API endpoints,
+                                    standardized response format
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="version-badge">v1.0</span>
+                                </td>
+                                <td>2025-12-01</td>
+                                <td>Initial API release</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <% } %>
+        </section>
     </main>
 
     <script>

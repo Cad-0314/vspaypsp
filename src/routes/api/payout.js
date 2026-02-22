@@ -40,8 +40,10 @@ router.post('/bank', validateMerchant, async (req, res) => {
         const payoutAmount = parseFloat(amount);
         if (isNaN(payoutAmount) || payoutAmount < 100) {
             return res.json({
-                code: 0,
-                msg: 'Invalid amount. Minimum is ₹100'
+                status: 'error',
+                errorCode: 'INVALID_PARAMS',
+                message: 'Invalid amount. Minimum is ₹100',
+                timestamp: new Date().toISOString()
             });
         }
 
@@ -158,8 +160,10 @@ router.post('/bank', validateMerchant, async (req, res) => {
                 if (!providerResult.success) {
                     await t.rollback();
                     return res.json({
-                        code: 0,
-                        msg: providerResult.error || 'Failed to create payout'
+                        status: 'error',
+                        errorCode: 'CHANNEL_ERROR',
+                        message: providerResult.error || 'Failed to create payout',
+                        timestamp: new Date().toISOString()
                     });
                 }
 
@@ -193,8 +197,10 @@ router.post('/bank', validateMerchant, async (req, res) => {
     } catch (error) {
         console.error('[Payout Bank] Error:', error);
         return res.status(500).json({
-            code: 0,
-            msg: 'Internal server error'
+            status: 'error',
+            errorCode: 'INTERNAL_ERROR',
+            message: 'Internal server error',
+            timestamp: new Date().toISOString()
         });
     }
 });
@@ -212,8 +218,10 @@ router.post('/query', validateMerchant, async (req, res) => {
 
         if (!orderId) {
             return res.json({
-                code: -2,
-                msg: 'Missing orderId'
+                status: 'error',
+                errorCode: 'INVALID_PARAMS',
+                message: 'Missing orderId',
+                timestamp: new Date().toISOString()
             });
         }
 
@@ -223,8 +231,10 @@ router.post('/query', validateMerchant, async (req, res) => {
 
         if (!order) {
             return res.json({
-                code: -4,
-                msg: 'Order not found'
+                status: 'error',
+                errorCode: 'ORDER_NOT_FOUND',
+                message: 'Order not found',
+                timestamp: new Date().toISOString()
             });
         }
 
@@ -264,14 +274,15 @@ router.post('/query', validateMerchant, async (req, res) => {
         }
 
         return res.json({
-            code: 1,
-            data: {
+            status: 'success',
+            timestamp: new Date().toISOString(),
+            result: {
                 orderId: order.orderId,
-                id: order.id,
+                platformOrderId: order.id,
                 type: order.payoutType || 'bank',
-                status: order.status,
+                orderStatus: order.status,
                 amount: parseFloat(order.amount),
-                fee: parseFloat(order.fee),
+                processingFee: parseFloat(order.fee),
                 utr: order.utr,
                 createdAt: order.createdAt.toISOString()
             }
@@ -280,8 +291,10 @@ router.post('/query', validateMerchant, async (req, res) => {
     } catch (error) {
         console.error('[Payout Query] Error:', error);
         return res.status(500).json({
-            code: 0,
-            msg: 'Internal server error'
+            status: 'error',
+            errorCode: 'INTERNAL_ERROR',
+            message: 'Internal server error',
+            timestamp: new Date().toISOString()
         });
     }
 });
