@@ -19,10 +19,15 @@ const init = (token) => {
             return await User.findOne({ where: { telegramGroupId: chatId.toString() } });
         };
 
+        // ─── Regex note ───
+        // In groups/supergroups, commands arrive as /cmd@BotUsername
+        // All patterns use (?:@\w+)? to handle the optional @botname suffix
+        // \b or $ word boundaries prevent /start from matching /sr etc.
+
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         //  /start — Welcome
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        bot.onText(/\/start/, (msg) => {
+        bot.onText(/\/start(?:@\w+)?(?:\s|$)/, (msg) => {
             const chatId = msg.chat.id;
             const name = msg.from.first_name || 'there';
             bot.sendMessage(chatId, [
@@ -44,7 +49,7 @@ const init = (token) => {
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         //  /bind <username> — Bind group
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        bot.onText(/\/bind (.+)/, async (msg, match) => {
+        bot.onText(/\/bind(?:@\w+)?\s+(.+)/, async (msg, match) => {
             const chatId = msg.chat.id;
             const username = match[1].trim();
 
@@ -101,7 +106,7 @@ const init = (token) => {
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         //  /h — Help menu
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        bot.onText(/\/h$/, (msg) => {
+        bot.onText(/\/h(?:@\w+)?$/, (msg) => {
             const chatId = msg.chat.id;
             bot.sendMessage(chatId, [
                 `━━━━━━━━━━━━━━━━━━━━━`,
@@ -122,7 +127,7 @@ const init = (token) => {
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         //  /id — Chat/Group ID
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        bot.onText(/\/id/, (msg) => {
+        bot.onText(/\/id(?:@\w+)?(?:\s|$)/, (msg) => {
             const chatId = msg.chat.id;
             const type = msg.chat.type;
             const title = msg.chat.title || msg.from.username || 'Private';
@@ -144,7 +149,7 @@ const init = (token) => {
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         //  /details — Account data
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        bot.onText(/\/details/, async (msg) => {
+        bot.onText(/\/details(?:@\w+)?(?:\s|$)/, async (msg) => {
             const chatId = msg.chat.id;
             const merchant = await getMerchant(chatId);
 
@@ -184,7 +189,7 @@ const init = (token) => {
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         //  /sr — Success rates
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        bot.onText(/\/sr/, async (msg) => {
+        bot.onText(/\/sr(?:@\w+)?(?:\s|$)/, async (msg) => {
             const chatId = msg.chat.id;
             const merchant = await getMerchant(chatId);
 
@@ -238,7 +243,7 @@ const init = (token) => {
                 formatSection(payinStats, labels),
                 `└──────────────────────`,
                 ``,
-                `┌─ � *Payout*`,
+                `┌─ 📤 *Payout*`,
                 formatSection(payoutStats, labels),
                 `└──────────────────────`,
                 ``,
@@ -249,7 +254,7 @@ const init = (token) => {
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         //  /pl <amount> — Payment link
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        bot.onText(/\/pl (.+)/, async (msg, match) => {
+        bot.onText(/\/pl(?:@\w+)?\s+(.+)/, async (msg, match) => {
             const chatId = msg.chat.id;
             const amountStr = match[1];
             const amount = parseFloat(amountStr);
@@ -322,7 +327,7 @@ const init = (token) => {
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         //  /query <orderId> — Check order
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        bot.onText(/\/query (.+)/, async (msg, match) => {
+        bot.onText(/\/query(?:@\w+)?\s+(.+)/, async (msg, match) => {
             const chatId = msg.chat.id;
             const orderId = match[1].trim();
 
@@ -386,7 +391,7 @@ const init = (token) => {
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         //  /callback <orderId> — Retry
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        bot.onText(/\/callback (.+)/, async (msg, match) => {
+        bot.onText(/\/callback(?:@\w+)?\s+(.+)/, async (msg, match) => {
             const chatId = msg.chat.id;
             const orderId = match[1].trim();
 
