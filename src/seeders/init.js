@@ -88,6 +88,21 @@ async function seedDatabase() {
                 usesCustomPayPage: false
             },
             {
+                name: 'unitedpay',
+                displayName: 'United Pay',
+                displayNameZh: 'United Pay',
+                provider: 'unitepay',
+                payinRate: 5.00,
+                payoutRate: 3.00,
+                payoutFixedFee: 6.00,
+                isActive: true,
+                minPayin: 100.00,
+                maxPayin: 100000.00,
+                minPayout: 100.00,
+                maxPayout: 100000.00,
+                usesCustomPayPage: false
+            },
+            {
                 name: 'smart',
                 displayName: 'Smart',
                 displayNameZh: '智能支付',

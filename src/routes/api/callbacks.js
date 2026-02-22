@@ -205,6 +205,18 @@ router.post('/:channel/payin', async (req, res) => {
             utr = ''; // IPay payin callback does not provide UTR
             actualAmount = parseFloat(req.body.amount);
             providerOrderId = req.body.orderId;
+        } else if (channelName === 'unitedpay') {
+            // UnitedPay: encrypted callback, decrypt payload
+            const unitedpayService = require('../../services/unitedpay');
+            const callbackData = unitedpayService.parseCallback(req.body);
+            if (callbackData) {
+                orderId = callbackData.tradeNo;
+                status = callbackData.status === '00' ? 'success' :
+                    callbackData.status === '02' ? 'failed' : 'pending';
+                utr = callbackData.utr || '';
+                actualAmount = parseFloat(callbackData.price) || 0;
+                providerOrderId = callbackData.transNo || '';
+            }
         }
 
         if (!orderId) {
@@ -397,6 +409,17 @@ router.post('/:channel/payout', async (req, res) => {
                 req.body.status === '2' || req.body.status === 2 ? 'failed' : 'processing';
             utr = req.body.utr;
             providerOrderId = req.body.orderId;
+        } else if (channelName === 'unitedpay') {
+            // UnitedPay: encrypted callback, decrypt payload
+            const unitedpayService = require('../../services/unitedpay');
+            const callbackData = unitedpayService.parseCallback(req.body);
+            if (callbackData) {
+                orderId = callbackData.tradeNo;
+                status = callbackData.status === '00' ? 'success' :
+                    callbackData.status === '02' ? 'failed' : 'processing';
+                utr = callbackData.utr || '';
+                providerOrderId = callbackData.transNo || '';
+            }
         }
 
         if (!orderId) return res.send(successResponse);

@@ -12,6 +12,7 @@ const bharatpayService = require('./bharatpay');
 const cxpayService = require('./cxpay');
 const aapayService = require('./aapay');
 const ipayService = require('./ipay');
+const unitedpayService = require('./unitedpay');
 
 // Lazy load customChannel to avoid circular dependency
 let customChannelService = null;
@@ -80,6 +81,13 @@ const channelConfig = {
         displayNameZh: 'IPay',
         usesCustomPayPage: false,
         provider: 'ipay'
+    },
+    unitedpay: {
+        service: unitedpayService,
+        displayName: 'United Pay',
+        displayNameZh: 'United Pay',
+        usesCustomPayPage: false,
+        provider: 'unitepay'
     },
     smart: {
         service: null, // Uses lazy loading via getCustomChannelService()
