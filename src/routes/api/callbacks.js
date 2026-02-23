@@ -217,6 +217,13 @@ router.post('/:channel/payin', async (req, res) => {
                 actualAmount = parseFloat(callbackData.price) || 0;
                 providerOrderId = callbackData.transNo || '';
             }
+        } else if (channelName === 'firpay') {
+            // FirPay: status 1=success, others=failed
+            orderId = req.body.outTradeNo;
+            status = req.body.status === '1' || req.body.status === 1 ? 'success' : 'failed';
+            utr = req.body.utr || '';
+            actualAmount = parseFloat(req.body.amount);
+            providerOrderId = req.body.orderNo;
         }
 
         if (!orderId) {
@@ -420,6 +427,13 @@ router.post('/:channel/payout', async (req, res) => {
                 utr = callbackData.utr || '';
                 providerOrderId = callbackData.transNo || '';
             }
+        } else if (channelName === 'firpay') {
+            // FirPay payout: status 1=success, 0=processing, others=failed
+            orderId = req.body.outTradeNo;
+            status = req.body.status === 1 || req.body.status === '1' ? 'success' :
+                req.body.status === 0 || req.body.status === '0' ? 'processing' : 'failed';
+            utr = req.body.utr || '';
+            providerOrderId = req.body.orderNo;
         }
 
         if (!orderId) return res.send(successResponse);

@@ -8,6 +8,7 @@ const aapayService = require('./src/services/aapay');
 const ipayService = require('./src/services/ipay');
 const unitedpayService = require('./src/services/unitedpay');
 const bharatpayService = require('./src/services/bharatpay');
+const firpayService = require('./src/services/firpay');
 const { v4: uuidv4 } = require('uuid');
 
 const BASE_URL = 'https://gaurpay.site';
@@ -136,6 +137,18 @@ async function testChannels() {
         results.push({ channel: 'BharatPay', success: false, error: e.message });
     }
 
+    // 12. FirPay
+    try {
+        console.log('\nTesting FirPay...');
+        const order = { ...baseOrder, notifyUrl: `${BASE_URL}/callback/firpay/payin` };
+        const res = await firpayService.createPayin(order);
+        console.log('FirPay Result:', JSON.stringify(res, null, 2));
+        results.push({ channel: 'FirPay', success: res.success, data: res, error: res.error });
+    } catch (e) {
+        console.error('FirPay Error:', e.message);
+        results.push({ channel: 'FirPay', success: false, error: e.message });
+    }
+
     console.log('\n--- Analysis Complete ---');
     return results;
 }
@@ -145,3 +158,4 @@ if (require.main === module) {
 }
 
 module.exports = testChannels;
+
