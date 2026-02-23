@@ -7,6 +7,7 @@ const cxpayService = require('./src/services/cxpay');
 const aapayService = require('./src/services/aapay');
 const ipayService = require('./src/services/ipay');
 const unitedpayService = require('./src/services/unitedpay');
+const bharatpayService = require('./src/services/bharatpay');
 const { v4: uuidv4 } = require('uuid');
 
 const BASE_URL = 'https://gaurpay.site';
@@ -121,6 +122,18 @@ async function testChannels() {
     } catch (e) {
         console.error('UnitedPay Error:', e.message);
         results.push({ channel: 'United Pay', success: false, error: e.message });
+    }
+
+    // 11. BharatPay
+    try {
+        console.log('\nTesting BharatPay...');
+        const order = { ...baseOrder, notifyUrl: `${BASE_URL}/callback/bharatpay/payin` };
+        const res = await bharatpayService.createPayin(order);
+        console.log('BharatPay Result:', JSON.stringify(res, null, 2));
+        results.push({ channel: 'BharatPay', success: res.success, data: res, error: res.error });
+    } catch (e) {
+        console.error('BharatPay Error:', e.message);
+        results.push({ channel: 'BharatPay', success: false, error: e.message });
     }
 
     console.log('\n--- Analysis Complete ---');
