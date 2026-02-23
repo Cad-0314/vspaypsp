@@ -224,6 +224,15 @@ router.post('/:channel/payin', async (req, res) => {
             utr = req.body.utr || '';
             actualAmount = parseFloat(req.body.amount);
             providerOrderId = req.body.orderNo;
+        } else if (channelName === 'agpay') {
+            // AgPay: callback via query params or body, orderState 2=success, amount in cents
+            const cb = Object.keys(req.query).length > 0 ? req.query : req.body;
+            orderId = cb.mchOrderNo;
+            status = parseInt(cb.orderState) === 2 ? 'success' :
+                parseInt(cb.orderState) === 3 ? 'failed' : 'pending';
+            utr = cb.utr || '';
+            actualAmount = cb.payAmount ? parseFloat(cb.payAmount) / 100 : 0;
+            providerOrderId = cb.orderNo;
         }
 
         if (!orderId) {
@@ -434,6 +443,14 @@ router.post('/:channel/payout', async (req, res) => {
                 req.body.status === 0 || req.body.status === '0' ? 'processing' : 'failed';
             utr = req.body.utr || '';
             providerOrderId = req.body.orderNo;
+        } else if (channelName === 'agpay') {
+            // AgPay payout: callback via query params or body, orderState 2=success, amount in cents
+            const cb = Object.keys(req.query).length > 0 ? req.query : req.body;
+            orderId = cb.mchOrderNo;
+            status = parseInt(cb.orderState) === 2 ? 'success' :
+                parseInt(cb.orderState) === 3 ? 'failed' : 'processing';
+            utr = cb.utr || '';
+            providerOrderId = cb.orderNo;
         }
 
         if (!orderId) return res.send(successResponse);
