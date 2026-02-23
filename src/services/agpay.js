@@ -49,7 +49,7 @@ const httpClient = axios.create({
  */
 function generateSign(params) {
     const sortedKeys = Object.keys(params)
-        .filter(k => k !== 'sign' && k !== 'signType' && params[k] !== null && params[k] !== undefined && params[k] !== '')
+        .filter(k => k !== 'sign' && params[k] !== null && params[k] !== undefined && params[k] !== '')
         .sort();
     const str = sortedKeys.map(k => `${k}=${params[k]}`).join('&') + `&key=${SECRET_KEY}`;
     return crypto.createHash('md5').update(str).digest('hex').toUpperCase();
