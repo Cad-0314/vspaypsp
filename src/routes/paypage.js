@@ -95,18 +95,66 @@ router.get('/:orderId', async (req, res) => {
             }
         }
 
-        // Redirect to provider if they have their own pay page (e.g., HDPay)
+        // Check if channel uses its own custom pay page (UPI deep links etc.) or upstream URL
         const channelConfig = channelRouter.getChannelConfig(order.channelName);
-        if (channelConfig && !channelConfig.usesCustomPayPage && order.payUrl) {
-            return res.redirect(order.payUrl);
+        if (channelConfig && channelConfig.usesCustomPayPage) {
+            // Serve the UPI deep-link pay page
+            return res.sendFile(path.join(__dirname, '../../public/pay.html'));
         }
 
-        // Serve the static HTML file
-        res.sendFile(path.join(__dirname, '../../public/pay.html'));
+        // For all other channels, wrap upstream URL in iframe (never redirect to upstream)
+        res.sendFile(path.join(__dirname, '../../public/gateway.html'));
 
     } catch (error) {
         console.error('[Pay Page] Error:', error);
         return res.status(500).send('Server error');
+    }
+});
+
+/**
+ * GET /pay/gateway/:orderId
+ * Returns the upstream payment URL for the iframe wrapper (internal use only)
+ */
+router.get('/gateway/:orderId', async (req, res) => {
+    try {
+        const { orderId } = req.params;
+
+        const { Op } = require('sequelize');
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(orderId);
+
+        const order = await Order.findOne({
+            where: {
+                [Op.or]: isUuid ? [{ id: orderId }, { orderId: orderId }] : [{ orderId: orderId }],
+                type: 'payin'
+            }
+        });
+
+        if (!order) {
+            return res.status(404).json({ success: false, error: 'Payment not found' });
+        }
+
+        if (order.expiresAt && new Date() > new Date(order.expiresAt)) {
+            return res.status(410).json({ success: false, error: 'Payment expired' });
+        }
+
+        // Ensure upstream order exists
+        if (!order.payUrl && order.status === 'pending') {
+            const success = await ensureUpstreamOrder(order, req.ip);
+            if (!success) {
+                return res.status(422).json({ success: false, error: 'Failed to initialize payment gateway' });
+            }
+            await order.reload();
+        }
+
+        if (!order.payUrl) {
+            return res.status(422).json({ success: false, error: 'Payment URL not available' });
+        }
+
+        res.json({ success: true, url: order.payUrl });
+
+    } catch (error) {
+        console.error('[Pay Gateway API] Error:', error);
+        res.status(500).json({ success: false, error: 'Internal server error' });
     }
 });
 

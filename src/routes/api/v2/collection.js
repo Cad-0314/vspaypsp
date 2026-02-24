@@ -163,10 +163,8 @@ router.post('/initiate', validateMerchant, async (req, res) => {
             actualChannel: actualChannel
         }, { where: { id: internalId } });
 
-        // Build payment URL
-        const paymentUrl = channelConfig.usesCustomPayPage
-            ? `${APP_URL}/pay/${internalId}`
-            : providerResult.payUrl;
+        // Always return own URL — upstream is wrapped in iframe
+        const paymentUrl = `${APP_URL}/pay/${internalId}`;
 
         // Build app links
         const appLinks = {};

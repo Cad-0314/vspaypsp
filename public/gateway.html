@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Payment Gateway</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #f8f9fa;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .gateway-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            z-index: 10;
+            transition: opacity 0.3s ease;
+        }
+
+        .gateway-loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .gateway-spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid #e5e7eb;
+            border-top-color: #111;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        .gateway-loader p {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .gateway-error {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            z-index: 10;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .gateway-error.visible {
+            display: flex;
+        }
+
+        .gateway-error .error-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .gateway-error h2 {
+            color: #111;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .gateway-error p {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        #gatewayFrame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="gateway-loader" id="loader">
+        <div class="gateway-spinner"></div>
+        <p>Initializing payment...</p>
+    </div>
+
+    <div class="gateway-error" id="errorView">
+        <div class="error-icon">⚠️</div>
+        <h2>Payment Unavailable</h2>
+        <p id="errorMsg">Unable to load the payment page. Please try again.</p>
+    </div>
+
+    <iframe id="gatewayFrame"
+        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation allow-top-navigation-by-user-activation"
+        allowpaymentrequest></iframe>
+
+    <script>
+        (function () {
+            const pathParts = window.location.pathname.split('/');
+            const orderId = pathParts[pathParts.length - 1];
+
+            const loader = document.getElementById('loader');
+            const errorView = document.getElementById('errorView');
+            const errorMsg = document.getElementById('errorMsg');
+            const frame = document.getElementById('gatewayFrame');
+
+            async function init() {
+                try {
+                    const res = await fetch(`/pay/gateway/${orderId}`);
+                    const data = await res.json();
+
+                    if (!res.ok || !data.success || !data.url) {
+                        showError(data.error || 'Payment page not available');
+                        return;
+                    }
+
+                    frame.src = data.url;
+
+                    frame.onload = function () {
+                        loader.classList.add('hidden');
+                    };
+
+                    // Fallback: hide loader after 5s even if onload doesn't fire (cross-origin)
+                    setTimeout(() => {
+                        loader.classList.add('hidden');
+                    }, 5000);
+
+                } catch (e) {
+                    showError('Failed to connect to payment service');
+                }
+            }
+
+            function showError(msg) {
+                loader.classList.add('hidden');
+                errorMsg.textContent = msg;
+                errorView.classList.add('visible');
+            }
+
+            // Poll for payment status
+            let statusInterval = setInterval(async () => {
+                try {
+                    const res = await fetch(`/pay/api/${orderId}`);
+                    const data = await res.json();
+                    if (data.status === 'success') {
+                        clearInterval(statusInterval);
+                        if (data.skipUrl) {
+                            window.location.href = data.skipUrl;
+                        } else {
+                            window.location.href = '/pay/success';
+                        }
+                    }
+                } catch (e) { }
+            }, 5000);
+
+            init();
+        })();
+    </script>
+</body>
+
+</html>

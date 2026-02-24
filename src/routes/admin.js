@@ -252,7 +252,7 @@ router.put('/merchants/:id', async (req, res) => {
 • Password: \`${merchant.username}@777\`
 
 📚 *API Documentation:*
-${appUrl}/apidoc
+${appUrl}/apidocument
 
 🔑 *To get your API credentials:*
 1. Login to your dashboard
