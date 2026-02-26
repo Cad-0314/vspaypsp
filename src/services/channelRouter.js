@@ -32,21 +32,21 @@ const channelConfig = {
         service: silkpayService,
         displayName: 'GaurPay',
         displayNameZh: 'GaurPay',
-        usesCustomPayPage: true,
+        usesCustomPayPage: false,
         provider: 'silkpay'
     },
     yellow: {
         service: caipayService,
         displayName: 'Yellow',
         displayNameZh: 'Yellow',
-        usesCustomPayPage: true,
+        usesCustomPayPage: false,
         provider: 'caipay'
     },
     'upi super': {
         service: fendpayService,
         displayName: 'UPI Super',
         displayNameZh: 'UPI Super',
-        usesCustomPayPage: true,
+        usesCustomPayPage: false,
         provider: 'fendpay'
     },
     ckpay: {

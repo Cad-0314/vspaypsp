@@ -95,14 +95,7 @@ router.get('/:orderId', async (req, res) => {
             }
         }
 
-        // Check if channel uses its own custom pay page (UPI deep links etc.) or upstream URL
-        const channelConfig = channelRouter.getChannelConfig(order.channelName);
-        if (channelConfig && channelConfig.usesCustomPayPage) {
-            // Serve the UPI deep-link pay page
-            return res.sendFile(path.join(__dirname, '../../public/pay.html'));
-        }
-
-        // For all other channels, wrap upstream URL in iframe (never redirect to upstream)
+        // All channels: wrap upstream URL in iframe (never expose upstream URLs)
         res.sendFile(path.join(__dirname, '../../public/gateway.html'));
 
     } catch (error) {
