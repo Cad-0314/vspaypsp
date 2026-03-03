@@ -559,6 +559,12 @@
                 <a href="#payin-callback" class="nav-link"><i class="ri-notification-line"></i>
                     <%= currentLang==='zh' ?'回调通知':'Callback' %>
                 </a>
+                <a href="#payin-submit-utr" class="nav-link"><i class="ri-send-plane-line"></i>
+                    <%= currentLang==='zh' ?'提交 UTR':'Submit UTR' %>
+                </a>
+                <a href="#payin-check-utr" class="nav-link"><i class="ri-file-search-line"></i>
+                    <%= currentLang==='zh' ?'查询 UTR':'Check UTR' %>
+                </a>
             </div>
             <div class="nav-section">
                 <div class="nav-title">
@@ -934,7 +940,8 @@ $response = curl_exec($ch);</code></pre>
                                             <%= currentLang==='zh' ?'必填':'Required' %>
                                         </span></td>
                                     <td>
-                                        <%= currentLang==='zh' ?'商户唯一订单号（最大64字符，不含特殊字符）':'Unique merchant order ID (max 64 chars, no special characters)' %>
+                                        <%= currentLang==='zh' ?'商户唯一订单号（最大64字符，不含特殊字符）':'Unique merchant order ID (max
+                                            64 chars, no special characters)' %>
                                     </td>
                                 </tr>
                                 <tr>
@@ -943,7 +950,8 @@ $response = curl_exec($ch);</code></pre>
                                             <%= currentLang==='zh' ?'必填':'Required' %>
                                         </span></td>
                                     <td>
-                                        <%= currentLang==='zh' ?'收款金额，单位 INR（最低 ₹100）':'Collection amount in INR (minimum ₹100)' %>
+                                        <%= currentLang==='zh' ?'收款金额，单位 INR（最低 ₹100）':'Collection amount in INR
+                                            (minimum ₹100)' %>
                                     </td>
                                 </tr>
                                 <tr>
@@ -952,7 +960,8 @@ $response = curl_exec($ch);</code></pre>
                                             <%= currentLang==='zh' ?'必填':'Required' %>
                                         </span></td>
                                     <td>
-                                        <%= currentLang==='zh' ?'异步回调通知地址（需 HTTPS）':'Async webhook URL for payment notifications (HTTPS recommended)' %>
+                                        <%= currentLang==='zh' ?'异步回调通知地址（需 HTTPS）':'Async webhook URL for payment
+                                            notifications (HTTPS recommended)' %>
                                     </td>
                                 </tr>
                                 <tr>
@@ -997,7 +1006,8 @@ $response = curl_exec($ch);</code></pre>
                                             <%= currentLang==='zh' ?'可选':'Optional' %>
                                         </span></td>
                                     <td>
-                                        <%= currentLang==='zh' ?'自定义透传数据（回调时原样返回）':'Custom pass-through data (returned in callback)' %>
+                                        <%= currentLang==='zh' ?'自定义透传数据（回调时原样返回）':'Custom pass-through data (returned
+                                            in callback)' %>
                                     </td>
                                 </tr>
                             </tbody>
@@ -1045,17 +1055,58 @@ $response = curl_exec($ch);</code></pre>
     }
 }</code></pre>
                         </div>
-                        <h3><%= currentLang==='zh' ?'\u54cd\u5e94\u5b57\u6bb5\u8bf4\u660e':'Response Fields' %></h3>
+                        <h3>
+                            <%= currentLang==='zh' ?'\u54cd\u5e94\u5b57\u6bb5\u8bf4\u660e':'Response Fields' %>
+                        </h3>
                         <table>
-                            <thead><tr><th><%= currentLang==='zh' ?'\u5b57\u6bb5':'Field' %></th><th><%= currentLang==='zh' ?'\u8bf4\u660e':'Description' %></th></tr></thead>
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <%= currentLang==='zh' ?'\u5b57\u6bb5':'Field' %>
+                                    </th>
+                                    <th>
+                                        <%= currentLang==='zh' ?'\u8bf4\u660e':'Description' %>
+                                    </th>
+                                </tr>
+                            </thead>
                             <tbody>
-                                <tr><td><code>paymentUrl</code></td><td><%= currentLang==='zh' ?'\u652f\u4ed8\u9875\u9762 URL':'Payment page URL' %></td></tr>
-                                <tr><td><code>upiId</code></td><td><%= currentLang==='zh' ?'UPI VPA \u5730\u5740':'UPI VPA address (when available)' %></td></tr>
-                                <tr><td><code>appLinks</code></td><td><%= currentLang==='zh' ?'UPI \u6df1\u5ea6\u94fe\u63a5':'UPI app deeplinks (PhonePe, Paytm, GPay)' %></td></tr>
-                                <tr><td><code>expiresIn</code></td><td><%= currentLang==='zh' ?'\u8ba2\u5355\u6709\u6548\u65f6\u95f4\uff08\u79d2\uff09':'Order validity in seconds' %></td></tr>
+                                <tr>
+                                    <td><code>paymentUrl</code></td>
+                                    <td>
+                                        <%= currentLang==='zh' ?'\u652f\u4ed8\u9875\u9762 URL':'Payment page URL' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><code>upiId</code></td>
+                                    <td>
+                                        <%= currentLang==='zh' ?'UPI VPA \u5730\u5740':'UPI VPA address (when
+                                            available)' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><code>appLinks</code></td>
+                                    <td>
+                                        <%= currentLang==='zh' ?'UPI \u6df1\u5ea6\u94fe\u63a5':'UPI app deeplinks
+                                            (PhonePe, Paytm, GPay)' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><code>expiresIn</code></td>
+                                    <td>
+                                        <%= currentLang==='zh'
+                                            ?'\u8ba2\u5355\u6709\u6548\u65f6\u95f4\uff08\u79d2\uff09':'Order validity in
+                                            seconds' %>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
-                        <div class="alert alert-info"><% if(currentLang==='zh') { %><strong>\u6ce8\u610f\uff1a</strong><code>upiId</code> \u548c <code>appLinks</code> \u4ec5\u5728\u4e0a\u6e38\u901a\u9053\u63d0\u4f9b\u65f6\u8fd4\u56de\u3002<% } else { %><strong>Note:</strong> <code>upiId</code> and <code>appLinks</code> are only returned when the upstream channel provides them.<% } %></div>
+                        <div class="alert alert-info">
+                            <% if(currentLang==='zh' ) { %><strong>\u6ce8\u610f\uff1a</strong><code>upiId</code> \u548c
+                                <code>appLinks</code>
+                                \u4ec5\u5728\u4e0a\u6e38\u901a\u9053\u63d0\u4f9b\u65f6\u8fd4\u56de\u3002<% } else { %>
+                                    <strong>Note:</strong> <code>upiId</code> and <code>appLinks</code> are only
+                                    returned when the upstream channel provides them.<% } %>
+                        </div>
         </section>
 
 
@@ -1143,7 +1194,11 @@ $response = curl_exec($ch);</code></pre>
 }</code></pre>
                         </div>
                         <div class="alert alert-warning">
-                            <%= currentLang==='zh' ?'<strong>重要：</strong>收到回调后，请使用您的 Secret Key 验证 <code>sign</code> 签名。验证成功后，请返回纯文本 <code>SUCCESS</code> 确认接收。如果未确认，系统将重试最多 3 次。':'<strong>Important:</strong> Verify the <code>sign</code> signature using your Secret Key upon receiving the callback. Return plain text <code>SUCCESS</code> to acknowledge receipt. The system will retry up to 3 times if not acknowledged.' %>
+                            <%= currentLang==='zh' ?'<strong>重要：</strong>收到回调后，请使用您的 Secret Key 验证 <code>sign</code>
+                                签名。验证成功后，请返回纯文本 <code>SUCCESS</code> 确认接收。如果未确认，系统将重试最多 3
+                                次。':'<strong>Important:</strong> Verify the <code>sign</code> signature using your
+                                Secret Key upon receiving the callback. Return plain text <code>SUCCESS</code> to
+                                acknowledge receipt. The system will retry up to 3 times if not acknowledged.' %>
                         </div>
                         <h3>
                             <%= currentLang==='zh' ?'签名验证示例':'Signature Verification Example' %>
@@ -1161,6 +1216,213 @@ if (sign === expectedSign) {
     res.status(400).send('FAIL');
 }</code></pre>
                         </div>
+        </section>
+
+
+        <section id="payin-submit-utr">
+            <% if(currentLang==='zh' ){ %>
+                <h2>提交 UTR（交易参考号）</h2>
+                <p>为待处理的收款订单提交 UTR（银行交易参考号）。UTR 将被转发至上游通道进行验证。</p>
+                <% } else { %>
+                    <h2>Submit UTR (Transaction Reference)</h2>
+                    <p>Submit a UTR (Unique Transaction Reference) for a pending collection order. The UTR is forwarded
+                        to the upstream channel for verification.</p>
+                    <% } %>
+                        <div class="endpoint"><span class="method post">POST</span> /api/payin/submitUtr
+                        </div>
+                        <h3>
+                            <%= currentLang==='zh' ?'请求参数':'Request Parameters' %>
+                        </h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <%= currentLang==='zh' ?'参数':'Parameter' %>
+                                    </th>
+                                    <th>
+                                        <%= currentLang==='zh' ?'类型':'Type' %>
+                                    </th>
+                                    <th>
+                                        <%= currentLang==='zh' ?'说明':'Description' %>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>orderId</code></td>
+                                    <td>String<span class="required">
+                                            <%= currentLang==='zh' ?'必填':'Required' %>
+                                        </span></td>
+                                    <td>
+                                        <%= currentLang==='zh' ?'商户订单号':'Merchant Order ID' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><code>utr</code></td>
+                                    <td>String<span class="required">
+                                            <%= currentLang==='zh' ?'必填':'Required' %>
+                                        </span></td>
+                                    <td>
+                                        <%= currentLang==='zh' ?'银行交易参考号（至少6位字母数字）':'Bank UTR / transaction reference
+                                            (min 6 alphanumeric chars)' %>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h3>
+                            <%= currentLang==='zh' ?'请求示例':'Example Request' %>
+                        </h3>
+                        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-bash">curl -X POST https://gaurpay.site/api/payin/submitUtr \
+  -H "Content-Type: application/json" \
+  -H "x-merchant-id: YOUR_API_KEY" \
+  -H "x-signature: A1B2C3D4E5F6..." \
+  -d '{
+    "orderId": "ORD_20260210_001",
+    "utr": "UTR1234567890"
+  }'</code></pre>
+                        </div>
+                        <h3>
+                            <%= currentLang==='zh' ?'成功响应':'Success Response' %>
+                        </h3>
+                        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-json">{
+    "status": "success",
+    "message": "UTR submitted successfully",
+    "timestamp": "2026-02-10T12:05:00.000Z",
+    "result": {
+        "merchantOrderId": "ORD_20260210_001",
+        "platformOrderId": "a1b2c3d4-e5f6-...",
+        "orderStatus": "pending",
+        "transactionRef": "UTR1234567890"
+    }
+}</code></pre>
+                        </div>
+                        <div class="alert alert-info">
+                            <% if(currentLang==='zh' ) { %><strong>注意：</strong>即使上游通道不支持 UTR 提交，UTR
+                                仍会记录在系统中以供跟踪。订单状态将在通道确认后自动更新。<% } else { %><strong>Note:</strong> Even if the upstream
+                                    channel does not support UTR submission, the UTR is still recorded in the system for
+                                    tracking. The order status will be updated automatically once the channel confirms
+                                    payment.<% } %>
+                        </div>
+        </section>
+
+
+        <section id="payin-check-utr">
+            <% if(currentLang==='zh' ){ %>
+                <h2>查询 UTR 状态</h2>
+                <p>查询收款订单的 UTR 提交状态和支付验证结果。系统将自动同步上游通道获取最新状态。</p>
+                <% } else { %>
+                    <h2>Check UTR Status</h2>
+                    <p>Check the UTR submission status and payment verification result for a collection order. The
+                        system automatically syncs with the upstream channel for the latest status.</p>
+                    <% } %>
+                        <div class="endpoint"><span class="method post">POST</span> /api/payin/checkUtr
+                        </div>
+                        <h3>
+                            <%= currentLang==='zh' ?'请求参数':'Request Parameters' %>
+                        </h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <%= currentLang==='zh' ?'参数':'Parameter' %>
+                                    </th>
+                                    <th>
+                                        <%= currentLang==='zh' ?'类型':'Type' %>
+                                    </th>
+                                    <th>
+                                        <%= currentLang==='zh' ?'说明':'Description' %>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>orderId</code></td>
+                                    <td>String<span class="required">
+                                            <%= currentLang==='zh' ?'必填':'Required' %>
+                                        </span></td>
+                                    <td>
+                                        <%= currentLang==='zh' ?'商户订单号':'Merchant Order ID' %>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h3>
+                            <%= currentLang==='zh' ?'请求示例':'Example Request' %>
+                        </h3>
+                        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-bash">curl -X POST https://gaurpay.site/api/payin/checkUtr \
+  -H "Content-Type: application/json" \
+  -H "x-merchant-id: YOUR_API_KEY" \
+  -H "x-signature: A1B2C3D4E5F6..." \
+  -d '{
+    "orderId": "ORD_20260210_001"
+  }'</code></pre>
+                        </div>
+                        <h3>
+                            <%= currentLang==='zh' ?'成功响应':'Success Response' %>
+                        </h3>
+                        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-json">{
+    "status": "success",
+    "timestamp": "2026-02-10T12:10:00.000Z",
+    "result": {
+        "merchantOrderId": "ORD_20260210_001",
+        "platformOrderId": "a1b2c3d4-e5f6-...",
+        "orderStatus": "success",
+        "requestedAmount": 500.00,
+        "settledAmount": 475.00,
+        "processingFee": 25.00,
+        "transactionRef": "UTR1234567890",
+        "utrSubmitted": true,
+        "createdAt": "2026-02-10T12:00:00.000Z"
+    }
+}</code></pre>
+                        </div>
+                        <h3>
+                            <%= currentLang==='zh' ?'响应字段说明':'Response Fields' %>
+                        </h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <%= currentLang==='zh' ?'字段':'Field' %>
+                                    </th>
+                                    <th>
+                                        <%= currentLang==='zh' ?'说明':'Description' %>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>orderStatus</code></td>
+                                    <td>
+                                        <%= currentLang==='zh' ?'当前订单状态（pending/processing/success/failed）':'Current
+                                            order status (pending/processing/success/failed)' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><code>transactionRef</code></td>
+                                    <td>
+                                        <%= currentLang==='zh' ?'UTR 交易参考号（如已提交）':'UTR transaction reference (if
+                                            submitted)' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><code>utrSubmitted</code></td>
+                                    <td>
+                                        <%= currentLang==='zh' ?'是否已提交 UTR':'Whether a UTR has been submitted' %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><code>settledAmount</code></td>
+                                    <td>
+                                        <%= currentLang==='zh' ?'扣除手续费后的结算金额':'Net amount after fee deduction' %>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
         </section>
 
 
@@ -1208,7 +1470,8 @@ if (sign === expectedSign) {
                                             <%= currentLang==='zh' ?'必填':'Required' %>
                                         </span></td>
                                     <td>
-                                        <%= currentLang==='zh' ?'转账金额，单位 INR（最低 ₹100）':'Transfer amount in INR (minimum ₹100)' %>
+                                        <%= currentLang==='zh' ?'转账金额，单位 INR（最低 ₹100）':'Transfer amount in INR (minimum
+                                            ₹100)' %>
                                     </td>
                                 </tr>
                                 <tr>
@@ -1377,7 +1640,9 @@ if (sign === expectedSign) {
 }</code></pre>
                         </div>
                         <div class="alert alert-warning">
-                            <%= currentLang==='zh' ?'<strong>重要：</strong>请验证签名后返回纯文本 <code>SUCCESS</code> 确认接收。':'<strong>Important:</strong> Verify the signature and return plain text <code>SUCCESS</code> to acknowledge.' %>
+                            <%= currentLang==='zh' ?'<strong>重要：</strong>请验证签名后返回纯文本 <code>SUCCESS</code>
+                                确认接收。':'<strong>Important:</strong> Verify the signature and return plain text
+                                <code>SUCCESS</code> to acknowledge.' %>
                         </div>
         </section>
 
@@ -1638,6 +1903,13 @@ if (sign === expectedSign) {
                     </thead>
                     <tbody>
                         <tr>
+                            <td><span class="version-badge">v2.2</span>
+                            </td>
+                            <td>2026-03-03</td>
+                            <td>新增 UTR 提交和查询 API 接口
+                            </td>
+                        </tr>
+                        <tr>
                             <td><span class="version-badge">v2.1</span>
                             </td>
                             <td>2026-02-11</td>
@@ -1669,6 +1941,14 @@ if (sign === expectedSign) {
                             </tr>
                         </thead>
                         <tbody>
+                            <tr>
+                                <td><span class="version-badge">v2.2</span>
+                                </td>
+                                <td>2026-03-03</td>
+                                <td>Added UTR Submit and Check UTR
+                                    API endpoints
+                                </td>
+                            </tr>
                             <tr>
                                 <td><span class="version-badge">v2.1</span>
                                 </td>

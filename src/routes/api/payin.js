@@ -384,4 +384,214 @@ router.post('/check', async (req, res) => {
     }
 });
 
+/**
+ * POST /api/payin/submitUtr
+ * Submit UTR for a payin order (forwards to upstream)
+ */
+router.post('/submitUtr', validateMerchant, async (req, res) => {
+    try {
+        const { orderId, utr } = req.body;
+        const merchant = req.merchant;
+
+        // Validate required fields
+        if (!orderId || !utr) {
+            return res.json({
+                status: 'error',
+                errorCode: 'INVALID_PARAMS',
+                message: 'Missing required parameters: orderId, utr',
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        // Validate UTR format (min 6 chars, alphanumeric)
+        const utrClean = String(utr).trim();
+        if (utrClean.length < 6 || !/^[a-zA-Z0-9]+$/.test(utrClean)) {
+            return res.json({
+                status: 'error',
+                errorCode: 'INVALID_UTR',
+                message: 'Invalid UTR format. Must be at least 6 alphanumeric characters.',
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        // Find the order
+        const order = await Order.findOne({
+            where: { merchantId: merchant.id, orderId: orderId, type: 'payin' }
+        });
+
+        if (!order) {
+            return res.json({
+                status: 'error',
+                errorCode: 'NOT_FOUND',
+                message: 'Order not found',
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        // Reject if order is already finalized
+        if (order.status === 'success') {
+            return res.json({
+                status: 'success',
+                message: 'Payment already confirmed',
+                timestamp: new Date().toISOString(),
+                result: {
+                    merchantOrderId: order.orderId,
+                    platformOrderId: order.id,
+                    orderStatus: order.status,
+                    transactionRef: order.utr || null
+                }
+            });
+        }
+
+        if (order.status === 'failed' || order.status === 'expired') {
+            return res.json({
+                status: 'error',
+                errorCode: 'ORDER_CLOSED',
+                message: `Order is already ${order.status}`,
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        // Submit UTR to upstream provider
+        const channelName = order.actualChannel || order.channelName;
+        const upstreamResult = await channelRouter.submitUtr(channelName, order.orderId, utrClean);
+
+        // Update UTR in our DB regardless of upstream result (for tracking)
+        await order.update({ utr: utrClean });
+
+        if (upstreamResult.success) {
+            console.log(`[Payin SubmitUTR] UTR ${utrClean} submitted for order ${orderId} via ${channelName}`);
+            return res.json({
+                status: 'success',
+                message: 'UTR submitted successfully',
+                timestamp: new Date().toISOString(),
+                result: {
+                    merchantOrderId: order.orderId,
+                    platformOrderId: order.id,
+                    orderStatus: order.status,
+                    transactionRef: utrClean
+                }
+            });
+        } else {
+            // UTR saved locally but upstream rejected — still return success with warning
+            console.warn(`[Payin SubmitUTR] Upstream rejected UTR for order ${orderId}: ${upstreamResult.error}`);
+            return res.json({
+                status: 'success',
+                message: 'UTR recorded. Verification is in progress.',
+                timestamp: new Date().toISOString(),
+                result: {
+                    merchantOrderId: order.orderId,
+                    platformOrderId: order.id,
+                    orderStatus: order.status,
+                    transactionRef: utrClean
+                }
+            });
+        }
+
+    } catch (error) {
+        console.error('[Payin SubmitUTR] Error:', error);
+        return res.status(500).json({
+            status: 'error',
+            errorCode: 'INTERNAL_ERROR',
+            message: 'Internal server error',
+            timestamp: new Date().toISOString()
+        });
+    }
+});
+
+/**
+ * POST /api/payin/checkUtr
+ * Check UTR status for a payin order
+ */
+router.post('/checkUtr', validateMerchant, async (req, res) => {
+    try {
+        const { orderId } = req.body;
+        const merchant = req.merchant;
+
+        if (!orderId) {
+            return res.json({
+                status: 'error',
+                errorCode: 'INVALID_PARAMS',
+                message: 'Missing required parameter: orderId',
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        const order = await Order.findOne({
+            where: { merchantId: merchant.id, orderId: orderId, type: 'payin' }
+        });
+
+        if (!order) {
+            return res.json({
+                status: 'error',
+                errorCode: 'NOT_FOUND',
+                message: 'Order not found',
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        // Sync with upstream to get latest UTR/status
+        if (order.status === 'pending' || order.status === 'processing' || (order.status === 'success' && !order.utr)) {
+            try {
+                const channelName = order.actualChannel || order.channelName;
+                if (channelName) {
+                    const queryResult = await channelRouter.queryPayin(channelName, order.orderId);
+
+                    if (queryResult.success) {
+                        const updates = {};
+                        let updated = false;
+
+                        // Update status if changed (only move forward)
+                        if (queryResult.status && queryResult.status !== order.status) {
+                            if (order.status === 'pending' || order.status === 'processing') {
+                                updates.status = queryResult.status;
+                                updated = true;
+                            }
+                        }
+
+                        // Update UTR if available
+                        if (queryResult.utr && queryResult.utr !== 'None' && queryResult.utr !== order.utr) {
+                            updates.utr = queryResult.utr;
+                            updated = true;
+                        }
+
+                        if (updated) {
+                            await order.update(updates);
+                            await order.reload();
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error('[Payin CheckUTR Sync Error]', err.message);
+                // Continue to return DB state if sync fails
+            }
+        }
+
+        return res.json({
+            status: 'success',
+            timestamp: new Date().toISOString(),
+            result: {
+                merchantOrderId: order.orderId,
+                platformOrderId: order.id,
+                orderStatus: order.status,
+                requestedAmount: parseFloat(order.amount),
+                settledAmount: parseFloat(order.netAmount),
+                processingFee: parseFloat(order.fee),
+                transactionRef: order.utr || null,
+                utrSubmitted: !!order.utr,
+                createdAt: order.createdAt.toISOString()
+            }
+        });
+
+    } catch (error) {
+        console.error('[Payin CheckUTR] Error:', error);
+        return res.status(500).json({
+            status: 'error',
+            errorCode: 'INTERNAL_ERROR',
+            message: 'Internal server error',
+            timestamp: new Date().toISOString()
+        });
+    }
+});
+
 module.exports = router;
