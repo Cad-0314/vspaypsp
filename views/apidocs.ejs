@@ -934,8 +934,7 @@ $response = curl_exec($ch);</code></pre>
                                             <%= currentLang==='zh' ?'必填':'Required' %>
                                         </span></td>
                                     <td>
-                                        <%= currentLang==='zh' ?'商户唯一订单号（最大64字符，不含特殊字符）':'Unique merchant order ID (max
-                                            64 chars, no special characters)' %>
+                                        <%= currentLang==='zh' ?'商户唯一订单号（最大64字符，不含特殊字符）':'Unique merchant order ID (max 64 chars, no special characters)' %>
                                     </td>
                                 </tr>
                                 <tr>
@@ -944,8 +943,7 @@ $response = curl_exec($ch);</code></pre>
                                             <%= currentLang==='zh' ?'必填':'Required' %>
                                         </span></td>
                                     <td>
-                                        <%= currentLang==='zh' ?'收款金额，单位 INR（最低 ₹100）':'Collection amount in INR
-                                            (minimum ₹100)' %>
+                                        <%= currentLang==='zh' ?'收款金额，单位 INR（最低 ₹100）':'Collection amount in INR (minimum ₹100)' %>
                                     </td>
                                 </tr>
                                 <tr>
@@ -954,8 +952,7 @@ $response = curl_exec($ch);</code></pre>
                                             <%= currentLang==='zh' ?'必填':'Required' %>
                                         </span></td>
                                     <td>
-                                        <%= currentLang==='zh' ?'异步回调通知地址（需 HTTPS）':'Async webhook URL for payment
-                                            notifications (HTTPS recommended)' %>
+                                        <%= currentLang==='zh' ?'异步回调通知地址（需 HTTPS）':'Async webhook URL for payment notifications (HTTPS recommended)' %>
                                     </td>
                                 </tr>
                                 <tr>
@@ -1000,8 +997,7 @@ $response = curl_exec($ch);</code></pre>
                                             <%= currentLang==='zh' ?'可选':'Optional' %>
                                         </span></td>
                                     <td>
-                                        <%= currentLang==='zh' ?'自定义透传数据（回调时原样返回）':'Custom pass-through data (returned
-                                            in callback)' %>
+                                        <%= currentLang==='zh' ?'自定义透传数据（回调时原样返回）':'Custom pass-through data (returned in callback)' %>
                                     </td>
                                 </tr>
                             </tbody>
@@ -1049,58 +1045,17 @@ $response = curl_exec($ch);</code></pre>
     }
 }</code></pre>
                         </div>
-                        <h3>
-                            <%= currentLang==='zh' ?'响应字段说明':'Response Fields' %>
-                        </h3>
+                        <h3><%= currentLang==='zh' ?'\u54cd\u5e94\u5b57\u6bb5\u8bf4\u660e':'Response Fields' %></h3>
                         <table>
-                            <thead>
-                                <tr>
-                                    <th>
-                                        <%= currentLang==='zh' ?'字段':'Field' %>
-                                    </th>
-                                    <th>
-                                        <%= currentLang==='zh' ?'说明':'Description' %>
-                                    </th>
-                                </tr>
-                            </thead>
+                            <thead><tr><th><%= currentLang==='zh' ?'\u5b57\u6bb5':'Field' %></th><th><%= currentLang==='zh' ?'\u8bf4\u660e':'Description' %></th></tr></thead>
                             <tbody>
-                                <tr>
-                                    <td><code>paymentUrl</code></td>
-                                    <td>
-                                        <%= currentLang==='zh' ?'支付页面 URL':'Payment page URL' %>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><code>upiId</code></td>
-                                    <td>
-                                        <%= currentLang==='zh' ?'UPI VPA 地址，如 merchant@upi（如果上游提供）':'UPI VPA address
-                                            e.g. merchant@upi (when available)' %>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><code>appLinks</code></td>
-                                    <td>
-                                        <%= currentLang==='zh' ?'UPI 应用深度链接（PhonePe、Paytm、GPay 等）':'UPI app deeplinks
-                                            for PhonePe, Paytm, GPay etc.' %>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><code>expiresIn</code></td>
-                                    <td>
-                                        <%= currentLang==='zh' ?'订单有效时间（秒）':'Order validity in seconds' %>
-                                    </td>
-                                </tr>
+                                <tr><td><code>paymentUrl</code></td><td><%= currentLang==='zh' ?'\u652f\u4ed8\u9875\u9762 URL':'Payment page URL' %></td></tr>
+                                <tr><td><code>upiId</code></td><td><%= currentLang==='zh' ?'UPI VPA \u5730\u5740':'UPI VPA address (when available)' %></td></tr>
+                                <tr><td><code>appLinks</code></td><td><%= currentLang==='zh' ?'UPI \u6df1\u5ea6\u94fe\u63a5':'UPI app deeplinks (PhonePe, Paytm, GPay)' %></td></tr>
+                                <tr><td><code>expiresIn</code></td><td><%= currentLang==='zh' ?'\u8ba2\u5355\u6709\u6548\u65f6\u95f4\uff08\u79d2\uff09':'Order validity in seconds' %></td></tr>
                             </tbody>
                         </table>
-                        <div class="alert alert-info">
-                            <% if(currentLang==='zh' ) { %>
-                                <strong>注意：</strong><code>upiId</code> 和 <code>appLinks</code> 仅在上游支付通道提供时返回，并非所有通道都支持。
-                                <% } else { %>
-                                    <strong>Note:</strong> <code>upiId</code> and <code>appLinks</code> are only
-                                    returned when the upstream payment channel provides them. Not all channels support
-                                    these fields.
-                                    <% } %>
-                        </div>
+                        <div class="alert alert-info"><% if(currentLang==='zh') { %><strong>\u6ce8\u610f\uff1a</strong><code>upiId</code> \u548c <code>appLinks</code> \u4ec5\u5728\u4e0a\u6e38\u901a\u9053\u63d0\u4f9b\u65f6\u8fd4\u56de\u3002<% } else { %><strong>Note:</strong> <code>upiId</code> and <code>appLinks</code> are only returned when the upstream channel provides them.<% } %></div>
         </section>
 
 
@@ -1188,11 +1143,7 @@ $response = curl_exec($ch);</code></pre>
 }</code></pre>
                         </div>
                         <div class="alert alert-warning">
-                            <%= currentLang==='zh' ?'<strong>重要：</strong>收到回调后，请使用您的 Secret Key 验证 <code>sign</code>
-                                签名。验证成功后，请返回纯文本 <code>SUCCESS</code> 确认接收。如果未确认，系统将重试最多 3
-                                次。':'<strong>Important:</strong> Verify the <code>sign</code> signature using your
-                                Secret Key upon receiving the callback. Return plain text <code>SUCCESS</code> to
-                                acknowledge receipt. The system will retry up to 3 times if not acknowledged.' %>
+                            <%= currentLang==='zh' ?'<strong>重要：</strong>收到回调后，请使用您的 Secret Key 验证 <code>sign</code> 签名。验证成功后，请返回纯文本 <code>SUCCESS</code> 确认接收。如果未确认，系统将重试最多 3 次。':'<strong>Important:</strong> Verify the <code>sign</code> signature using your Secret Key upon receiving the callback. Return plain text <code>SUCCESS</code> to acknowledge receipt. The system will retry up to 3 times if not acknowledged.' %>
                         </div>
                         <h3>
                             <%= currentLang==='zh' ?'签名验证示例':'Signature Verification Example' %>
@@ -1257,8 +1208,7 @@ if (sign === expectedSign) {
                                             <%= currentLang==='zh' ?'必填':'Required' %>
                                         </span></td>
                                     <td>
-                                        <%= currentLang==='zh' ?'转账金额，单位 INR（最低 ₹100）':'Transfer amount in INR (minimum
-                                            ₹100)' %>
+                                        <%= currentLang==='zh' ?'转账金额，单位 INR（最低 ₹100）':'Transfer amount in INR (minimum ₹100)' %>
                                     </td>
                                 </tr>
                                 <tr>
@@ -1427,9 +1377,7 @@ if (sign === expectedSign) {
 }</code></pre>
                         </div>
                         <div class="alert alert-warning">
-                            <%= currentLang==='zh' ?'<strong>重要：</strong>请验证签名后返回纯文本 <code>SUCCESS</code>
-                                确认接收。':'<strong>Important:</strong> Verify the signature and return plain text
-                                <code>SUCCESS</code> to acknowledge.' %>
+                            <%= currentLang==='zh' ?'<strong>重要：</strong>请验证签名后返回纯文本 <code>SUCCESS</code> 确认接收。':'<strong>Important:</strong> Verify the signature and return plain text <code>SUCCESS</code> to acknowledge.' %>
                         </div>
         </section>
 
