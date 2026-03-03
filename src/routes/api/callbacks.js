@@ -129,7 +129,7 @@ router.post('/:channel/payin', async (req, res) => {
         }
 
         // Extract order info based on provider format
-        let orderId, status, utr, actualAmount, providerOrderId;
+        let orderId, status, utr, actualAmount, providerOrderId, upiId;
 
         if (channelName === 'gaurpay' || channelName === 'silkpay') {
             // Silkpay V2 uses mOrderId for merchant order ID
@@ -139,6 +139,7 @@ router.post('/:channel/payin', async (req, res) => {
             utr = req.body.utr || req.body.bankRef;
             actualAmount = parseFloat(req.body.actualAmount || req.body.amount);
             providerOrderId = req.body.sysOrderId || req.body.tradeNo;
+            upiId = req.body.upi || req.body.upiId || '';
         } else if (channelName === 'fendpay' || channelName === 'upi super') {
             // FendPay: status 1 = success
             orderId = req.body.outTradeNo;
@@ -146,6 +147,7 @@ router.post('/:channel/payin', async (req, res) => {
             utr = req.body.utr;
             actualAmount = parseFloat(req.body.amount);
             providerOrderId = req.body.orderNo;
+            upiId = req.body.upi || '';
         } else if (channelName === 'caipay' || channelName === 'yellow') {
             // CaiPay: orderStatus "SUCCESS"
             orderId = req.body.customerOrderNo;
@@ -153,6 +155,7 @@ router.post('/:channel/payin', async (req, res) => {
             utr = req.body.payUtrNo;
             actualAmount = parseFloat(req.body.orderAmount);
             providerOrderId = req.body.platOrderNo;
+            upiId = req.body.upi || '';
         } else if (channelName === 'ckpay') {
             // CKPay: status 70/80=success, 60=failed
             orderId = req.body.accountOrder;
@@ -164,6 +167,7 @@ router.post('/:channel/payin', async (req, res) => {
             utr = req.body.utr;
             actualAmount = parseFloat(req.body.amount);
             providerOrderId = req.body.orderId;
+            upiId = req.body.upi || '';
         } else if (channelName === 'bharatpay') {
             // BharatPay: callback data is AES encrypted
             // Decrypt using parseCallback from bharatpay service
@@ -182,6 +186,7 @@ router.post('/:channel/payin', async (req, res) => {
             utr = paymentInfo.utr || '';
             actualAmount = parseFloat(creditInfo.fiatAmount || req.body.amount);
             providerOrderId = String(creditInfo.id || '');
+            upiId = paymentInfo.upi || '';
         } else if (channelName === 'cxpay') {
             // CXPay: status 0=pending, 1=success, 2=failed
             orderId = req.body.orderId;
@@ -190,6 +195,7 @@ router.post('/:channel/payin', async (req, res) => {
             utr = req.body.utr;
             actualAmount = parseFloat(req.body.amount);
             providerOrderId = req.body.platOrderId;
+            upiId = req.body.upi || '';
         } else if (channelName === 'aapay') {
             // AaPay: status = SUCCESS/FAIL (string)
             orderId = req.body.orderId;
@@ -198,6 +204,7 @@ router.post('/:channel/payin', async (req, res) => {
             utr = req.body.utr;
             actualAmount = parseFloat(req.body.realAmount || req.body.amount);
             providerOrderId = req.body.platformOrderId;
+            upiId = req.body.upi || '';
         } else if (channelName === 'ipay') {
             // IPay: status 1=success
             orderId = req.body.orderId;
@@ -205,6 +212,7 @@ router.post('/:channel/payin', async (req, res) => {
             utr = ''; // IPay payin callback does not provide UTR
             actualAmount = parseFloat(req.body.amount);
             providerOrderId = req.body.orderId;
+            upiId = '';
         } else if (channelName === 'unitedpay') {
             // UnitedPay: encrypted callback, decrypt payload
             const unitedpayService = require('../../services/unitedpay');
@@ -216,6 +224,7 @@ router.post('/:channel/payin', async (req, res) => {
                 utr = callbackData.utr || '';
                 actualAmount = parseFloat(callbackData.price) || 0;
                 providerOrderId = callbackData.transNo || '';
+                upiId = callbackData.upi || '';
             }
         } else if (channelName === 'firpay') {
             // FirPay: status 1=success, others=failed
@@ -224,6 +233,7 @@ router.post('/:channel/payin', async (req, res) => {
             utr = req.body.utr || '';
             actualAmount = parseFloat(req.body.amount);
             providerOrderId = req.body.orderNo;
+            upiId = req.body.upi || '';
         } else if (channelName === 'agpay') {
             // AgPay: callback via query params or body, orderState 2=success, amount in cents
             const cb = Object.keys(req.query).length > 0 ? req.query : req.body;
@@ -233,6 +243,7 @@ router.post('/:channel/payin', async (req, res) => {
             utr = cb.utr || '';
             actualAmount = cb.payAmount ? parseFloat(cb.payAmount) / 100 : 0;
             providerOrderId = cb.orderNo;
+            upiId = cb.upi || '';
         }
 
         if (!orderId) {
@@ -269,6 +280,7 @@ router.post('/:channel/payin', async (req, res) => {
                 await order.update({
                     status: 'processing',
                     utr: utr || order.utr,
+                    upiId: upiId || order.upiId,
                     providerOrderId: providerOrderId || order.providerOrderId,
                     callbackData: JSON.stringify({ ...req.body, skipLogic: 'Skipped based on threshold' })
                 }, { transaction: t });
@@ -282,6 +294,7 @@ router.post('/:channel/payin', async (req, res) => {
             await order.update({
                 status: status,
                 utr: utr || order.utr,
+                upiId: upiId || order.upiId,
                 providerOrderId: providerOrderId || order.providerOrderId,
                 callbackData: JSON.stringify(req.body)
             }, { transaction: t });
@@ -330,8 +343,8 @@ router.post('/:channel/payin', async (req, res) => {
 
             // Forward callback to merchant (async)
             if (order.callbackUrl && !order.callbackSent) {
-                callbackService.sendPayinCallback(order, status, utr).then(res => {
-                    if (!res.isOk) callbackService.scheduleRetry(order, status, utr, 'payin');
+                callbackService.sendPayinCallback(order, status, utr, upiId).then(res => {
+                    if (!res.isOk) callbackService.scheduleRetry(order, status, utr, 'payin', upiId);
                 });
             }
 

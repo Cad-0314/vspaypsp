@@ -66,6 +66,11 @@ const Order = sequelize.define('Order', {
         allowNull: true,
         comment: 'Bank UTR/reference number'
     },
+    upiId: {
+        type: DataTypes.STRING(100),
+        allowNull: true,
+        comment: 'UPI VPA/address used for payment'
+    },
     payUrl: {
         type: DataTypes.TEXT,
         allowNull: true,

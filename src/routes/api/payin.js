@@ -286,6 +286,7 @@ router.post('/query', validateMerchant, async (req, res) => {
                 requestedAmount: parseFloat(order.amount),
                 processingFee: parseFloat(order.fee),
                 transactionRef: order.utr || null,
+                upiId: order.upiId || null,
                 createdAt: order.createdAt.toISOString()
             }
         });
