@@ -173,6 +173,20 @@ router.post('/initiate', validateMerchant, async (req, res) => {
             if (providerResult.deepLinks.upi_paytm) appLinks.paytm = providerResult.deepLinks.upi_paytm;
             if (providerResult.deepLinks.upi_gpay) appLinks.gpay = providerResult.deepLinks.upi_gpay;
             if (providerResult.deepLinks.upi_scan) appLinks.generic_upi = providerResult.deepLinks.upi_scan;
+            if (providerResult.deepLinks.upi_intent) appLinks.upi_intent = providerResult.deepLinks.upi_intent;
+        }
+
+        // Extract UPI ID (VPA) from upstream response
+        let upiId = providerResult.upi || null;
+        if (!upiId) {
+            const upiScanLink = providerResult.deepLinks?.upi_scan || providerResult.deepLinks?.upi || null;
+            if (upiScanLink && upiScanLink.includes('pa=')) {
+                try {
+                    const urlParts = upiScanLink.split('?');
+                    const qp = new URLSearchParams(urlParts.length > 1 ? urlParts[1] : upiScanLink);
+                    upiId = qp.get('pa') || null;
+                } catch (e) { /* ignore parse errors */ }
+            }
         }
 
         // Calculate expiry
@@ -185,7 +199,8 @@ router.post('/initiate', validateMerchant, async (req, res) => {
             processing_fee: parseFloat(fee.toFixed(2)),
             payment_url: paymentUrl,
             expires_at: expiresAt.toISOString(),
-            app_links: Object.keys(appLinks).length > 0 ? appLinks : undefined
+            app_links: Object.keys(appLinks).length > 0 ? appLinks : undefined,
+            upi_id: upiId || undefined
         }));
 
     } catch (error) {

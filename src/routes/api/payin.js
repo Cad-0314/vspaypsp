@@ -167,6 +167,21 @@ router.post('/create', validateMerchant, async (req, res) => {
             if (providerResult.deepLinks.upi_paytm) deepLinks.upi_paytm = providerResult.deepLinks.upi_paytm;
             if (providerResult.deepLinks.upi_gpay) deepLinks.upi_gpay = providerResult.deepLinks.upi_gpay;
             if (providerResult.deepLinks.upi_scan) deepLinks.upi_scan = providerResult.deepLinks.upi_scan;
+            if (providerResult.deepLinks.upi_intent) deepLinks.upi_intent = providerResult.deepLinks.upi_intent;
+        }
+
+        // Extract UPI ID (VPA) from upstream response
+        let upiId = providerResult.upi || null;
+        if (!upiId) {
+            // Try extracting from upi_scan deeplink pa= parameter
+            const upiScanLink = providerResult.deepLinks?.upi_scan || providerResult.deepLinks?.upi || null;
+            if (upiScanLink && upiScanLink.includes('pa=')) {
+                try {
+                    const urlParts = upiScanLink.split('?');
+                    const qp = new URLSearchParams(urlParts.length > 1 ? urlParts[1] : upiScanLink);
+                    upiId = qp.get('pa') || null;
+                } catch (e) { /* ignore parse errors */ }
+            }
         }
 
         return res.json({
@@ -180,6 +195,7 @@ router.post('/create', validateMerchant, async (req, res) => {
                 processingFee: parseFloat(fee.toFixed(2)),
                 paymentUrl: paymentUrl,
                 appLinks: Object.keys(deepLinks).length > 0 ? deepLinks : undefined,
+                upiId: upiId || undefined,
                 expiresIn: 1800
             }
         });
@@ -286,7 +302,6 @@ router.post('/query', validateMerchant, async (req, res) => {
                 requestedAmount: parseFloat(order.amount),
                 processingFee: parseFloat(order.fee),
                 transactionRef: order.utr || null,
-                upiId: order.upiId || null,
                 createdAt: order.createdAt.toISOString()
             }
         });

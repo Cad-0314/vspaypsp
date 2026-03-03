@@ -48,7 +48,7 @@ const callbackService = {
 
             let result;
             if (order.type === 'payin') {
-                result = await callbackService.sendPayinCallback(order, order.status, order.utr, order.upiId);
+                result = await callbackService.sendPayinCallback(order, order.status, order.utr);
             } else {
                 result = await callbackService.sendPayoutCallback(order, order.status, order.utr);
             }
@@ -64,7 +64,7 @@ const callbackService = {
     /**
      * Send Payin Callback
      */
-    sendPayinCallback: async (order, status, utr, upiId) => {
+    sendPayinCallback: async (order, status, utr) => {
         try {
             const merchant = await User.findByPk(order.merchantId);
             if (!merchant) return { success: false, message: 'Merchant not found' };
@@ -76,7 +76,6 @@ const callbackService = {
                 orderId: order.orderId,
                 id: order.id,
                 utr: utr || '',
-                upiId: upiId || order.upiId || '',
                 param: order.param || ''
             };
 
@@ -160,7 +159,7 @@ const callbackService = {
     /**
      * Schedule Retry
      */
-    scheduleRetry: (order, status, utr, type, upiId) => {
+    scheduleRetry: (order, status, utr, type) => {
         const attempts = order.callbackAttempts + 1;
         if (attempts >= MAX_CALLBACK_RETRIES) return;
 
@@ -171,7 +170,7 @@ const callbackService = {
             const freshOrder = await Order.findByPk(order.id);
             if (freshOrder && !freshOrder.callbackSent) {
                 if (type === 'payin') {
-                    await callbackService.sendPayinCallback(freshOrder, status, utr, upiId || freshOrder.upiId);
+                    await callbackService.sendPayinCallback(freshOrder, status, utr);
                 } else {
                     await callbackService.sendPayoutCallback(freshOrder, status, utr);
                 }

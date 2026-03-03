@@ -142,7 +142,6 @@ Success Response
         "fee": 25,
         "netAmount": 475,
         "utr": "123456789012",
-        "upiId": "merchant@upi",
         "createdAt": "2025-01-01T12:00:00Z"
     }
 }
@@ -157,7 +156,6 @@ orderAmount	Number	Original order amount / 原始订单金额
 orderId	String	Your merchant order ID / 商户订单号
 id	String	Gateway transaction ID / 网关交易ID
 utr	String	Bank reference number / 银行流水号
-upiId	String	UPI address used for payment / 付款UPI地址
 param	String	Your custom parameter / 自定义回传参数
 sign	String	MD5 signature / MD5签名
 Example Callback / 回调示例
@@ -169,7 +167,6 @@ Example Callback / 回调示例
     "orderId": "MC001-998877",
     "id": "uuid-v4-string",
     "utr": "123456789012",
-    "upiId": "merchant@upi",
     "param": "custom-data",
     "sign": "A1B2C3D4E5F6..."
 }

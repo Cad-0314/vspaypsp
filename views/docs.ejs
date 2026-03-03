@@ -423,6 +423,59 @@
                         </tr>
                     </tbody>
                 </table>
+                <h3>成功响应</h3>
+                <pre><code class="language-json">{
+    "success": true,
+    "code": "SUCCESS",
+    "message": "收款订单已创建",
+    "timestamp": "2026-02-01T12:00:00.000Z",
+    "data": {
+        "merchant_order_id": "ORD_123456",
+        "platform_order_id": "uuid-here",
+        "amount": 500.00,
+        "processing_fee": 25.00,
+        "payment_url": "https://your-domain.com/pay/uuid",
+        "expires_at": "2026-02-01T12:30:00.000Z",
+        "upi_id": "merchant@upi",
+        "app_links": {
+            "phonepe": "phonepe://...",
+            "paytm": "paytmmp://...",
+            "gpay": "gpay://...",
+            "generic_upi": "upi://pay?pa=...",
+            "upi_intent": "upi://pay?pa=..."
+        }
+    }
+}</code></pre>
+                <h3>响应参数说明</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>参数</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>payment_url</code></td>
+                            <td>支付页面 URL (包含 iframe)</td>
+                        </tr>
+                        <tr>
+                            <td><code>upi_id</code></td>
+                            <td>UPI VPA 地址，如 merchant@upi (如果上游提供)</td>
+                        </tr>
+                        <tr>
+                            <td><code>app_links</code></td>
+                            <td>UPI 应用深度链接 (如果上游提供)</td>
+                        </tr>
+                        <tr>
+                            <td><code>expires_at</code></td>
+                            <td>订单过期时间 (ISO 8601)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="alert">
+                    <strong>注意:</strong> <code>upi_id</code> 和 <code>app_links</code> 仅在上游支付通道提供时返回，并非所有通道都支持。
+                </div>
             </section>
 
             <% } else { %>
@@ -619,9 +672,48 @@ function generateSignature(params, secretKey) {
         "amount": 500.00,
         "processing_fee": 25.00,
         "payment_url": "https://your-domain.com/pay/uuid",
-        "expires_in": 1800
+        "expires_at": "2026-02-01T12:30:00.000Z",
+        "upi_id": "merchant@upi",
+        "app_links": {
+            "phonepe": "phonepe://...",
+            "paytm": "paytmmp://...",
+            "gpay": "gpay://...",
+            "generic_upi": "upi://pay?pa=...",
+            "upi_intent": "upi://pay?pa=..."
+        }
     }
 }</code></pre>
+                    <h3>Response Fields</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>payment_url</code></td>
+                                <td>Payment page URL (contains iframe)</td>
+                            </tr>
+                            <tr>
+                                <td><code>upi_id</code></td>
+                                <td>UPI VPA address, e.g. merchant@upi (when available from upstream)</td>
+                            </tr>
+                            <tr>
+                                <td><code>app_links</code></td>
+                                <td>UPI app deeplinks for PhonePe, Paytm, GPay, etc. (when available)</td>
+                            </tr>
+                            <tr>
+                                <td><code>expires_at</code></td>
+                                <td>Order expiration time (ISO 8601)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="alert">
+                        <strong>Note:</strong> <code>upi_id</code> and <code>app_links</code> are only returned when the
+                        upstream payment channel provides them. Not all channels support these fields.
+                    </div>
                 </section>
 
                 <section id="collection-status">

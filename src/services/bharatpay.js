@@ -104,6 +104,16 @@ async function createPayinV1({ orderId, amount, notifyUrl, customerName, custome
         if (response.data.code === 0 && response.data.result) {
             const orderInfo = response.data.result.channelCreditOrderSimpleInfo;
             const paymentInfo = response.data.result.channelPaymentRecordSimpleInfo;
+            const rawDeeplinks = response.data.result.deeplink || {};
+
+            // Map BharatPay deeplink keys to standard format
+            const deepLinks = {
+                upi_phonepe: rawDeeplinks.phonepe || null,
+                upi_paytm: rawDeeplinks.paytmmp || null,
+                upi_gpay: rawDeeplinks.gpay || null,
+                upi_scan: rawDeeplinks.other || paymentInfo?.upiUrl || null,
+                upi_intent: rawDeeplinks.other || paymentInfo?.upiUrl || null
+            };
 
             return {
                 success: true,
@@ -114,7 +124,7 @@ async function createPayinV1({ orderId, amount, notifyUrl, customerName, custome
                 upiUrl: paymentInfo?.upiUrl || '',
                 amount: orderInfo?.fiatAmount || amount,
                 processCode: orderInfo?.processCode,
-                deeplinks: response.data.result.deeplink || {},
+                deepLinks: deepLinks,
                 rawResponse: response.data
             };
         }
@@ -160,6 +170,16 @@ async function createPayinV2({ orderId, amount, notifyUrl, customerName, custome
         if (response.data.code === 0 && response.data.result) {
             const orderInfo = response.data.result.channelCreditOrderSimpleInfo;
             const paymentInfo = response.data.result.channelPaymentRecordSimpleInfo;
+            const rawDeeplinks = response.data.result.deeplink || {};
+
+            // Map BharatPay deeplink keys to standard format
+            const deepLinks = {
+                upi_phonepe: rawDeeplinks.phonepe || null,
+                upi_paytm: rawDeeplinks.paytmmp || null,
+                upi_gpay: rawDeeplinks.gpay || null,
+                upi_scan: rawDeeplinks.other || paymentInfo?.upiUrl || null,
+                upi_intent: rawDeeplinks.other || paymentInfo?.upiUrl || null
+            };
 
             return {
                 success: true,
@@ -170,7 +190,7 @@ async function createPayinV2({ orderId, amount, notifyUrl, customerName, custome
                 upiUrl: paymentInfo?.upiUrl || '',
                 amount: orderInfo?.fiatAmount || amount,
                 processCode: orderInfo?.processCode,
-                deeplinks: response.data.result.deeplink || {},
+                deepLinks: deepLinks,
                 rawResponse: response.data
             };
         }
