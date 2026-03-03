@@ -1093,10 +1093,13 @@ $response = curl_exec($ch);</code></pre>
                             </tbody>
                         </table>
                         <div class="alert alert-info">
-                            <%= currentLang==='zh' ?'<strong>注意：</strong><code>upiId</code> 和 <code>appLinks</code>
-                                仅在上游支付通道提供时返回，并非所有通道都支持。':'<strong>Note:</strong> <code>upiId</code> and
-                                <code>appLinks</code> are only returned when the upstream payment channel provides them.
-                                Not all channels support these fields.' %>
+                            <% if(currentLang==='zh' ) { %>
+                                <strong>注意：</strong><code>upiId</code> 和 <code>appLinks</code> 仅在上游支付通道提供时返回，并非所有通道都支持。
+                                <% } else { %>
+                                    <strong>Note:</strong> <code>upiId</code> and <code>appLinks</code> are only
+                                    returned when the upstream payment channel provides them. Not all channels support
+                                    these fields.
+                                    <% } %>
                         </div>
         </section>
 
