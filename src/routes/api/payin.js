@@ -68,7 +68,12 @@ router.post('/create', validateMerchant, async (req, res) => {
 
         // Get channel rates from database or use defaults
         let channel = await Channel.findOne({ where: { name: channelName, isActive: true } });
-        const payinRate = channel ? parseFloat(channel.payinRate) : 5.0;
+
+        // Use merchant custom rates if available
+        let customRates = {};
+        try { customRates = JSON.parse(merchant.channel_rates || '{}'); } catch (e) { }
+
+        const payinRate = customRates.payinRate || (channel ? parseFloat(channel.payinRate) : 5.0);
 
         // Calculate fee
         const fee = (amount * payinRate) / 100;

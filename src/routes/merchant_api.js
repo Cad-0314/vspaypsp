@@ -225,9 +225,13 @@ router.post('/paylink', async (req, res) => {
             return res.status(400).json({ success: false, error: 'Invalid amount. Minimum is ₹100' });
         }
 
-        // Get channel rates
-        const channel = await Channel.findOne({ where: { name: merchant.assignedChannel } });
-        const payinRate = channel ? parseFloat(channel.payinRate) : 5.0;
+        // Get channel rates with custom override
+        const channel = await Channel.findOne({ where: { name: merchant.assignedChannel || 'hdpay' } });
+
+        let customRates = {};
+        try { customRates = JSON.parse(merchant.channel_rates || '{}'); } catch (e) { }
+
+        const payinRate = customRates.payinRate || (channel ? parseFloat(channel.payinRate) : 5.0);
         const fee = (amt * payinRate) / 100;
         const netAmount = amt - fee;
 
