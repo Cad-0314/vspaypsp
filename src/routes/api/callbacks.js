@@ -119,7 +119,7 @@ router.post('/:channel/payin', async (req, res) => {
     console.log(`[Callback] Payin callback from ${channelName}:`, JSON.stringify(req.body));
 
     // Determine success response based on channel
-    const successResponse = channelName === 'ckpay' ? 'OK' : (channelName === 'aapay' ? 'SUCCESS' : 'success');
+    const successResponse = channelName === 'ckpay' ? 'OK' : (channelName === 'aapay' || channelName === 'easypay' ? 'SUCCESS' : 'success');
 
     try {
         // Verify callback signature (optional - some providers have issues)
@@ -233,6 +233,14 @@ router.post('/:channel/payin', async (req, res) => {
             utr = cb.utr || '';
             actualAmount = cb.payAmount ? parseFloat(cb.payAmount) / 100 : 0;
             providerOrderId = cb.orderNo;
+        } else if (channelName === 'easypay') {
+            // EasyPay: status SUCCESS/FAIL (string), amount in INR
+            orderId = req.body.orderId;
+            status = req.body.status === 'SUCCESS' ? 'success' :
+                req.body.status === 'FAIL' ? 'failed' : 'pending';
+            utr = req.body.utr || '';
+            actualAmount = parseFloat(req.body.realAmount || req.body.amount);
+            providerOrderId = req.body.platformOrderId || req.body.platformorderId;
         }
 
         if (!orderId) {
@@ -358,7 +366,7 @@ router.post('/:channel/payout', async (req, res) => {
     console.log(`[Callback] Payout callback from ${channelName}:`, JSON.stringify(req.body));
 
     // Determine success response based on channel
-    const successResponse = channelName === 'ckpay' ? 'OK' : (channelName === 'aapay' ? 'SUCCESS' : 'success');
+    const successResponse = channelName === 'ckpay' ? 'OK' : (channelName === 'aapay' || channelName === 'easypay' ? 'SUCCESS' : 'success');
 
     try {
         let orderId, status, utr, providerOrderId;
@@ -451,6 +459,14 @@ router.post('/:channel/payout', async (req, res) => {
                 parseInt(cb.orderState) === 3 ? 'failed' : 'processing';
             utr = cb.utr || '';
             providerOrderId = cb.orderNo;
+        } else if (channelName === 'easypay') {
+            // EasyPay payout: status 1=success, -1=failed (integer)
+            orderId = req.body.orderId;
+            const statusNum = parseInt(req.body.status);
+            status = statusNum === 1 ? 'success' :
+                statusNum === -1 ? 'failed' : 'processing';
+            utr = req.body.utr || '';
+            providerOrderId = req.body.platformorderId || req.body.platformOrderId;
         }
 
         if (!orderId) return res.send(successResponse);
