@@ -283,7 +283,7 @@ router.post('/query', validateMerchant, async (req, res) => {
                 orderStatus: order.status,
                 amount: parseFloat(order.amount),
                 processingFee: parseFloat(order.fee),
-                utr: order.utr,
+                utr: order.utr || undefined,
                 createdAt: order.createdAt.toISOString()
             }
         });
@@ -309,8 +309,10 @@ router.post('/check', async (req, res) => {
 
         if (!orderId || !userId) {
             return res.json({
-                code: -2,
-                msg: 'Missing orderId or userId'
+                status: 'error',
+                errorCode: 'INVALID_PARAMS',
+                message: 'Missing orderId or userId',
+                timestamp: new Date().toISOString()
             });
         }
 
@@ -320,8 +322,10 @@ router.post('/check', async (req, res) => {
 
         if (!merchant) {
             return res.json({
-                code: -1,
-                msg: 'Invalid userId'
+                status: 'error',
+                errorCode: 'INVALID_MERCHANT',
+                message: 'Invalid userId',
+                timestamp: new Date().toISOString()
             });
         }
 
@@ -331,17 +335,20 @@ router.post('/check', async (req, res) => {
 
         if (!order) {
             return res.json({
-                code: -4,
-                msg: 'Order not found'
+                status: 'error',
+                errorCode: 'ORDER_NOT_FOUND',
+                message: 'Order not found',
+                timestamp: new Date().toISOString()
             });
         }
 
         return res.json({
-            code: 1,
-            data: {
+            status: 'success',
+            timestamp: new Date().toISOString(),
+            result: {
                 orderId: order.orderId,
-                id: order.id,
-                status: order.status,
+                platformOrderId: order.id,
+                orderStatus: order.status,
                 amount: parseFloat(order.amount),
                 createdAt: order.createdAt.toISOString()
             }
@@ -350,8 +357,10 @@ router.post('/check', async (req, res) => {
     } catch (error) {
         console.error('[Payout Check] Error:', error);
         return res.status(500).json({
-            code: 0,
-            msg: 'Internal server error'
+            status: 'error',
+            errorCode: 'INTERNAL_ERROR',
+            message: 'Internal server error',
+            timestamp: new Date().toISOString()
         });
     }
 });
