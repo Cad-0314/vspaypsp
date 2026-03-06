@@ -70,11 +70,9 @@ const callbackService = {
             if (!merchant) return { success: false, message: 'Merchant not found' };
 
             const callbackData = {
-                status: status === 'success' ? 1 : 0,
-                amount: parseFloat(parseFloat(order.netAmount).toFixed(2)),
-                orderAmount: parseFloat(parseFloat(order.amount).toFixed(2)),
                 orderId: order.orderId,
-                id: order.id,
+                amount: parseFloat(order.amount).toFixed(2),
+                status: status === 'success' ? 'SUCCESS' : 'FAIL',
                 utr: utr || '',
                 param: order.param || ''
             };
@@ -118,12 +116,10 @@ const callbackService = {
             if (!merchant) return { success: false, message: 'Merchant not found' };
 
             const callbackData = {
-                status: status === 'success' ? 1 : 0,
-                amount: parseFloat(parseFloat(order.amount).toFixed(2)),
                 orderId: order.orderId,
-                id: order.id,
+                amount: parseFloat(order.amount).toFixed(2),
+                status: status === 'success' ? 'SUCCESS' : 'FAIL',
                 utr: utr || '',
-                message: status === 'success' ? 'success' : 'failed',
                 param: order.param || ''
             };
 
