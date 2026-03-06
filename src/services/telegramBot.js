@@ -119,6 +119,7 @@ const init = (token) => {
                 `🎫  /pl \`<amount>\` — Payment link`,
                 `🔍  /query \`<orderId>\` — Order lookup`,
                 `🔄  /callback \`<orderId>\` — Retry callback`,
+                `🧪  /cbt \`<orderId>\` — Test success callback`,
                 `🆔  /id — Get chat ID`,
                 `❓  /h — This menu`,
             ].join('\n'), { parse_mode: 'Markdown' });
@@ -419,6 +420,79 @@ const init = (token) => {
                     bot.sendMessage(chatId, `❌ Callback Failed: ${result.message}`);
                 }
             } catch (error) {
+                bot.sendMessage(chatId, `❌ Error: ${error.message}`);
+            }
+        });
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  /cbt <orderId> — Test Callback (Success without balance change)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        bot.onText(/\/cbt(?:@\w+)?\s+(.+)/, async (msg, match) => {
+            const chatId = msg.chat.id;
+            const orderId = match[1].trim();
+
+            if (!orderId) {
+                return bot.sendMessage(chatId, '⚠️ Usage: /cbt `<orderId>`', { parse_mode: 'Markdown' });
+            }
+
+            try {
+                const order = await Order.findOne({ where: { orderId: orderId } });
+
+                if (!order) {
+                    return bot.sendMessage(chatId, [
+                        `❌ *Order Not Found*`,
+                        ``,
+                        `No order matched \`${orderId}\``,
+                        `Double-check and try again.`,
+                    ].join('\n'), { parse_mode: 'Markdown' });
+                }
+
+                if (order.status === 'success') {
+                    return bot.sendMessage(chatId, `⚠️ Order \`${orderId}\` is already marked as success.`, { parse_mode: 'Markdown' });
+                }
+
+                // Generate a DEMO UTR if none exists
+                const demoUtr = order.utr || `DEMO_UTR_${Date.now()}`;
+
+                // Update order to success and assign UTR without going through the normal balance-modifying callback routes
+                await order.update({
+                    status: 'success',
+                    utr: demoUtr,
+                    providerOrderId: order.providerOrderId || `DEMO_SYS_${Date.now()}`
+                });
+
+                // Send the success callback to the merchant
+                const callbackService = require('./callbackService');
+                let result;
+                if (order.type === 'payin') {
+                    result = await callbackService.sendPayinCallback(order, 'success', demoUtr);
+                } else {
+                    result = await callbackService.sendPayoutCallback(order, 'success', demoUtr);
+                }
+
+                if (result.success) {
+                    const ok = result.isOk;
+                    const snippet = result.response ? result.response.substring(0, 80) : 'N/A';
+                    bot.sendMessage(chatId, [
+                        `━━━━━━━━━━━━━━━━━━━━━`,
+                        `  🧪  *CBT Result*`,
+                        `━━━━━━━━━━━━━━━━━━━━━`,
+                        ``,
+                        `✅ Order Status: Updated to *success*`,
+                        `🔗 UTR: \`${demoUtr}\``,
+                        `ℹ️ Balance: *Not modified*`,
+                        ``,
+                        `-- Callback --`,
+                        `${ok ? '✅' : '⚠️'}  ${ok ? 'Acknowledged' : 'Not Acknowledged'}`,
+                        `📡  HTTP ➜ ${result.httpCode}`,
+                        `📝  Response ➜ \`${snippet}\``,
+                    ].join('\n'), { parse_mode: 'Markdown' });
+                } else {
+                    bot.sendMessage(chatId, `❌ Callback Failed: ${result.message}`);
+                }
+
+            } catch (error) {
+                console.error('[Telegram] /cbt error:', error);
                 bot.sendMessage(chatId, `❌ Error: ${error.message}`);
             }
         });
