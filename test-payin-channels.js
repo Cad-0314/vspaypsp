@@ -11,6 +11,7 @@ const bharatpayService = require('./src/services/bharatpay');
 const firpayService = require('./src/services/firpay');
 const agpayService = require('./src/services/agpay');
 const easypayService = require('./src/services/easypay');
+const ynpayService = require('./src/services/ynpay');
 const { v4: uuidv4 } = require('uuid');
 
 const BASE_URL = 'https://gaurpay.site';
@@ -173,6 +174,18 @@ async function testChannels() {
     } catch (e) {
         console.error('EasyPay Error:', e.message);
         results.push({ channel: 'Easy Pay', success: false, error: e.message });
+    }
+
+    // 15. YNPay
+    try {
+        console.log('\nTesting YNPay...');
+        const order = { ...baseOrder, notifyUrl: `${BASE_URL}/callback/ynpay/payin` };
+        const res = await ynpayService.createPayin(order);
+        console.log('YNPay Result:', JSON.stringify(res, null, 2));
+        results.push({ channel: 'YN Pay', success: res.success, data: res, error: res.error });
+    } catch (e) {
+        console.error('YNPay Error:', e.message);
+        results.push({ channel: 'YN Pay', success: false, error: e.message });
     }
 
     console.log('\n--- Analysis Complete ---');

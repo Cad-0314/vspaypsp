@@ -1,0 +1,634 @@
+Unified request format
+The domain name is https://www.ynuopay.com
+💡Request Parameter Description 
+RequestBody
+channel
+string 
+channel
+Required
+This platform issues a unique identifier to appId. Please contact our technical support to obtain it.
+timestamp
+integer 
+Timestamp
+Required
+millisecond
+sign
+string 
+sign
+Required
+Please check the signature algorithm.
+content
+string 
+Business parameters
+Required
+Please check the encryption algorithm.
+💡
+Example JSON request parameters 
+{
+"channel":"10000",
+"timestamp":1555378976238,
+"sign":"265bf94a330cc13baf4a813850675d61",
+"content":"mHO4+ObesZXWwkUQa4FoSREEG7zi0NlCef/3nt47YdFHIy+ocniJWJQ92GFiv8Tz"
+}
+
+Signature Rules (Must Read)
+Signature Algorithm
+MD5 encryption
+Signature generation steps
+1 .
+Concatenate
+the parameters of the unified request format into a string according to the following format.
+appSecret={APP_SECRET}&channel={APP_ID}&content={加密后的业务参数}&timestamp={毫秒级时间戳}
+2 .
+Perform MD5 hash calculation on the concatenated string
+3 .
+Convert to lowercase hexadecimal string
+Example
+1 .
+Assume the concatenated string is:
+appSecret=3974076aff7b4f5da2998f437441745f&channel=10000&content=加密后的内容&timestamp=1678901234567
+2 .
+After MD5 hash calculation, the resulting signature value is:
+e4d00b4bbc9fed7e16eb428ba0b3e6d5                                               
+Verification steps
+1 .
+After receiving the request, the server extracts the appSecret, channel, content, and timestamp parameters from the request.
+2 .
+Concatenate strings using the same rules as the client:
+3 .
+appSecret={APP_SECRET}&channel={APP_ID}&content={encrypted content}×tamp={timestamp}
+4 .
+Perform an MD5 hash on the concatenated string and convert it to a lowercase hexadecimal string.
+5 .
+The calculated signature value is compared with the sign parameter carried in the request. If they match, the signature verification is successful; otherwise, the signature verification fails.
+
+Business Parameter Encryption Rules (Must Read)
+Encryption Algorithm
+AES/CBC/PKCS5Padding
+Algorithm: AES (Advanced Encryption Standard)
+Operating mode: CBC (Cryptoblock Chaining)
+Fill method: PKCS5Padding
+Key: APP_SECRET is used as the key, issued by the platform.
+Initialization Vector (IV): Initialization vector, issued by the platform.
+Encryption steps
+1 .
+Convert the request content (a JSON-formatted string) into a byte array.
+2 .
+Encrypt the byte array using AES/CBC/PKCS5Padding mode.
+3 .
+The encrypted byte array is converted into a string using Base64 encoding, ultimately yielding the encrypted content.
+Example
+Assume the business parameters are as follows:
+{
+    "mchOrderId": "20240915123456",
+    "amount": 5001,
+    "channelCode": "PayPal",
+    "customerName": "Alex",
+    "email": "45615531941@google.com",
+    "mobile": "45615531941",
+    "notifyUrl": "https://www.google.com",
+    "timestamp": 1678901234567
+}
+key: 3974076aff7b4f5da2998f437441745f
+iv: 3175701037964796
+After AES encryption and Base64 encoding, the encrypted content is as follows:
+1gwK0UC2NCEAMGgx58yRgbepNWNZF3d6jSpPLV0uRj6ccVZ7lVg6ztTmTyF+leWvkFgo2bZPbQDoBEHXxHy9z+j5kSfcitqNq7VhCd6is+Ara5op70knjQcHAH/4qZtD3PGEKIEd2WVJl90FHiTXJb4VyeMJcjTb0uyJ41wxchvmZsye4BMt9zuZ2IeXxjT891G7uXzvbfMZ6c5r6UPkVRXDY7FB0SXnOhBNZn+hQFqv2BGRNetimBaMok3r+6H66lNIW86IAnvoZgbiAznvJfQNaCkb+79q4ugdVCD4fzp0fPAiOGefyb/D+HCAeQ8MQznzGC+BocOoJX4QIYx+Ng==
+Decryption algorithm
+1 .
+Use the same key and initialization vector (IV) as the client.
+2 .
+Base64 decoding is performed on the content in the request to obtain an encrypted byte array.
+3 .
+The byte array is decrypted using AES/CBC/PKCS5Padding mode to obtain the original request content.
+
+Request to collect on behalf
+POST
+/api/api_inr.aspx
+Request parameters
+Body parameters
+application/json
+timestamp
+string 
+Current timestamp
+Required
+mchOrderId
+string 
+Merchant Order ID
+Required
+amount
+integer 
+Required
+The amount received (in cents), for example, 500.10 yuan, needs to be set to 50010 cents.
+customerName
+string 
+Required
+User Name AZ az
+channelCode
+string 
+Required
+Acquiring Channel Code: India Wake-up 1002, India Native 1000
+notifyUrl
+string  <uri>
+Merchant transaction notification URL
+Required
+redirectUrl
+string  <uri>
+Required
+The synchronized return address will redirect you to the merchant page after payment. This address must be HTTPS; otherwise, enter any valid HTTPS address.
+email
+string  <email>
+User's real email address
+Required
+mobile
+string 
+User's real mobile phone number
+Required
+productDetail
+string  |  
+null 
+Product details (optional)
+Optional
+Example
+{
+    "timestamp": "1740031077",
+    "mchOrderId": "21231239",
+    "amount": 10000,
+    "customerName": "David",
+    "channelCode": "native",
+    "notifyUrl": "https://frail-barge.name/",
+    "redirectUrl": "https://ill-pick.biz/",
+    "email": "ixjit6_tnd7@hotmail.com",
+    "mobile": "2875687882811",
+    "productDetail": "deserunt cupidatat dolor"
+}
+Request sample code
+Return response
+🟢 200
+success
+application/json
+code
+string 
+Interface status
+Required
+msg
+string 
+Required
+data
+object 
+Required
+transactionId
+string 
+Order number
+Required
+payData
+string 
+URL
+Required
+payUrl
+string 
+URL compatibility fields
+Required
+upi
+string 
+upi
+Required
+Example
+{
+    "code": "1",
+    "msg": "Success",
+    "data": {
+        "transactionId": "PI20250319134638654zp2QyN",
+        "payData": "https://cashier.haoxpay.com/#/mobile?orderId=1742363198716qj2ib",
+        "payUrl": "https://cashier.haoxpay.com/#/mobile?orderId=1742363198716qj2ib",
+        "upi": ""
+    }
+}
+
+Substitute for retraction
+POST
+If you receive a peer-to-peer communication from the server, output "SUCCESS" (without quotes, uppercase letters) on the page; otherwise, there will be repeated sending of peer-to-peer notifications.
+{
+"channel":"9237a900645d4278957e6d11c59207b6",
+"timestamp":1555378976238,
+"sign":"265bf94a330cc13baf4a813850675d61",
+"content":"mHO4+ObesZXWwkUQa4FoSREEG7zi0NlCef/3nt47YdFHIy+ocniJWJQ92GFiv8Tz"
+}
+Request parameters
+Body parameters
+application/json
+timestamp
+string 
+Current timestamp
+Required
+mchOrderId
+string 
+Merchant Order ID
+Required
+amount
+integer 
+Required
+The amount to be received (in cents), for example, PHP:500.10, needs to be set to 50010 cents.
+customerName
+string 
+Payer's Name
+Required
+channelCode
+string 
+Acquiring Channel Code
+Required
+notifyUrl
+string  <uri>
+Merchant transaction notification URL
+Required
+redirectUrl
+string  <uri>
+Redirect URL
+Required
+email
+string  <email>
+Payer's email address
+Required
+mobile
+string 
+Payer's phone number
+Required
+Matching mode :
+^\+?[0-9]{10,15}$
+state
+enum <integer> 
+Required
+Payment status: 0 - Unpaid, 1 - Paid
+Enumeration values :
+0
+1
+Example
+{
+    "timestamp": "1740031077",
+    "mchOrderId": "21231239",
+    "amount": 10000,
+    "customerName": "David",
+    "channelCode": "43",
+    "notifyUrl": "https://frail-barge.name/",
+    "redirectUrl": "https://ill-pick.biz/",
+    "email": "ixjit6_tnd7@hotmail.com",
+    "mobile": "+2875687882811",
+    "productDetail": "deserunt cupidatat dolor"
+}
+Request sample code
+Return response
+🟢 200
+success
+text/plain
+Example
+SUCCESS
+
+Request payment on behalf
+POST
+/api/api_inr_df.aspx
+🔴🔴🔴Important Notes (Please read carefully) 🔴🔴🔴
+Once the payment request is submitted, if you do not receive a clear status confirmation, please be sure to contact customer service to confirm in order to avoid duplicate payments.
+If the request times out, please do not automatically classify it as a failed order. Instead, contact customer service to confirm the actual processing result.
+HTTP 5XX status codes usually indicate abnormal network communication between the two parties. Please do not list it as a failed order. Verify the situation before changing the status.
+Request parameters
+Body parameters
+application/json
+timestamp
+string 
+Current timestamp
+Required
+mchOrderId
+string 
+Merchant Order ID
+Required
+amount
+integer 
+Required
+The amount received (in cents), for example, 500.10 yuan should be set to 50010 cents.
+customerName
+string 
+Payer's Name
+Required
+accountNo
+string 
+account
+Required
+payMethodCode
+string 
+Fill in UPI as the payment type
+Required
+transferCode
+string 
+Required
+When filling in the IFSC code in India, you must enter the actual IFSC code.
+notifyUrl
+string  <uri>
+Merchant transaction notification URL
+Required
+redirectUrl
+string  <uri>
+Redirect URL
+Optional
+email
+string  <email> |  
+null 
+Optional
+The payer's email address was not entered as a random value.
+accountPhone
+string 
+Required
+No random value was entered for the mobile number.
+mobile
+string  |  
+null 
+Optional
+Choose one of the two redundant telephone fields to fill in.
+productDetail
+string  |  
+null 
+Product Details
+Optional
+Example
+{
+    "timestamp": "1747135278",
+    "mchOrderId": "68",
+    "amount": 745,
+    "customerName": "鲍雪",
+    "accountNo": "proident",
+    "payMethodCode": "84",
+    "transferCode": "76",
+    "notifyUrl": "https://tattered-trolley.name/",
+    "redirectUrl": "https://jealous-tuba.com/",
+    "email": "i1cuji.ldk@yeah.net",
+    "mobile": "15693685676",
+    "productDetail": "adipisicing"
+}
+Request sample code
+Return response
+🟢 200
+success
+application/json
+code
+string 
+Required
+msg
+string 
+Required
+data
+object 
+Required
+mchOrderId
+string 
+Required
+transactionId
+string 
+Required
+transactionStatus
+string 
+Required
+transactionTime
+string 
+Required
+payData
+string 
+Required
+payUrl
+string  <uri>
+Required
+Example
+{
+    "code": "1",
+    "msg": "Success",
+    "data": {
+        "mchOrderId": "10011YN20250221145031",
+        "transactionId": "M11202502211456551",
+        "transactionStatus": "0",
+        "transactionTime": "2025-02-2 14: 56: 55"
+    }
+}
+
+Payment callback
+POST
+Request parameters
+Body parameters
+application/json
+timestamp
+string 
+Current timestamp
+Required
+mchOrderId
+string 
+Merchant order ID
+Required
+idempotencyId
+string 
+Required
+Idempotency check key, format: letters + numbers, 10-32 characters.
+Matching mode :
+^[a-zA-Z0-9]{10,32}$
+amount
+integer 
+Required
+Payment amount (in cents). For example, PHP:500.10, you need to set it to 50010 cents.
+accountNo
+string 
+Required
+Recipient's account (if it is an e-wallet, it should be a mobile phone number starting with 09).
+Matching mode :
+^09\d{9}$
+accountName
+string 
+Required
+Recipient's name format: uppercase and lowercase English letters with spaces allowed, 1-30 characters, "firstName middleName lastName" (middleName is optional, special characters '.-' are supported)
+Matching mode :
+^[a-zA-Z .-]{1,30}$
+payMethodCode
+string 
+Payment on behalf type
+Required
+transferCode
+string 
+Payment Channel Code
+Required
+notifyUrl
+string  <uri>
+Required
+Merchant transaction notification URL
+transactionId
+string 
+Payment Code
+Required
+transactionStatus
+enum <integer> 
+Transaction status
+Required
+Enumeration values :
+0
+In the transaction
+1
+Transaction successful
+2
+Transaction failed
+Example
+{
+    "timestamp": "1740031077",
+    "mchOrderId": "21231239",
+    "amount": 10000,
+    "customerName": "David",
+    "channelCode": "43",
+    "notifyUrl": "https://frail-barge.name/",
+    "redirectUrl": "https://ill-pick.biz/",
+    "email": "ixjit6_tnd7@hotmail.com",
+    "mobile": "+2875687882811",
+    "productDetail": "deserunt cupidatat dolor"
+}
+Request sample code
+Return response
+🟢 200
+success
+text/plain
+Example
+SUCCESS
+
+Query information
+POST
+/api/api_query.aspx
+Query amount in yuan (500.00, two decimal places)
+to query collection and payment order amounts in cents (50000).
+Collection status: state: 0 - Unpaid, 1 - Paid.
+Payment status: transactionStatus: 0 - Transaction in progress, 1 - Payment successful, 2 - Payment failed.
+Request parameters
+Body parameters
+application/json
+OrderQueryRequest
+Optional
+One of :
+
+object
+
+object
+
+object
+method
+enum <string> 
+Query type
+Required
+value :
+payment
+Inquire about collection orders
+disbursement
+Inquire about payment orders
+balance
+Check balance
+mchOrderId
+string 
+Required
+Merchant Order ID (required when querying order information)
+timestamp
+string 
+Current timestamp
+Required
+Example
+{
+    "method": "payment",
+    "mchOrderId": "string"
+}
+Request sample code
+Return response
+🟢 200
+success
+application/json
+object
+ 
+Example
+payment
+{
+  "code": "1",
+  "msg": "Success",
+  "data": {
+    "state": 0,
+    "mchOrderId": "",
+    "amount": 10000,
+    "customerName": "",
+    "channelCode": "",
+    "email": "",
+    "mobile": "",
+    "notifyUrl": "",
+    "redirectUrl": "",
+    "timestamp": ""
+  }
+}
+
+disbursement
+{
+    "code": "1",
+    "msg": "Success",
+    "data": {
+        "mchOrderId": "",
+        "transactionId": "",
+        "transactionStatus": "",
+        "transactionTime": ""
+    }
+}
+
+
+balance
+{
+    "code": "1",
+    "msg": "Success",
+    "data": {
+        "balance": [
+            {
+                "amount": "50.00",
+                "cur": "PHP"
+            }
+        ]
+    }
+}
+
+UTR order replacement
+POST
+/api/api_inr_supplement.aspx
+Request parameters
+Body parameters
+application/json
+mchOrderId
+string 
+Merchant order number
+Required
+refNo
+string 
+Required
+Credential Code (utr), Unique Transaction Reference
+Example
+{
+    "mchOrderId": "string",
+    "refNo": "string"
+}
+Request sample code
+Return response
+🟢 200
+success
+application/json
+code
+enum <string> 
+Required
+Enumeration values :
+200
+Order completed
+710
+Not supported
+711
+Order replacement failed
+713
+Orders being processed
+msg
+string 
+Reasons for failure
+Required
+Example
+Successful examples
+Exception Example
+{
+    "code": "200",
+    "msg": "补单成功"
+}
