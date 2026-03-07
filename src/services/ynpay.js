@@ -47,15 +47,12 @@ const httpClient = axios.create({
  */
 function encryptContent(data) {
     const jsonStr = JSON.stringify(data);
-    // Use APP_SECRET as key (32 hex chars = 16 bytes)
-    const key = Buffer.from(APP_SECRET, 'utf8').slice(0, 16);
-    // Pad key to 16 bytes if needed
-    const keyBuf = Buffer.alloc(16);
-    key.copy(keyBuf);
+    // APP_SECRET is 32 hex chars = 32 bytes as UTF-8 → AES-256-CBC
+    const keyBuf = Buffer.from(APP_SECRET, 'utf8');
+    const ivBuf = Buffer.alloc(16);
+    Buffer.from(IV, 'utf8').copy(ivBuf);
 
-    const ivBuf = Buffer.from(IV, 'utf8').slice(0, 16);
-
-    const cipher = crypto.createCipheriv('aes-128-cbc', keyBuf, ivBuf);
+    const cipher = crypto.createCipheriv('aes-256-cbc', keyBuf, ivBuf);
     cipher.setAutoPadding(true); // PKCS5/PKCS7 padding
     let encrypted = cipher.update(jsonStr, 'utf8', 'base64');
     encrypted += cipher.final('base64');
@@ -66,13 +63,11 @@ function encryptContent(data) {
  * Decrypt content from AES/CBC/PKCS5Padding
  */
 function decryptContent(encryptedStr) {
-    const key = Buffer.from(APP_SECRET, 'utf8').slice(0, 16);
-    const keyBuf = Buffer.alloc(16);
-    key.copy(keyBuf);
+    const keyBuf = Buffer.from(APP_SECRET, 'utf8');
+    const ivBuf = Buffer.alloc(16);
+    Buffer.from(IV, 'utf8').copy(ivBuf);
 
-    const ivBuf = Buffer.from(IV, 'utf8').slice(0, 16);
-
-    const decipher = crypto.createDecipheriv('aes-128-cbc', keyBuf, ivBuf);
+    const decipher = crypto.createDecipheriv('aes-256-cbc', keyBuf, ivBuf);
     decipher.setAutoPadding(true);
     let decrypted = decipher.update(encryptedStr, 'base64', 'utf8');
     decrypted += decipher.final('utf8');
