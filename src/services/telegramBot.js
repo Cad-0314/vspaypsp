@@ -119,6 +119,7 @@ const init = (token) => {
                 `🎫  /pl \`<amount>\` — Payment link`,
                 `🔍  /query \`<orderId>\` — Order lookup`,
                 `🔄  /callback \`<orderId>\` — Retry callback`,
+                `🔍  /fetch \`<orderId>\` — Process skipped order`,
                 `🧪  /cbt \`<orderId>\` — Test success callback`,
                 `🆔  /id — Get chat ID`,
                 `❓  /h — This menu`,
@@ -493,6 +494,80 @@ const init = (token) => {
 
             } catch (error) {
                 console.error('[Telegram] /cbt error:', error);
+                bot.sendMessage(chatId, `❌ Error: ${error.message}`);
+            }
+        });
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  /fetch <orderId> — Process Skipped Order
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        bot.onText(/\/fetch(?:@\w+)?\s+(.+)/, async (msg, match) => {
+            const chatId = msg.chat.id;
+            const orderId = match[1].trim();
+
+            if (!orderId) {
+                return bot.sendMessage(chatId, '⚠️ Usage: /fetch `<orderId>`', { parse_mode: 'Markdown' });
+            }
+
+            try {
+                const order = await Order.findOne({ where: { orderId: orderId } });
+
+                if (!order) {
+                    return bot.sendMessage(chatId, [
+                        `❌ *Order Not Found*`,
+                        ``,
+                        `No order matched \`${orderId}\``,
+                        `Double-check and try again.`,
+                    ].join('\n'), { parse_mode: 'Markdown' });
+                }
+
+                // Check if it's a skipped order (status should be 'processing')
+                if (order.status !== 'processing' && order.status !== 'pending') {
+                    return bot.sendMessage(chatId, `⚠️ Order \`${orderId}\` is already \`${order.status}\` and cannot be fetched.`, { parse_mode: 'Markdown' });
+                }
+
+                if (!order.utr) {
+                    return bot.sendMessage(chatId, `⚠️ Order \`${orderId}\` does not have a UTR yet.`, { parse_mode: 'Markdown' });
+                }
+
+                // Update order to success
+                await order.update({
+                    status: 'success',
+                    providerOrderId: order.providerOrderId || `FETCH_${Date.now()}`
+                });
+
+                // Send the success callback to the merchant
+                const callbackService = require('./callbackService');
+                let result;
+                if (order.type === 'payin') {
+                    result = await callbackService.sendPayinCallback(order, 'success', order.utr);
+                } else {
+                    result = await callbackService.sendPayoutCallback(order, 'success', order.utr);
+                }
+
+                if (result.success) {
+                    const ok = result.isOk;
+                    const snippet = result.response ? result.response.substring(0, 80) : 'N/A';
+                    bot.sendMessage(chatId, [
+                        `━━━━━━━━━━━━━━━━━━━━━`,
+                        `  🔍  *Fetch Result*`,
+                        `━━━━━━━━━━━━━━━━━━━━━`,
+                        ``,
+                        `✅ Order Status: Updated to *success*`,
+                        `🔗 UTR: \`${order.utr}\``,
+                        `ℹ️ Balance: *Not modified* (Manual Fetch)`,
+                        ``,
+                        `-- Callback --`,
+                        `${ok ? '✅' : '⚠️'}  ${ok ? 'Acknowledged' : 'Not Acknowledged'}`,
+                        `📡  HTTP ➜ ${result.httpCode}`,
+                        `📝  Response ➜ \`${snippet}\``,
+                    ].join('\n'), { parse_mode: 'Markdown' });
+                } else {
+                    bot.sendMessage(chatId, `❌ Callback Failed: ${result.message}`);
+                }
+
+            } catch (error) {
+                console.error('[Telegram] /fetch error:', error);
                 bot.sendMessage(chatId, `❌ Error: ${error.message}`);
             }
         });
