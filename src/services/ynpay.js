@@ -140,7 +140,7 @@ async function createPayin({ orderId, amount, notifyUrl, returnUrl, customerName
             mchOrderId: orderId,
             amount: Math.round(parseFloat(amount) * 100), // Convert INR to cents
             customerName: customerName || 'User',
-            channelCode: '1000', // India Native
+            channelCode: 'native', // India Native
             notifyUrl: notifyUrl,
             redirectUrl: returnUrl || 'https://gaurpay.site/pay/success',
             email: customerEmail || 'user@example.com',
