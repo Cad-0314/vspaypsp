@@ -167,8 +167,8 @@ router.post('/settlements', async (req, res) => {
             return res.status(400).json({ success: false, error: 'Bank settlements are disabled. Please use the Payout API for bank transfers.' });
         }
 
-        if (type === 'usdt' && requestAmount < 100000) {
-            return res.status(400).json({ success: false, error: 'Minimum USDT settlement is ₹100,000' });
+        if (type === 'usdt' && requestAmount < 200000) {
+            return res.status(400).json({ success: false, error: 'Minimum USDT settlement is ₹2,00,000' });
         }
 
         if (merchant.balance < requestAmount) {
