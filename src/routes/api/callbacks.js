@@ -366,7 +366,8 @@ router.post('/:channel/payin', async (req, res) => {
     } catch (error) {
         console.error('[Callback] Payin error:', error);
         // Need to define successResponse here too or re-derive it, but simpler to use channel check
-        return res.send(req.params.channel === 'ckpay' ? 'OK' : 'success');
+        const ch = req.params.channel;
+        return res.send(ch === 'ckpay' ? 'OK' : (ch === 'aapay' || ch === 'easypay' || ch === 'ynpay' ? 'SUCCESS' : 'success'));
     }
 });
 
@@ -565,7 +566,8 @@ router.post('/:channel/payout', async (req, res) => {
 
     } catch (error) {
         console.error('[Callback] Payout error:', error);
-        return res.send(req.params.channel === 'ckpay' ? 'OK' : 'success');
+        const ch = req.params.channel;
+        return res.send(ch === 'ckpay' ? 'OK' : (ch === 'aapay' || ch === 'easypay' || ch === 'ynpay' ? 'SUCCESS' : 'success'));
     }
 });
 
