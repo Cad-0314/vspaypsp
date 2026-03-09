@@ -98,8 +98,7 @@ function verifySign(params) {
  * @param {Object} businessParams - The business parameters to encrypt
  * @returns {Object} { channel, timestamp, sign, content }
  */
-function buildRequest(businessParams) {
-    const timestamp = Date.now();
+function buildRequest(businessParams, timestamp = Date.now()) {
     const content = encryptContent(businessParams);
     const sign = generateSign(content, timestamp);
 
@@ -135,19 +134,20 @@ function parseCallback(body) {
  */
 async function createPayin({ orderId, amount, notifyUrl, returnUrl, customerName, customerEmail, customerPhone }) {
     try {
+        const now = Date.now();
         const businessParams = {
-            timestamp: String(Math.floor(Date.now() / 1000)),
+            timestamp: String(Math.floor(now / 1000)),
             mchOrderId: orderId,
             amount: Math.round(parseFloat(amount) * 100), // Convert INR to cents
             customerName: customerName || 'User',
             channelCode: 'native', // India Native
             notifyUrl: notifyUrl,
             redirectUrl: returnUrl || 'https://gaurpay.site/pay/success',
-            email: customerEmail || 'user@example.com',
-            mobile: customerPhone || '9999999999'
+            email: customerEmail || 'customer@gmail.com',
+            mobile: customerPhone || '9876543210'
         };
 
-        const payload = buildRequest(businessParams);
+        const payload = buildRequest(businessParams, now);
 
         console.log('[YNPay] Creating payin:', { orderId, amount, amountCents: businessParams.amount });
         const response = await httpClient.post('/api/api_inr.aspx', payload);
@@ -212,21 +212,21 @@ async function queryPayin(orderId) {
  */
 async function createPayout({ orderId, amount, name, accountNo, ifsc, notifyUrl, customerPhone, customerEmail }) {
     try {
+        const now = Date.now();
         const businessParams = {
-            timestamp: String(Math.floor(Date.now() / 1000)),
+            timestamp: String(Math.floor(now / 1000)),
             mchOrderId: orderId,
             amount: Math.round(parseFloat(amount) * 100), // Convert INR to cents
             customerName: name || 'User',
             accountNo: accountNo || '',
             payMethodCode: 'UPI',
-            transferCode: ifsc || '',
+            transferCode: ifsc || 'KKBK0000001',
             notifyUrl: notifyUrl,
-            accountPhone: customerPhone || '9999999999',
-            email: customerEmail || 'user@example.com'
+            accountPhone: customerPhone || '9876543210',
+            email: customerEmail || 'customer@gmail.com'
         };
 
-        const payload = buildRequest(businessParams);
-
+        const payload = buildRequest(businessParams, now);
         console.log('[YNPay] Creating payout:', { orderId, amount, amountCents: businessParams.amount });
         const response = await httpClient.post('/api/api_inr_df.aspx', payload);
 
@@ -238,7 +238,7 @@ async function createPayout({ orderId, amount, name, accountNo, ifsc, notifyUrl,
                 status: mapPayoutStatus(data.transactionStatus || '0')
             };
         } else {
-            console.error('[YNPay] Payout error:', response.data);
+            console.error('[YNPay] Payout failure response:', JSON.stringify(response.data, null, 2));
             return {
                 success: false,
                 error: response.data?.msg || `Error code: ${response.data?.code}`
