@@ -793,8 +793,8 @@ router.post('/manual-payout', async (req, res) => {
 
         // Helper to get callback URL (adjust domain based on env or hardcoded for now)
         const getCallbackUrl = (channelName) => {
-            const domain = process.env.DOMAIN || 'https://gaurpay.firestar.co'; // Fallback to provided domain
-            return `${domain}/api/callback/${channelName}/payout`;
+            const domain = process.env.DOMAIN || 'https://gaurpay.site'; // Fallback to provided domain
+            return `${domain}/callback/${channelName}/payout`;
         };
 
         // Trigger Payout via ChannelRouter
