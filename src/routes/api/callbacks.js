@@ -242,17 +242,22 @@ router.post('/:channel/payin', async (req, res) => {
             actualAmount = parseFloat(req.body.realAmount || req.body.amount);
             providerOrderId = req.body.platformOrderId || req.body.platformorderId;
         } else if (channelName === 'ynpay') {
-            // YNPay: encrypted callback, decrypt payload
+            // YNPay: encrypted callback, decrypt and verify signature
             const ynpayService = require('../../services/ynpay');
-            const callbackData = ynpayService.parseCallback(req.body);
-            if (callbackData) {
-                orderId = callbackData.mchOrderId;
-                // state: 0=Unpaid, 1=Paid
-                status = parseInt(callbackData.state) === 1 ? 'success' : 'pending';
-                utr = callbackData.utr || '';
-                // Amount is in cents, convert to INR
-                actualAmount = callbackData.amount ? parseFloat(callbackData.amount) / 100 : 0;
-                providerOrderId = callbackData.transactionId || '';
+            if (ynpayService.verifySign(req.body)) {
+                const callbackData = ynpayService.parseCallback(req.body);
+                if (callbackData) {
+                    orderId = callbackData.mchOrderId;
+                    // state: 0=Unpaid, 1=Paid
+                    status = parseInt(callbackData.state) === 1 ? 'success' : 'pending';
+                    utr = callbackData.utr || '';
+                    // Amount is in cents, convert to INR
+                    actualAmount = callbackData.amount ? parseFloat(callbackData.amount) / 100 : 0;
+                    providerOrderId = callbackData.transactionId || '';
+                }
+            } else {
+                console.error('[YNPay] Payin callback signature verification failed');
+                return res.send('fail');
             }
         }
 
@@ -367,7 +372,7 @@ router.post('/:channel/payin', async (req, res) => {
         console.error('[Callback] Payin error:', error);
         // Need to define successResponse here too or re-derive it, but simpler to use channel check
         const ch = req.params.channel;
-        return res.send(ch === 'ckpay' ? 'OK' : (ch === 'aapay' || ch === 'easypay' || ch === 'ynpay' ? 'SUCCESS' : 'success'));
+        return res.send(ch === 'ckpay' ? 'OK' : (ch === 'aapay' || ch === 'easypay' ? 'SUCCESS' : 'success'));
     }
 });
 
@@ -380,7 +385,7 @@ router.post('/:channel/payout', async (req, res) => {
     console.log(`[Callback] Payout callback from ${channelName}:`, JSON.stringify(req.body));
 
     // Determine success response based on channel
-    const successResponse = channelName === 'ckpay' ? 'OK' : (channelName === 'aapay' || channelName === 'easypay' || channelName === 'ynpay' ? 'SUCCESS' : 'success');
+    const successResponse = channelName === 'ckpay' ? 'OK' : (channelName === 'aapay' || channelName === 'easypay' ? 'SUCCESS' : 'success');
 
     try {
         let orderId, status, utr, providerOrderId;
@@ -482,17 +487,22 @@ router.post('/:channel/payout', async (req, res) => {
             utr = req.body.utr || '';
             providerOrderId = req.body.platformorderId || req.body.platformOrderId;
         } else if (channelName === 'ynpay') {
-            // YNPay payout: encrypted callback, decrypt payload
+            // YNPay payout: encrypted callback, verify and decrypt payload
             const ynpayService = require('../../services/ynpay');
-            const callbackData = ynpayService.parseCallback(req.body);
-            if (callbackData) {
-                orderId = callbackData.mchOrderId;
-                // transactionStatus: 0=Processing, 1=Success, 2=Failed
-                const txStatus = parseInt(callbackData.transactionStatus);
-                status = txStatus === 1 ? 'success' :
-                    txStatus === 2 ? 'failed' : 'processing';
-                utr = callbackData.utr || '';
-                providerOrderId = callbackData.transactionId || '';
+            if (ynpayService.verifySign(req.body)) {
+                const callbackData = ynpayService.parseCallback(req.body);
+                if (callbackData) {
+                    orderId = callbackData.mchOrderId;
+                    // transactionStatus: 0=Processing, 1=Success, 2=Failed
+                    const txStatus = parseInt(callbackData.transactionStatus);
+                    status = txStatus === 1 ? 'success' :
+                        txStatus === 2 ? 'failed' : 'processing';
+                    utr = callbackData.utr || '';
+                    providerOrderId = callbackData.transactionId || '';
+                }
+            } else {
+                console.error('[YNPay] Payout callback signature verification failed');
+                return res.send('fail');
             }
         }
 
@@ -558,24 +568,27 @@ router.post('/:channel/payout', async (req, res) => {
                 callbackData: JSON.stringify(req.body)
             }, { transaction: t });
 
-            await User.update(
-                { pendingBalance: sequelize.literal(`GREATEST(pendingBalance - ${order.amount}, 0)`) },
-                { where: { id: order.merchantId }, transaction: t }
-            );
+            if (status === 'success' || status === 'failed') {
+                await User.update(
+                    { pendingBalance: sequelize.literal(`GREATEST(pendingBalance - ${order.amount}, 0)`) },
+                    { where: { id: order.merchantId }, transaction: t }
+                );
 
-            if (status === 'success') {
-                const adminProfit = parseFloat(order.fee);
-                if (adminProfit > 0) {
-                    await User.update({ balance: sequelize.literal(`balance + ${adminProfit}`) }, { where: { role: 'admin' }, transaction: t });
+                if (status === 'success') {
+                    const adminProfit = parseFloat(order.fee);
+                    if (adminProfit > 0) {
+                        await User.update({ balance: sequelize.literal(`balance + ${adminProfit}`) }, { where: { role: 'admin' }, transaction: t });
+                    }
+                } else if (status === 'failed') {
+                    const refundAmount = parseFloat(order.amount) + parseFloat(order.fee);
+                    await User.update({ balance: sequelize.literal(`balance + ${refundAmount}`) }, { where: { id: order.merchantId }, transaction: t });
                 }
-            } else if (status === 'failed') {
-                const refundAmount = parseFloat(order.amount) + parseFloat(order.fee);
-                await User.update({ balance: sequelize.literal(`balance + ${refundAmount}`) }, { where: { id: order.merchantId }, transaction: t });
             }
 
             await t.commit();
 
-            if (order.callbackUrl && !order.callbackSent) {
+            // Notify merchant only on FINALIZED status
+            if (order.callbackUrl && !order.callbackSent && (status === 'success' || status === 'failed')) {
                 callbackService.sendPayoutCallback(order, status, utr).then(res => {
                     if (!res.isOk) callbackService.scheduleRetry(order, status, utr, 'payout');
                 });
