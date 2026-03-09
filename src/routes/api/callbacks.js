@@ -521,6 +521,30 @@ router.post('/:channel/payout', async (req, res) => {
             return res.send(successResponse);
         }
 
+        // Check if this is an admin manual payout (from admin panel)
+        if (orderId.startsWith('MPOUT')) {
+            console.log(`[Callback] Admin manual payout callback for: ${orderId}`);
+            try {
+                const manualOrder = await Order.findOne({ where: { orderId: orderId, type: 'payout' } });
+                if (manualOrder && manualOrder.status !== 'success' && manualOrder.status !== 'failed') {
+                    await manualOrder.update({
+                        status: status,
+                        utr: utr || manualOrder.utr,
+                        providerOrderId: providerOrderId || manualOrder.providerOrderId,
+                        callbackData: JSON.stringify(req.body)
+                    });
+                    console.log(`[Callback] Admin manual payout ${orderId} updated to: ${status}, UTR: ${utr}`);
+                } else if (!manualOrder) {
+                    console.log(`[Callback] Admin manual payout ${orderId} not found in database`);
+                } else {
+                    console.log(`[Callback] Admin manual payout ${orderId} already processed`);
+                }
+            } catch (err) {
+                console.error(`[Callback] Admin manual payout update error: ${err.message}`);
+            }
+            return res.send(successResponse);
+        }
+
         const order = await Order.findOne({ where: { orderId: orderId, type: 'payout' } });
         if (!order || order.status === 'success' || order.status === 'failed') return res.send(successResponse);
 
