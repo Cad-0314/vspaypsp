@@ -9,6 +9,7 @@ const express = require('express');
 const router = express.Router();
 const { validateMerchant } = require('../../middleware/apiAuth');
 const channelRouter = require('../../services/channelRouter');
+const callbackService = require('../../services/callbackService');
 const { Order, Channel, User } = require('../../models');
 const { v4: uuidv4 } = require('uuid');
 
@@ -287,6 +288,13 @@ router.post('/query', validateMerchant, async (req, res) => {
                             await order.update(updates);
                             // Refresh order object
                             await order.reload();
+
+                            // Forward update to merchant if status finalized or UTR added
+                            if (order.callbackUrl && (updates.status === 'success' || updates.status === 'failed' || updates.utr)) {
+                                callbackService.sendPayinCallback(order, order.status, order.utr).then(res => {
+                                    if (!res.isOk) callbackService.scheduleRetry(order, order.status, order.utr, 'payin');
+                                });
+                            }
                         }
                     }
                 }
@@ -563,6 +571,13 @@ router.post('/checkUtr', validateMerchant, async (req, res) => {
                         if (updated) {
                             await order.update(updates);
                             await order.reload();
+
+                            // Forward update to merchant if status finalized or UTR added
+                            if (order.callbackUrl && (updates.status === 'success' || updates.status === 'failed' || updates.utr)) {
+                                callbackService.sendPayinCallback(order, order.status, order.utr).then(res => {
+                                    if (!res.isOk) callbackService.scheduleRetry(order, order.status, order.utr, 'payin');
+                                });
+                            }
                         }
                     }
                 }
