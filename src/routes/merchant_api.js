@@ -11,6 +11,7 @@ const APP_URL = process.env.APP_URL || 'https://gaurpay.site';
 const { getStats, getChartData } = require('../services/stats');
 const { v4: uuidv4 } = require('uuid');
 const otplib = require('otplib');
+const bcrypt = require('bcryptjs');
 
 // Configure otplib
 otplib.authenticator.options = { window: 2, step: 30 };
@@ -589,6 +590,47 @@ router.post('/topup', async (req, res) => {
     } catch (error) {
         console.error('[MerchantAPI] Topup error:', error);
         res.status(500).json({ success: false, error: 'Failed to submit topup request' });
+    }
+});
+
+/**
+ * POST /api/merchant/change-password
+ * Change merchant password
+ */
+router.post('/change-password', async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        const merchantId = req.session.user.id;
+
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ success: false, error: 'Current and new password are required' });
+        }
+
+        if (newPassword.length < 6) {
+            return res.status(400).json({ success: false, error: 'New password must be at least 6 characters' });
+        }
+
+        const merchant = await User.findByPk(merchantId);
+        if (!merchant) {
+            return res.status(404).json({ success: false, error: 'Merchant not found' });
+        }
+
+        // Verify current password
+        const isMatch = await bcrypt.compare(currentPassword, merchant.password_hash);
+        if (!isMatch) {
+            return res.status(400).json({ success: false, error: 'Current password is incorrect' });
+        }
+
+        // Hash new password and update
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await merchant.update({ password_hash: hashedPassword });
+
+        console.log(`[MerchantAPI] Password changed for ${merchant.username}`);
+        res.json({ success: true, message: 'Password updated successfully' });
+
+    } catch (error) {
+        console.error('[MerchantAPI] Change password error:', error);
+        res.status(500).json({ success: false, error: 'Failed to update password' });
     }
 });
 
