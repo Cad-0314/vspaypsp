@@ -1406,6 +1406,74 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Airpay Gateway Card -->
+                    <div class="card" style="padding:1.5rem;">
+                        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1.25rem; padding-bottom:0.75rem; border-bottom:2px solid #E5E7EB;">
+                            <i class="ri-plane-line" style="font-size:1.25rem; color:#E11D48;"></i>
+                            <h3 style="margin:0; font-size:1rem;">Airpay Gateway</h3>
+                            <span style="margin-left:auto; font-size:0.7rem; padding:0.15rem 0.5rem; border-radius:9999px; background:#FFF1F2; color:#E11D48; font-weight:600;"><%= t('inactive') %></span>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:1rem;">
+                            <div>
+                                <label style="display:block; margin-bottom:0.35rem; font-weight:500; font-size:0.8rem; color:#6B7280;"><%= t('gateway_merchant_id') %></label>
+                                <input type="text" id="ba-airpay-mid" placeholder="Airpay Merchant ID" style="width:100%; padding:0.65rem; border:1px solid #E5E7EB; border-radius:0.5rem; font-size:0.875rem; background:#F9FAFB;">
+                            </div>
+                            <div>
+                                <label style="display:block; margin-bottom:0.35rem; font-weight:500; font-size:0.8rem; color:#6B7280;"><%= t('gateway_secret_key') %></label>
+                                <input type="password" id="ba-airpay-secret" placeholder="Secret Key" style="width:100%; padding:0.65rem; border:1px solid #E5E7EB; border-radius:0.5rem; font-size:0.875rem; background:#F9FAFB;">
+                            </div>
+                            <div>
+                                <label style="display:block; margin-bottom:0.35rem; font-weight:500; font-size:0.8rem; color:#6B7280;"><%= t('gateway_username') %></label>
+                                <input type="text" id="ba-airpay-username" placeholder="Airpay Username" style="width:100%; padding:0.65rem; border:1px solid #E5E7EB; border-radius:0.5rem; font-size:0.875rem; background:#F9FAFB;">
+                            </div>
+                            <div>
+                                <label style="display:block; margin-bottom:0.35rem; font-weight:500; font-size:0.8rem; color:#6B7280;"><%= t('gateway_password') %></label>
+                                <input type="password" id="ba-airpay-password" placeholder="Airpay Password" style="width:100%; padding:0.65rem; border:1px solid #E5E7EB; border-radius:0.5rem; font-size:0.875rem; background:#F9FAFB;">
+                            </div>
+                            <div>
+                                <label style="display:block; margin-bottom:0.35rem; font-weight:500; font-size:0.8rem; color:#6B7280;"><%= t('gateway_mode') %></label>
+                                <select id="ba-airpay-mode" style="width:100%; padding:0.65rem; border:1px solid #E5E7EB; border-radius:0.5rem; font-size:0.875rem; background:#F9FAFB;">
+                                    <option value="test"><%= t('gateway_test') %></option>
+                                    <option value="live"><%= t('gateway_live') %></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- JioMerchant Gateway Card -->
+                    <div class="card" style="padding:1.5rem;">
+                        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1.25rem; padding-bottom:0.75rem; border-bottom:2px solid #E5E7EB;">
+                            <i class="ri-store-2-line" style="font-size:1.25rem; color:#7C3AED;"></i>
+                            <h3 style="margin:0; font-size:1rem;">JioMerchant Gateway</h3>
+                            <span style="margin-left:auto; font-size:0.7rem; padding:0.15rem 0.5rem; border-radius:9999px; background:#F5F3FF; color:#7C3AED; font-weight:600;"><%= t('inactive') %></span>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:1rem;">
+                            <div>
+                                <label style="display:block; margin-bottom:0.35rem; font-weight:500; font-size:0.8rem; color:#6B7280;"><%= t('gateway_merchant_id') %></label>
+                                <input type="text" id="ba-jio-mid" placeholder="JioMerchant ID" style="width:100%; padding:0.65rem; border:1px solid #E5E7EB; border-radius:0.5rem; font-size:0.875rem; background:#F9FAFB;">
+                            </div>
+                            <div>
+                                <label style="display:block; margin-bottom:0.35rem; font-weight:500; font-size:0.8rem; color:#6B7280;"><%= t('gateway_api_key') %></label>
+                                <input type="password" id="ba-jio-apikey" placeholder="API Key" style="width:100%; padding:0.65rem; border:1px solid #E5E7EB; border-radius:0.5rem; font-size:0.875rem; background:#F9FAFB;">
+                            </div>
+                            <div>
+                                <label style="display:block; margin-bottom:0.35rem; font-weight:500; font-size:0.8rem; color:#6B7280;"><%= t('gateway_key_secret') %></label>
+                                <input type="password" id="ba-jio-secret" placeholder="API Secret" style="width:100%; padding:0.65rem; border:1px solid #E5E7EB; border-radius:0.5rem; font-size:0.875rem; background:#F9FAFB;">
+                            </div>
+                            <div>
+                                <label style="display:block; margin-bottom:0.35rem; font-weight:500; font-size:0.8rem; color:#6B7280;"><%= t('gateway_webhook_secret') %></label>
+                                <input type="password" id="ba-jio-webhook" placeholder="Webhook Secret" style="width:100%; padding:0.65rem; border:1px solid #E5E7EB; border-radius:0.5rem; font-size:0.875rem; background:#F9FAFB;">
+                            </div>
+                            <div>
+                                <label style="display:block; margin-bottom:0.35rem; font-weight:500; font-size:0.8rem; color:#6B7280;"><%= t('gateway_mode') %></label>
+                                <select id="ba-jio-mode" style="width:100%; padding:0.65rem; border:1px solid #E5E7EB; border-radius:0.5rem; font-size:0.875rem; background:#F9FAFB;">
+                                    <option value="test"><%= t('gateway_test') %></option>
+                                    <option value="live"><%= t('gateway_live') %></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Save Button -->

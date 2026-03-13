@@ -504,6 +504,11 @@
     "gateway_key_secret": "Key Secret",
     "gateway_webhook_secret": "Webhook Secret",
     "bank_account_saved": "银行账户信息已保存",
+    "gateway_merchant_id": "商户 ID",
+    "gateway_secret_key": "密钥",
+    "gateway_username": "用户名",
+    "gateway_password": "密码",
+    "gateway_api_key": "API 密钥",
     "admin_reset_2fa_confirm": "重置此商户的2FA？商户下次登录时需重新设置。",
     "admin_2fa_reset_success": "商户2FA已重置"
 }

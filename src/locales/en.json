@@ -504,6 +504,11 @@
     "gateway_key_secret": "Key Secret",
     "gateway_webhook_secret": "Webhook Secret",
     "bank_account_saved": "Bank account details saved",
+    "gateway_merchant_id": "Merchant ID",
+    "gateway_secret_key": "Secret Key",
+    "gateway_username": "Username",
+    "gateway_password": "Password",
+    "gateway_api_key": "API Key",
     "admin_reset_2fa_confirm": "Reset this merchant's 2FA? They will need to set it up again on next login.",
     "admin_2fa_reset_success": "Merchant 2FA has been reset"
 }
