@@ -299,6 +299,64 @@ router.delete('/merchants/:id', async (req, res) => {
     }
 });
 
+/**
+ * POST /admin/api/merchants/:id/ip
+ * Manage merchant IP whitelist (add/remove)
+ */
+router.post('/merchants/:id/ip', async (req, res) => {
+    try {
+        const { action, ip } = req.body;
+        const merchant = await User.findByPk(req.params.id);
+        if (!merchant) return res.status(404).json({ success: false, error: 'Not found' });
+
+        let ips = [];
+        try { ips = JSON.parse(merchant.whitelistedIps || '[]'); } catch (e) { }
+
+        if (action === 'add') {
+            if (!ip || !/^(\d{1,3}\.){3}\d{1,3}$/.test(ip)) {
+                return res.status(400).json({ success: false, error: 'Invalid IP format' });
+            }
+            if (!ips.includes(ip)) ips.push(ip);
+        } else if (action === 'remove') {
+            ips = ips.filter(i => i !== ip);
+        } else {
+            return res.status(400).json({ success: false, error: 'Invalid action' });
+        }
+
+        await merchant.update({ whitelistedIps: JSON.stringify(ips) });
+        res.json({ success: true, ips });
+    } catch (error) {
+        console.error('[Admin] IP whitelist error:', error);
+        res.status(500).json({ success: false, error: 'Failed to update IP whitelist' });
+    }
+});
+
+/**
+ * POST /admin/api/merchants/:id/reset-2fa
+ * Reset merchant's 2FA (requires admin TOTP verification)
+ */
+router.post('/merchants/:id/reset-2fa', async (req, res) => {
+    try {
+        const { totpCode } = req.body;
+        if (!totpCode) return res.status(400).json({ success: false, error: 'TOTP code required' });
+
+        // Verify admin TOTP
+        const admin = await User.findByPk(req.session.user.id);
+        const isValid = otplib.authenticator.check(totpCode, admin.two_fa_secret);
+        if (!isValid) return res.status(400).json({ success: false, error: 'Invalid TOTP code' });
+
+        const merchant = await User.findByPk(req.params.id);
+        if (!merchant) return res.status(404).json({ success: false, error: 'Not found' });
+
+        await merchant.update({ two_fa_enabled: false, two_fa_secret: null });
+        console.log(`[Admin] 2FA reset for merchant ${merchant.username} by admin`);
+        res.json({ success: true, message: '2FA reset successfully' });
+    } catch (error) {
+        console.error('[Admin] Reset 2FA error:', error);
+        res.status(500).json({ success: false, error: 'Failed to reset 2FA' });
+    }
+});
+
 router.post('/merchants/:id/regenerate-key', async (req, res) => {
     try {
         const merchant = await User.findByPk(req.params.id);

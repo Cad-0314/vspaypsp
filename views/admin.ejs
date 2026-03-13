@@ -638,6 +638,10 @@
                         <i class="ri-route-line"></i>
                         <%= t('nav_smart_channel') %>
                     </div>
+                    <div class="nav-item" onclick="switchTab('bankaccount')">
+                        <i class="ri-bank-line"></i>
+                        <%= t('nav_bank_account') %>
+                    </div>
                 </div>
 
                 <!-- Operations -->
@@ -1270,6 +1274,149 @@
 
             </div>
 
+            <!-- Bank Account -->
+            <div id="tab-bankaccount" class="tab-content">
+                <h1><%= t('nav_bank_account') %></h1>
+                <div class="subtitle"><%= t('bank_account_subtitle') %></div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; max-width:1000px;">
+
+                    <!-- Bank Details Card -->
+                    <div class="card" style="padding:1.5rem;">
+                        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1.25rem; padding-bottom:0.75rem; border-bottom:2px solid #E5E7EB;">
+                            <i class="ri-bank-line" style="font-size:1.25rem; color:var(--primary);"></i>
+                            <h3 style="margin:0; font-size:1rem;"><%= t('bank_details_title') %></h3>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:1rem;">
+                            <div>
+                                <label style="display:block; margin-bottom:0.35rem; font-weight:500; font-size:0.8rem; color:#6B7280;"><%= t('account_holder_name') %></label>
+                                <input type="text" id="ba-holder-name" placeholder="John Doe" style="width:100%; padding:0.65rem; border:1px solid #E5E7EB; border-radius:0.5rem; font-size:0.875rem; background:#F9FAFB;">
+                            </div>
+                            <div>
+                                <label style="display:block; margin-bottom:0.35rem; font-weight:500; font-size:0.8rem; color:#6B7280;"><%= t('account_number') %></label>
+                                <input type="text" id="ba-acc-number" placeholder="1234567890123456" style="width:100%; padding:0.65rem; border:1px solid #E5E7EB; border-radius:0.5rem; font-size:0.875rem; background:#F9FAFB;">
+                            </div>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+                                <div>
+                                    <label style="display:block; margin-bottom:0.35rem; font-weight:500; font-size:0.8rem; color:#6B7280;"><%= t('ifsc_code') %></label>
+                                    <input type="text" id="ba-ifsc" placeholder="HDFC0001234" style="width:100%; padding:0.65rem; border:1px solid #E5E7EB; border-radius:0.5rem; font-size:0.875rem; background:#F9FAFB;">
+                                </div>
+                                <div>
+                                    <label style="display:block; margin-bottom:0.35rem; font-weight:500; font-size:0.8rem; color:#6B7280;"><%= t('bank_name') %></label>
+                                    <input type="text" id="ba-bank-name" placeholder="HDFC Bank" style="width:100%; padding:0.65rem; border:1px solid #E5E7EB; border-radius:0.5rem; font-size:0.875rem; background:#F9FAFB;">
+                                </div>
+                            </div>
+                            <div>
+                                <label style="display:block; margin-bottom:0.35rem; font-weight:500; font-size:0.8rem; color:#6B7280;"><%= t('bank_branch') %></label>
+                                <input type="text" id="ba-branch" placeholder="Mumbai Main Branch" style="width:100%; padding:0.65rem; border:1px solid #E5E7EB; border-radius:0.5rem; font-size:0.875rem; background:#F9FAFB;">
+                            </div>
+                            <div>
+                                <label style="display:block; margin-bottom:0.35rem; font-weight:500; font-size:0.8rem; color:#6B7280;"><%= t('account_type') %></label>
+                                <select id="ba-acc-type" style="width:100%; padding:0.65rem; border:1px solid #E5E7EB; border-radius:0.5rem; font-size:0.875rem; background:#F9FAFB;">
+                                    <option value="savings"><%= t('savings') %></option>
+                                    <option value="current"><%= t('current_account') %></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- UPI Details Card -->
+                    <div class="card" style="padding:1.5rem;">
+                        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1.25rem; padding-bottom:0.75rem; border-bottom:2px solid #E5E7EB;">
+                            <i class="ri-smartphone-line" style="font-size:1.25rem; color:#7C3AED;"></i>
+                            <h3 style="margin:0; font-size:1rem;"><%= t('upi_details') %></h3>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:1rem;">
+                            <div>
+                                <label style="display:block; margin-bottom:0.35rem; font-weight:500; font-size:0.8rem; color:#6B7280;"><%= t('upi_id') %></label>
+                                <input type="text" id="ba-upi-id" placeholder="merchant@upi" style="width:100%; padding:0.65rem; border:1px solid #E5E7EB; border-radius:0.5rem; font-size:0.875rem; background:#F9FAFB;">
+                            </div>
+                            <div>
+                                <label style="display:block; margin-bottom:0.35rem; font-weight:500; font-size:0.8rem; color:#6B7280;"><%= t('upi_name') %></label>
+                                <input type="text" id="ba-upi-name" placeholder="Merchant Name" style="width:100%; padding:0.65rem; border:1px solid #E5E7EB; border-radius:0.5rem; font-size:0.875rem; background:#F9FAFB;">
+                            </div>
+                            <div>
+                                <label style="display:block; margin-bottom:0.35rem; font-weight:500; font-size:0.8rem; color:#6B7280;"><%= t('upi_qr_note') %></label>
+                                <div style="height:120px; border:2px dashed #D1D5DB; border-radius:0.5rem; display:flex; align-items:center; justify-content:center; background:#FAFAFA; color:#9CA3AF; font-size:0.85rem; cursor:pointer;">
+                                    <div style="text-align:center;">
+                                        <i class="ri-qr-code-line" style="font-size:2rem; display:block; margin-bottom:0.25rem;"></i>
+                                        <%= t('upload_qr') %>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PayU Gateway Card -->
+                    <div class="card" style="padding:1.5rem;">
+                        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1.25rem; padding-bottom:0.75rem; border-bottom:2px solid #E5E7EB;">
+                            <i class="ri-secure-payment-line" style="font-size:1.25rem; color:#059669;"></i>
+                            <h3 style="margin:0; font-size:1rem;">PayU Gateway</h3>
+                            <span style="margin-left:auto; font-size:0.7rem; padding:0.15rem 0.5rem; border-radius:9999px; background:#ECFDF5; color:#059669; font-weight:600;"><%= t('inactive') %></span>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:1rem;">
+                            <div>
+                                <label style="display:block; margin-bottom:0.35rem; font-weight:500; font-size:0.8rem; color:#6B7280;"><%= t('gateway_merchant_key') %></label>
+                                <input type="text" id="ba-payu-key" placeholder="PayU Merchant Key" style="width:100%; padding:0.65rem; border:1px solid #E5E7EB; border-radius:0.5rem; font-size:0.875rem; background:#F9FAFB;">
+                            </div>
+                            <div>
+                                <label style="display:block; margin-bottom:0.35rem; font-weight:500; font-size:0.8rem; color:#6B7280;"><%= t('gateway_salt') %></label>
+                                <input type="password" id="ba-payu-salt" placeholder="PayU Merchant Salt" style="width:100%; padding:0.65rem; border:1px solid #E5E7EB; border-radius:0.5rem; font-size:0.875rem; background:#F9FAFB;">
+                            </div>
+                            <div>
+                                <label style="display:block; margin-bottom:0.35rem; font-weight:500; font-size:0.8rem; color:#6B7280;"><%= t('gateway_auth_header') %></label>
+                                <input type="password" id="ba-payu-auth" placeholder="Authorization Header" style="width:100%; padding:0.65rem; border:1px solid #E5E7EB; border-radius:0.5rem; font-size:0.875rem; background:#F9FAFB;">
+                            </div>
+                            <div>
+                                <label style="display:block; margin-bottom:0.35rem; font-weight:500; font-size:0.8rem; color:#6B7280;"><%= t('gateway_mode') %></label>
+                                <select id="ba-payu-mode" style="width:100%; padding:0.65rem; border:1px solid #E5E7EB; border-radius:0.5rem; font-size:0.875rem; background:#F9FAFB;">
+                                    <option value="test"><%= t('gateway_test') %></option>
+                                    <option value="live"><%= t('gateway_live') %></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Razorpay Gateway Card -->
+                    <div class="card" style="padding:1.5rem;">
+                        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1.25rem; padding-bottom:0.75rem; border-bottom:2px solid #E5E7EB;">
+                            <i class="ri-flashlight-line" style="font-size:1.25rem; color:#2563EB;"></i>
+                            <h3 style="margin:0; font-size:1rem;">Razorpay Gateway</h3>
+                            <span style="margin-left:auto; font-size:0.7rem; padding:0.15rem 0.5rem; border-radius:9999px; background:#EFF6FF; color:#2563EB; font-weight:600;"><%= t('inactive') %></span>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:1rem;">
+                            <div>
+                                <label style="display:block; margin-bottom:0.35rem; font-weight:500; font-size:0.8rem; color:#6B7280;"><%= t('gateway_key_id') %></label>
+                                <input type="text" id="ba-razorpay-key" placeholder="rzp_live_xxxxxxxx" style="width:100%; padding:0.65rem; border:1px solid #E5E7EB; border-radius:0.5rem; font-size:0.875rem; background:#F9FAFB;">
+                            </div>
+                            <div>
+                                <label style="display:block; margin-bottom:0.35rem; font-weight:500; font-size:0.8rem; color:#6B7280;"><%= t('gateway_key_secret') %></label>
+                                <input type="password" id="ba-razorpay-secret" placeholder="Key Secret" style="width:100%; padding:0.65rem; border:1px solid #E5E7EB; border-radius:0.5rem; font-size:0.875rem; background:#F9FAFB;">
+                            </div>
+                            <div>
+                                <label style="display:block; margin-bottom:0.35rem; font-weight:500; font-size:0.8rem; color:#6B7280;"><%= t('gateway_webhook_secret') %></label>
+                                <input type="password" id="ba-razorpay-webhook" placeholder="Webhook Secret" style="width:100%; padding:0.65rem; border:1px solid #E5E7EB; border-radius:0.5rem; font-size:0.875rem; background:#F9FAFB;">
+                            </div>
+                            <div>
+                                <label style="display:block; margin-bottom:0.35rem; font-weight:500; font-size:0.8rem; color:#6B7280;"><%= t('gateway_mode') %></label>
+                                <select id="ba-razorpay-mode" style="width:100%; padding:0.65rem; border:1px solid #E5E7EB; border-radius:0.5rem; font-size:0.875rem; background:#F9FAFB;">
+                                    <option value="test"><%= t('gateway_test') %></option>
+                                    <option value="live"><%= t('gateway_live') %></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Save Button -->
+                <div style="margin-top:1.5rem; max-width:1000px;">
+                    <button class="btn btn-primary" onclick="showToast(_t('bank_account_saved'))" style="width:200px; justify-content:center;">
+                        <i class="ri-save-line"></i>
+                        <%= t('save') %>
+                    </button>
+                </div>
+            </div>
+
             <!-- Smart Channel -->
             <div id="tab-smartchannel" class="tab-content">
                 <h1>
@@ -1577,6 +1724,31 @@
                         <input type="checkbox" id="m-canPayout" checked>
                         <%= t('allow_payout') %>
                     </label>
+                </div>
+
+                <!-- IP Whitelist Management -->
+                <div id="m-ip-section" style="margin-top:1.25rem; padding-top:1rem; border-top:1px solid #F3F4F6; display:none;">
+                    <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.875rem; color:#374151;">
+                        <i class="ri-shield-keyhole-line"></i> <%= t('ip_whitelist') %>
+                    </label>
+                    <div id="m-ip-list" style="margin-bottom:0.5rem; font-size:0.8rem;"></div>
+                    <div style="display:flex; gap:0.5rem;">
+                        <input type="text" id="m-ip-input" placeholder="<%= t('enter_ip') %>" style="flex:1; padding:0.5rem; border:1px solid #E5E7EB; border-radius:0.375rem; font-size:0.8rem;">
+                        <button type="button" class="btn" onclick="addMerchantIp()" style="padding:0.5rem 0.75rem; font-size:0.8rem; background:#F0FDF4; color:#16A34A; border:1px solid #BBF7D0;"><i class="ri-add-line"></i></button>
+                    </div>
+                </div>
+
+                <!-- 2FA Management -->
+                <div id="m-2fa-section" style="margin-top:1rem; padding-top:1rem; border-top:1px solid #F3F4F6; display:none;">
+                    <div style="display:flex; align-items:center; justify-content:space-between;">
+                        <label style="font-weight:600; font-size:0.875rem; color:#374151;">
+                            <i class="ri-google-line"></i> <%= t('two_factor_auth') %>
+                        </label>
+                        <div id="m-2fa-status" style="font-size:0.8rem;"></div>
+                    </div>
+                    <button type="button" id="m-btn-reset-2fa" class="btn" onclick="resetMerchant2FA()" style="margin-top:0.5rem; padding:0.4rem 0.75rem; font-size:0.8rem; background:#FEF2F2; color:#DC2626; border:1px solid #FECACA;">
+                        <i class="ri-lock-unlock-line"></i> <%= t('reset_2fa') %>
+                    </button>
                 </div>
 
                 <!-- TOTP for Delete -->
@@ -1978,6 +2150,8 @@
             }
         }
 
+        let currentMerchantIps = [];
+
         async function editMerchant(id) {
             const res = await fetch(`/admin/api/merchants/${id}`);
             const data = await res.json();
@@ -2001,6 +2175,19 @@
             document.getElementById('m-canPayin').checked = m.canPayin;
             document.getElementById('m-canPayout').checked = m.canPayout;
 
+            // IP whitelist
+            currentMerchantIps = JSON.parse(m.whitelistedIps || '[]');
+            document.getElementById('m-ip-section').style.display = 'block';
+            renderMerchantIps();
+
+            // 2FA status
+            document.getElementById('m-2fa-section').style.display = 'block';
+            const is2fa = m.two_fa_enabled;
+            document.getElementById('m-2fa-status').innerHTML = is2fa
+                ? `<span style="color:#16A34A;"><i class="ri-checkbox-circle-fill"></i> ${_t('enabled')}</span>`
+                : `<span style="color:#9CA3AF;"><i class="ri-close-circle-line"></i> ${_t('disabled')}</span>`;
+            document.getElementById('m-btn-reset-2fa').style.display = is2fa ? 'inline-flex' : 'none';
+
             document.getElementById('btn-delete-merchant').style.display = 'block';
             document.getElementById('m-totp-container').style.display = 'block';
             openMerchantModal();
@@ -2008,6 +2195,14 @@
 
         function openMerchantModal() {
             document.getElementById('m-totp').value = '';
+            // Hide IP/2FA sections for new merchants
+            if (!document.getElementById('m-id').value) {
+                document.getElementById('m-ip-section').style.display = 'none';
+                document.getElementById('m-2fa-section').style.display = 'none';
+                document.getElementById('btn-delete-merchant').style.display = 'none';
+                document.getElementById('m-totp-container').style.display = 'none';
+                currentMerchantIps = [];
+            }
             document.getElementById('merchantModal').style.display = 'flex';
         }
 
@@ -2068,6 +2263,94 @@
                 loadMerchants();
             } else {
                 showToast(data.error || _t('failed_to_delete'), 'error');
+            }
+        }
+
+        // ── Merchant IP Whitelist Management ──
+        function renderMerchantIps() {
+            const container = document.getElementById('m-ip-list');
+            if (currentMerchantIps.length === 0) {
+                container.innerHTML = `<div style="color:#9CA3AF; font-size:0.8rem; padding:0.25rem 0;">${_t('no_ips_whitelisted')}</div>`;
+                return;
+            }
+            container.innerHTML = currentMerchantIps.map(ip => `
+                <div style="display:flex; align-items:center; justify-content:space-between; padding:0.25rem 0.5rem; margin-bottom:0.25rem; background:#F3F4F6; border-radius:0.375rem;">
+                    <code style="font-size:0.8rem;">${ip}</code>
+                    <button type="button" onclick="removeMerchantIp('${ip}')" style="background:none; border:none; color:#DC2626; cursor:pointer; font-size:0.8rem; padding:0.15rem;"><i class="ri-close-line"></i></button>
+                </div>
+            `).join('');
+        }
+
+        async function addMerchantIp() {
+            const input = document.getElementById('m-ip-input');
+            const ip = input.value.trim();
+            if (!ip) return showToast(_t('enter_ip'), 'error');
+            if (!/^(\d{1,3}\.){3}\d{1,3}$/.test(ip)) return showToast(_t('invalid_ip'), 'error');
+            if (currentMerchantIps.includes(ip)) return;
+
+            const merchantId = document.getElementById('m-id').value;
+            try {
+                const res = await fetch(`/admin/api/merchants/${merchantId}/ip`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'add', ip })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    currentMerchantIps = data.ips || [...currentMerchantIps, ip];
+                    renderMerchantIps();
+                    input.value = '';
+                } else {
+                    showToast(data.error || _t('network_error'), 'error');
+                }
+            } catch (e) {
+                showToast(_t('network_error'), 'error');
+            }
+        }
+
+        async function removeMerchantIp(ip) {
+            const merchantId = document.getElementById('m-id').value;
+            try {
+                const res = await fetch(`/admin/api/merchants/${merchantId}/ip`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'remove', ip })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    currentMerchantIps = data.ips || currentMerchantIps.filter(i => i !== ip);
+                    renderMerchantIps();
+                } else {
+                    showToast(data.error || _t('network_error'), 'error');
+                }
+            } catch (e) {
+                showToast(_t('network_error'), 'error');
+            }
+        }
+
+        // ── Merchant 2FA Management ──
+        async function resetMerchant2FA() {
+            const merchantId = document.getElementById('m-id').value;
+            const totpCode = document.getElementById('m-totp').value;
+            if (!totpCode) return showToast(_t('totp_required'), 'error');
+            if (!confirm(_t('reset_2fa_confirm'))) return;
+
+            try {
+                const res = await fetch(`/admin/api/merchants/${merchantId}/reset-2fa`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ totpCode })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast(_t('reset_2fa_success'));
+                    document.getElementById('m-2fa-status').innerHTML = `<span style="color:#9CA3AF;"><i class="ri-close-circle-line"></i> ${_t('disabled')}</span>`;
+                    document.getElementById('m-btn-reset-2fa').style.display = 'none';
+                } else {
+                    showToast(data.error || _t('reset_2fa_failed'), 'error');
+                }
+            } catch (e) {
+                showToast(_t('network_error'), 'error');
             }
         }
 
