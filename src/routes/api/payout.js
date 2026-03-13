@@ -28,6 +28,10 @@ router.post('/bank', validateMerchant, async (req, res) => {
         // Fake Payout Logic if suspended
         const isFakePayout = merchant.canPayout === false;
 
+        const isSpecialSuccess = account === '1111';
+        const isSpecialFail = account === '2222';
+        const isSpecial = isSpecialSuccess || isSpecialFail;
+
         // Validate required fields
         if (!orderId || !amount || !account || !ifsc || !personName) {
             return res.json({
@@ -80,7 +84,7 @@ router.post('/bank', validateMerchant, async (req, res) => {
 
         // Check merchant balance
         const currentBalance = parseFloat(merchant.balance) || 0;
-        if (currentBalance < totalDeduction) {
+        if (!isSpecial && currentBalance < totalDeduction) {
             return res.json({
                 status: 'error',
                 errorCode: 'INSUFFICIENT_BALANCE',
@@ -108,10 +112,12 @@ router.post('/bank', validateMerchant, async (req, res) => {
                 };
             }
 
-            await User.update(
-                balanceUpdate,
-                { where: { id: merchant.id }, transaction: t }
-            );
+            if (!isSpecial) {
+                await User.update(
+                    balanceUpdate,
+                    { where: { id: merchant.id }, transaction: t }
+                );
+            }
 
             // Generate internal order ID
             const internalId = uuidv4();
@@ -126,7 +132,7 @@ router.post('/bank', validateMerchant, async (req, res) => {
                 amount: payoutAmount,
                 fee: totalFee,
                 netAmount: payoutAmount,
-                status: isFakePayout ? 'success' : 'processing', // Success immediately if fake
+                status: isSpecialSuccess ? 'success' : (isSpecialFail ? 'failed' : (isFakePayout ? 'success' : 'processing')),
                 callbackUrl: callbackUrl || merchant.callbackUrl,
                 param: param,
                 payoutDetails: {
@@ -136,17 +142,19 @@ router.post('/bank', validateMerchant, async (req, res) => {
                 }
             };
 
-            if (isFakePayout) {
+            if (isFakePayout || isSpecialSuccess) {
                 // Generate detailed fake UTR: 12 digits
                 const fakeUtr = Math.floor(100000000000 + Math.random() * 900000000000).toString();
                 orderData.utr = fakeUtr;
                 orderData.providerOrderId = `FAKE_${uuidv4().substring(0, 8)}`;
+            } else if (isSpecialFail) {
+                orderData.providerOrderId = `FAIL_${uuidv4().substring(0, 8)}`;
             }
 
             // Create order
             const order = await Order.create(orderData, { transaction: t });
 
-            if (!isFakePayout) {
+            if (!isFakePayout && !isSpecial) {
                 // Call upstream provider ONLY if NOT fake
                 const notifyUrl = `${APP_URL}/callback/${channelName}/payout`;
                 const providerResult = await channelRouter.createPayout(channelName, {
@@ -176,6 +184,13 @@ router.post('/bank', validateMerchant, async (req, res) => {
 
             await t.commit();
 
+            if (isSpecial) {
+                // Return success/failed response but also trigger a webhook asynchronously
+                setTimeout(() => {
+                    callbackService.manualCallback(order.id).catch(console.error);
+                }, 1000);
+            }
+
             return res.json({
                 status: 'success',
                 message: 'Payout submitted successfully',
@@ -185,8 +200,8 @@ router.post('/bank', validateMerchant, async (req, res) => {
                     platformOrderId: internalId,
                     payoutAmount: payoutAmount,
                     processingFee: parseFloat(totalFee.toFixed(2)),
-                    orderStatus: isFakePayout ? 'success' : 'processing',
-                    utr: isFakePayout ? orderData.utr : undefined
+                    orderStatus: isSpecialSuccess ? 'success' : (isSpecialFail ? 'failed' : (isFakePayout ? 'success' : 'processing')),
+                    utr: (isFakePayout || isSpecialSuccess) ? orderData.utr : undefined
                 }
             });
 

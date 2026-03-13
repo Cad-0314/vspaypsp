@@ -84,7 +84,7 @@ const callbackService = {
             const response = await callbackClient.post(order.callbackUrl, callbackData);
 
             const responseText = typeof response.data === 'string' ? response.data : JSON.stringify(response.data);
-            const isOk = responseText.toUpperCase().includes('OK');
+            const isOk = responseText.toUpperCase().includes('SUCCESS') || responseText.toUpperCase().includes('OK');
 
             // Update order stats
             if (isOk) {
@@ -130,7 +130,7 @@ const callbackService = {
             const response = await callbackClient.post(order.callbackUrl, callbackData);
 
             const responseText = typeof response.data === 'string' ? response.data : JSON.stringify(response.data);
-            const isOk = responseText.toUpperCase().includes('OK');
+            const isOk = responseText.toUpperCase().includes('SUCCESS') || responseText.toUpperCase().includes('OK');
 
             if (isOk) {
                 await order.update({ callbackSent: true, callbackAttempts: order.callbackAttempts + 1 });
