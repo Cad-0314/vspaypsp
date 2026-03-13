@@ -538,18 +538,89 @@ router.get('/orders', async (req, res) => {
 // Broadcasting
 // ==========================================
 
+/**
+ * GET /admin/api/broadcast/merchants
+ * Get list of merchants with Telegram groups for broadcast targeting
+ */
+router.get('/broadcast/merchants', async (req, res) => {
+    try {
+        const { Op } = require('sequelize');
+        const merchants = await User.findAll({
+            where: {
+                role: 'merchant',
+                telegramGroupId: { [Op.ne]: null }
+            },
+            attributes: ['id', 'username', 'payinChannel', 'payoutChannel', 'telegramGroupId'],
+            order: [['username', 'ASC']]
+        });
+        res.json({ success: true, merchants: merchants.map(m => m.toJSON()) });
+    } catch (error) {
+        console.error('[Admin] Broadcast merchants error:', error);
+        res.status(500).json({ success: false, error: 'Failed to fetch merchants' });
+    }
+});
+
+/**
+ * POST /admin/api/broadcast
+ * Send broadcast message to merchant Telegram groups
+ * Body: { message, target: 'all'|'selected'|'channel', merchantIds?: [], channelFilter?: string }
+ */
 router.post('/broadcast', async (req, res) => {
     try {
-        const { message } = req.body;
-        // Placeholder for bot broadcasting logic
-        console.log(`[Broadcast] Sending to all merchants: ${message}`);
+        const { message, target, merchantIds, channelFilter } = req.body;
 
-        // In a real implementation we would likely loop through merchants with telegramId
-        // or call a dedicated bot service
+        if (!message || !message.trim()) {
+            return res.status(400).json({ success: false, error: 'Message is required' });
+        }
 
-        res.json({ success: true, message: 'Broadcast queued' });
+        const { Op } = require('sequelize');
+        const where = {
+            role: 'merchant',
+            telegramGroupId: { [Op.and]: [{ [Op.ne]: null }, { [Op.ne]: '' }] }
+        };
+
+        // Apply filters based on target type
+        if (target === 'selected' && Array.isArray(merchantIds) && merchantIds.length > 0) {
+            where.id = { [Op.in]: merchantIds };
+        } else if (target === 'channel' && channelFilter) {
+            where[Op.or] = [
+                { payinChannel: channelFilter },
+                { payoutChannel: channelFilter }
+            ];
+        }
+        // target === 'all' or default → no additional filters
+
+        const merchants = await User.findAll({ where, attributes: ['id', 'username', 'telegramGroupId'] });
+
+        if (merchants.length === 0) {
+            return res.json({ success: true, sent: 0, total: 0, message: 'No merchants with Telegram groups found' });
+        }
+
+        const chatIds = merchants.map(m => m.telegramGroupId);
+
+        // Format the broadcast message
+        const broadcastText = [
+            `━━━━━━━━━━━━━━━━━━━━━`,
+            `  📢  *System Announcement*`,
+            `━━━━━━━━━━━━━━━━━━━━━`,
+            ``,
+            message.trim(),
+            ``,
+            `_— Admin_`
+        ].join('\n');
+
+        const result = await telegramBot.broadcastMessage(chatIds, broadcastText);
+
+        console.log(`[Broadcast] Sent to ${result.sent}/${chatIds.length} groups. Target: ${target || 'all'}`);
+        res.json({
+            success: true,
+            sent: result.sent,
+            failed: result.failed,
+            total: chatIds.length
+        });
     } catch (error) {
-        res.status(500).json({ success: false, error: 'Failed' });
+        console.error('[Admin] Broadcast error:', error);
+        res.status(500).json({ success: false, error: 'Failed to send broadcast' });
     }
 });
 

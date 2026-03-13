@@ -1075,11 +1075,59 @@
                     <div class="subtitle">
                         <%= t('broadcast_subtitle') %>
                     </div>
-                    <div class="card" style="padding: 2rem; max-width: 600px;">
-                        <textarea id="broadcast-msg" rows="4"
-                            style="width: 100%; border: 1px solid #E5E7EB; border-radius:0.5rem; padding: 1rem; margin-bottom: 1rem; background:#F9FAFB; font-family:inherit;"
-                            placeholder="<%= t('type_message') %>"></textarea>
-                        <button class="btn btn-primary" onclick="sendBroadcast()"><i class="ri-send-plane-fill"></i>
+                    <div class="card" style="padding: 2rem; max-width: 700px;">
+                        <!-- Target Selector -->
+                        <div style="margin-bottom: 1.25rem;">
+                            <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.875rem; color:#374151;">
+                                <%= t('broadcast_target') %>
+                            </label>
+                            <select id="broadcast-target" onchange="onBroadcastTargetChange()"
+                                style="width:100%; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem; background:#F9FAFB; font-size:0.875rem;">
+                                <option value="all"><%= t('broadcast_all') %></option>
+                                <option value="selected"><%= t('broadcast_select_merchants') %></option>
+                                <option value="channel"><%= t('broadcast_filter_channel') %></option>
+                            </select>
+                        </div>
+
+                        <!-- Merchant Selection (hidden by default) -->
+                        <div id="broadcast-merchant-list" style="display:none; margin-bottom:1.25rem; max-height:220px; overflow-y:auto; border:1px solid #E5E7EB; border-radius:0.5rem; padding:0.75rem; background:#F9FAFB;">
+                            <div style="color:#9CA3AF; font-size:0.875rem;"><%= t('loading') %></div>
+                        </div>
+
+                        <!-- Channel Filter (hidden by default) -->
+                        <div id="broadcast-channel-filter" style="display:none; margin-bottom:1.25rem;">
+                            <select id="broadcast-channel"
+                                style="width:100%; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem; background:#F9FAFB; font-size:0.875rem;">
+                                <option value=""><%= t('select_channel') %></option>
+                                <option value="aapay">AA Pay</option>
+                                <option value="gaurpay">GaurPay</option>
+                                <option value="yellow">Yellow</option>
+                                <option value="upi super">UPI Super</option>
+                                <option value="ckpay">CKPay</option>
+                                <option value="bharatpay">BharatPay</option>
+                                <option value="cxpay">CX Pay</option>
+                                <option value="ipay">IPay</option>
+                                <option value="unitedpay">United Pay</option>
+                                <option value="firpay">FirPay</option>
+                                <option value="agpay">AG Pay</option>
+                                <option value="easypay">Easy Pay</option>
+                                <option value="ynpay">YN Pay</option>
+                            </select>
+                        </div>
+
+                        <!-- Message -->
+                        <div style="margin-bottom:1.25rem;">
+                            <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.875rem; color:#374151;">
+                                <%= t('broadcast_message') %>
+                            </label>
+                            <textarea id="broadcast-msg" rows="5"
+                                style="width: 100%; border: 1px solid #E5E7EB; border-radius:0.5rem; padding: 1rem; background:#F9FAFB; font-family:inherit; font-size:0.875rem; resize:vertical;"
+                                placeholder="<%= t('type_message') %>"></textarea>
+                        </div>
+
+                        <!-- Send Button -->
+                        <button class="btn btn-primary" id="btn-broadcast" onclick="sendBroadcast()" style="width:100%; justify-content:center;">
+                            <i class="ri-send-plane-fill"></i>
                             <%= t('send_broadcast') %>
                         </button>
                     </div>
@@ -1219,15 +1267,7 @@
                         </table>
                     </div>
                 </div>
-                <h1>Broadcast Message</h1>
-                <div class="subtitle">Send system-wide announcements.</div>
-                <div class="card" style="padding: 2rem; max-width: 600px;">
-                    <textarea id="broadcast-msg" rows="4"
-                        style="width: 100%; border: 1px solid #E5E7EB; border-radius:0.5rem; padding: 1rem; margin-bottom: 1rem; background:#F9FAFB; font-family:inherit;"
-                        placeholder="Type message..."></textarea>
-                    <button class="btn btn-primary" onclick="sendBroadcast()"><i class="ri-send-plane-fill"></i>
-                        Send Broadcast</button>
-                </div>
+
             </div>
 
             <!-- Smart Channel -->
@@ -2069,14 +2109,108 @@
             }
         }
 
+        // ── Broadcast Functions ──
+        let broadcastMerchants = [];
+
+        function onBroadcastTargetChange() {
+            const target = document.getElementById('broadcast-target').value;
+            document.getElementById('broadcast-merchant-list').style.display = target === 'selected' ? 'block' : 'none';
+            document.getElementById('broadcast-channel-filter').style.display = target === 'channel' ? 'block' : 'none';
+            if (target === 'selected' && broadcastMerchants.length === 0) {
+                loadBroadcastMerchants();
+            }
+        }
+
+        async function loadBroadcastMerchants() {
+            try {
+                const res = await fetch('/admin/api/broadcast/merchants');
+                const data = await res.json();
+                broadcastMerchants = data.merchants || [];
+                const container = document.getElementById('broadcast-merchant-list');
+                if (broadcastMerchants.length === 0) {
+                    container.innerHTML = `<div style="color:#9CA3AF; font-size:0.875rem; text-align:center; padding:1rem;">${_t('broadcast_no_groups')}</div>`;
+                    return;
+                }
+                // Select all checkbox + individual merchant checkboxes
+                container.innerHTML = `
+                    <label style="display:flex; align-items:center; gap:0.5rem; padding:0.4rem 0; border-bottom:1px solid #E5E7EB; font-weight:600; font-size:0.875rem; cursor:pointer;">
+                        <input type="checkbox" id="bc-select-all" checked onchange="toggleAllBroadcastMerchants(this.checked)">
+                        ${_t('broadcast_all')} (${broadcastMerchants.length})
+                    </label>
+                    ${broadcastMerchants.map(m => `
+                        <label style="display:flex; align-items:center; gap:0.5rem; padding:0.35rem 0; font-size:0.85rem; cursor:pointer;">
+                            <input type="checkbox" class="bc-merchant-cb" value="${m.id}" checked onchange="updateSelectAll()">
+                            <span style="font-weight:500;">${m.username}</span>
+                            <span style="color:#9CA3AF; font-size:0.75rem; margin-left:auto;">${m.payinChannel || ''} ${m.payoutChannel && m.payoutChannel !== m.payinChannel ? '/ ' + m.payoutChannel : ''}</span>
+                        </label>
+                    `).join('')}
+                `;
+            } catch (e) {
+                console.error('[Broadcast] Load merchants error:', e);
+            }
+        }
+
+        function toggleAllBroadcastMerchants(checked) {
+            document.querySelectorAll('.bc-merchant-cb').forEach(cb => cb.checked = checked);
+        }
+
+        function updateSelectAll() {
+            const all = document.querySelectorAll('.bc-merchant-cb');
+            const checked = document.querySelectorAll('.bc-merchant-cb:checked');
+            const selectAll = document.getElementById('bc-select-all');
+            if (selectAll) selectAll.checked = all.length === checked.length;
+        }
+
         async function sendBroadcast() {
-            const message = document.getElementById('broadcast-msg').value;
-            await fetch('/admin/api/broadcast', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message })
-            });
-            showToast(_t('broadcast_sent'));
+            const message = document.getElementById('broadcast-msg').value.trim();
+            if (!message) {
+                showToast(_t('broadcast_no_message'), 'error');
+                return;
+            }
+
+            const target = document.getElementById('broadcast-target').value;
+            const payload = { message, target };
+
+            if (target === 'selected') {
+                const selected = Array.from(document.querySelectorAll('.bc-merchant-cb:checked')).map(cb => parseInt(cb.value));
+                if (selected.length === 0) {
+                    showToast(_t('broadcast_select_at_least_one'), 'error');
+                    return;
+                }
+                payload.merchantIds = selected;
+            } else if (target === 'channel') {
+                const channel = document.getElementById('broadcast-channel').value;
+                if (!channel) {
+                    showToast(_t('select_channel'), 'error');
+                    return;
+                }
+                payload.channelFilter = channel;
+            }
+
+            const btn = document.getElementById('btn-broadcast');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="ri-loader-4-line" style="animation:spin 1s linear infinite;"></i> ${_t('broadcast_sending')}`;
+
+            try {
+                const res = await fetch('/admin/api/broadcast', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    const msg = _t('broadcast_sent_count').replace('{sent}', data.sent).replace('{total}', data.total);
+                    showToast(msg);
+                    document.getElementById('broadcast-msg').value = '';
+                } else {
+                    showToast(data.error || _t('broadcast_no_groups'), 'error');
+                }
+            } catch (e) {
+                showToast(_t('network_error'), 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="ri-send-plane-fill"></i> ${_t('send_broadcast')}`;
+            }
         }
 
         async function loadChannels() {

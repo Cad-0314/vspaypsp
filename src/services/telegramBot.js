@@ -589,11 +589,42 @@ const init = (token) => {
 
 const sendMessage = (chatId, text) => {
     if (bot && chatId) {
-        bot.sendMessage(chatId, text).catch(e => console.error(`[Telegram] Failed to send to ${chatId}:`, e.message));
+        bot.sendMessage(chatId, text, { parse_mode: 'Markdown' }).catch(e => console.error(`[Telegram] Failed to send to ${chatId}:`, e.message));
     }
+};
+
+/**
+ * Broadcast a message to multiple chat IDs with rate-limit protection
+ * @param {string[]} chatIds - Array of Telegram chat IDs
+ * @param {string} text - Message text (Markdown supported)
+ * @returns {Promise<{sent: number, failed: number}>}
+ */
+const broadcastMessage = async (chatIds, text) => {
+    if (!bot || !chatIds || chatIds.length === 0) {
+        return { sent: 0, failed: 0 };
+    }
+
+    let sent = 0;
+    let failed = 0;
+
+    for (const chatId of chatIds) {
+        try {
+            await bot.sendMessage(chatId, text, { parse_mode: 'Markdown' });
+            sent++;
+            // Small delay to avoid Telegram rate limits (max ~30 msgs/sec)
+            await new Promise(resolve => setTimeout(resolve, 50));
+        } catch (e) {
+            console.error(`[Telegram] Broadcast failed for ${chatId}:`, e.message);
+            failed++;
+        }
+    }
+
+    console.log(`[Telegram] Broadcast complete: ${sent} sent, ${failed} failed out of ${chatIds.length}`);
+    return { sent, failed };
 };
 
 module.exports = {
     init,
-    sendMessage
+    sendMessage,
+    broadcastMessage
 };
