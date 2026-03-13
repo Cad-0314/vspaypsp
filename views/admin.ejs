@@ -964,7 +964,7 @@
                                 <%= t('merchants') %>
                             </h1>
                             <div class="subtitle" style="margin-bottom:0">
-                                <%= t('merchants_subtitle') %>
+                                <%= t('manage_merchants') %>
                             </div>
                         </div>
                         <button class="btn btn-success" onclick="openMerchantModal()"><i class="ri-add-line"></i>
@@ -1025,6 +1025,7 @@
                                 </tr>
                             </tbody>
                         </table>
+                        <div id="merchants-pagination" style="padding:1rem;"></div>
                     </div>
                 </div>
 
@@ -1272,10 +1273,9 @@
                     </div>
                 </div>
 
-            </div>
 
             <!-- Bank Account -->
-            <div id="tab-bankaccount" class="tab-content">
+            <div id="tab-bankaccount" class="tab-content" style="overflow-y:auto;">
                 <h1><%= t('nav_bank_account') %></h1>
                 <div class="subtitle"><%= t('bank_account_subtitle') %></div>
 
