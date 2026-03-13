@@ -259,6 +259,15 @@ router.post('/:channel/payin', async (req, res) => {
                 console.error('[YNPay] Payin callback signature verification failed');
                 return res.send('fail');
             }
+        } else if (channelName === 'passpay') {
+            // PassPay: status 5=success, 6=failed, 3=processing
+            orderId = req.body.out_trade_no;
+            const statusVal = parseInt(req.body.status);
+            status = statusVal === 5 ? 'success' :
+                statusVal === 6 ? 'failed' : 'pending';
+            utr = req.body.utr || '';
+            actualAmount = parseFloat(req.body.real_amount || req.body.amount);
+            providerOrderId = req.body.trade_no;
         }
 
         if (!orderId) {
@@ -504,6 +513,14 @@ router.post('/:channel/payout', async (req, res) => {
                 console.error('[YNPay] Payout callback signature verification failed');
                 return res.send('fail');
             }
+        } else if (channelName === 'passpay') {
+            // PassPay payout: status 5=success, 6=failed, 3=processing
+            orderId = req.body.out_trade_no;
+            const statusVal = parseInt(req.body.status);
+            status = statusVal === 5 ? 'success' :
+                statusVal === 6 ? 'failed' : 'processing';
+            utr = req.body.utr || '';
+            providerOrderId = req.body.trade_no;
         }
 
         if (!orderId) return res.send(successResponse);
