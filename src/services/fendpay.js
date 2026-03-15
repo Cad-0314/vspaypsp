@@ -273,6 +273,47 @@ const fendpayService = {
     // Alias for channelRouter compatibility
     verifySign: function (params) {
         return fendpayService.verifySignature(params);
+    },
+
+    /**
+     * Submit UTR for an order (Bind UTR)
+     * @param {string} orderId - Merchant order ID
+     * @param {string} utr - Bank UTR number
+     * @returns {Object} - { success, message }
+     */
+    submitUtr: async function (orderId, utr) {
+        try {
+            const payload = {
+                merchantNumber: MERCHANT_ID,
+                outTradeNo: orderId,
+                utr: utr
+            };
+
+            const sign = generateSignature(payload);
+            payload.sign = sign;
+
+            console.log(`[FendPay] Submitting UTR for order ${orderId}: ${utr}`);
+            const response = await httpClient.post('/pay/payment/bind/utr', payload);
+
+            if (response.data.code === 200 || response.data.success === true) {
+                return {
+                    success: true,
+                    message: 'UTR submitted successfully'
+                };
+            } else {
+                console.error('[FendPay] UTR submission failed:', response.data);
+                return {
+                    success: false,
+                    error: response.data.msg || response.data.message || 'UTR submission failed'
+                };
+            }
+        } catch (error) {
+            console.error('[FendPay] UTR submission exception:', error.message);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
     }
 };
 

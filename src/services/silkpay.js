@@ -355,7 +355,7 @@ async function getBalance() {
  */
 async function submitUtr(orderId, utr) {
     const timestamp = Date.now().toString();
-    const signStr = `${MID}${timestamp}${SECRET}`;
+    const signStr = `${MID}${orderId}${utr}${timestamp}${SECRET}`;
     const sign = createSign(signStr);
 
     const params = {
