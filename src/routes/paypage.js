@@ -95,7 +95,16 @@ router.get('/:orderId', async (req, res) => {
             }
         }
 
-        // All channels: wrap upstream URL in iframe (never expose upstream URLs)
+        // Special handling for YNPay: It blocks iframes (X-Frame-Options: deny)
+        // We must redirect directly to the upstream cashier page
+        if (order.channelName === 'ynpay' || (order.providerResponse && order.providerResponse.includes('ynpay'))) {
+            if (order.payUrl) {
+                console.log(`[PayPage] YNPay detected, redirecting to: ${order.payUrl}`);
+                return res.redirect(order.payUrl);
+            }
+        }
+
+        // All other channels: wrap upstream URL in iframe (never expose upstream URLs)
         res.sendFile(path.join(__dirname, '../../public/gateway.html'));
 
     } catch (error) {
