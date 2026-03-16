@@ -311,7 +311,6 @@ const init = (token) => {
                     ``,
                     `💵  Amount ➜ ₹${amount.toFixed(2)}`,
                     `🆔  Order  ➜ \`${orderId}\``,
-                    `📡  Route  ➜ ${merchant.assignedChannel}`,
                     ``,
                     `🔗 *Pay Now:*`,
                     `${paymentLink}`,
