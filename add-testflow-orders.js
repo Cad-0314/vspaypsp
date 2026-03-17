@@ -1,10 +1,7 @@
 /**
- * Add Mock Orders for 'testflow' Merchant
- * Over the last 24 hours (2026-03-16 13:30 to 2026-03-17 13:30)
- * Total orders: ~7,200 (5 orders per minute)
- * Ratio: 50% Payin, 50% Payout
- * Amount: 100 - 2000 INR
- * Success Rate: 62% - 64%
+ * Adjusted Mock Orders for 'testflow' Merchant
+ * precisely 5 orders per minute (1 every 12 seconds)
+ * ending at 2026-03-17 13:11:00 IST
  */
 
 require('dotenv').config();
@@ -22,18 +19,11 @@ const sequelize = new Sequelize(
     }
 );
 
-const MERCHANT_ID = 24; // testflow
-const START_TIME = new Date('2026-03-16T13:30:00Z');
-const END_TIME = new Date('2026-03-17T13:30:00Z');
-const TOTAL_MINUTES = 24 * 60;
-const ORDERS_PER_MINUTE = 5;
-const TOTAL_ORDERS = TOTAL_MINUTES * ORDERS_PER_MINUTE;
+const MERCHANT_ID = 24; 
+const TOTAL_ORDERS = 1440 * 5; // 7200 orders for 24 hours
+const SUCCESS_RATE = 0.635; // 63.5%
 
 const CHANNELS = ['hdpay', 'yellow', 'payable', 'x2', 'upi super', 'cxpay', 'aapay', 'ipay', 'unitedpay'];
-
-function randomInRange(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
 
 function generateUTR() {
     const banks = ['UBIN', 'SBIN', 'HDFC', 'ICIC', 'AXIS', 'PUNB', 'BARB'];
@@ -43,36 +33,45 @@ function generateUTR() {
 }
 
 function generateOrderId(type) {
-    const ts = Date.now() + Math.floor(Math.random() * 1000000);
-    const rand = Math.random().toString(36).substring(2, 8).toUpperCase();
-    return `${type === 'payin' ? 'PI' : 'PO'}${ts}${rand}`;
+    const ts = Date.now() + Math.random();
+    return `${type === 'payin' ? 'PI' : 'PO'}${Math.floor(ts)}${Math.random().toString(36).substring(2, 5).toUpperCase()}`;
 }
 
-async function addOrders() {
+async function adjustOrders() {
     try {
         await sequelize.authenticate();
-        console.log('Connected to database.');
+        console.log('Connected.');
+
+        // 1. Delete old orders for this merchant
+        console.log('Clearing existing orders for merchant 24...');
+        await sequelize.query(`DELETE FROM orders WHERE merchantId = ${MERCHANT_ID}`);
 
         const allOrders = [];
-        const successRate = 0.62 + (Math.random() * 0.02); // 62% to 64%
-        
-        console.log(`Targeting Success Rate: ${(successRate * 100).toFixed(2)}%`);
-        console.log(`Generating ~${TOTAL_ORDERS} orders...`);
+        // End time: 2026-03-17 13:11:00 (Local IST)
+        const endTime = new Date(2026, 2, 17, 13, 11, 0); 
+        let baseTime = endTime.getTime();
+
+        console.log(`Generating 7200 orders ending at ${endTime.toLocaleString()}...`);
 
         for (let i = 0; i < TOTAL_ORDERS; i++) {
-            const isPayin = Math.random() < 0.5;
+            const isPayin = i % 2 === 0; // 50/50 split
             const type = isPayin ? 'payin' : 'payout';
-            const amount = randomInRange(100, 2000);
+            const amount = Math.floor(Math.random() * (2000 - 100 + 1)) + 100;
             const feeRate = isPayin ? 0.05 : 0.03;
             const fee = parseFloat((amount * feeRate + (isPayin ? 0 : 6)).toFixed(2));
             const netAmount = parseFloat((amount - fee).toFixed(2));
-            const status = Math.random() < successRate ? 'success' : 'failed';
+            const status = Math.random() < SUCCESS_RATE ? 'success' : 'failed';
             const channel = CHANNELS[Math.floor(Math.random() * CHANNELS.length)];
             
-            // Distribute across the 24 hours
-            const randomOffset = Math.floor(Math.random() * TOTAL_MINUTES * 60 * 1000);
-            const createdAt = new Date(START_TIME.getTime() + randomOffset);
-            
+            // Exactly 12 seconds per order, going backwards
+            const createdAt = new Date(baseTime - (i * 12 * 1000));
+            const dateStr = createdAt.getFullYear() + '-' + 
+                           String(createdAt.getMonth() + 1).padStart(2, '0') + '-' + 
+                           String(createdAt.getDate()).padStart(2, '0') + ' ' + 
+                           String(createdAt.getHours()).padStart(2, '0') + ':' + 
+                           String(createdAt.getMinutes()).padStart(2, '0') + ':' + 
+                           String(createdAt.getSeconds()).padStart(2, '0');
+
             const order = {
                 id: uuidv4(),
                 merchantId: MERCHANT_ID,
@@ -86,8 +85,8 @@ async function addOrders() {
                 utr: status === 'success' ? generateUTR() : null,
                 callbackSent: 1,
                 callbackAttempts: 1,
-                createdAt: createdAt,
-                updatedAt: createdAt
+                createdAt: dateStr,
+                updatedAt: dateStr
             };
 
             if (type === 'payout') {
@@ -103,53 +102,28 @@ async function addOrders() {
             allOrders.push(order);
         }
 
-        // Sort by createdAt for chronological insertion (optional but nice)
-        allOrders.sort((a, b) => a.createdAt - b.createdAt);
-
         console.log(`Inserting ${allOrders.length} orders...`);
-
         const BATCH_SIZE = 500;
-        let totalInserted = 0;
-
         for (let i = 0; i < allOrders.length; i += BATCH_SIZE) {
             const batch = allOrders.slice(i, i + BATCH_SIZE);
             const values = batch.map(o => {
                 const payoutType = o.payoutType ? `'${o.payoutType}'` : 'NULL';
                 const utr = o.utr ? `'${o.utr}'` : 'NULL';
                 const payoutDetails = o.payoutDetails ? `'${o.payoutDetails.replace(/'/g, "\\'")}'` : 'NULL';
-                const createdAt = o.createdAt.toISOString().slice(0, 19).replace('T', ' ');
-                const updatedAt = o.updatedAt.toISOString().slice(0, 19).replace('T', ' ');
-
-                return `('${o.id}', ${o.merchantId}, '${o.orderId}', '${o.channelName}', '${o.type}', ${payoutType}, ${o.amount}, ${o.fee}, ${o.netAmount}, '${o.status}', ${utr}, 'NULL', ${o.callbackSent}, ${o.callbackAttempts}, ${payoutDetails}, '${createdAt}', '${updatedAt}')`;
+                return `('${o.id}', ${o.merchantId}, '${o.orderId}', '${o.channelName}', '${o.type}', ${payoutType}, ${o.amount}, ${o.fee}, ${o.netAmount}, '${o.status}', ${utr}, 'NULL', ${o.callbackSent}, ${o.callbackAttempts}, ${payoutDetails}, '${o.createdAt}', '${o.updatedAt}')`;
             }).join(',\n');
 
             const sql = `INSERT INTO orders (id, merchantId, orderId, channelName, type, payoutType, amount, fee, netAmount, status, utr, providerOrderId, callbackSent, callbackAttempts, payoutDetails, createdAt, updatedAt) VALUES ${values}`;
             await sequelize.query(sql);
-            totalInserted += batch.length;
-            process.stdout.write(`\rInserted: ${totalInserted}/${allOrders.length}`);
+            process.stdout.write(`\rInserted: ${Math.min(i + BATCH_SIZE, allOrders.length)}/${allOrders.length}`);
         }
 
-        console.log('\n\n✅ Mock orders for testflow created successfully!');
-        
-        // Final verification summary
-        const [summary] = await sequelize.query(`
-            SELECT 
-                type,
-                status,
-                COUNT(*) as count,
-                AVG(amount) as avg_amount
-            FROM orders 
-            WHERE merchantId = ${MERCHANT_ID} 
-              AND createdAt >= '${START_TIME.toISOString().slice(0, 19).replace('T', ' ')}'
-            GROUP BY type, status
-        `);
-        console.table(summary);
-
+        console.log('\n✅ Orders adjusted successfully.');
         process.exit(0);
-    } catch (error) {
-        console.error('Error adding orders:', error);
+    } catch (err) {
+        console.error(err);
         process.exit(1);
     }
 }
 
-addOrders();
+adjustOrders();
