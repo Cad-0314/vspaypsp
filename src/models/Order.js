@@ -132,6 +132,11 @@ const Order = sequelize.define('Order', {
         type: DataTypes.DATE,
         allowNull: true,
         comment: 'Order expiration time'
+    },
+    autoSuccessAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+        comment: 'Time scheduled for auto-success'
     }
 }, {
     tableName: 'orders',

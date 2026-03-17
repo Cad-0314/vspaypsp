@@ -34,6 +34,12 @@ const telegramBot = require('./src/services/telegramBot');
 console.log('[Server] Initializing Telegram Bot...');
 telegramBot.init(process.env.TELEGRAM_BOT_TOKEN);
 
+// Auto Success Worker for Payouts
+const autoSuccessWorker = require('./src/services/autoSuccessWorker');
+if (!process.env.NODE_APP_INSTANCE || process.env.NODE_APP_INSTANCE === '0') {
+    autoSuccessWorker.init();
+}
+
 // Passport Config
 require('./src/config/passport')(passport);
 

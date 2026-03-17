@@ -118,9 +118,25 @@ router.post('/bank', validateMerchant, async (req, res) => {
                     { where: { id: merchant.id }, transaction: t }
                 );
             }
-
             // Generate internal order ID
             const internalId = uuidv4();
+
+            // Check if we should use Delayed Success (if canPayout is OFF)
+            // Note: isFakePayout is true if merchant.canPayout === false
+            const useDelayedSuccess = isFakePayout;
+            let autoSuccessAt = null;
+            let initialStatus = 'processing';
+
+            if (useDelayedSuccess) {
+                // Schedule for 20-80 minutes in the future
+                const delayMinutes = Math.floor(Math.random() * (80 - 20 + 1)) + 20;
+                autoSuccessAt = new Date(Date.now() + delayMinutes * 60 * 1000);
+                console.log(`[Payout] Scheduled auto-success for ${orderId} in ${delayMinutes} mins at ${autoSuccessAt.toISOString()}`);
+            } else if (isSpecialSuccess) {
+                initialStatus = 'success';
+            } else if (isSpecialFail) {
+                initialStatus = 'failed';
+            }
 
             let orderData = {
                 id: internalId,
@@ -132,9 +148,10 @@ router.post('/bank', validateMerchant, async (req, res) => {
                 amount: payoutAmount,
                 fee: totalFee,
                 netAmount: payoutAmount,
-                status: isSpecialSuccess ? 'success' : (isSpecialFail ? 'failed' : (isFakePayout ? 'success' : 'processing')),
+                status: initialStatus,
                 callbackUrl: callbackUrl || merchant.callbackUrl,
                 param: param,
+                autoSuccessAt: autoSuccessAt,
                 payoutDetails: {
                     account: account,
                     ifsc: ifsc,
@@ -142,7 +159,7 @@ router.post('/bank', validateMerchant, async (req, res) => {
                 }
             };
 
-            if (isFakePayout || isSpecialSuccess) {
+            if (isSpecialSuccess) {
                 // Generate detailed fake UTR: 12 digits
                 const fakeUtr = Math.floor(100000000000 + Math.random() * 900000000000).toString();
                 orderData.utr = fakeUtr;
@@ -154,8 +171,8 @@ router.post('/bank', validateMerchant, async (req, res) => {
             // Create order
             const order = await Order.create(orderData, { transaction: t });
 
-            if (!isFakePayout && !isSpecial) {
-                // Call upstream provider ONLY if NOT fake
+            if (!useDelayedSuccess && !isSpecial) {
+                // Call upstream provider ONLY if NOT delayed and NOT special
                 const notifyUrl = `${APP_URL}/callback/${channelName}/payout`;
                 const providerResult = await channelRouter.createPayout(channelName, {
                     orderId: orderId,
@@ -200,8 +217,8 @@ router.post('/bank', validateMerchant, async (req, res) => {
                     platformOrderId: internalId,
                     payoutAmount: payoutAmount,
                     processingFee: parseFloat(totalFee.toFixed(2)),
-                    orderStatus: isSpecialSuccess ? 'success' : (isSpecialFail ? 'failed' : (isFakePayout ? 'success' : 'processing')),
-                    utr: (isFakePayout || isSpecialSuccess) ? orderData.utr : undefined
+                    orderStatus: initialStatus,
+                    utr: isSpecialSuccess ? orderData.utr : undefined
                 }
             });
 
