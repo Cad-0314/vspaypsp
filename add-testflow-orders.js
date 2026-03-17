@@ -1,8 +1,8 @@
 /**
- * Realistic Mock Orders for 'testflow' Merchant
+ * Authentic Mock Orders for 'testflow' Merchant
  * Total orders: 250 for 24 hours
- * Timing: Fully randomized jitter
- * Success Rate: 62% - 64%
+ * Distribution: Non-uniform (Peak/Quiet hours)
+ * Success Rate: Strictly 62-64% with local variance
  */
 
 require('dotenv').config();
@@ -22,9 +22,16 @@ const sequelize = new Sequelize(
 
 const MERCHANT_ID = 24; 
 const TOTAL_ORDERS = 250; 
-const SUCCESS_RATE = 0.63; // 63%
+const TARGET_SUCCESS_RATE = 0.63; // 63%
+const TOTAL_SUCCESSES = Math.round(TOTAL_ORDERS * TARGET_SUCCESS_RATE); // ~158
 
 const CHANNELS = ['hdpay', 'yellow', 'payable', 'x2', 'upi super', 'cxpay', 'aapay', 'ipay', 'unitedpay'];
+
+const HOURLY_WEIGHTS = [
+    5, 3, 2, 1, 1, 2, 5, 8, 12, 15, 
+    18, 20, 22, 20, 18, 16, 18, 20, 
+    22, 25, 20, 15, 10, 8           
+];
 
 function generateUTR() {
     const banks = ['UBIN', 'SBIN', 'HDFC', 'ICIC', 'AXIS', 'PUNB', 'BARB'];
@@ -38,76 +45,87 @@ function generateOrderId(type) {
     return `${type === 'payin' ? 'PI' : 'PO'}${Math.floor(ts)}${Math.random().toString(36).substring(2, 5).toUpperCase()}`;
 }
 
-async function refineOrders() {
+async function refineForRealism() {
     try {
         await sequelize.authenticate();
         console.log('Connected.');
 
-        // 1. Delete old orders for this merchant
         console.log('Clearing existing orders for merchant 24...');
         await sequelize.query(`DELETE FROM orders WHERE merchantId = ${MERCHANT_ID}`);
 
         const allOrders = [];
-        // End time: Current time in IST (2026-03-17 13:13:00)
-        const endTime = new Date(2026, 2, 17, 13, 13, 0).getTime();
+        const endTime = new Date(2026, 2, 17, 13, 14, 0).getTime();
         const startTime = endTime - (24 * 60 * 60 * 1000);
 
-        console.log(`Generating 250 randomized orders...`);
+        const totalWeight = HOURLY_WEIGHTS.reduce((a, b) => a + b, 0);
+        let ordersCreated = 0;
 
-        for (let i = 0; i < TOTAL_ORDERS; i++) {
-            const isPayin = Math.random() < 0.5; // Random type
-            const type = isPayin ? 'payin' : 'payout';
-            const amount = Math.floor(Math.random() * (2000 - 100 + 1)) + 100;
-            const feeRate = isPayin ? 0.05 : 0.03;
-            const fee = parseFloat((amount * feeRate + (isPayin ? 0 : 6)).toFixed(2));
-            const netAmount = parseFloat((amount - fee).toFixed(2));
-            
-            // Random success based on rate
-            const status = Math.random() < SUCCESS_RATE ? 'success' : 'failed';
-            const channel = CHANNELS[Math.floor(Math.random() * CHANNELS.length)];
-            
-            // Fully random time within the 24 hour window
-            const randomTime = startTime + Math.random() * (endTime - startTime);
-            const createdAt = new Date(randomTime);
-            
-            const dateStr = createdAt.getFullYear() + '-' + 
-                           String(createdAt.getMonth() + 1).padStart(2, '0') + '-' + 
-                           String(createdAt.getDate()).padStart(2, '0') + ' ' + 
-                           String(createdAt.getHours()).padStart(2, '0') + ':' + 
-                           String(createdAt.getMinutes()).padStart(2, '0') + ':' + 
-                           String(createdAt.getSeconds()).padStart(2, '0');
-
-            const order = {
-                id: uuidv4(),
-                merchantId: MERCHANT_ID,
-                orderId: generateOrderId(type),
-                channelName: channel,
-                type: type,
-                amount: amount,
-                fee: fee,
-                netAmount: netAmount,
-                status: status,
-                utr: status === 'success' ? generateUTR() : null,
-                callbackSent: 1,
-                callbackAttempts: 1,
-                createdAt: dateStr,
-                updatedAt: dateStr
-            };
-
-            if (type === 'payout') {
-                order.payoutType = 'bank';
-                order.payoutDetails = JSON.stringify({
-                    bankName: 'ICICI Bank',
-                    accountNumber: `${Math.floor(Math.random() * 9000000000) + 1000000000}`,
-                    ifsc: 'ICIC0001234',
-                    accountName: 'Test Flow Merch'
-                });
-            }
-
-            allOrders.push(order);
+        // Pre-create status array to ensure exact success rate
+        const statuses = new Array(TOTAL_ORDERS).fill('failed');
+        for (let s = 0; s < TOTAL_SUCCESSES; s++) statuses[s] = 'success';
+        // Shuffle statuses
+        for (let s = statuses.length - 1; s > 0; s--) {
+            const j = Math.floor(Math.random() * (s + 1));
+            [statuses[s], statuses[j]] = [statuses[j], statuses[s]];
         }
 
-        // Sort by createdAt for chronological insertion
+        console.log(`Generating 250 authentic orders with peak/quiet hours and 63% success rate...`);
+
+        for (let i = 0; i < 24; i++) {
+            const currentHourTime = startTime + (i * 60 * 60 * 1000);
+            const targetHour = new Date(currentHourTime).getHours();
+            const hourOrderCount = i === 23 ? TOTAL_ORDERS - ordersCreated : Math.round((HOURLY_WEIGHTS[targetHour] / totalWeight) * TOTAL_ORDERS);
+
+            for (let j = 0; j < hourOrderCount; j++) {
+                if (ordersCreated >= TOTAL_ORDERS) break;
+
+                const isPayin = Math.random() < 0.5;
+                const type = isPayin ? 'payin' : 'payout';
+                const amount = Math.floor(Math.random() * (2000 - 100 + 1)) + 100;
+                const feeRate = isPayin ? 0.05 : 0.03;
+                const fee = parseFloat((amount * feeRate + (isPayin ? 0 : 6)).toFixed(2));
+                const netAmount = parseFloat((amount - fee).toFixed(2));
+                const status = statuses[ordersCreated];
+                const channel = CHANNELS[Math.floor(Math.random() * CHANNELS.length)];
+                
+                const randomMinute = Math.floor(Math.random() * 60);
+                const randomSecond = Math.floor(Math.random() * 60);
+                const createdAt = new Date(currentHourTime);
+                createdAt.setMinutes(randomMinute);
+                createdAt.setSeconds(randomSecond);
+                
+                if (createdAt.getTime() > endTime && i < 23) continue; 
+
+                const dateStr = createdAt.toISOString().slice(0, 19).replace('T', ' ');
+
+                allOrders.push({
+                    id: uuidv4(),
+                    merchantId: MERCHANT_ID,
+                    orderId: generateOrderId(type),
+                    channelName: channel,
+                    type: type,
+                    amount: amount,
+                    fee: fee,
+                    netAmount: netAmount,
+                    status: status,
+                    utr: status === 'success' ? generateUTR() : null,
+                    callbackSent: 1,
+                    callbackAttempts: 1,
+                    createdAt: dateStr,
+                    updatedAt: dateStr,
+                    payoutType: type === 'payout' ? 'bank' : null,
+                    payoutDetails: type === 'payout' ? JSON.stringify({
+                        bankName: 'Axis Bank',
+                        accountNumber: `${Math.floor(Math.random() * 9000000000) + 1000000000}`,
+                        ifsc: 'UTIB0001234',
+                        accountName: 'Test Account'
+                    }) : null
+                });
+                ordersCreated++;
+            }
+        }
+
+        // Sort by createdAt
         allOrders.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
         console.log(`Inserting ${allOrders.length} orders...`);
@@ -126,7 +144,7 @@ async function refineOrders() {
             process.stdout.write(`\rInserted: ${Math.min(i + BATCH_SIZE, allOrders.length)}/${allOrders.length}`);
         }
 
-        console.log('\n✅ 250 Realistic orders created successfully.');
+        console.log(`\n✅ Done. Final Success Rate: ${((allOrders.filter(o => o.status === 'success').length / allOrders.length) * 100).toFixed(2)}%`);
         process.exit(0);
     } catch (err) {
         console.error(err);
@@ -134,4 +152,4 @@ async function refineOrders() {
     }
 }
 
-refineOrders();
+refineForRealism();
