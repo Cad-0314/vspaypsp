@@ -1,7 +1,8 @@
 /**
- * Adjusted Mock Orders for 'testflow' Merchant
- * precisely 5 orders per minute (1 every 12 seconds)
- * ending at 2026-03-17 13:11:00 IST
+ * Realistic Mock Orders for 'testflow' Merchant
+ * Total orders: 250 for 24 hours
+ * Timing: Fully randomized jitter
+ * Success Rate: 62% - 64%
  */
 
 require('dotenv').config();
@@ -20,8 +21,8 @@ const sequelize = new Sequelize(
 );
 
 const MERCHANT_ID = 24; 
-const TOTAL_ORDERS = 1440 * 5; // 7200 orders for 24 hours
-const SUCCESS_RATE = 0.635; // 63.5%
+const TOTAL_ORDERS = 250; 
+const SUCCESS_RATE = 0.63; // 63%
 
 const CHANNELS = ['hdpay', 'yellow', 'payable', 'x2', 'upi super', 'cxpay', 'aapay', 'ipay', 'unitedpay'];
 
@@ -37,7 +38,7 @@ function generateOrderId(type) {
     return `${type === 'payin' ? 'PI' : 'PO'}${Math.floor(ts)}${Math.random().toString(36).substring(2, 5).toUpperCase()}`;
 }
 
-async function adjustOrders() {
+async function refineOrders() {
     try {
         await sequelize.authenticate();
         console.log('Connected.');
@@ -47,24 +48,28 @@ async function adjustOrders() {
         await sequelize.query(`DELETE FROM orders WHERE merchantId = ${MERCHANT_ID}`);
 
         const allOrders = [];
-        // End time: 2026-03-17 13:11:00 (Local IST)
-        const endTime = new Date(2026, 2, 17, 13, 11, 0); 
-        let baseTime = endTime.getTime();
+        // End time: Current time in IST (2026-03-17 13:13:00)
+        const endTime = new Date(2026, 2, 17, 13, 13, 0).getTime();
+        const startTime = endTime - (24 * 60 * 60 * 1000);
 
-        console.log(`Generating 7200 orders ending at ${endTime.toLocaleString()}...`);
+        console.log(`Generating 250 randomized orders...`);
 
         for (let i = 0; i < TOTAL_ORDERS; i++) {
-            const isPayin = i % 2 === 0; // 50/50 split
+            const isPayin = Math.random() < 0.5; // Random type
             const type = isPayin ? 'payin' : 'payout';
             const amount = Math.floor(Math.random() * (2000 - 100 + 1)) + 100;
             const feeRate = isPayin ? 0.05 : 0.03;
             const fee = parseFloat((amount * feeRate + (isPayin ? 0 : 6)).toFixed(2));
             const netAmount = parseFloat((amount - fee).toFixed(2));
+            
+            // Random success based on rate
             const status = Math.random() < SUCCESS_RATE ? 'success' : 'failed';
             const channel = CHANNELS[Math.floor(Math.random() * CHANNELS.length)];
             
-            // Exactly 12 seconds per order, going backwards
-            const createdAt = new Date(baseTime - (i * 12 * 1000));
+            // Fully random time within the 24 hour window
+            const randomTime = startTime + Math.random() * (endTime - startTime);
+            const createdAt = new Date(randomTime);
+            
             const dateStr = createdAt.getFullYear() + '-' + 
                            String(createdAt.getMonth() + 1).padStart(2, '0') + '-' + 
                            String(createdAt.getDate()).padStart(2, '0') + ' ' + 
@@ -92,18 +97,21 @@ async function adjustOrders() {
             if (type === 'payout') {
                 order.payoutType = 'bank';
                 order.payoutDetails = JSON.stringify({
-                    bankName: 'HDFC Bank',
+                    bankName: 'ICICI Bank',
                     accountNumber: `${Math.floor(Math.random() * 9000000000) + 1000000000}`,
-                    ifsc: 'HDFC0001234',
-                    accountName: 'Test Flow User'
+                    ifsc: 'ICIC0001234',
+                    accountName: 'Test Flow Merch'
                 });
             }
 
             allOrders.push(order);
         }
 
+        // Sort by createdAt for chronological insertion
+        allOrders.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
         console.log(`Inserting ${allOrders.length} orders...`);
-        const BATCH_SIZE = 500;
+        const BATCH_SIZE = 50;
         for (let i = 0; i < allOrders.length; i += BATCH_SIZE) {
             const batch = allOrders.slice(i, i + BATCH_SIZE);
             const values = batch.map(o => {
@@ -118,7 +126,7 @@ async function adjustOrders() {
             process.stdout.write(`\rInserted: ${Math.min(i + BATCH_SIZE, allOrders.length)}/${allOrders.length}`);
         }
 
-        console.log('\n✅ Orders adjusted successfully.');
+        console.log('\n✅ 250 Realistic orders created successfully.');
         process.exit(0);
     } catch (err) {
         console.error(err);
@@ -126,4 +134,4 @@ async function adjustOrders() {
     }
 }
 
-adjustOrders();
+refineOrders();
