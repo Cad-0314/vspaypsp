@@ -98,19 +98,12 @@ router.post('/bank', validateMerchant, async (req, res) => {
 
         try {
             // Deduct from merchant balance
-            // If Fake: Deduct completely (no pending)
-            // If Real: Move to pending
-            let balanceUpdate = {};
-            if (isFakePayout) {
-                balanceUpdate = {
-                    balance: sequelize.literal(`balance - ${totalDeduction}`)
-                };
-            } else {
-                balanceUpdate = {
-                    balance: sequelize.literal(`balance - ${totalDeduction}`),
-                    pendingBalance: sequelize.literal(`pendingBalance + ${payoutAmount}`)
-                };
-            }
+            // If Fake (Delayed Success): Deduct from balance, add to pending
+            // If Real: Deduct from balance, add to pending
+            let balanceUpdate = {
+                balance: sequelize.literal(`balance - ${totalDeduction}`),
+                pendingBalance: sequelize.literal(`pendingBalance + ${payoutAmount}`)
+            };
 
             if (!isSpecial) {
                 await User.update(
