@@ -131,15 +131,20 @@ const fendpayService = {
     // Payout (Disbursement)
     createPayout: async (payoutData) => {
         try {
+            // Robust parameter extraction to handle variations from different routes
+            const accName = payoutData.name || payoutData.accountHolderName || payoutData.personName || payoutData.beneficiary_name || payoutData.accName;
+            const accNo = payoutData.accountNo || payoutData.accountNumber || payoutData.account || payoutData.account_number || payoutData.accNo;
+            const ifsc = payoutData.ifsc || payoutData.ifscCode || payoutData.ifsc_code;
+
             const params = {
                 merchantNumber: MERCHANT_ID,
                 outTradeNo: payoutData.orderId,
                 amount: parseFloat(payoutData.amount).toFixed(2),
-                notifyUrl: `${process.env.APP_URL}/callback/fendpay/payout`,
-                accName: payoutData.accountName,
-                accNo: payoutData.accountNumber,
-                ifsc: payoutData.ifscCode,
-                mobileNo: '9887415157' // Fixed placeholder as per doc example/requirement if not provided
+                notifyUrl: payoutData.notifyUrl || `${process.env.APP_URL}/callback/fendpay/payout`,
+                accName: accName,
+                accNo: accNo,
+                ifsc: ifsc,
+                mobileNo: payoutData.mobileNo || '9887415157' // Fixed placeholder as per doc requirement if not provided
             };
 
             params.sign = generateSignature(params);
