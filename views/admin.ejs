@@ -15,13 +15,14 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <style>
         :root {
-            /* New Design System */
-            --sidebar-bg: #2B5797;
-            --sidebar-active: #1E4276;
-            --sidebar-hover: #3668A8;
-            --accent-cyan: #00D4AA;
-            --accent-purple: #7C3AED;
-            --bg-main: #F5F7FA;
+            /* Chinese Design System */
+            --sidebar-bg: #8B1A2B;
+            --sidebar-active: #6B1422;
+            --sidebar-hover: #A02238;
+            --accent-gold: #D4A849;
+            --accent-gold-light: #F8F0E0;
+            --accent-red: #C41230;
+            --bg-main: #FAFAF8;
             --card-bg: #FFFFFF;
             --text-primary: #1F2937;
             --text-secondary: #6B7280;
@@ -29,7 +30,7 @@
             --success: #10B981;
             --danger: #EF4444;
             --warning: #F59E0B;
-            --border-color: #E5E7EB;
+            --border-color: #E8E0D8;
         }
 
         * {
@@ -143,7 +144,7 @@
             transform: translateY(-50%);
             width: 3px;
             height: 70%;
-            background: var(--accent-cyan);
+            background: var(--accent-gold);
             border-radius: 0 2px 2px 0;
         }
 
@@ -203,9 +204,9 @@
         }
 
         .lang-btn.active {
-            background: #EFF6FF;
+            background: #FFF5F5;
             color: var(--sidebar-bg);
-            border-color: #BFDBFE;
+            border-color: #FECACA;
         }
 
         .user-profile-head {
@@ -272,14 +273,14 @@
         .stat-value {
             font-size: 1.75rem;
             font-weight: 600;
-            color: var(--accent-cyan);
+            color: var(--accent-red);
             font-style: italic;
             margin-bottom: 0.25rem;
         }
 
         .stat-label {
             font-size: 0.8rem;
-            color: var(--accent-cyan);
+            color: var(--accent-red);
             font-weight: 500;
         }
 
@@ -291,16 +292,16 @@
 
         .stat-icon {
             font-size: 2.5rem;
-            color: var(--accent-cyan);
+            color: var(--accent-red);
         }
 
         .stat-icon.purple {
-            color: var(--accent-purple);
+            color: var(--accent-gold);
         }
 
         .stat-card.purple .stat-value,
         .stat-card.purple .stat-label {
-            color: var(--accent-purple);
+            color: var(--accent-gold);
         }
 
         .card {
@@ -318,7 +319,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #FAFBFC;
+            background: #FDFAF8;
         }
 
         .card-title {
@@ -429,7 +430,7 @@
         }
 
         th {
-            background: #E8F0FE;
+            background: #FFF8F5;
             font-weight: 600;
             color: #374151;
             font-size: 0.8rem;
