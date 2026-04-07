@@ -1131,30 +1131,30 @@
                                 <div class="card-header"
                                     style="border-bottom: 1px solid #F3F4F6; padding: 1rem 1.25rem;">
                                     <div class="card-title" style="font-weight: 600; color: #111827;"><i
-                                            class="ri-flashlight-fill" style="color: #F59E0B;"></i>
+                                            class="ri-flashlight-line" style="color: var(--accent-gold);"></i>
                                         <%= t('quick_actions') %>
                                     </div>
                                 </div>
                                 <div class="card-body" style="padding: 1rem;">
                                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
                                         <button onclick="switchTab('paylink')"
-                                            style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; border-radius: 10px; padding: 1rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; font-size: 0.8rem; transition: transform 0.2s;">
-                                            <i class="ri-add-circle-fill" style="font-size: 1.5rem;"></i>
+                                            style="background: linear-gradient(135deg, var(--accent-red) 0%, #E8344A 100%); color: white; border: none; border-radius: 10px; padding: 1rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; font-size: 0.8rem; transition: all 0.2s; box-shadow: 0 2px 8px rgba(196,18,48,0.15);">
+                                            <i class="ri-add-circle-line" style="font-size: 1.5rem;"></i>
                                             <%= t('add_topup') %>
                                         </button>
                                         <button onclick="switchTab('settlements')"
-                                            style="background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); color: white; border: none; border-radius: 10px; padding: 1rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; font-size: 0.8rem; transition: transform 0.2s;">
-                                            <i class="ri-send-plane-fill" style="font-size: 1.5rem;"></i>
+                                            style="background: linear-gradient(135deg, #B8860B 0%, var(--accent-gold) 100%); color: white; border: none; border-radius: 10px; padding: 1rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; font-size: 0.8rem; transition: all 0.2s; box-shadow: 0 2px 8px rgba(212,168,73,0.2);">
+                                            <i class="ri-send-plane-line" style="font-size: 1.5rem;"></i>
                                             <%= t('return_u') %>
                                         </button>
                                         <button onclick="switchTab('payin')"
-                                            style="background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); color: white; border: none; border-radius: 10px; padding: 1rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; font-size: 0.8rem; transition: transform 0.2s;">
-                                            <i class="ri-file-list-3-fill" style="font-size: 1.5rem;"></i>
+                                            style="background: linear-gradient(135deg, #3D1525 0%, #6B1422 100%); color: white; border: none; border-radius: 10px; padding: 1rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; font-size: 0.8rem; transition: all 0.2s; box-shadow: 0 2px 8px rgba(61,21,37,0.2);">
+                                            <i class="ri-swap-box-line" style="font-size: 1.5rem;"></i>
                                             <%= t('collections') %>
                                         </button>
                                         <button onclick="switchTab('profile')"
-                                            style="background: linear-gradient(135deg, #EC4899 0%, #DB2777 100%); color: white; border: none; border-radius: 10px; padding: 1rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; font-size: 0.8rem; transition: transform 0.2s;">
-                                            <i class="ri-settings-4-fill" style="font-size: 1.5rem;"></i>
+                                            style="background: linear-gradient(135deg, #8B1A2B 0%, #A52538 100%); color: white; border: none; border-radius: 10px; padding: 1rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; font-size: 0.8rem; transition: all 0.2s; box-shadow: 0 2px 8px rgba(139,26,43,0.2);">
+                                            <i class="ri-key-2-line" style="font-size: 1.5rem;"></i>
                                             <%= t('settings') %>
                                         </button>
                                     </div>
@@ -1387,11 +1387,11 @@
                 <div id="tab-settlements" class="tab-content">
                     <!-- Header with gradient -->
                     <div
-                        style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); border-radius: 16px; padding: 1.5rem 2rem; margin-bottom: 1.5rem; color: white; display: flex; align-items: center; justify-content: space-between;">
+                        style="background: linear-gradient(135deg, #3D1525 0%, #6B1422 50%, #8B1A2B 100%); border-radius: 16px; padding: 1.5rem 2rem; margin-bottom: 1.5rem; color: white; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(212,168,73,0.15);">
                         <div style="display: flex; align-items: center; gap: 1rem;">
                             <div
-                                style="width: 56px; height: 56px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                                <i class="ri-exchange-funds-fill" style="font-size: 1.75rem;"></i>
+                                style="width: 56px; height: 56px; background: linear-gradient(135deg, #B8860B 0%, var(--accent-gold) 100%); border-radius: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(212,168,73,0.3);">
+                                <i class="ri-exchange-funds-line" style="font-size: 1.75rem;"></i>
                             </div>
                             <div>
                                 <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0;">
@@ -1415,10 +1415,10 @@
                     <!-- Settlement Request Form -->
                     <div class="card" style="margin-bottom: 1.5rem; border-radius: 12px; overflow: hidden;">
                         <div class="card-header"
-                            style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); padding: 1rem 1.5rem;">
+                            style="background: linear-gradient(135deg, var(--accent-red) 0%, #E8344A 100%); padding: 1rem 1.5rem;">
                             <div class="card-title"
                                 style="color: white; display: flex; align-items: center; gap: 0.5rem;">
-                                <i class="ri-add-circle-fill"></i>
+                                <i class="ri-add-circle-line"></i>
                                 <%= t('request_return_u') %>
                             </div>
                         </div>
@@ -1430,7 +1430,7 @@
                                     <div>
                                         <label
                                             style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
-                                            <i class="ri-money-rupee-circle-line" style="color: #10b981;"></i>
+                                            <i class="ri-money-cny-circle-line" style="color: var(--accent-red);"></i>
                                             <%= t('settlement_amount') %>
                                         </label>
                                         <div style="position: relative;">
@@ -1450,7 +1450,7 @@
                                     <div>
                                         <label
                                             style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
-                                            <i class="ri-currency-fill" style="color: #10b981;"></i>
+                                            <i class="ri-coin-line" style="color: var(--accent-gold);"></i>
                                             <%= t('settlement_method') %>
                                         </label>
                                         <select id="s-type" class="form-control"
@@ -1467,7 +1467,7 @@
                                 <div style="margin-bottom: 1.5rem;">
                                     <label
                                         style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
-                                        <i class="ri-wallet-3-line" style="color: #10b981;"></i>
+                                        <i class="ri-wallet-3-line" style="color: var(--accent-red);"></i>
                                         <%= t('usdt_address') %>
                                     </label>
                                     <textarea id="s-notes" class="form-control" rows="2" required
@@ -1481,8 +1481,8 @@
                                     </div>
                                 </div>
 
-                                <button type="submit" class="btn btn-primary"
-                                    style="width: 100%; padding: 1rem; font-size: 1rem; font-weight: 600; border-radius: 10px; background: linear-gradient(135deg, #059669 0%, #10b981 100%); border: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                    <button type="submit" class="btn btn-primary"
+                                    style="width: 100%; padding: 1rem; font-size: 1rem; font-weight: 600; border-radius: 10px; background: linear-gradient(135deg, var(--accent-red) 0%, #E8344A 100%); border: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem; box-shadow: 0 4px 12px rgba(196,18,48,0.2);">
                                     <i class="ri-send-plane-2-fill"></i>
                                     <%= t('submit_request') %>
                                 </button>
@@ -1630,10 +1630,10 @@
                 <div id="tab-profile" class="tab-content">
                     <!-- Settings Header -->
                     <div
-                        style="background: linear-gradient(135deg, #1E293B 0%, #334155 100%); border-radius: 16px; padding: 1.5rem 2rem; margin-bottom: 1.5rem; color: white; display: flex; align-items: center; gap: 1.5rem;">
+                        style="background: linear-gradient(135deg, #3D1525 0%, #6B1422 50%, #8B1A2B 100%); border-radius: 16px; padding: 1.5rem 2rem; margin-bottom: 1.5rem; color: white; display: flex; align-items: center; gap: 1.5rem; border: 1px solid rgba(212,168,73,0.15);">
                         <div
-                            style="width: 64px; height: 64px; background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center;">
-                            <i class="ri-settings-4-fill" style="font-size: 2rem;"></i>
+                            style="width: 64px; height: 64px; background: linear-gradient(135deg, #B8860B 0%, var(--accent-gold) 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(212,168,73,0.3);">
+                            <i class="ri-key-2-line" style="font-size: 2rem;"></i>
                         </div>
                         <div>
                             <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem;">
@@ -1715,14 +1715,14 @@
                         <!-- IP Whitelist Card -->
                         <div class="card" style="border-radius: 12px; overflow: hidden;">
                             <div class="card-header"
-                                style="background: linear-gradient(135deg, #059669 0%, #10B981 100%); padding: 1rem 1.25rem;">
-                                <div class="card-title" style="color: white;"><i class="ri-shield-keyhole-fill"></i>
+                                style="background: linear-gradient(135deg, #B8860B 0%, var(--accent-gold) 100%); padding: 1rem 1.25rem;">
+                                <div class="card-title" style="color: white;"><i class="ri-shield-check-line"></i>
                                     <%= t('ip_whitelist') %>
                                 </div>
                             </div>
                             <div class="card-body" style="padding: 1.5rem;">
                                 <p style="color: #6B7280; font-size: 0.85rem; margin-bottom: 1rem; line-height: 1.5;">
-                                    <i class="ri-information-line" style="color: #10B981;"></i> Only these IPs can make
+                                    <i class="ri-information-line" style="color: var(--accent-gold);"></i> Only these IPs can make
                                     API calls. Leave empty to allow all.
                                 </p>
                                 <div id="ip-list"
@@ -1749,10 +1749,10 @@
                 <div id="tab-security" class="tab-content">
                     <!-- Security Header -->
                     <div
-                        style="background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); border-radius: 16px; padding: 1.5rem 2rem; margin-bottom: 1.5rem; color: white; display: flex; align-items: center; gap: 1.5rem;">
+                        style="background: linear-gradient(135deg, #3D1525 0%, #6B1422 50%, #8B1A2B 100%); border-radius: 16px; padding: 1.5rem 2rem; margin-bottom: 1.5rem; color: white; display: flex; align-items: center; gap: 1.5rem; border: 1px solid rgba(212,168,73,0.15);">
                         <div
-                            style="width: 64px; height: 64px; background: rgba(255,255,255,0.2); border-radius: 16px; display: flex; align-items: center; justify-content: center;">
-                            <i class="ri-shield-keyhole-fill" style="font-size: 2rem;"></i>
+                            style="width: 64px; height: 64px; background: rgba(212,168,73,0.15); border: 2px solid rgba(212,168,73,0.3); border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                            <i class="ri-lock-2-line" style="font-size: 2rem; color: var(--accent-gold);"></i>
                         </div>
                         <div>
                             <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem;">
@@ -1764,20 +1764,60 @@
                         </div>
                     </div>
 
+                    <!-- Security Status Row -->
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+                        <div style="background: white; border-radius: 12px; padding: 1.25rem; border: 1px solid #E8E0D8; display: flex; align-items: center; gap: 1rem;">
+                            <div style="width: 44px; height: 44px; background: linear-gradient(135deg, var(--accent-red) 0%, #E8344A 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                <i class="ri-lock-password-line" style="color: white; font-size: 1.25rem;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.75rem; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px;"><%= t('password') || 'Password' %></div>
+                                <div style="font-weight: 600; color: #111827; display: flex; align-items: center; gap: 0.4rem;">
+                                    <span style="width: 8px; height: 8px; background: #10B981; border-radius: 50%; display: inline-block; animation: pulse 2s infinite;"></span>
+                                    <%= t('strong') || 'Strong' %>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="background: white; border-radius: 12px; padding: 1.25rem; border: 1px solid #E8E0D8; display: flex; align-items: center; gap: 1rem;">
+                            <div style="width: 44px; height: 44px; background: linear-gradient(135deg, #B8860B 0%, var(--accent-gold) 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                <i class="ri-smartphone-line" style="color: white; font-size: 1.25rem;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.75rem; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px;">2FA</div>
+                                <div style="font-weight: 600; color: #111827; display: flex; align-items: center; gap: 0.4rem;">
+                                    <span style="width: 8px; height: 8px; background: #10B981; border-radius: 50%; display: inline-block; animation: pulse 2s infinite;"></span>
+                                    <%= t('enabled') || 'Enabled' %>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="background: white; border-radius: 12px; padding: 1.25rem; border: 1px solid #E8E0D8; display: flex; align-items: center; gap: 1rem;">
+                            <div style="width: 44px; height: 44px; background: linear-gradient(135deg, #3D1525 0%, #6B1422 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                <i class="ri-shield-check-line" style="color: var(--accent-gold); font-size: 1.25rem;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.75rem; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px;"><%= t('ip_whitelist') || 'IP Whitelist' %></div>
+                                <div style="font-weight: 600; color: #111827; display: flex; align-items: center; gap: 0.4rem;" id="sec-ip-status">
+                                    <span style="width: 8px; height: 8px; background: #F59E0B; border-radius: 50%; display: inline-block;"></span>
+                                    <%= t('configured') || 'Configured' %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Security Cards -->
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                         <!-- Change Password Card -->
                         <div class="card" style="border-radius: 12px; overflow: hidden;">
                             <div class="card-header"
-                                style="background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); padding: 1rem 1.25rem;">
-                                <div class="card-title" style="color: white;"><i class="ri-lock-password-fill"></i>
+                                style="background: linear-gradient(135deg, #3D1525 0%, #6B1422 100%); padding: 1rem 1.25rem;">
+                                <div class="card-title" style="color: white;"><i class="ri-lock-password-line"></i>
                                     <%= t('change_password') || 'Change Password' %>
                                 </div>
                             </div>
                             <div class="card-body" style="padding: 1.5rem;">
                                 <p
                                     style="color: #6B7280; font-size: 0.85rem; margin-bottom: 1.25rem; line-height: 1.5;">
-                                    <i class="ri-information-line" style="color: #3B82F6;"></i>
+                                    <i class="ri-information-line" style="color: var(--accent-red);"></i>
                                     Update your account password regularly for better security.
                                 </p>
                                 <form onsubmit="changePassword(event)">
@@ -1818,8 +1858,8 @@
                         <!-- Reset 2FA Card -->
                         <div class="card" style="border-radius: 12px; overflow: hidden;">
                             <div class="card-header"
-                                style="background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); padding: 1rem 1.25rem;">
-                                <div class="card-title" style="color: white;"><i class="ri-smartphone-fill"></i>
+                                style="background: linear-gradient(135deg, #B8860B 0%, var(--accent-gold) 100%); padding: 1rem 1.25rem;">
+                                <div class="card-title" style="color: white;"><i class="ri-smartphone-line"></i>
                                     <%= t('reset_2fa') || 'Two-Factor Authentication' %>
                                 </div>
                             </div>
@@ -1827,7 +1867,7 @@
                                 <div
                                     style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding: 1rem; background: #F3F4F6; border-radius: 10px;">
                                     <div
-                                        style="width: 48px; height: 48px; background: #10B981; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                        style="width: 48px; height: 48px; background: var(--accent-gold); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                                         <i class="ri-check-line" style="color: white; font-size: 1.5rem;"></i>
                                     </div>
                                     <div>
