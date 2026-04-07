@@ -876,7 +876,7 @@
                 <!-- Main -->
                 <div class="nav-category">
                     <div class="nav-item active" onclick="switchTab('dashboard')">
-                        <i class="ri-dashboard-3-line"></i>
+                        <i class="ri-compass-3-line"></i>
                         <%= t('nav_dashboard') %>
                     </div>
                 </div>
@@ -887,11 +887,11 @@
                         <%= t('nav_transactions') %>
                     </div>
                     <div class="nav-item" onclick="switchTab('payin')">
-                        <i class="ri-arrow-left-down-line"></i>
+                        <i class="ri-download-cloud-2-line"></i>
                         <%= t('nav_payin') %>
                     </div>
                     <div class="nav-item" onclick="switchTab('payout')">
-                        <i class="ri-arrow-right-up-line"></i>
+                        <i class="ri-upload-cloud-2-line"></i>
                         <%= t('nav_payout') %>
                     </div>
                 </div>
@@ -902,11 +902,11 @@
                         <%= t('nav_finance') %>
                     </div>
                     <div class="nav-item" onclick="switchTab('settlements')">
-                        <i class="ri-bank-card-line"></i>
+                        <i class="ri-wallet-2-line"></i>
                         <%= t('nav_settlements') %>
                     </div>
                     <div class="nav-item" onclick="switchTab('paylink')">
-                        <i class="ri-wallet-3-line"></i>
+                        <i class="ri-link-m"></i>
                         <%= t('nav_paylink') %>
                     </div>
                 </div>
@@ -917,11 +917,11 @@
                         <%= t('nav_profile') %>
                     </div>
                     <div class="nav-item" onclick="switchTab('profile')">
-                        <i class="ri-settings-3-line"></i>
+                        <i class="ri-key-2-line"></i>
                         <%= t('nav_profile') %>
                     </div>
                     <div class="nav-item" onclick="switchTab('security')">
-                        <i class="ri-shield-keyhole-line"></i>
+                        <i class="ri-lock-2-line"></i>
                         <%= t('nav_security') %>
                     </div>
                 </div>
@@ -931,8 +931,8 @@
             <!-- User Info & Actions -->
             <div class="user-info">
                 <a href="/auth/logout" class="btn"
-                    style="width:100%; justify-content:center; background:rgba(220, 38, 38, 0.15); color:#fca5a5; border:1px solid rgba(220, 38, 38, 0.3); display:flex; align-items:center; gap:0.5rem; padding:0.5rem; border-radius:6px; text-decoration:none; font-size:0.875rem;">
-                    <i class="ri-logout-box-r-line"></i>
+                    style="width:100%; justify-content:center; background:rgba(212,168,73,0.08); color:var(--accent-gold); border:1px solid rgba(212,168,73,0.2); border-radius:10px; display:flex; align-items:center; gap:0.5rem; padding:0.5rem; text-decoration:none; font-size:0.85rem;">
+                    <i class="ri-door-open-line"></i>
                     <%= t('logout') %>
                 </a>
             </div>
@@ -962,7 +962,7 @@
                             <%= t('user_role_merchant') %>
                         </div>
                     </div>
-                    <div class="user-avatar" style="width: 36px; height: 36px; background: var(--sidebar-bg);">
+                    <div class="user-avatar" style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent-red) 0%, #E8344A 100%); border-radius: 10px;">
                         <%= user.username.charAt(0).toUpperCase() %>
                     </div>
                 </div>
@@ -972,12 +972,12 @@
                 <div id="tab-dashboard" class="tab-content active">
                     <!-- Welcome Banner -->
                     <div
-                        style="background: linear-gradient(135deg, #2B5797 0%, #1E88E5 50%, #00BCD4 100%); border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem; color: white; position: relative; overflow: hidden;">
+                        style="background: linear-gradient(135deg, #3D1525 0%, #6B1422 50%, #8B1A2B 100%); border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem; color: white; position: relative; overflow: hidden; border: 1px solid rgba(212,168,73,0.15);">
                         <div
-                            style="position: absolute; right: -50px; top: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;">
+                            style="position: absolute; right: -50px; top: -50px; width: 200px; height: 200px; background: rgba(212,168,73,0.08); border-radius: 50%;">
                         </div>
                         <div
-                            style="position: absolute; right: 50px; bottom: -30px; width: 120px; height: 120px; background: rgba(255,255,255,0.05); border-radius: 50%;">
+                            style="position: absolute; right: 50px; bottom: -30px; width: 120px; height: 120px; background: rgba(212,168,73,0.05); border-radius: 50%;">
                         </div>
                         <div style="position: relative; z-index: 1;">
                             <h1 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem;">
@@ -1019,8 +1019,8 @@
                         <div
                             style="background: white; border-radius: 12px; padding: 1.25rem; border: 1px solid #E5E7EB; position: relative; overflow: hidden;">
                             <div
-                                style="position: absolute; right: 1rem; top: 1rem; width: 48px; height: 48px; background: linear-gradient(135deg, #10B981 0%, #059669 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                                <i class="ri-arrow-down-circle-fill" style="color: white; font-size: 1.5rem;"></i>
+                                style="position: absolute; right: 1rem; top: 1rem; width: 48px; height: 48px; background: linear-gradient(135deg, var(--accent-red) 0%, #E8344A 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="ri-download-cloud-2-line" style="color: white; font-size: 1.5rem;"></i>
                             </div>
                             <div
                                 style="font-size: 0.75rem; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">
@@ -1029,8 +1029,8 @@
                             <div style="font-size: 1.75rem; font-weight: 700; color: #111827;" id="stat-today-vol">₹0.00
                             </div>
                             <div
-                                style="font-size: 0.8rem; color: #10B981; margin-top: 0.5rem; display: flex; align-items: center; gap: 0.25rem;">
-                                <i class="ri-arrow-up-line"></i> <span id="stat-today-count">0</span>
+                                style="font-size: 0.8rem; color: var(--accent-red); margin-top: 0.5rem; display: flex; align-items: center; gap: 0.25rem;">
+                                <i class="ri-arrow-up-s-line"></i> <span id="stat-today-count">0</span>
                                 <%= t('transactions') %>
                             </div>
                         </div>
@@ -1039,8 +1039,8 @@
                         <div
                             style="background: white; border-radius: 12px; padding: 1.25rem; border: 1px solid #E5E7EB; position: relative; overflow: hidden;">
                             <div
-                                style="position: absolute; right: 1rem; top: 1rem; width: 48px; height: 48px; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                                <i class="ri-arrow-up-circle-fill" style="color: white; font-size: 1.5rem;"></i>
+                                style="position: absolute; right: 1rem; top: 1rem; width: 48px; height: 48px; background: linear-gradient(135deg, #B8860B 0%, var(--accent-gold) 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="ri-upload-cloud-2-line" style="color: white; font-size: 1.5rem;"></i>
                             </div>
                             <div
                                 style="font-size: 0.75rem; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">
@@ -1049,8 +1049,8 @@
                             <div style="font-size: 1.75rem; font-weight: 700; color: #111827;" id="stat-payout-vol">
                                 ₹0.00</div>
                             <div
-                                style="font-size: 0.8rem; color: #F59E0B; margin-top: 0.5rem; display: flex; align-items: center; gap: 0.25rem;">
-                                <i class="ri-arrow-up-line"></i> <span id="stat-payout-count">0</span>
+                                style="font-size: 0.8rem; color: var(--accent-gold); margin-top: 0.5rem; display: flex; align-items: center; gap: 0.25rem;">
+                                <i class="ri-arrow-up-s-line"></i> <span id="stat-payout-count">0</span>
                                 <%= t('transactions') %>
                             </div>
                         </div>
@@ -1059,8 +1059,8 @@
                         <div
                             style="background: white; border-radius: 12px; padding: 1.25rem; border: 1px solid #E5E7EB; position: relative; overflow: hidden;">
                             <div
-                                style="position: absolute; right: 1rem; top: 1rem; width: 48px; height: 48px; background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                                <i class="ri-pie-chart-fill" style="color: white; font-size: 1.5rem;"></i>
+                                style="position: absolute; right: 1rem; top: 1rem; width: 48px; height: 48px; background: linear-gradient(135deg, #3D1525 0%, #6B1422 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="ri-donut-chart-line" style="color: var(--accent-gold); font-size: 1.5rem;"></i>
                             </div>
                             <div
                                 style="font-size: 0.75rem; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">
@@ -1068,7 +1068,7 @@
                             </div>
                             <div style="font-size: 1.75rem; font-weight: 700; color: #111827;" id="stat-success-rate">0%
                             </div>
-                            <div style="font-size: 0.8rem; color: #8B5CF6; margin-top: 0.5rem;">
+                            <div style="font-size: 0.8rem; color: var(--accent-gold); margin-top: 0.5rem;">
                                 <%= t('last_24_hours') %>
                             </div>
                         </div>
@@ -1077,15 +1077,15 @@
                         <div
                             style="background: white; border-radius: 12px; padding: 1.25rem; border: 1px solid #E5E7EB; position: relative; overflow: hidden;">
                             <div
-                                style="position: absolute; right: 1rem; top: 1rem; width: 48px; height: 48px; background: linear-gradient(135deg, #EC4899 0%, #DB2777 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                                <i class="ri-time-fill" style="color: white; font-size: 1.5rem;"></i>
+                                style="position: absolute; right: 1rem; top: 1rem; width: 48px; height: 48px; background: linear-gradient(135deg, var(--accent-red) 0%, #E8344A 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="ri-hourglass-2-line" style="color: white; font-size: 1.5rem;"></i>
                             </div>
                             <div
                                 style="font-size: 0.75rem; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">
                                 <%= t('pending') %>
                             </div>
                             <div style="font-size: 1.75rem; font-weight: 700; color: #111827;" id="stat-pending">0</div>
-                            <div style="font-size: 0.8rem; color: #EC4899; margin-top: 0.5rem;">
+                            <div style="font-size: 0.8rem; color: var(--accent-red); margin-top: 0.5rem;">
                                 <%= t('awaiting_processing') %>
                             </div>
                         </div>
@@ -1099,7 +1099,7 @@
                                 <div style="display: flex; align-items: center; justify-content: space-between;">
                                     <div>
                                         <div class="card-title" style="font-weight: 600; color: #111827;"><i
-                                                class="ri-bar-chart-grouped-fill" style="color: #2B5797;"></i>
+                                                class="ri-line-chart-line" style="color: var(--accent-red);"></i>
                                             <%= t('transaction_overview') %>
                                         </div>
                                         <div style="font-size: 0.8rem; color: #6B7280; margin-top: 0.25rem;">
@@ -1166,7 +1166,7 @@
                                 <div class="card-header"
                                     style="border-bottom: 1px solid #F3F4F6; padding: 1rem 1.25rem;">
                                     <div class="card-title" style="font-weight: 600; color: #111827;"><i
-                                            class="ri-user-3-fill" style="color: #2B5797;"></i>
+                                            class="ri-user-3-fill" style="color: var(--accent-red);"></i>
                                         <%= t('account_info') %>
                                     </div>
                                 </div>
@@ -1543,7 +1543,7 @@
                         <!-- Topup Form -->
                         <div class="card">
                             <div class="card-header"
-                                style="background: linear-gradient(135deg, #2B5797 0%, #3668A8 100%); color: white;">
+                                style="background: linear-gradient(135deg, #3D1525 0%, #6B1422 100%); color: white;">
                                 <div class="card-title" style="color: white;"><i class="ri-add-circle-line"></i>
                                     <%= t('topup_title') %>
                                 </div>
@@ -1650,7 +1650,7 @@
                         <!-- API Credentials Card -->
                         <div class="card" style="border-radius: 12px; overflow: hidden;">
                             <div class="card-header"
-                                style="background: linear-gradient(135deg, #2B5797 0%, #3668A8 100%); padding: 1rem 1.25rem;">
+                                style="background: linear-gradient(135deg, #3D1525 0%, #6B1422 100%); padding: 1rem 1.25rem;">
                                 <div class="card-title" style="color: white;"><i class="ri-key-2-fill"></i>
                                     <%= t('api_credentials') %>
                                 </div>
@@ -1695,7 +1695,7 @@
                                     </small>
                                 </div>
                                 <a href="/docs"
-                                    style="display: block; padding: 0.875rem 1rem; background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%); border-radius: 8px; text-decoration: none; color: #2B5797;">
+                                    style="display: block; padding: 0.875rem 1rem; background: linear-gradient(135deg, #FFF5F5 0%, #FEF2F2 100%); border-radius: 8px; text-decoration: none; color: var(--accent-red);">
                                     <div style="display: flex; align-items: center; gap: 0.75rem;">
                                         <i class="ri-book-open-fill" style="font-size: 1.25rem;"></i>
                                         <div>

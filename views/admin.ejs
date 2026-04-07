@@ -770,7 +770,7 @@
                 <!-- Main -->
                 <div class="nav-category">
                     <div class="nav-item active" onclick="switchTab('dashboard')">
-                        <i class="ri-dashboard-3-line"></i>
+                        <i class="ri-compass-3-line"></i>
                         <%= t('nav_dashboard') %>
                     </div>
                 </div>
@@ -781,11 +781,11 @@
                         <%= t('nav_transactions') %>
                     </div>
                     <div class="nav-item" onclick="switchTab('orders')">
-                        <i class="ri-file-list-3-line"></i>
+                        <i class="ri-swap-box-line"></i>
                         <%= t('orders') %>
                     </div>
                     <div class="nav-item" onclick="switchTab('settlements')">
-                        <i class="ri-bank-card-line"></i>
+                        <i class="ri-wallet-2-line"></i>
                         <%= t('settlements') %>
                     </div>
                 </div>
@@ -796,19 +796,19 @@
                         <%= t('nav_management') %>
                     </div>
                     <div class="nav-item" onclick="switchTab('merchants')">
-                        <i class="ri-team-line"></i>
+                        <i class="ri-group-2-line"></i>
                         <%= t('merchants') %>
                     </div>
                     <div class="nav-item" onclick="switchTab('channels')">
-                        <i class="ri-server-line"></i>
+                        <i class="ri-database-2-line"></i>
                         <%= t('channels') %>
                     </div>
                     <div class="nav-item" onclick="switchTab('smartchannel')">
-                        <i class="ri-route-line"></i>
+                        <i class="ri-git-branch-line"></i>
                         <%= t('nav_smart_channel') %>
                     </div>
                     <div class="nav-item" onclick="switchTab('bankaccount')">
-                        <i class="ri-bank-line"></i>
+                        <i class="ri-building-2-line"></i>
                         <%= t('nav_bank_account') %>
                     </div>
                 </div>
@@ -819,20 +819,20 @@
                         <%= t('nav_operations') %>
                     </div>
                     <div class="nav-item" onclick="switchTab('manualpayout')">
-                        <i class="ri-bank-card-2-line"></i>
+                        <i class="ri-send-plane-2-line"></i>
                         <%= t('nav_manual_payout') %>
                     </div>
                     <div class="nav-item" onclick="switchTab('broadcast')">
-                        <i class="ri-broadcast-line"></i>
+                        <i class="ri-notification-3-line"></i>
                         <%= t('nav_broadcast') %>
                     </div>
                 </div>
             </nav>
 
-            <div style="padding: 1rem; border-top: 1px solid rgba(255,255,255,0.08);">
+            <div style="padding: 1rem; border-top: 1px solid rgba(212,168,73,0.15);">
                 <a href="/auth/logout" class="btn"
-                    style="width:100%; justify-content:center; background:rgba(220, 38, 38, 0.15); color:#fca5a5; border:1px solid rgba(220, 38, 38, 0.3);">
-                    <i class="ri-logout-box-r-line"></i>
+                    style="width:100%; justify-content:center; background:rgba(212,168,73,0.08); color:var(--accent-gold); border:1px solid rgba(212,168,73,0.2); border-radius:10px;">
+                    <i class="ri-door-open-line"></i>
                     <%= t('logout') %>
                 </a>
             </div>
@@ -840,7 +840,7 @@
 
         <main class="main-content">
             <header class="top-header">
-                <div class="mobile-toggle" onclick="toggleSidebar()"><i class="ri-menu-2-fill"></i></div>
+                <div class="mobile-toggle" onclick="toggleSidebar()"><i class="ri-menu-4-line"></i></div>
 
                 <div class="lang-switcher">
                     <a href="?lang=en" class="lang-btn <%= currentLang === 'en' ? 'active' : '' %>">
@@ -863,7 +863,7 @@
                         </div>
                     </div>
                     <div class="user-avatar-small"
-                        style="width: 36px; height: 36px; background: var(--sidebar-bg); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-weight: 600;">
+                        style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent-red) 0%, #E8344A 100%); border-radius: 10px; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem;">
                         <%= user.username.charAt(0).toUpperCase() %>
                     </div>
                 </div>
@@ -883,14 +883,15 @@
                             </div>
                         </div>
                         <button class="btn" onclick="openBoostModal()"
-                            style="background:transparent; color:#E5E7EB; border:none;"
+                            style="background:rgba(212,168,73,0.1); color:var(--accent-gold); border:1px solid rgba(212,168,73,0.2); border-radius:10px;"
                             title="<%= t('system_optimization') %>">
-                            <i class="ri-settings-4-line"></i>
+                            <i class="ri-equalizer-2-line"></i>
                         </button>
                     </div>
 
                     <div class="stats-grid">
                         <div class="stat-card">
+                            <i class="ri-money-cny-circle-line stat-icon"></i>
                             <div class="stat-info">
                                 <div class="stat-value">₹<span id="stat-profit">0.00</span></div>
                                 <div class="stat-label">
@@ -900,9 +901,9 @@
                                     <%= t('todays_earnings') %>
                                 </div>
                             </div>
-                            <i class="ri-star-fill stat-icon"></i>
                         </div>
                         <div class="stat-card purple">
+                            <i class="ri-wallet-3-line stat-icon purple"></i>
                             <div class="stat-info">
                                 <div class="stat-value">₹<span id="stat-merchant-balance">0.00</span></div>
                                 <div class="stat-label">
@@ -912,9 +913,9 @@
                                     <%= t('total_balance') %>
                                 </div>
                             </div>
-                            <i class="ri-file-list-3-fill stat-icon purple"></i>
                         </div>
                         <div class="stat-card">
+                            <i class="ri-bar-chart-box-line stat-icon"></i>
                             <div class="stat-info">
                                 <div class="stat-value">₹<span id="stat-today-payin">0.00</span></div>
                                 <div class="stat-label">
@@ -924,9 +925,9 @@
                                     <%= t('todays_volume') %>
                                 </div>
                             </div>
-                            <i class="ri-star-fill stat-icon"></i>
                         </div>
                         <div class="stat-card purple">
+                            <i class="ri-user-star-line stat-icon purple"></i>
                             <div class="stat-info">
                                 <div class="stat-value"><span id="stat-merchants">0</span></div>
                                 <div class="stat-label">
@@ -936,7 +937,6 @@
                                     <%= t('total_count') %>
                                 </div>
                             </div>
-                            <i class="ri-file-list-3-fill stat-icon purple"></i>
                         </div>
                     </div>
 
