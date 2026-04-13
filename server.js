@@ -26,6 +26,11 @@ const v2CollectionRoutes = require('./src/routes/api/v2/collection');
 const v2TransferRoutes = require('./src/routes/api/v2/transfer');
 const v2AccountRoutes = require('./src/routes/api/v2/account');
 
+// V3 API Routes
+const v3DepositRoutes = require('./src/routes/api/v3/deposit');
+const v3WithdrawRoutes = require('./src/routes/api/v3/withdraw');
+const v3WalletRoutes = require('./src/routes/api/v3/wallet');
+
 // Seeder
 const seedDatabase = require('./src/seeders/init');
 
@@ -106,6 +111,13 @@ app.use('/api/balance', balanceRoutes);
 app.use('/v2/collection', v2CollectionRoutes);
 app.use('/v2/transfer', v2TransferRoutes);
 app.use('/v2/account', v2AccountRoutes);
+
+// ============================================
+// V3 API Routes (Latest)
+// ============================================
+app.use('/v3/deposit', v3DepositRoutes);
+app.use('/v3/withdraw', v3WithdrawRoutes);
+app.use('/v3/wallet', v3WalletRoutes);
 
 // ============================================
 // Callback Routes (from upstream providers)
