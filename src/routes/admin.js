@@ -248,11 +248,29 @@ router.put('/merchants/:id', async (req, res) => {
         if (typeof canPayout === 'boolean') updates.canPayout = canPayout;
 
         // Currency settings
-        if (defaultCurrency) updates.defaultCurrency = defaultCurrency.toUpperCase();
-        if (allowedCurrencies && Array.isArray(allowedCurrencies)) {
-            const filtered = allowedCurrencies.map(c => c.toUpperCase()).filter(c => SUPPORTED_CURRENCIES.includes(c));
-            if (filtered.length > 0) updates.allowedCurrencies = JSON.stringify(filtered);
+        let resolvedCurrency = merchant.defaultCurrency;
+        if (defaultCurrency) {
+            resolvedCurrency = defaultCurrency.toUpperCase();
+            updates.defaultCurrency = resolvedCurrency;
         }
+
+        let resolvedAllowed = [];
+        try { resolvedAllowed = JSON.parse(merchant.allowedCurrencies || '["INR"]'); } catch(e){}
+
+        if (allowedCurrencies && Array.isArray(allowedCurrencies)) {
+            resolvedAllowed = allowedCurrencies.map(c => c.toUpperCase()).filter(c => SUPPORTED_CURRENCIES.includes(c));
+        }
+
+        if (!resolvedAllowed.includes(resolvedCurrency)) resolvedAllowed.push(resolvedCurrency);
+        updates.allowedCurrencies = JSON.stringify(resolvedAllowed);
+
+        // Ensure balances object has keys for all allowed currencies
+        let currentBalances = {};
+        try { currentBalances = JSON.parse(merchant.balances || '{"INR":0}'); } catch(e) {}
+        resolvedAllowed.forEach(c => {
+            if (currentBalances[c] === undefined) currentBalances[c] = 0;
+        });
+        updates.balances = JSON.stringify(currentBalances);
 
         let rates = {};
         try { rates = JSON.parse(merchant.channel_rates || '{}'); } catch (e) { }
