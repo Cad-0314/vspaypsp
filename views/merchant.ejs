@@ -992,7 +992,7 @@
                                     <div style="font-size: 0.8rem; opacity: 0.8; margin-bottom: 0.25rem;">
                                         <%= t('available_balance') %>
                                     </div>
-                                    <div style="font-size: 2rem; font-weight: 700;" id="stat-balance">₹<%=
+                                    <div style="font-size: 2rem; font-weight: 700;" id="stat-balance"><%= (typeof currencies !== "undefined" ? (currencies[user.defaultCurrency || "INR"] || currencies["INR"]).symbol : "₹") %><%=
                                             parseFloat(user.balance).toFixed(2) %>
                                     </div>
                                 </div>
@@ -1026,7 +1026,7 @@
                                 style="font-size: 0.75rem; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">
                                 <%= t('todays_collection') %>
                             </div>
-                            <div style="font-size: 1.75rem; font-weight: 700; color: #111827;" id="stat-today-vol">₹0.00
+                            <div style="font-size: 1.75rem; font-weight: 700; color: #111827;" id="stat-today-vol"><%=(typeof currencies!=="undefined"?(currencies[user.defaultCurrency||"INR"]||currencies["INR"]).symbol:"₹")%>0.00
                             </div>
                             <div
                                 style="font-size: 0.8rem; color: var(--accent-red); margin-top: 0.5rem; display: flex; align-items: center; gap: 0.25rem;">
@@ -1406,7 +1406,7 @@
                             <div style="font-size: 0.75rem; opacity: 0.7; text-transform: uppercase;">
                                 <%= t('available_balance') %>
                             </div>
-                            <div style="font-size: 1.75rem; font-weight: 700;">₹<%=
+                            <div style="font-size: 1.75rem; font-weight: 700;"><%=(typeof currencies!=="undefined"?(currencies[user.defaultCurrency||"INR"]||currencies["INR"]).symbol:"₹")%><%=
                                     parseFloat(user.balance).toLocaleString('en-IN') %>
                             </div>
                         </div>
@@ -1435,14 +1435,14 @@
                                         </label>
                                         <div style="position: relative;">
                                             <span
-                                                style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); font-size: 1.25rem; color: #94a3b8; font-weight: 600;">₹</span>
+                                                style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); font-size: 1.25rem; color: #94a3b8; font-weight: 600;"><%= (typeof currencies !== "undefined" ? (currencies[user.defaultCurrency || "INR"] || currencies["INR"]).symbol : "₹") %></span>
                                             <input type="number" id="s-amount" class="form-control" required min="100"
                                                 style="padding-left: 2.5rem; height: 52px; font-size: 1.1rem; font-weight: 600; border-radius: 10px; border: 2px solid #e2e8f0;"
                                                 placeholder="<%= t('settlement_amount_placeholder') %>"
                                                 max="<%= user.balance %>">
                                         </div>
                                         <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.5rem;">
-                                            <i class="ri-information-line"></i> Minimum: ₹100 | Maximum: ₹<%=
+                                            <i class="ri-information-line"></i> Minimum: <%= (typeof currencies !== "undefined" ? (currencies[user.defaultCurrency || "INR"] || currencies["INR"]).symbol : "₹") %><%= (typeof currencies !== "undefined" ? (currencies[user.defaultCurrency || "INR"] || currencies["INR"]).minPayin : 100) %> | Maximum: <%=(typeof currencies!=="undefined"?(currencies[user.defaultCurrency||"INR"]||currencies["INR"]).symbol:"₹")%><%=
                                                 parseFloat(user.balance).toLocaleString('en-IN') %>
                                         </div>
                                     </div>
@@ -1555,7 +1555,7 @@
                                     </label>
                                     <div style="position: relative; margin-bottom: 1.25rem;">
                                         <span
-                                            style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); font-size: 1.25rem; color: #6B7280;">₹</span>
+                                            style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); font-size: 1.25rem; color: #6B7280;"><%=(typeof currencies!=="undefined"?(currencies[user.defaultCurrency||"INR"]||currencies["INR"]).symbol:"₹")%></span>
                                         <input type="number" id="topup-amount" class="form-control"
                                             style="padding-left: 2.5rem; padding-right: 1rem; font-size: 1.25rem; height: 56px; border-radius: 8px;"
                                             required min="100" placeholder="0.00">
@@ -1940,12 +1940,12 @@
                 <form onsubmit="submitSettlement(event)">
                     <div style="margin-bottom: 1rem;">
                         <label class="stat-label">
-                            <%= t('amount') %> (₹)
+                            <%= t('amount') %> (<%=(typeof currencies!=="undefined"?(currencies[user.defaultCurrency||"INR"]||currencies["INR"]).symbol:"₹")%>)
                         </label>
                         <input type="number" id="settle-amount" class="form-control" required min="100"
                             max="<%= user.balance %>">
                         <small style="color: var(--text-muted);">
-                            <%= t('available_balance') %>: ₹<%= parseFloat(user.balance).toFixed(2) %>
+                            <%= t('available_balance') %>: <%= (typeof currencies !== "undefined" ? (currencies[user.defaultCurrency || "INR"] || currencies["INR"]).symbol : "₹") %><%= parseFloat(user.balance).toFixed(2) %>
                         </small>
                     </div>
                     <div style="margin-bottom: 1rem;">
@@ -2025,11 +2025,11 @@
                     if (data.success) {
                         const s = data.stats;
                         // Today's Collection
-                        document.getElementById('stat-today-vol').innerText = '₹' + s.today.payin.toFixed(2);
+                        document.getElementById('stat-today-vol').innerText = window.CS + s.today.payin.toFixed(2);
                         document.getElementById('stat-today-count').innerText = s.today.payinSuccessCount || 0;
                         // Today's Payout
                         if (document.getElementById('stat-payout-vol')) {
-                            document.getElementById('stat-payout-vol').innerText = '₹' + (s.today.payout || 0).toFixed(2);
+                            document.getElementById('stat-payout-vol').innerText = window.CS + (s.today.payout || 0).toFixed(2);
                         }
                         document.getElementById('stat-payout-count').innerText = s.today.payoutSuccessCount || 0;
                         // Success Rate
@@ -2175,8 +2175,8 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <div style="font-weight: 700; font-size: 1rem; color: #0f172a;">₹${formattedAmount}</div>
-                                    ${o.fee ? `<span style="font-size: 0.7rem; color: #94a3b8;">${_t('fee')}: ₹${parseFloat(o.fee).toFixed(2)}</span>` : ''}
+                                    <div style="font-weight: 700; font-size: 1rem; color: #0f172a;">${window.CS}${formattedAmount}</div>
+                                    ${o.fee ? `<span style="font-size: 0.7rem; color: #94a3b8;">${_t('fee')}: ${window.CS}${parseFloat(o.fee).toFixed(2)}</span>` : ''}
                                 </td>
                                 <td>
                                     <span class="badge badge-${o.status}"><i class="${statusIcon}"></i> ${o.status}</span>
@@ -2255,17 +2255,17 @@
                                     <div style="padding: 1rem; border: 1px solid #E5E7EB; border-radius: 12px; text-align: center; background: white; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
                                         <div style="font-size: 1.25rem; color: #9CA3AF; margin-bottom: 0.5rem;"><i class="ri-wallet-3-line"></i></div>
                                         <div style="font-size: 0.75rem; color: #6B7280; margin-bottom: 0.25rem; font-weight: 600; text-transform: uppercase;">${_t('amount')}</div>
-                                        <div style="font-weight: 700; font-size: 1.125rem; color: #111827;">₹${parseFloat(o.amount).toFixed(2)}</div>
+                                        <div style="font-weight: 700; font-size: 1.125rem; color: #111827;">${window.CS}${parseFloat(o.amount).toFixed(2)}</div>
                                     </div>
                                     <div style="padding: 1rem; border: 1px solid #FECACA; border-radius: 12px; text-align: center; background: white; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
                                         <div style="font-size: 1.25rem; color: #EF4444; margin-bottom: 0.5rem;"><i class="ri-percent-line"></i></div>
                                         <div style="font-size: 0.75rem; color: #991B1B; margin-bottom: 0.25rem; font-weight: 600; text-transform: uppercase;">${_t('fee')}</div>
-                                        <div style="font-weight: 700; font-size: 1.125rem; color: #DC2626;">- ₹${fee.toFixed(2)}</div>
+                                        <div style="font-weight: 700; font-size: 1.125rem; color: #DC2626;">- ${window.CS}${fee.toFixed(2)}</div>
                                     </div>
                                     <div style="padding: 1rem; border: 1px solid #A7F3D0; border-radius: 12px; text-align: center; background: white; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
                                         <div style="font-size: 1.25rem; color: #10B981; margin-bottom: 0.5rem;"><i class="ri-arrow-right-down-line"></i></div>
                                         <div style="font-size: 0.75rem; color: #065F46; margin-bottom: 0.25rem; font-weight: 600; text-transform: uppercase;">${_t('net_credit')}</div>
-                                        <div style="font-weight: 700; font-size: 1.125rem; color: #059669;">+ ₹${net.toFixed(2)}</div>
+                                        <div style="font-weight: 700; font-size: 1.125rem; color: #059669;">+ ${window.CS}${net.toFixed(2)}</div>
                                     </div>
                                 </div>
                             </div>
@@ -2334,7 +2334,7 @@
                         tbody.innerHTML = data.settlements.map(s => `
                         <tr>
                             <td style="font-family: monospace;">${s.id}</td>
-                            <td style="font-weight: 600;">₹${s.amount}</td>
+                            <td style="font-weight: 600;">${getCurrencySymbol(s.currency)}${s.amount}</td>
                             <td><span class="badge badge-${s.status}">${s.status}</span></td>
                             <td>
                                 ${s.utr ? `<small style="color: var(--text-muted);">UTR: ${s.utr}</small><br>` : ''}
@@ -2487,7 +2487,7 @@
                         tbody.innerHTML = data.orders.map(o => `
                         <tr>
                             <td style="font-family: monospace;">${o.orderId}</td>
-                            <td style="font-weight: 600;">₹${o.amount}</td>
+                            <td style="font-weight: 600;">${window.CS}${o.amount}</td>
                             <td>${o.utr || '-'}</td>
                             <td><span class="badge badge-${o.status}">${o.status}</span></td>
                             <td>${new Date(o.createdAt).toLocaleString()}</td>

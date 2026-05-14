@@ -28,6 +28,18 @@ const Channel = sequelize.define('Channel', {
         allowNull: false,
         comment: 'Backend provider: hdpay, f2pay, silkpay'
     },
+    currency: {
+        type: DataTypes.STRING(5),
+        allowNull: false,
+        defaultValue: 'INR',
+        comment: 'Currency code: INR, PKR, BDT, IDR'
+    },
+    country: {
+        type: DataTypes.STRING(5),
+        allowNull: false,
+        defaultValue: 'IN',
+        comment: 'Country code: IN, PK, BD, ID'
+    },
     payinRate: {
         type: DataTypes.DECIMAL(5, 2),
         allowNull: false,

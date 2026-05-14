@@ -3,8 +3,10 @@ const { Order, User, sequelize } = require('../models');
 
 /**
  * Get aggregated stats for a user (or global if userId is null)
+ * @param {number|null} userId - Filter by merchant, or null for global
+ * @param {string|null} currency - Filter by currency (e.g. 'INR'), or null for all
  */
-async function getStats(userId = null) {
+async function getStats(userId = null, currency = null) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -13,6 +15,7 @@ async function getStats(userId = null) {
 
     const where = {};
     if (userId) where.merchantId = userId;
+    if (currency) where.currency = currency.toUpperCase();
 
     // Helper to get sum
     const getSum = async (type, dateFrom, dateTo, status = 'success') => {
@@ -119,14 +122,18 @@ async function getStats(userId = null) {
 
 /**
  * Get chart data for last 7 days
+ * @param {number|null} userId
+ * @param {number} days
+ * @param {string|null} currency
  */
-async function getChartData(userId = null, days = 7) {
+async function getChartData(userId = null, days = 7, currency = null) {
     const labels = [];
     const payinData = [];
     const payoutData = [];
 
     const where = {};
     if (userId) where.merchantId = userId;
+    if (currency) where.currency = currency.toUpperCase();
 
     for (let i = days - 1; i >= 0; i--) {
         const d = new Date();

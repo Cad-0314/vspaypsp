@@ -28,6 +28,12 @@ const Settlement = sequelize.define('Settlement', {
         type: DataTypes.STRING,
         allowNull: true
     },
+    currency: {
+        type: DataTypes.STRING(5),
+        allowNull: false,
+        defaultValue: 'INR',
+        comment: 'Currency code: INR, PKR, BDT, IDR'
+    },
     notes: {
         type: DataTypes.TEXT,
         allowNull: true

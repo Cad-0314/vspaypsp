@@ -36,98 +36,112 @@ const channelConfig = {
         displayName: 'GaurPay',
         displayNameZh: 'GaurPay',
         usesCustomPayPage: false,
-        provider: 'silkpay'
+        provider: 'silkpay',
+        currency: 'INR'
     },
     yellow: {
         service: caipayService,
         displayName: 'Yellow',
         displayNameZh: 'Yellow',
         usesCustomPayPage: false,
-        provider: 'caipay'
+        provider: 'caipay',
+        currency: 'INR'
     },
     'upi super': {
         service: fendpayService,
         displayName: 'UPI Super',
         displayNameZh: 'UPI Super',
         usesCustomPayPage: false,
-        provider: 'fendpay'
+        provider: 'fendpay',
+        currency: 'INR'
     },
     ckpay: {
         service: ckpayService,
         displayName: 'CKPay',
         displayNameZh: 'CKPay',
         usesCustomPayPage: false,
-        provider: 'ckpay'
+        provider: 'ckpay',
+        currency: 'INR'
     },
     bharatpay: {
         service: bharatpayService,
         displayName: 'BharatPay',
         displayNameZh: 'BharatPay',
         usesCustomPayPage: false,
-        provider: 'bharatpay'
+        provider: 'bharatpay',
+        currency: 'INR'
     },
     cxpay: {
         service: cxpayService,
         displayName: 'CX Pay',
         displayNameZh: 'CX Pay',
         usesCustomPayPage: false,
-        provider: 'cxpay'
+        provider: 'cxpay',
+        currency: 'INR'
     },
     aapay: {
         service: aapayService,
         displayName: 'AA Pay',
         displayNameZh: 'AA Pay',
         usesCustomPayPage: false,
-        provider: 'aapay'
+        provider: 'aapay',
+        currency: 'INR'
     },
     ipay: {
         service: ipayService,
         displayName: 'IPay',
         displayNameZh: 'IPay',
         usesCustomPayPage: false,
-        provider: 'ipay'
+        provider: 'ipay',
+        currency: 'INR'
     },
     unitedpay: {
         service: unitedpayService,
         displayName: 'United Pay',
         displayNameZh: 'United Pay',
         usesCustomPayPage: false,
-        provider: 'unitepay'
+        provider: 'unitepay',
+        currency: 'INR'
     },
     firpay: {
         service: firpayService,
         displayName: 'FirPay',
         displayNameZh: 'FirPay',
         usesCustomPayPage: false,
-        provider: 'firpay'
+        provider: 'firpay',
+        currency: 'INR'
     },
     agpay: {
         service: agpayService,
         displayName: 'AG Pay',
         displayNameZh: 'AG Pay',
         usesCustomPayPage: false,
-        provider: 'agpay'
+        provider: 'agpay',
+        currency: 'INR'
     },
     easypay: {
         service: easypayService,
         displayName: 'Easy Pay',
         displayNameZh: 'Easy Pay',
         usesCustomPayPage: false,
-        provider: 'easypay'
+        provider: 'easypay',
+        currency: 'INR'
     },
     ynpay: {
         service: ynpayService,
         displayName: 'YN Pay',
         displayNameZh: 'YN Pay',
         usesCustomPayPage: false,
-        provider: 'ynpay'
+        provider: 'ynpay',
+        currency: 'INR'
     },
     passpay: {
         service: passpayService,
         displayName: 'Pass Pay',
         displayNameZh: 'Pass Pay',
         usesCustomPayPage: false,
-        provider: 'passpay'
+        provider: 'passpay',
+        currency: 'INR'
     },
     smart: {
         service: null, // Uses lazy loading via getCustomChannelService()
@@ -135,7 +149,8 @@ const channelConfig = {
         displayNameZh: '智能支付',
         usesCustomPayPage: false, // Depends on underlying channel
         provider: 'smart',
-        isSmartChannel: true
+        isSmartChannel: true,
+        currency: 'INR'
     }
 };
 
@@ -281,6 +296,20 @@ function getAllChannels() {
 }
 
 /**
+ * Get channels filtered by currency
+ */
+function getChannelsByCurrency(currency) {
+    const cur = (currency || 'INR').toUpperCase();
+    return Object.keys(channelConfig)
+        .filter(name => channelConfig[name].currency === cur)
+        .map(name => ({
+            name,
+            ...channelConfig[name],
+            service: undefined
+        }));
+}
+
+/**
  * Check if channel exists and is valid
  */
 function isValidChannel(channelName) {
@@ -298,6 +327,7 @@ module.exports = {
     submitUtr,
     verifyCallback,
     getAllChannels,
+    getChannelsByCurrency,
     isValidChannel,
     channelConfig
 };

@@ -100,6 +100,24 @@ const User = sequelize.define('User', {
         allowNull: true,
         defaultValue: '[]',
         comment: 'JSON array of whitelisted IP addresses for API access'
+    },
+    defaultCurrency: {
+        type: DataTypes.STRING(5),
+        allowNull: false,
+        defaultValue: 'INR',
+        comment: 'Default currency for this merchant: INR, PKR, BDT, IDR'
+    },
+    allowedCurrencies: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+        defaultValue: '["INR"]',
+        comment: 'JSON array of allowed currencies for this merchant'
+    },
+    balances: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+        defaultValue: '{"INR":0}',
+        comment: 'JSON object of per-currency balances e.g. {"INR":1000,"PKR":5000}'
     }
 }, {
     tableName: 'users',

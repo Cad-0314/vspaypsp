@@ -12,6 +12,7 @@ const { getStats, getChartData } = require('../services/stats');
 const { v4: uuidv4 } = require('uuid');
 const otplib = require('otplib');
 const bcrypt = require('bcryptjs');
+const { getCurrency, DEFAULT_CURRENCY, SUPPORTED_CURRENCIES } = require('../config/currencies');
 
 // Configure otplib
 otplib.authenticator.options = { window: 2, step: 30 };
@@ -28,15 +29,72 @@ router.use(ensureMerchant);
 
 /**
  * GET /api/merchant/stats
- * Get dashboard stats
+ * Get dashboard stats with currency info
  */
 router.get('/stats', async (req, res) => {
     try {
-        const stats = await getStats(req.session.user.id);
-        res.json({ success: true, stats });
+        const { currency } = req.query;
+        const merchant = await User.findByPk(req.session.user.id);
+        const activeCurrency = currency || merchant.defaultCurrency || 'INR';
+        const currencyConfig = getCurrency(activeCurrency);
+        const stats = await getStats(req.session.user.id, currency || null);
+        res.json({
+            success: true,
+            stats,
+            currencyInfo: {
+                code: activeCurrency,
+                symbol: currencyConfig ? currencyConfig.symbol : '₹',
+                usdtRate: currencyConfig ? currencyConfig.usdtRate : 100,
+                minUsdtSettlement: currencyConfig ? currencyConfig.minUsdtSettlement : 200000,
+                minPayin: currencyConfig ? currencyConfig.minPayin : 100,
+                maxPayin: currencyConfig ? currencyConfig.maxPayin : 100000
+            }
+        });
     } catch (error) {
         console.error('[MerchantAPI] Stats error:', error);
         res.status(500).json({ success: false, error: 'Failed to fetch stats' });
+    }
+});
+
+/**
+ * GET /api/merchant/currency-info
+ * Get currency configuration for merchant's active currencies
+ */
+router.get('/currency-info', async (req, res) => {
+    try {
+        const merchant = await User.findByPk(req.session.user.id);
+        const defaultCurr = merchant.defaultCurrency || 'INR';
+        let allowedCurrencies = ['INR'];
+        try { allowedCurrencies = JSON.parse(merchant.allowedCurrencies || '["INR"]'); } catch (e) {}
+
+        const configs = {};
+        for (const code of allowedCurrencies) {
+            const cfg = getCurrency(code);
+            if (cfg) {
+                configs[code] = {
+                    code: cfg.code,
+                    symbol: cfg.symbol,
+                    name: cfg.name,
+                    flag: cfg.flag,
+                    usdtRate: cfg.usdtRate,
+                    minUsdtSettlement: cfg.minUsdtSettlement,
+                    minPayin: cfg.minPayin,
+                    maxPayin: cfg.maxPayin,
+                    minPayout: cfg.minPayout,
+                    maxPayout: cfg.maxPayout
+                };
+            }
+        }
+
+        res.json({
+            success: true,
+            defaultCurrency: defaultCurr,
+            allowedCurrencies,
+            configs
+        });
+    } catch (error) {
+        console.error('[MerchantAPI] Currency info error:', error);
+        res.status(500).json({ success: false, error: 'Failed to fetch currency info' });
     }
 });
 
@@ -47,7 +105,8 @@ router.get('/stats', async (req, res) => {
 router.get('/chart', async (req, res) => {
     try {
         const days = parseInt(req.query.days) || 7;
-        const data = await getChartData(req.session.user.id, days);
+        const currency = req.query.currency || null;
+        const data = await getChartData(req.session.user.id, days, currency);
         res.json({ success: true, ...data });
     } catch (error) {
         console.error('[MerchantAPI] Chart error:', error);
@@ -149,11 +208,11 @@ router.get('/settlements', async (req, res) => {
 
 /**
  * POST /api/merchant/settlements
- * Request settlement
+ * Request settlement (currency-aware)
  */
 router.post('/settlements', async (req, res) => {
     try {
-        const { amount, notes, type = 'bank' } = req.body;
+        const { amount, notes, type = 'bank', currency } = req.body;
         const merchantId = req.session.user.id;
 
         // Check balance
@@ -168,8 +227,22 @@ router.post('/settlements', async (req, res) => {
             return res.status(400).json({ success: false, error: 'Bank settlements are disabled. Please use the Payout API for bank transfers.' });
         }
 
-        if (type === 'usdt' && requestAmount < 200000) {
-            return res.status(400).json({ success: false, error: 'Minimum USDT settlement is ₹2,00,000' });
+        // Resolve currency: use provided, or merchant's default
+        const settleCurrency = (currency || merchant.defaultCurrency || 'INR').toUpperCase();
+        const currencyConfig = getCurrency(settleCurrency);
+        if (!currencyConfig) {
+            return res.status(400).json({ success: false, error: 'Unsupported currency' });
+        }
+
+        // Currency-specific USDT minimum settlement
+        if (type === 'usdt') {
+            const minUsdt = currencyConfig.minUsdtSettlement || 200000;
+            if (requestAmount < minUsdt) {
+                return res.status(400).json({
+                    success: false,
+                    error: `Minimum USDT settlement is ${currencyConfig.symbol}${minUsdt.toLocaleString()} for ${settleCurrency}`
+                });
+            }
         }
 
         if (merchant.balance < requestAmount) {
@@ -184,17 +257,32 @@ router.post('/settlements', async (req, res) => {
                 balance: sequelize.literal(`balance - ${requestAmount}`)
             }, { transaction: t });
 
-            // Create settlement record
+            // Calculate USDT amount using currency-specific rate
+            const usdtRate = currencyConfig.usdtRate || 100;
+            const usdtAmount = requestAmount / usdtRate;
+
+            // Create settlement record with currency info
             const settlement = await Settlement.create({
                 merchantId,
                 amount: requestAmount,
                 status: 'pending',
                 type,
-                notes
+                currency: settleCurrency,
+                notes: notes ? `${notes} | Rate: 1 USDT = ${currencyConfig.symbol}${usdtRate} | ~${usdtAmount.toFixed(2)} USDT` : `Rate: 1 USDT = ${currencyConfig.symbol}${usdtRate} | ~${usdtAmount.toFixed(2)} USDT`
             }, { transaction: t });
 
             await t.commit();
-            res.json({ success: true, message: 'Settlement requested', settlement });
+            res.json({
+                success: true,
+                message: 'Settlement requested',
+                settlement,
+                usdtInfo: {
+                    rate: usdtRate,
+                    estimatedUsdt: parseFloat(usdtAmount.toFixed(2)),
+                    currency: settleCurrency,
+                    symbol: currencyConfig.symbol
+                }
+            });
 
         } catch (error) {
             await t.rollback();

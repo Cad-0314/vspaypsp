@@ -17,6 +17,8 @@ async function seedDatabase() {
                 displayName: 'GaurPay',
                 displayNameZh: 'GaurPay',
                 provider: 'silkpay',
+                currency: 'INR',
+                country: 'IN',
                 payinRate: 5.00,
                 payoutRate: 3.00,
                 payoutFixedFee: 6.00,
@@ -32,6 +34,8 @@ async function seedDatabase() {
                 displayName: 'BharatPay',
                 displayNameZh: 'BharatPay',
                 provider: 'bharatpay',
+                currency: 'INR',
+                country: 'IN',
                 payinRate: 5.00,
                 payoutRate: 3.00,
                 payoutFixedFee: 6.00,
@@ -47,6 +51,8 @@ async function seedDatabase() {
                 displayName: 'CX Pay',
                 displayNameZh: 'CX Pay',
                 provider: 'cxpay',
+                currency: 'INR',
+                country: 'IN',
                 payinRate: 5.00,
                 payoutRate: 3.00,
                 payoutFixedFee: 6.00,
@@ -62,6 +68,8 @@ async function seedDatabase() {
                 displayName: 'AA Pay',
                 displayNameZh: 'AA Pay',
                 provider: 'aapay',
+                currency: 'INR',
+                country: 'IN',
                 payinRate: 5.00,
                 payoutRate: 3.00,
                 payoutFixedFee: 6.00,
@@ -77,6 +85,8 @@ async function seedDatabase() {
                 displayName: 'IPay',
                 displayNameZh: 'IPay',
                 provider: 'ipay',
+                currency: 'INR',
+                country: 'IN',
                 payinRate: 5.00,
                 payoutRate: 3.00,
                 payoutFixedFee: 6.00,
@@ -92,6 +102,8 @@ async function seedDatabase() {
                 displayName: 'United Pay',
                 displayNameZh: 'United Pay',
                 provider: 'unitepay',
+                currency: 'INR',
+                country: 'IN',
                 payinRate: 5.00,
                 payoutRate: 3.00,
                 payoutFixedFee: 6.00,
@@ -107,6 +119,8 @@ async function seedDatabase() {
                 displayName: 'Smart',
                 displayNameZh: '智能支付',
                 provider: 'smart',
+                currency: 'INR',
+                country: 'IN',
                 payinRate: 5.00,
                 payoutRate: 0.00, // Not used for payout
                 payoutFixedFee: 0.00,
@@ -117,6 +131,60 @@ async function seedDatabase() {
                 maxPayout: 0.00,
                 usesCustomPayPage: false,
                 config: JSON.stringify({ isSmartChannel: true, payinOnly: true })
+            },
+            // ---- PKR Channels (Placeholder) ----
+            {
+                name: 'pkr_channel_1',
+                displayName: 'PKR Gateway',
+                displayNameZh: 'PKR通道',
+                provider: 'pkr_provider',
+                currency: 'PKR',
+                country: 'PK',
+                payinRate: 5.00,
+                payoutRate: 3.00,
+                payoutFixedFee: 50.00,
+                isActive: false,
+                minPayin: 500.00,
+                maxPayin: 500000.00,
+                minPayout: 500.00,
+                maxPayout: 500000.00,
+                usesCustomPayPage: false
+            },
+            // ---- BDT Channels (Placeholder) ----
+            {
+                name: 'bdt_channel_1',
+                displayName: 'BDT Gateway',
+                displayNameZh: 'BDT通道',
+                provider: 'bdt_provider',
+                currency: 'BDT',
+                country: 'BD',
+                payinRate: 5.00,
+                payoutRate: 3.00,
+                payoutFixedFee: 50.00,
+                isActive: false,
+                minPayin: 500.00,
+                maxPayin: 500000.00,
+                minPayout: 500.00,
+                maxPayout: 500000.00,
+                usesCustomPayPage: false
+            },
+            // ---- IDR Channels (Placeholder) ----
+            {
+                name: 'idr_channel_1',
+                displayName: 'IDR Gateway',
+                displayNameZh: 'IDR通道',
+                provider: 'idr_provider',
+                currency: 'IDR',
+                country: 'ID',
+                payinRate: 5.00,
+                payoutRate: 3.00,
+                payoutFixedFee: 5000.00,
+                isActive: false,
+                minPayin: 50000.00,
+                maxPayin: 50000000.00,
+                minPayout: 50000.00,
+                maxPayout: 50000000.00,
+                usesCustomPayPage: false
             }
         ];
 
@@ -127,11 +195,11 @@ async function seedDatabase() {
             });
 
             if (created) {
-                console.log(`Created channel: ${channelData.name}`);
+                console.log(`Created channel: ${channelData.name} (${channelData.currency}/${channelData.country})`);
             } else {
                 // Update existing channel
                 await channel.update(channelData);
-                console.log(`Updated channel: ${channelData.name}`);
+                console.log(`Updated channel: ${channelData.name} (${channelData.currency}/${channelData.country})`);
             }
         }
 
@@ -144,7 +212,7 @@ async function seedDatabase() {
 
 // Run if called directly
 if (require.main === module) {
-    sequelize.sync().then(() => {
+    sequelize.sync({ alter: true }).then(() => {
         seedDatabase().then(() => process.exit(0));
     });
 } else {

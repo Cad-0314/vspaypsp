@@ -37,6 +37,12 @@ const CustomChannelRange = sequelize.define('CustomChannelRange', {
         type: DataTypes.INTEGER,
         defaultValue: 0,
         comment: 'Priority for sorting (higher = higher priority)'
+    },
+    currency: {
+        type: DataTypes.STRING(5),
+        allowNull: false,
+        defaultValue: 'INR',
+        comment: 'Currency code: INR, PKR, BDT, IDR'
     }
 }, {
     tableName: 'custom_channel_ranges',

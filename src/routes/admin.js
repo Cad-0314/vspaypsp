@@ -13,6 +13,7 @@ const telegramBot = require('../services/telegramBot');
 const axios = require('axios');
 const otplib = require('otplib');
 const channelRouter = require('../services/channelRouter');
+const { CURRENCIES, SUPPORTED_CURRENCIES } = require('../config/currencies');
 
 // Configure otplib
 otplib.authenticator.options = { window: 2, step: 30 };
@@ -37,7 +38,8 @@ router.use(ensureAdmin);
  */
 router.get('/stats', async (req, res) => {
     try {
-        const stats = await getStats(null); // Global stats
+        const { currency } = req.query;
+        const stats = await getStats(null, currency || null); // Global stats, optionally filtered by currency
         const admin = await User.findOne({ where: { role: 'admin' } });
         const merchantCount = await User.count({ where: { role: 'merchant' } });
         const activeCount = await User.count({ where: { role: 'merchant', isActive: true } });
@@ -50,7 +52,9 @@ router.get('/stats', async (req, res) => {
                 adminBalance: parseFloat(admin?.balance || 0),
                 totalMerchantBalance: parseFloat(totalMerchantBalance || 0),
                 merchantCount,
-                activeMerchants: activeCount
+                activeMerchants: activeCount,
+                supportedCurrencies: SUPPORTED_CURRENCIES,
+                currencies: CURRENCIES
             }
         });
     } catch (error) {
@@ -142,7 +146,7 @@ router.get('/merchants', async (req, res) => {
 
         const { count, rows } = await User.findAndCountAll({
             where,
-            attributes: ['id', 'username', 'apiKey', 'assignedChannel', 'payinChannel', 'payoutChannel', 'balance', 'pendingBalance', 'isActive', 'canPayin', 'canPayout', 'channel_rates', 'createdAt'],
+            attributes: ['id', 'username', 'apiKey', 'assignedChannel', 'payinChannel', 'payoutChannel', 'balance', 'pendingBalance', 'isActive', 'canPayin', 'canPayout', 'channel_rates', 'defaultCurrency', 'allowedCurrencies', 'balances', 'createdAt'],
             order: [['createdAt', 'DESC']],
             limit: parseInt(limit),
             offset: parseInt(offset)
@@ -160,7 +164,7 @@ router.get('/merchants', async (req, res) => {
 
 router.post('/merchants', async (req, res) => {
     try {
-        const { username, payinChannel, payoutChannel, payinRate, payoutRate, payoutFixedFee, usdtRate } = req.body;
+        const { username, payinChannel, payoutChannel, payinRate, payoutRate, payoutFixedFee, usdtRate, defaultCurrency, allowedCurrencies } = req.body;
         if (!username) return res.status(400).json({ success: false, error: 'Missing username' });
 
         // Default password is username@777
@@ -177,6 +181,18 @@ router.post('/merchants', async (req, res) => {
             usdtRate: parseFloat(usdtRate) || 100 // Default 100 INR/USDT
         };
 
+        // Resolve currency settings
+        const resolvedCurrency = (defaultCurrency || 'INR').toUpperCase();
+        let resolvedAllowed = ['INR'];
+        if (Array.isArray(allowedCurrencies) && allowedCurrencies.length > 0) {
+            resolvedAllowed = allowedCurrencies.map(c => c.toUpperCase()).filter(c => SUPPORTED_CURRENCIES.includes(c));
+        }
+        if (!resolvedAllowed.includes(resolvedCurrency)) resolvedAllowed.push(resolvedCurrency);
+
+        // Initialize per-currency balances
+        const initialBalances = {};
+        resolvedAllowed.forEach(c => { initialBalances[c] = 0; });
+
         const merchant = await User.create({
             username,
             password_hash: hashedPassword,
@@ -189,7 +205,10 @@ router.post('/merchants', async (req, res) => {
             apiSecret: crypto.randomBytes(32).toString('hex'),
             isActive: true,
             canPayin: req.body.canPayin !== undefined ? req.body.canPayin : true,
-            canPayout: req.body.canPayout !== undefined ? req.body.canPayout : true
+            canPayout: req.body.canPayout !== undefined ? req.body.canPayout : true,
+            defaultCurrency: resolvedCurrency,
+            allowedCurrencies: JSON.stringify(resolvedAllowed),
+            balances: JSON.stringify(initialBalances)
         });
 
         res.json({ success: true, merchant: { id: merchant.id, username } });
@@ -210,7 +229,7 @@ router.get('/merchants/:id', async (req, res) => {
 
 router.put('/merchants/:id', async (req, res) => {
     try {
-        const { username, password, payinChannel, payoutChannel, payinRate, payoutRate, payoutFixedFee, usdtRate, isActive, canPayin, canPayout } = req.body;
+        const { username, password, payinChannel, payoutChannel, payinRate, payoutRate, payoutFixedFee, usdtRate, isActive, canPayin, canPayout, defaultCurrency, allowedCurrencies } = req.body;
         const merchant = await User.findByPk(req.params.id);
         if (!merchant) return res.status(404).json({ success: false, error: 'Not found' });
 
@@ -227,6 +246,13 @@ router.put('/merchants/:id', async (req, res) => {
         if (typeof isActive === 'boolean') updates.isActive = isActive;
         if (typeof canPayin === 'boolean') updates.canPayin = canPayin;
         if (typeof canPayout === 'boolean') updates.canPayout = canPayout;
+
+        // Currency settings
+        if (defaultCurrency) updates.defaultCurrency = defaultCurrency.toUpperCase();
+        if (allowedCurrencies && Array.isArray(allowedCurrencies)) {
+            const filtered = allowedCurrencies.map(c => c.toUpperCase()).filter(c => SUPPORTED_CURRENCIES.includes(c));
+            if (filtered.length > 0) updates.allowedCurrencies = JSON.stringify(filtered);
+        }
 
         let rates = {};
         try { rates = JSON.parse(merchant.channel_rates || '{}'); } catch (e) { }

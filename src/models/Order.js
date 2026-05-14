@@ -22,6 +22,12 @@ const Order = sequelize.define('Order', {
         allowNull: false,
         comment: 'Channel: hdpay, x2, gaurpay'
     },
+    currency: {
+        type: DataTypes.STRING(5),
+        allowNull: false,
+        defaultValue: 'INR',
+        comment: 'Currency code: INR, PKR, BDT, IDR'
+    },
     type: {
         type: DataTypes.ENUM('payin', 'payout'),
         allowNull: false
@@ -147,10 +153,12 @@ const Order = sequelize.define('Order', {
         { unique: true, fields: ['merchantId', 'orderId'] },
         { fields: ['status'] },
         { fields: ['channelName'] },
+        { fields: ['currency'] },
         { fields: ['type'] },
         { fields: ['createdAt'] },
         { fields: ['updatedAt'] },
         { fields: ['merchantId', 'type', 'createdAt'] },
+        { fields: ['merchantId', 'currency', 'type', 'createdAt'] },
         { fields: ['providerOrderId'] },
         { fields: ['orderId', 'type'] } // For callback lookups
     ]

@@ -176,10 +176,13 @@ app.get('/merchant', ensureAuthenticated, async (req, res) => {
     // Fetch full merchant data including balance
     const user = await User.findByPk(req.session.user.id);
     const channel = await Channel.findOne({ where: { name: user.assignedChannel } });
+    const { CURRENCIES, SUPPORTED_CURRENCIES } = require('./src/config/currencies');
 
     res.render('merchant', {
         user: user ? user.toJSON() : req.session.user,
-        channel: channel ? channel.toJSON() : null
+        channel: channel ? channel.toJSON() : null,
+        currencies: CURRENCIES,
+        supportedCurrencies: SUPPORTED_CURRENCIES
     });
 });
 
@@ -345,7 +348,7 @@ app.get('/bharattest', async (req, res) => {
 // ============================================
 const PORT = process.env.PORT || 3000;
 
-sequelize.sync().then(async () => {
+sequelize.sync({ alter: true }).then(async () => {
     console.log('Database connected & synced');
 
     // Backfill credentials

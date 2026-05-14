@@ -1326,7 +1326,7 @@
                                 <label
                                     style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">
                                     <%= t('amount') %>
-                                        (₹)
+                                        
                                 </label>
                                 <input type="number" id="mp-amount" class="form-control" placeholder="0.00"
                                     style="width:100%; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
@@ -1721,7 +1721,7 @@
             <input type="hidden" id="range-id">
             <div style="margin: 1.5rem 0;">
                 <label style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">
-                    <%= t('min_amount') %> (₹)
+                    <%= t('min_amount') %>
                 </label>
                 <input type="number" id="range-min" min="0" step="1"
                     style="width: 100%; padding: 0.75rem; border: 1px solid #E5E7EB; border-radius:0.5rem;"
@@ -1729,7 +1729,7 @@
             </div>
             <div style="margin-bottom: 1.5rem;">
                 <label style="display:block; margin-bottom:0.5rem; font-weight:500; font-size:0.875rem;">
-                    <%= t('max_amount') %> (₹)
+                    <%= t('max_amount') %>
                 </label>
                 <input type="number" id="range-max" min="0" step="1"
                     style="width: 100%; padding: 0.75rem; border: 1px solid #E5E7EB; border-radius:0.5rem;"
@@ -1968,6 +1968,28 @@
                     </label>
                 </div>
 
+                <!-- Currency Settings -->
+                <div style="margin-top:1.25rem; padding-top:1rem; border-top:1px solid #F3F4F6;">
+                    <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.875rem; color:#374151;">
+                        <i class="ri-money-cny-circle-line"></i> <%=t('default_currency')%>
+                    </label>
+                    <select id="m-defaultCurrency" style="width:100%; margin-bottom:0.75rem; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
+                        <option value="INR">INR - Indian Rupee</option>
+                        <option value="PKR">PKR - Pakistani Rupee</option>
+                        <option value="BDT">BDT - Bangladeshi Taka</option>
+                        <option value="IDR">IDR - Indonesian Rupiah</option>
+                    </select>
+                    <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.875rem; color:#374151;">
+                        <i class="ri-global-line"></i> <%=t('allowed_currencies')%>
+                    </label>
+                    <div id="m-allowedCurrencies" style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; padding:0.4rem 0.6rem; background:#F9FAFB; border:1px solid #E5E7EB; border-radius:6px;"><input type="checkbox" value="INR" checked> INR</label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; padding:0.4rem 0.6rem; background:#F9FAFB; border:1px solid #E5E7EB; border-radius:6px;"><input type="checkbox" value="PKR"> PKR</label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; padding:0.4rem 0.6rem; background:#F9FAFB; border:1px solid #E5E7EB; border-radius:6px;"><input type="checkbox" value="BDT"> BDT</label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; padding:0.4rem 0.6rem; background:#F9FAFB; border:1px solid #E5E7EB; border-radius:6px;"><input type="checkbox" value="IDR"> IDR</label>
+                    </div>
+                </div>
+
                 <!-- IP Whitelist Management -->
                 <div id="m-ip-section" style="margin-top:1.25rem; padding-top:1rem; border-top:1px solid #F3F4F6; display:none;">
                     <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.875rem; color:#374151;">
@@ -2092,6 +2114,12 @@
 
         // Inject translations
         window.allTranslations = JSON.parse(document.getElementById('translations-data').textContent);
+
+        // Currency helpers for admin
+        window.CURRENCY_SYMBOLS = { INR: '₹', PKR: 'Rs', BDT: '৳', IDR: 'Rp' };
+        function getCurrencySymbol(code) {
+            return window.CURRENCY_SYMBOLS[(code || 'INR').toUpperCase()] || '₹';
+        }
 
         // Client-side translation helper
         function _t(key, params = {}) {
@@ -2252,7 +2280,7 @@
                     <tr>
                         <td title="${o.id}"><small style="font-family:monospace;">${o.orderId}</small></td>
                         <td>${o.merchant?.username || 'N/A'}</td>
-                        <td>₹${o.amount}</td>
+                        <td>${getCurrencySymbol(o.currency)}${o.amount}</td>
                         <td><span class="badge badge-${o.status}">${o.status}</span></td>
                         <td>${new Date(o.createdAt).toLocaleString()}</td>
                         <td>${new Date(o.updatedAt).toLocaleString()}</td>
@@ -2285,7 +2313,7 @@
                         <td style="font-family:monospace;">${s.id}</td>
                         <td>${s.merchant?.username || 'N/A'}</td>
                         <td><span class="badge" style="background:#E0E7FF; color:#4338CA;">${s.type.toUpperCase()}</span></td>
-                        <td>₹${s.amount}</td>
+                        <td>${getCurrencySymbol(s.currency)}${s.amount}</td>
                         <td><span class="badge badge-${s.status}">${s.status}</span></td>
                         <td>${new Date(s.createdAt).toLocaleString()}</td>
                         <td>${new Date(s.updatedAt).toLocaleString()}</td>
@@ -2365,7 +2393,10 @@
                                 <span style="color:#6B7280;">${_t('out_label')}</span> ${m.payoutChannel || m.assignedChannel || _t('none')}
                             </div>
                         </td>
-                        <td>₹${parseFloat(m.balance).toFixed(2)}</td>
+                        <td>
+                            <div>${parseFloat(m.balance).toFixed(2)}</div>
+                            <div style="font-size:0.65rem; color:#6B7280; margin-top:2px;">${m.defaultCurrency || 'INR'} ${(() => { try { const ac = JSON.parse(m.allowedCurrencies || '[]'); return ac.length > 1 ? '(+' + (ac.length-1) + ')' : ''; } catch(e) { return ''; } })()}</div>
+                        </td>
                         <td>
                             <div style="font-size:0.7rem; color:#6B7280; line-height:1.2;">
                                 ${_t('payin_label_short')} ${JSON.parse(m.channel_rates || '{}').payinRate || 0}%<br>
@@ -2381,7 +2412,7 @@
                         </td>
                         <td style="display:flex; gap:0.5rem;">
                             <button class="btn" style="padding:0.25rem 0.5rem;" onclick="editMerchant('${m.id}')"><i class="ri-edit-line"></i></button>
-                            <button class="btn" style="padding:0.25rem 0.5rem; background:rgba(24, 144, 255, 0.1); color:var(--primary);" onclick="openBalanceAdjustment('${m.id}', '${m.username}', '${m.balance}')" title="<%= t('adjust_balance') %>"><i class="ri-exchange-funds-line"></i></button>
+                            <button class="btn" style="padding:0.25rem 0.5rem; background:rgba(24, 144, 255, 0.1); color:var(--primary);" onclick="openBalanceAdjustment('${m.id}', '${m.username}', '${m.balance}', '${m.defaultCurrency || "INR"}')" title="<%= t('adjust_balance') %>"><i class="ri-exchange-funds-line"></i></button>
                         </td>
                     </tr>
                 `).join('');
@@ -2416,6 +2447,18 @@
             document.getElementById('m-isActive').checked = m.isActive;
             document.getElementById('m-canPayin').checked = m.canPayin;
             document.getElementById('m-canPayout').checked = m.canPayout;
+
+            // Currency settings
+            if (document.getElementById('m-defaultCurrency')) {
+                document.getElementById('m-defaultCurrency').value = m.defaultCurrency || 'INR';
+            }
+            // Set allowed currencies checkboxes
+            const allowedCurrencies = (() => {
+                try { return JSON.parse(m.allowedCurrencies || '["INR"]'); } catch(e) { return ['INR']; }
+            })();
+            document.querySelectorAll('#m-allowedCurrencies input[type=checkbox]').forEach(cb => {
+                cb.checked = allowedCurrencies.includes(cb.value);
+            });
 
             // IP whitelist
             currentMerchantIps = JSON.parse(m.whitelistedIps || '[]');
@@ -2461,7 +2504,9 @@
                 usdtRate: document.getElementById('m-usdt').value,
                 isActive: document.getElementById('m-isActive').checked,
                 canPayin: document.getElementById('m-canPayin').checked,
-                canPayout: document.getElementById('m-canPayout').checked
+                canPayout: document.getElementById('m-canPayout').checked,
+                defaultCurrency: document.getElementById('m-defaultCurrency') ? document.getElementById('m-defaultCurrency').value : 'INR',
+                allowedCurrencies: Array.from(document.querySelectorAll('#m-allowedCurrencies input[type=checkbox]:checked')).map(cb => cb.value)
             };
 
             const p = document.getElementById('m-password').value;
@@ -2596,9 +2641,9 @@
             }
         }
 
-        function openBalanceAdjustment(id, username, balance) {
+        function openBalanceAdjustment(id, username, balance, defaultCurrency) {
             document.getElementById('adj-m-id').value = id;
-            document.getElementById('adj-merchant-info').innerText = `${username} (Current: ₹${parseFloat(balance).toFixed(2)})`;
+            document.getElementById('adj-merchant-info').innerText = `${username} (Current: ${getCurrencySymbol(defaultCurrency)}${parseFloat(balance).toFixed(2)})`;
             document.getElementById('adj-amount').value = '';
             document.getElementById('adj-note').value = '';
             document.getElementById('adj-totp').value = '';
@@ -2746,7 +2791,7 @@
                     <td style="font-weight:600;">${c.displayName}</td>
                     <td>${c.payinRate}%</td>
                     <td>${c.payoutRate}%</td>
-                    <td>₹${c.payoutFixedFee}</td>
+                    <td>${getCurrencySymbol(c.currency)}${c.payoutFixedFee}</td>
                     <td>${c.isActive ? `<span class="badge badge-success">${_t('active')}</span>` : `<span class="badge badge-failed">${_t('inactive')}</span>`}</td>
                      <td><button class="btn" style="padding:0.25rem 0.5rem;"><i class="ri-settings-4-line"></i></button></td>
                 </tr>
@@ -2812,8 +2857,8 @@
 
                 document.getElementById('smart-ranges-table').querySelector('tbody').innerHTML = data.ranges.map(r => `
                     <tr>
-                        <td>₹${parseFloat(r.minAmount).toLocaleString()}</td>
-                        <td>₹${parseFloat(r.maxAmount).toLocaleString()}</td>
+                        <td>${getCurrencySymbol(r.currency)}${parseFloat(r.minAmount).toLocaleString()}</td>
+                        <td>${getCurrencySymbol(r.currency)}${parseFloat(r.maxAmount).toLocaleString()}</td>
                         <td style="font-weight:600;">${channelNames[r.channelName] || r.channelName}</td>
                         <td>${r.priority}</td>
                         <td>${r.isActive ? `<span class="badge badge-success">${_t('active')}</span>` : `<span class="badge badge-failed">${_t('inactive')}</span>`}</td>
@@ -2931,7 +2976,7 @@
                         return `
                         <tr>
                             <td><small style="font-family:monospace;">${p.orderId}</small></td>
-                            <td>₹${p.amount}</td>
+                            <td>${getCurrencySymbol(p.currency)}${p.amount}</td>
                             <td>${bankInfo}</td>
                             <td>${p.channelName}</td>
                             <td><span class="badge badge-${p.status}">${p.status}</span></td>

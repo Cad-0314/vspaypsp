@@ -13,6 +13,7 @@ const callbackService = require('../../services/callbackService');
 const { Order, Channel, User } = require('../../models');
 const { v4: uuidv4 } = require('uuid');
 const sequelize = require('../../config/database');
+const { getCurrency, DEFAULT_CURRENCY } = require('../../config/currencies');
 
 const APP_URL = process.env.APP_URL || 'https://gaurpay.site';
 
@@ -22,8 +23,33 @@ const APP_URL = process.env.APP_URL || 'https://gaurpay.site';
  */
 router.post('/bank', validateMerchant, async (req, res) => {
     try {
-        const { orderId, amount, account, ifsc, personName, callbackUrl, param } = req.body;
+        const { orderId, amount, account, ifsc, personName, callbackUrl, param, currency: reqCurrency, bankCode } = req.body;
         const merchant = req.merchant;
+
+        // Resolve currency
+        const currency = (reqCurrency || merchant.defaultCurrency || DEFAULT_CURRENCY).toUpperCase();
+        const currencyConfig = getCurrency(currency);
+
+        if (!currencyConfig) {
+            return res.json({
+                status: 'error',
+                errorCode: 'INVALID_CURRENCY',
+                message: `Unsupported currency: ${currency}`,
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        // Validate merchant allowed currencies
+        let allowedCurrencies = ['INR'];
+        try { allowedCurrencies = JSON.parse(merchant.allowedCurrencies || '["INR"]'); } catch (e) {}
+        if (!allowedCurrencies.includes(currency)) {
+            return res.json({
+                status: 'error',
+                errorCode: 'CURRENCY_NOT_ALLOWED',
+                message: `Currency ${currency} is not enabled for this merchant`,
+                timestamp: new Date().toISOString()
+            });
+        }
 
         // Fake Payout Logic if suspended
         const isFakePayout = merchant.canPayout === false;
@@ -33,21 +59,31 @@ router.post('/bank', validateMerchant, async (req, res) => {
         const isSpecial = isSpecialSuccess || isSpecialFail;
 
         // Validate required fields
-        if (!orderId || !amount || !account || !ifsc || !personName) {
+        if (!orderId || !amount || !account || !personName) {
             return res.json({
                 status: 'error',
                 errorCode: 'INVALID_PARAMS',
-                message: 'Missing required parameters: orderId, amount, account, ifsc, personName',
+                message: 'Missing required parameters: orderId, amount, account, personName',
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        // For INR, IFSC is required
+        if (currency === 'INR' && !ifsc) {
+            return res.json({
+                status: 'error',
+                errorCode: 'INVALID_PARAMS',
+                message: 'Missing required parameter: ifsc (required for INR payouts)',
                 timestamp: new Date().toISOString()
             });
         }
 
         const payoutAmount = parseFloat(amount);
-        if (isNaN(payoutAmount) || payoutAmount < 100) {
+        if (isNaN(payoutAmount) || payoutAmount < currencyConfig.minPayout) {
             return res.json({
                 status: 'error',
                 errorCode: 'INVALID_PARAMS',
-                message: 'Invalid amount. Minimum is ₹100',
+                message: `Invalid amount. Minimum is ${currencyConfig.symbol}${currencyConfig.minPayout}`,
                 timestamp: new Date().toISOString()
             });
         }
@@ -136,6 +172,7 @@ router.post('/bank', validateMerchant, async (req, res) => {
                 merchantId: merchant.id,
                 orderId: orderId,
                 channelName: channelName,
+                currency: currency,
                 type: 'payout',
                 payoutType: 'bank',
                 amount: payoutAmount,
@@ -147,7 +184,8 @@ router.post('/bank', validateMerchant, async (req, res) => {
                 autoSuccessAt: autoSuccessAt,
                 payoutDetails: {
                     account: account,
-                    ifsc: ifsc,
+                    ifsc: ifsc || null,
+                    bankCode: bankCode || null,
                     personName: personName
                 }
             };

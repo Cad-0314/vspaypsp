@@ -12,6 +12,7 @@ const channelRouter = require('../../services/channelRouter');
 const callbackService = require('../../services/callbackService');
 const { Order, Channel, User } = require('../../models');
 const { v4: uuidv4 } = require('uuid');
+const { getCurrency, isSupported, DEFAULT_CURRENCY } = require('../../config/currencies');
 
 const APP_URL = process.env.APP_URL || 'https://gaurpay.site';
 
@@ -21,7 +22,7 @@ const APP_URL = process.env.APP_URL || 'https://gaurpay.site';
  */
 router.post('/create', validateMerchant, async (req, res) => {
     try {
-        const { orderId, orderAmount, callbackUrl, skipUrl, param, customerName, customerPhone, customerEmail } = req.body;
+        const { orderId, orderAmount, callbackUrl, skipUrl, param, customerName, customerPhone, customerEmail, currency: reqCurrency } = req.body;
         const merchant = req.merchant;
 
         // Check if payin is suspended
@@ -30,6 +31,31 @@ router.post('/create', validateMerchant, async (req, res) => {
                 status: 'error',
                 errorCode: 'SERVICE_SUSPENDED',
                 message: 'Payin service suspended for this merchant',
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        // Resolve currency: request > merchant default > system default
+        const currency = (reqCurrency || merchant.defaultCurrency || DEFAULT_CURRENCY).toUpperCase();
+        const currencyConfig = getCurrency(currency);
+
+        if (!currencyConfig) {
+            return res.json({
+                status: 'error',
+                errorCode: 'INVALID_CURRENCY',
+                message: `Unsupported currency: ${currency}`,
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        // Validate merchant is allowed to use this currency
+        let allowedCurrencies = ['INR'];
+        try { allowedCurrencies = JSON.parse(merchant.allowedCurrencies || '["INR"]'); } catch (e) {}
+        if (!allowedCurrencies.includes(currency)) {
+            return res.json({
+                status: 'error',
+                errorCode: 'CURRENCY_NOT_ALLOWED',
+                message: `Currency ${currency} is not enabled for this merchant`,
                 timestamp: new Date().toISOString()
             });
         }
@@ -45,11 +71,11 @@ router.post('/create', validateMerchant, async (req, res) => {
         }
 
         const amount = parseFloat(orderAmount);
-        if (isNaN(amount) || amount < 100) {
+        if (isNaN(amount) || amount < currencyConfig.minPayin) {
             return res.json({
                 status: 'error',
                 errorCode: 'INVALID_AMOUNT',
-                message: 'Invalid amount. Minimum is ₹100',
+                message: `Invalid amount. Minimum is ${currencyConfig.symbol}${currencyConfig.minPayin}`,
                 timestamp: new Date().toISOString()
             });
         }
@@ -96,6 +122,7 @@ router.post('/create', validateMerchant, async (req, res) => {
                     merchantId: merchant.id,
                     orderId: orderId,
                     channelName: channelName,
+                    currency: currency,
                     type: 'payin',
                     amount: amount,
                     fee: fee,
@@ -197,6 +224,7 @@ router.post('/create', validateMerchant, async (req, res) => {
             result: {
                 merchantOrderId: orderId,
                 platformOrderId: internalId,
+                currency: currency,
                 requestedAmount: amount,
                 processingFee: parseFloat(fee.toFixed(2)),
                 paymentUrl: paymentUrl,
