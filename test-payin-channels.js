@@ -22,7 +22,7 @@ async function testChannels() {
 
     const baseOrder = {
         orderId: `TEST_${Date.now()}`,
-        amount: 314.00,
+        amount: 4990.00,
         customerName: 'Test User',
         customerEmail: 'test@example.com',
         customerPhone: '9999999999',

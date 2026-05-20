@@ -348,7 +348,7 @@ app.get('/bharattest', async (req, res) => {
 // ============================================
 const PORT = process.env.PORT || 3000;
 
-sequelize.sync({ alter: true }).then(async () => {
+sequelize.sync().then(async () => {
     console.log('Database connected & synced');
 
     // Backfill credentials
