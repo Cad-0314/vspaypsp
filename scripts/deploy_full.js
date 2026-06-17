@@ -48,6 +48,7 @@ const filesToSync = [
   'src/services/silkpay.js',
   'src/services/stats.js',
   'src/services/telegramBot.js',
+  'src/services/proxyManager.js',
   'src/services/unitedpay.js',
   'src/services/ynpay.js',
   'src/routes/admin.js',
