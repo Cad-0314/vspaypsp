@@ -29,177 +29,47 @@ async function testChannels() {
         returnUrl: `${BASE_URL}/pay/success`
     };
 
-    const results = [];
+    const channelsToTest = [
+        { name: 'Yellow', service: caipayService, notifyPath: '/callback/yellow/payin' },
+        { name: 'UPI Super', service: fendpayService, notifyPath: '/callback/fendpay/payin' },
+        { name: 'GaurPay', service: silkpayService, notifyPath: '/callback/gaurpay/payin' },
+        { name: 'CKPay', service: ckpayService, notifyPath: '/callback/ckpay/payin' },
+        { name: 'CX Pay', service: cxpayService, notifyPath: '/callback/cxpay/payin' },
+        { name: 'AA Pay', service: aapayService, notifyPath: '/callback/aapay/payin' },
+        { name: 'IPay', service: ipayService, notifyPath: '/callback/ipay/payin' },
+        { name: 'United Pay', service: unitedpayService, notifyPath: '/callback/unitedpay/payin' },
+        { name: 'BharatPay', service: bharatpayService, notifyPath: '/callback/bharatpay/payin' },
+        { name: 'FirPay', service: firpayService, notifyPath: '/callback/firpay/payin' },
+        { name: 'AG Pay', service: agpayService, notifyPath: '/callback/agpay/payin' },
+        { name: 'Easy Pay', service: easypayService, notifyPath: '/callback/easypay/payin' },
+        { name: 'YN Pay', service: ynpayService, notifyPath: '/callback/ynpay/payin' },
+        { name: 'Pass Pay', service: passpayService, notifyPath: '/callback/passpay/payin' }
+    ];
 
+    const withTimeout = (promise, ms) => {
+        let timeoutId;
+        const timeoutPromise = new Promise((_, reject) => {
+            timeoutId = setTimeout(() => {
+                reject(new Error(`Timed out after ${ms}ms`));
+            }, ms);
+        });
+        return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timeoutId));
+    };
 
+    const testPromises = channelsToTest.map(async (ch) => {
+        try {
+            console.log(`\nTesting ${ch.name}...`);
+            const order = { ...baseOrder, notifyUrl: `${BASE_URL}${ch.notifyPath}` };
+            const res = await withTimeout(ch.service.createPayin(order), 15000); // 15 seconds timeout
+            console.log(`${ch.name} Result:`, JSON.stringify(res, null, 2));
+            return { channel: ch.name, success: res.success, data: res, error: res.error };
+        } catch (e) {
+            console.error(`${ch.name} Error:`, e.message);
+            return { channel: ch.name, success: false, error: e.message };
+        }
+    });
 
-    // 3. CaiPay (Yellow) - H2H
-    try {
-        console.log('\nTesting CaiPay (Yellow)...');
-        const order = { ...baseOrder, notifyUrl: `${BASE_URL}/callback/yellow/payin` };
-        const res = await caipayService.createPayin(order);
-        console.log('CaiPay Result:', JSON.stringify(res, null, 2));
-        results.push({ channel: 'Yellow', success: res.success, data: res, error: res.error });
-    } catch (e) {
-        console.error('CaiPay Error:', e.message);
-        results.push({ channel: 'Yellow', success: false, error: e.message });
-    }
-
-    // 4. FendPay (UPI Super)
-    try {
-        console.log('\nTesting FendPay (UPI Super)...');
-        const order = { ...baseOrder, notifyUrl: `${BASE_URL}/callback/fendpay/payin` };
-        const res = await fendpayService.createPayin(order);
-        console.log('FendPay Result:', JSON.stringify(res, null, 2));
-        results.push({ channel: 'UPI Super', success: res.success, data: res, error: res.error });
-    } catch (e) {
-        console.error('FendPay Error:', e.message);
-        results.push({ channel: 'UPI Super', success: false, error: e.message });
-    }
-
-    // 5. Silkpay (GaurPay)
-    try {
-        console.log('\nTesting Silkpay (GaurPay)...');
-        const order = { ...baseOrder, notifyUrl: `${BASE_URL}/callback/gaurpay/payin` };
-        const res = await silkpayService.createPayin(order);
-        console.log('Silkpay Result:', JSON.stringify(res, null, 2));
-        results.push({ channel: 'GaurPay', success: res.success, data: res, error: res.error });
-    } catch (e) {
-        console.error('Silkpay Error:', e.message);
-        results.push({ channel: 'GaurPay', success: false, error: e.message });
-    }
-
-    // 6. CKPay
-    try {
-        console.log('\nTesting CKPay...');
-        const order = { ...baseOrder, notifyUrl: `${BASE_URL}/callback/ckpay/payin` };
-        const res = await ckpayService.createPayin(order);
-        console.log('CKPay Result:', JSON.stringify(res, null, 2));
-        results.push({ channel: 'CKPay', success: res.success, data: res, error: res.error });
-    } catch (e) {
-        console.error('CKPay Error:', e.message);
-        results.push({ channel: 'CKPay', success: false, error: e.message });
-    }
-
-    // 7. CXPay
-    try {
-        console.log('\nTesting CXPay...');
-        const order = { ...baseOrder, notifyUrl: `${BASE_URL}/callback/cxpay/payin` };
-        const res = await cxpayService.createPayin(order);
-        console.log('CXPay Result:', JSON.stringify(res, null, 2));
-        results.push({ channel: 'CX Pay', success: res.success, data: res, error: res.error });
-    } catch (e) {
-        console.error('CXPay Error:', e.message);
-        results.push({ channel: 'CX Pay', success: false, error: e.message });
-    }
-
-    // 8. AaPay
-    try {
-        console.log('\nTesting AaPay...');
-        const order = { ...baseOrder, notifyUrl: `${BASE_URL}/callback/aapay/payin` };
-        const res = await aapayService.createPayin(order);
-        console.log('AaPay Result:', JSON.stringify(res, null, 2));
-        results.push({ channel: 'AA Pay', success: res.success, data: res, error: res.error });
-    } catch (e) {
-        console.error('AaPay Error:', e.message);
-        results.push({ channel: 'AA Pay', success: false, error: e.message });
-    }
-
-    // 9. IPay
-    try {
-        console.log('\nTesting IPay...');
-        const order = { ...baseOrder, notifyUrl: `${BASE_URL}/callback/ipay/payin` };
-        const res = await ipayService.createPayin(order);
-        console.log('IPay Result:', JSON.stringify(res, null, 2));
-        results.push({ channel: 'IPay', success: res.success, data: res, error: res.error });
-    } catch (e) {
-        console.error('IPay Error:', e.message);
-        results.push({ channel: 'IPay', success: false, error: e.message });
-    }
-
-    // 10. UnitedPay
-    try {
-        console.log('\nTesting UnitedPay...');
-        const order = { ...baseOrder, notifyUrl: `${BASE_URL}/callback/unitedpay/payin` };
-        const res = await unitedpayService.createPayin(order);
-        console.log('UnitedPay Result:', JSON.stringify(res, null, 2));
-        results.push({ channel: 'United Pay', success: res.success, data: res, error: res.error });
-    } catch (e) {
-        console.error('UnitedPay Error:', e.message);
-        results.push({ channel: 'United Pay', success: false, error: e.message });
-    }
-
-    // 11. BharatPay
-    try {
-        console.log('\nTesting BharatPay...');
-        const order = { ...baseOrder, notifyUrl: `${BASE_URL}/callback/bharatpay/payin` };
-        const res = await bharatpayService.createPayin(order);
-        console.log('BharatPay Result:', JSON.stringify(res, null, 2));
-        results.push({ channel: 'BharatPay', success: res.success, data: res, error: res.error });
-    } catch (e) {
-        console.error('BharatPay Error:', e.message);
-        results.push({ channel: 'BharatPay', success: false, error: e.message });
-    }
-
-    // 12. FirPay
-    try {
-        console.log('\nTesting FirPay...');
-        const order = { ...baseOrder, notifyUrl: `${BASE_URL}/callback/firpay/payin` };
-        const res = await firpayService.createPayin(order);
-        console.log('FirPay Result:', JSON.stringify(res, null, 2));
-        results.push({ channel: 'FirPay', success: res.success, data: res, error: res.error });
-    } catch (e) {
-        console.error('FirPay Error:', e.message);
-        results.push({ channel: 'FirPay', success: false, error: e.message });
-    }
-
-    // 13. AgPay
-    try {
-        console.log('\nTesting AgPay...');
-        const order = { ...baseOrder, notifyUrl: `${BASE_URL}/callback/agpay/payin` };
-        const res = await agpayService.createPayin(order);
-        console.log('AgPay Result:', JSON.stringify(res, null, 2));
-        results.push({ channel: 'AG Pay', success: res.success, data: res, error: res.error });
-    } catch (e) {
-        console.error('AgPay Error:', e.message);
-        results.push({ channel: 'AG Pay', success: false, error: e.message });
-    }
-
-    // 14. EasyPay
-    try {
-        console.log('\nTesting EasyPay...');
-        const order = { ...baseOrder, notifyUrl: `${BASE_URL}/callback/easypay/payin` };
-        const res = await easypayService.createPayin(order);
-        console.log('EasyPay Result:', JSON.stringify(res, null, 2));
-        results.push({ channel: 'Easy Pay', success: res.success, data: res, error: res.error });
-    } catch (e) {
-        console.error('EasyPay Error:', e.message);
-        results.push({ channel: 'Easy Pay', success: false, error: e.message });
-    }
-
-    // 15. YNPay
-    try {
-        console.log('\nTesting YNPay...');
-        const order = { ...baseOrder, notifyUrl: `${BASE_URL}/callback/ynpay/payin` };
-        const res = await ynpayService.createPayin(order);
-        console.log('YNPay Result:', JSON.stringify(res, null, 2));
-        results.push({ channel: 'YN Pay', success: res.success, data: res, error: res.error });
-    } catch (e) {
-        console.error('YNPay Error:', e.message);
-        results.push({ channel: 'YN Pay', success: false, error: e.message });
-    }
-
-    // 16. PassPay
-    try {
-        console.log('\nTesting PassPay...');
-        const order = { ...baseOrder, notifyUrl: `${BASE_URL}/callback/passpay/payin` };
-        const res = await passpayService.createPayin(order);
-        console.log('PassPay Result:', JSON.stringify(res, null, 2));
-        results.push({ channel: 'Pass Pay', success: res.success, data: res, error: res.error });
-    } catch (e) {
-        console.error('PassPay Error:', e.message);
-        results.push({ channel: 'Pass Pay', success: false, error: e.message });
-    }
+    const results = await Promise.all(testPromises);
 
     console.log('\n--- Analysis Complete ---');
     return results;
