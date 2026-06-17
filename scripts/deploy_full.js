@@ -13,11 +13,11 @@ const baseDir = path.join(__dirname, '..');
 const remoteBase = '/var/www/vspaypsp';
 
 // All source files to sync (excludes node_modules, .git, logs, temp files)
+// NOTE: .env is NOT synced — production has different DB config (MySQL vs local SQLite)
 const filesToSync = [
   'server.js',
   'package.json',
   'ecosystem.config.js',
-  '.env',
   'src/config/database.js',
   'src/config/passport.js',
   'src/config/currencies.js',
