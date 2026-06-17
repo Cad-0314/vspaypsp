@@ -5,7 +5,8 @@ const User = require('../models/User');
 module.exports = function (passport) {
     passport.use(new LocalStrategy({ usernameField: 'username' }, async (username, password, done) => {
         try {
-            const user = await User.findOne({ where: { username: username } });
+            const cleanUsername = username ? username.trim() : '';
+            const user = await User.findOne({ where: { username: cleanUsername } });
             if (!user) {
                 return done(null, false, { message: 'Incorrect username.' });
             }
