@@ -268,6 +268,14 @@ router.post('/:channel/payin', async (req, res) => {
             utr = req.body.utr || '';
             actualAmount = parseFloat(req.body.real_amount || req.body.amount);
             providerOrderId = req.body.trade_no;
+        } else if (channelName === 'testpay') {
+            // TestPay: simulated test channel, status SUCCESS/FAIL (string)
+            orderId = req.body.orderId;
+            status = req.body.status === 'SUCCESS' ? 'success' :
+                req.body.status === 'FAIL' ? 'failed' : 'pending';
+            utr = req.body.utr || '';
+            actualAmount = parseFloat(req.body.realAmount || req.body.amount);
+            providerOrderId = req.body.platformOrderId;
         }
 
         if (!orderId) {
@@ -521,6 +529,13 @@ router.post('/:channel/payout', async (req, res) => {
                 statusVal === 6 ? 'failed' : 'processing';
             utr = req.body.utr || '';
             providerOrderId = req.body.trade_no;
+        } else if (channelName === 'testpay') {
+            // TestPay payout: simulated test channel, status SUCCESS/FAIL (string)
+            orderId = req.body.orderId;
+            status = req.body.status === 'SUCCESS' ? 'success' :
+                req.body.status === 'FAIL' ? 'failed' : 'processing';
+            utr = req.body.utr || '';
+            providerOrderId = req.body.platformOrderId;
         }
 
         if (!orderId) return res.send(successResponse);

@@ -18,6 +18,7 @@ const agpayService = require('./agpay');
 const easypayService = require('./easypay');
 const ynpayService = require('./ynpay');
 const passpayService = require('./passpay');
+const testpayService = require('./testpay');
 
 // Lazy load customChannel to avoid circular dependency
 let customChannelService = null;
@@ -141,6 +142,14 @@ const channelConfig = {
         displayNameZh: 'Pass Pay',
         usesCustomPayPage: false,
         provider: 'passpay',
+        currency: 'INR'
+    },
+    testpay: {
+        service: testpayService,
+        displayName: 'Test Pay',
+        displayNameZh: '测试支付',
+        usesCustomPayPage: false,
+        provider: 'testpay',
         currency: 'INR'
     },
     smart: {
