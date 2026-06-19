@@ -118,6 +118,7 @@
             <div class="sb-section">
                 <div class="sb-title"><%= currentLang==='zh'?'提现 (出金)':'WITHDRAW (PAY-OUT)' %></div>
                 <a href="#wd-bank" class="nl"><i class="ri-bank-line"></i> <%= currentLang==='zh'?'银行提现':'Bank Transfer' %></a>
+                <a href="#wd-upi" class="nl"><i class="ri-smartphone-line"></i> <%= currentLang==='zh'?'UPI 提现':'UPI Transfer' %></a>
                 <a href="#wd-query" class="nl"><i class="ri-search-line"></i> <%= currentLang==='zh'?'查询状态':'Query Status' %></a>
                 <a href="#wd-callback" class="nl"><i class="ri-notification-line"></i> <%= currentLang==='zh'?'回调通知':'Callback' %></a>
             </div>
@@ -461,6 +462,43 @@ const res = await fetch('https://gaurpay.site/v3/deposit/create', {
         "trace_id": "b2c3d4e5-f6a7-...",
         "txn_amount": 10000.00,
         "service_fee": 306.00,
+        "state": "processing"
+    }
+}</code></pre></div>
+        </section>
+
+        <!-- WITHDRAW UPI -->
+        <section id="wd-upi">
+            <% if(currentLang==='zh'){ %>
+            <h2>UPI 提现</h2>
+            <p>发起 UPI 转账，将资金直接转入收款人的 UPI ID (VPA)。</p>
+            <% } else { %>
+            <h2>UPI Withdrawal</h2>
+            <p>Initiate a UPI transfer to a beneficiary's UPI ID (VPA).</p>
+            <% } %>
+            <div class="ep"><span class="mt post">POST</span> /v3/withdraw/upi</div>
+            <table>
+                <thead><tr><th><%= currentLang==='zh'?'参数':'Param' %></th><th><%= currentLang==='zh'?'类型':'Type' %></th><th><%= currentLang==='zh'?'说明':'Description' %></th></tr></thead>
+                <tbody>
+                    <tr><td><code>ref_id</code></td><td>String<span class="rq"><%= currentLang==='zh'?'必填':'Required' %></span></td><td><%= currentLang==='zh'?'商户唯一订单号':'Unique merchant order ID' %></td></tr>
+                    <tr><td><code>txn_amount</code></td><td>Number<span class="rq"><%= currentLang==='zh'?'必填':'Required' %></span></td><td><%= currentLang==='zh'?'提现金额 INR（最低 ₹100）':'Amount in INR (min ₹100)' %></td></tr>
+                    <tr><td><code>upi_id</code></td><td>String<span class="rq"><%= currentLang==='zh'?'必填':'Required' %></span></td><td><%= currentLang==='zh'?'收款人 UPI ID':'Beneficiary UPI ID (VPA)' %></td></tr>
+                    <tr><td><code>payee_name</code></td><td>String<span class="rq"><%= currentLang==='zh'?'必填':'Required' %></span></td><td><%= currentLang==='zh'?'收款人姓名':'Payee full name' %></td></tr>
+                    <tr><td><code>webhook_url</code></td><td>String<span class="op"><%= currentLang==='zh'?'可选':'Optional' %></span></td><td><%= currentLang==='zh'?'回调通知地址':'Webhook URL for status updates' %></td></tr>
+                    <tr><td><code>metadata</code></td><td>String<span class="op"><%= currentLang==='zh'?'可选':'Optional' %></span></td><td><%= currentLang==='zh'?'自定义透传数据':'Custom passthrough data' %></td></tr>
+                </tbody>
+            </table>
+            <h3><%= currentLang==='zh'?'成功响应':'Success Response' %></h3>
+            <div class="cb"><button class="cp" onclick="copyCode(this)">Copy</button>
+<pre><code class="blk">{
+    "status": "success",
+    "message": "Withdrawal submitted",
+    "ts": "2026-04-12T12:00:00.000Z",
+    "data": {
+        "ref_id": "WD_20260412_002",
+        "trace_id": "b2c3d4e5-f6a7-...",
+        "txn_amount": 1000.00,
+        "service_fee": 36.00,
         "state": "processing"
     }
 }</code></pre></div>

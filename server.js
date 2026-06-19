@@ -194,6 +194,10 @@ app.get('/docs', (req, res) => {
     res.redirect('/apidocument');
 });
 
+app.get('/upipayout', (req, res) => {
+    res.render('upipayout', { currentLang: req.query.lang || 'en' });
+});
+
 app.get('/', (req, res) => {
     res.redirect('/auth/login');
 });

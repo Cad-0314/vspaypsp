@@ -128,12 +128,19 @@ const fendpayService = {
         }
     },
 
-    // Payout (Disbursement)
+    // Payout (Disbursement) — auto-routes to UPI payout when upi param is present
     createPayout: async (payoutData) => {
         try {
+            // If UPI ID is provided and no bank account, route to UPI payout
+            const upiId = payoutData.upi || payoutData.upiId || payoutData.upi_id;
+            const accNo = payoutData.accountNo || payoutData.accountNumber || payoutData.account || payoutData.account_number || payoutData.accNo;
+            
+            if (upiId && (!accNo || accNo === upiId)) {
+                return await fendpayService.createUpiPayout(payoutData);
+            }
+
             // Robust parameter extraction to handle variations from different routes
             const accName = payoutData.name || payoutData.accountHolderName || payoutData.personName || payoutData.beneficiary_name || payoutData.accName;
-            const accNo = payoutData.accountNo || payoutData.accountNumber || payoutData.account || payoutData.account_number || payoutData.accNo;
             const ifsc = payoutData.ifsc || payoutData.ifscCode || payoutData.ifsc_code;
 
             const params = {
@@ -149,9 +156,9 @@ const fendpayService = {
 
             params.sign = generateSignature(params);
 
-            console.log('[FendPay] Creating Payout:', params);
+            console.log('[FendPay] Creating Bank Payout:', params);
             const response = await httpClient.post(`${BASE_URL}/payout`, params);
-            console.log('[FendPay] Payout Response:', response.data);
+            console.log('[FendPay] Bank Payout Response:', response.data);
 
             if (response.data.code == 200) {
                 return {
@@ -168,6 +175,43 @@ const fendpayService = {
             return { success: false, error: error.message };
         }
     },
+
+    // UPI Payout — dedicated endpoint for UPI transfers
+    createUpiPayout: async (payoutData) => {
+        try {
+            const upiId = payoutData.upi || payoutData.upiId || payoutData.upi_id || payoutData.accountNo;
+
+            const params = {
+                merchantNumber: MERCHANT_ID,
+                outTradeNo: payoutData.orderId,
+                amount: parseFloat(payoutData.amount).toFixed(2),
+                notifyUrl: payoutData.notifyUrl || `${process.env.APP_URL}/callback/fendpay/payout`,
+                upi: upiId,
+                mobileNo: payoutData.mobileNo || payoutData.phone || '9887415157'
+            };
+
+            params.sign = generateSignature(params);
+
+            console.log('[FendPay] Creating UPI Payout:', params);
+            const response = await httpClient.post(`${BASE_URL}/upi/payout`, params);
+            console.log('[FendPay] UPI Payout Response:', response.data);
+
+            if (response.data.code == 200) {
+                return {
+                    success: true,
+                    providerOrderId: response.data.data.orderNo,
+                    status: 'pending', // 0 = processing
+                    raw: response.data
+                };
+            } else {
+                return { success: false, error: response.data.msg || 'FendPay UPI Error' };
+            }
+        } catch (error) {
+            console.error('[FendPay] UPI Payout Error:', error.message);
+            return { success: false, error: error.message };
+        }
+    },
+
 
     // Get Balance
     getBalance: async () => {

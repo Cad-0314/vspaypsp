@@ -33,7 +33,7 @@ const Order = sequelize.define('Order', {
         allowNull: false
     },
     payoutType: {
-        type: DataTypes.ENUM('bank', 'usdt'),
+        type: DataTypes.ENUM('bank', 'usdt', 'upi'),
         allowNull: true,
         comment: 'For payout orders: bank or usdt'
     },

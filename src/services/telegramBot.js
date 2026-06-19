@@ -4,15 +4,21 @@ const { Op } = require('sequelize');
 
 let bot = null;
 
-const init = (token) => {
+const { getWorkingAgent, invalidateAgent } = require('./proxyManager');
+
+const init = async (token) => {
     if (!token) {
         console.warn('[Telegram] No BOT_TOKEN provided. Bot integration disabled.');
         return;
     }
 
     try {
-        bot = new TelegramBot(token, { polling: true });
-        console.log('[Telegram] Bot initialized successfully.');
+        const agent = await getWorkingAgent();
+        bot = new TelegramBot(token, {
+            polling: true,
+            request: { agent }
+        });
+        console.log('[Telegram] Bot initialized successfully with proxy.');
 
         // ─── Helper: Find merchant by Group ID ───
         const getMerchant = async (chatId) => {
@@ -573,11 +579,27 @@ const init = (token) => {
 
         // ─── Error handling ───
         let lastErrorTime = 0;
-        bot.on('polling_error', (error) => {
+        bot.on('polling_error', async (error) => {
             const now = Date.now();
             if (now - lastErrorTime > 60000) {
                 console.error(`[Telegram] Polling Error: ${error.code || error.message}`);
                 lastErrorTime = now;
+            }
+            
+            if (error.code === 'EFATAL' || error.code === 'ETIMEDOUT' || error.code === 'ECONNRESET' || (error.message && (error.message.includes('socket hang up') || error.message.includes('timeout') || error.message.includes('EHOSTUNREACH')))) {
+                console.log('[Telegram] Proxy failed, fetching a new proxy...');
+                invalidateAgent();
+                try {
+                    bot.stopPolling();
+                    const newAgent = await getWorkingAgent();
+                    if (bot && bot.options && bot.options.request) {
+                        bot.options.request.agent = newAgent;
+                        console.log('[Telegram] Successfully switched to new proxy agent.');
+                        bot.startPolling();
+                    }
+                } catch (e) {
+                    console.error('[Telegram] Failed to switch proxy:', e.message);
+                }
             }
         });
 

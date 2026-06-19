@@ -315,7 +315,7 @@ router.post('/paylink', async (req, res) => {
         }
 
         // Get channel rates with custom override
-        const channel = await Channel.findOne({ where: { name: merchant.assignedChannel || 'hdpay' } });
+        const channel = await Channel.findOne({ where: { name: merchant.assignedChannel || 'aapay' } });
 
         let customRates = {};
         try { customRates = JSON.parse(merchant.channel_rates || '{}'); } catch (e) { }
@@ -326,7 +326,7 @@ router.post('/paylink', async (req, res) => {
 
         const orderId = `PL${Date.now()}${Math.floor(Math.random() * 1000)}`;
 
-        const channelName = merchant.assignedChannel || 'hdpay';
+        const channelName = merchant.assignedChannel || 'aapay';
 
         const order = await Order.create({
             id: uuidv4(),

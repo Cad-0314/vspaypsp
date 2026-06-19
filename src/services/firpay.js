@@ -130,11 +130,17 @@ async function queryPayin(orderId) {
 }
 
 /**
- * Create payout order (payment)
- * POST /pay/payout
+ * Create payout order (payment) — auto-routes to UPI when upi param present
+ * POST /pay/payout (bank) or /pay/upi/payout (UPI)
  */
-async function createPayout({ orderId, amount, name, accountNo, ifsc, notifyUrl, customerPhone }) {
+async function createPayout({ orderId, amount, name, accountNo, ifsc, upi, upiId, upi_id, notifyUrl, customerPhone }) {
     try {
+        // Auto-route to UPI payout when UPI ID is provided
+        const upiAddress = upi || upiId || upi_id;
+        if (upiAddress && (!accountNo || accountNo === upiAddress)) {
+            return await createUpiPayout({ orderId, amount, name, upi: upiAddress, notifyUrl, customerPhone });
+        }
+
         const payload = {
             merchantNumber: MERCHANT_ID,
             outTradeNo: orderId,
@@ -148,7 +154,7 @@ async function createPayout({ orderId, amount, name, accountNo, ifsc, notifyUrl,
 
         payload.sign = generateSign(payload);
 
-        console.log('[FirPay] Creating payout:', { orderId, amount });
+        console.log('[FirPay] Creating bank payout:', { orderId, amount });
         const response = await httpClient.post('/pay/payout', payload);
 
         if (response.data.code === '200' && response.data.data) {
@@ -158,7 +164,7 @@ async function createPayout({ orderId, amount, name, accountNo, ifsc, notifyUrl,
                 status: response.data.data.status === '0' ? 'processing' : 'processing'
             };
         } else {
-            console.error('[FirPay] Payout error:', response.data);
+            console.error('[FirPay] Bank payout error:', response.data);
             return {
                 success: false,
                 error: response.data.msg || `Error code: ${response.data.code}`
@@ -166,6 +172,45 @@ async function createPayout({ orderId, amount, name, accountNo, ifsc, notifyUrl,
         }
     } catch (error) {
         console.error('[FirPay] Payout exception:', error.message);
+        return { success: false, error: error.message };
+    }
+}
+
+/**
+ * Create UPI payout order — dedicated UPI payout endpoint
+ * POST /pay/upi/payout
+ */
+async function createUpiPayout({ orderId, amount, name, upi, notifyUrl, customerPhone }) {
+    try {
+        const payload = {
+            merchantNumber: MERCHANT_ID,
+            outTradeNo: orderId,
+            amount: parseFloat(amount).toFixed(2),
+            notifyUrl: notifyUrl,
+            upi: upi,
+            mobileNo: customerPhone || '9999999999'
+        };
+
+        payload.sign = generateSign(payload);
+
+        console.log('[FirPay] Creating UPI payout:', { orderId, amount, upi });
+        const response = await httpClient.post('/pay/upi/payout', payload);
+
+        if (response.data.code === '200' && response.data.data) {
+            return {
+                success: true,
+                providerOrderId: response.data.data.orderNo,
+                status: response.data.data.status === '0' ? 'processing' : 'processing'
+            };
+        } else {
+            console.error('[FirPay] UPI payout error:', response.data);
+            return {
+                success: false,
+                error: response.data.msg || `Error code: ${response.data.code}`
+            };
+        }
+    } catch (error) {
+        console.error('[FirPay] UPI payout exception:', error.message);
         return { success: false, error: error.message };
     }
 }
@@ -247,6 +292,7 @@ module.exports = {
     createPayin,
     queryPayin,
     createPayout,
+    createUpiPayout,
     queryPayout,
     getBalance,
     submitUtr,

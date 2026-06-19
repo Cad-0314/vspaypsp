@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="<%= currentLang %>">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="GaurPay UPI Payout API Documentation — Send instant UPI transfers via API">
+    <title>GaurPay — UPI Payout API Documentation</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        :root{--bg:#ffffff;--sidebar:#f8f7f5;--border:#e5e2dc;--text:#111827;--muted:#6b7280;--accent:#C41230;--accent-light:#fff1f2;--code-bg:#0f172a;--code-text:#e2e8f0;--success:#059669;--warn:#d97706;--radius:8px;--font:'Inter','Noto Sans SC',sans-serif;--mono:'JetBrains Mono',monospace}
+        *{margin:0;padding:0;box-sizing:border-box}
+        html[lang="zh"] *{font-family:'Inter','Noto Sans SC',"Microsoft YaHei",sans-serif!important}
+        body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden}
+
+        /* SIDEBAR */
+        .sb{width:260px;background:var(--sidebar);border-right:1px solid var(--border);height:100%;overflow-y:auto;flex-shrink:0;padding:1.25rem;display:flex;flex-direction:column}
+        .sb-brand{display:flex;align-items:center;gap:.6rem;font-weight:700;font-size:1.15rem;color:var(--accent);margin-bottom:.5rem;text-decoration:none}
+        .sb-brand i{font-size:1.3rem}
+        .ver{font-size:.6rem;background:var(--accent-light);color:var(--accent);padding:2px 7px;border-radius:10px;font-weight:600;margin-left:auto}
+        .lang-row{display:flex;gap:3px;margin:.75rem 0 1.25rem;background:var(--border);padding:3px;border-radius:var(--radius)}
+        .lang-row a{flex:1;text-align:center;padding:.35rem;border-radius:6px;font-size:.78rem;font-weight:500;color:var(--muted);text-decoration:none;transition:.2s}
+        .lang-row a.on{background:#fff;color:var(--accent);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+        .sb-section{margin-bottom:1.25rem}
+        .sb-title{font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;margin-bottom:.4rem;padding-left:.6rem}
+        .sb a.nl{display:flex;align-items:center;gap:.45rem;padding:.4rem .65rem;color:var(--text);text-decoration:none;font-size:.82rem;border-radius:6px;margin-bottom:1px;font-weight:450;transition:.15s}
+        .sb a.nl:hover,.sb a.nl.on{background:var(--accent-light);color:var(--accent)}
+        .sb a.nl i{font-size:.85rem;width:16px;text-align:center;opacity:.65}
+        .sb-back{display:flex;align-items:center;gap:.4rem;font-size:.78rem;color:var(--muted);text-decoration:none;margin-bottom:1rem;padding:.3rem .5rem;border-radius:6px;transition:.15s}
+        .sb-back:hover{background:var(--accent-light);color:var(--accent)}
+        .sb-back i{font-size:.9rem}
+
+        /* MAIN CONTENT */
+        .main{flex:1;overflow-y:auto;padding:2.5rem 3.5rem;scroll-behavior:smooth}
+        section{margin-bottom:3.5rem;max-width:820px;scroll-margin-top:2rem}
+        h1{font-size:1.85rem;margin-bottom:.6rem;font-weight:700}
+        h1 small{font-size:.85rem;color:var(--muted);font-weight:400;display:block;margin-top:.2rem}
+        h2{font-size:1.3rem;margin-bottom:.85rem;padding-bottom:.4rem;border-bottom:1px solid var(--border);font-weight:650;margin-top:0}
+        h3{font-size:1rem;margin:1.25rem 0 .6rem;font-weight:600}
+        p{line-height:1.7;color:#374151;margin-bottom:.85rem;font-size:.9rem}
+
+        /* ENDPOINT BADGE */
+        .ep{display:inline-flex;align-items:center;gap:.5rem;background:#f1f5f9;padding:.45rem .9rem;border-radius:var(--radius);font-family:var(--mono);font-size:.82rem;margin-bottom:1rem;border:1px solid var(--border)}
+        .mt{font-weight:700;font-size:.7rem;padding:2px 7px;border-radius:4px;text-transform:uppercase}
+        .mt.post{background:#dcfce7;color:#166534}
+        .mt.get{background:#dbeafe;color:#1e40af}
+
+        /* TABLE */
+        table{width:100%;border-collapse:collapse;margin-bottom:1.25rem;font-size:.83rem;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+        th,td{padding:.6rem .85rem;text-align:left;border-bottom:1px solid var(--border)}
+        th{background:var(--sidebar);font-weight:600;color:var(--text);font-size:.77rem;text-transform:uppercase;letter-spacing:.03em}
+        td{color:#374151}
+        td code{font-size:.8em}
+        .rq{color:#ef4444;font-size:.67rem;font-weight:600;background:#fef2f2;padding:2px 5px;border-radius:3px;margin-left:3px}
+        .op{color:var(--muted);font-size:.67rem;font-weight:500;background:var(--sidebar);padding:2px 5px;border-radius:3px;margin-left:3px}
+
+        /* CODE */
+        code:not(.blk){background:#f1f5f9;padding:.12rem .35rem;border-radius:3px;font-family:var(--mono);font-size:.8em;color:#be123c}
+        .cb{position:relative;margin-bottom:1.25rem;background:var(--code-bg);border-radius:var(--radius);overflow:hidden}
+        .cb pre{margin:0;padding:1rem 1.15rem;overflow-x:auto;font-size:.8rem;line-height:1.6;color:var(--code-text);font-family:var(--mono)}
+        .cb .cp{position:absolute;top:6px;right:6px;background:rgba(255,255,255,.1);border:none;color:#94a3b8;padding:4px 9px;border-radius:4px;cursor:pointer;font-size:.7rem;font-family:var(--font);transition:.2s}
+        .cb .cp:hover{background:rgba(255,255,255,.2);color:#fff}
+
+        /* ALERTS */
+        .al{padding:.85rem 1rem;border-radius:var(--radius);border-left:4px solid;margin-bottom:1.25rem;font-size:.85rem;line-height:1.55}
+        .al-i{background:var(--accent-light);border-color:var(--accent);color:#1e40af}
+        .al-w{background:#fef3c7;border-color:var(--warn);color:#92400e}
+        .al-s{background:#ecfdf5;border-color:var(--success);color:#065f46}
+
+        /* STATUS BADGES */
+        .st{display:inline-block;padding:2px 9px;border-radius:16px;font-size:.7rem;font-weight:600;text-transform:uppercase}
+        .st.s{background:#dcfce7;color:#166534}
+        .st.f{background:#fef2f2;color:#991b1b}
+        .st.p{background:#fef3c7;color:#92400e}
+        .st.pr{background:#dbeafe;color:#1e40af}
+
+        /* STEPS */
+        .steps{counter-reset:st;list-style:none;padding:0;margin-bottom:1.25rem}
+        .steps li{counter-increment:st;padding:.5rem 0 .5rem 2.25rem;position:relative;color:var(--muted);font-size:.88rem;line-height:1.55}
+        .steps li::before{content:counter(st);position:absolute;left:0;top:.4rem;width:1.6rem;height:1.6rem;background:var(--accent-light);color:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700}
+
+        /* TABS */
+        .tabs{display:flex;gap:0;margin-bottom:0;border-bottom:2px solid var(--border)}
+        .tabs button{padding:.4rem .85rem;font-size:.78rem;font-weight:500;color:var(--muted);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:.15s;font-family:var(--font)}
+        .tabs button.on{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+        .tc{display:none}.tc.on{display:block}
+
+        /* FEATURE GRID */
+        .feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.85rem;margin-bottom:1.5rem}
+        .feat-card{background:var(--sidebar);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;display:flex;align-items:flex-start;gap:.65rem}
+        .feat-card i{font-size:1.2rem;color:var(--accent);margin-top:2px;flex-shrink:0}
+        .feat-card .fc-t{font-weight:600;font-size:.85rem;margin-bottom:.15rem}
+        .feat-card .fc-d{font-size:.78rem;color:var(--muted);line-height:1.4}
+
+        /* MOBILE */
+        .mob-btn{display:none;position:fixed;top:.8rem;left:.8rem;z-index:200;background:var(--accent);color:#fff;border:none;width:36px;height:36px;border-radius:var(--radius);cursor:pointer;font-size:1.1rem;align-items:center;justify-content:center}
+        @media(max-width:1024px){
+            .sb{position:fixed;z-index:150;transform:translateX(-100%);transition:.3s}.sb.show{transform:translateX(0)}
+            .mob-btn{display:flex}.main{padding:2rem 1.25rem;padding-top:3rem}
+        }
+    </style>
+</head>
+<body>
+    <button class="mob-btn" onclick="document.querySelector('.sb').classList.toggle('show')"><i class="ri-menu-line"></i></button>
+
+    <aside class="sb">
+        <a href="/" class="sb-brand"><i class="ri-shield-keyhole-fill"></i> GaurPay <span class="ver">UPI</span></a>
+        <div class="lang-row">
+            <a href="?lang=en" class="<%= currentLang==='en'?'on':'' %>">English</a>
+            <a href="?lang=zh" class="<%= currentLang==='zh'?'on':'' %>">中文</a>
+        </div>
+        <a href="/apidocument" class="sb-back"><i class="ri-arrow-left-s-line"></i> <%= currentLang==='zh'?'返回完整文档':'Back to Full Docs' %></a>
+        <nav>
+            <div class="sb-section">
+                <div class="sb-title"><%= currentLang==='zh'?'入门':'GETTING STARTED' %></div>
+                <a href="#intro" class="nl"><i class="ri-smartphone-line"></i> <%= currentLang==='zh'?'概述':'Overview' %></a>
+                <a href="#auth" class="nl"><i class="ri-key-2-line"></i> <%= currentLang==='zh'?'签名认证':'Authentication' %></a>
+            </div>
+            <div class="sb-section">
+                <div class="sb-title"><%= currentLang==='zh'?'UPI 代付':'UPI PAYOUT' %></div>
+                <a href="#upi-create" class="nl"><i class="ri-send-plane-line"></i> <%= currentLang==='zh'?'创建 UPI 代付':'Create UPI Payout' %></a>
+                <a href="#upi-query" class="nl"><i class="ri-search-line"></i> <%= currentLang==='zh'?'查询状态':'Query Status' %></a>
+                <a href="#upi-callback" class="nl"><i class="ri-notification-line"></i> <%= currentLang==='zh'?'回调通知':'Callback' %></a>
+            </div>
+            <div class="sb-section">
+                <div class="sb-title"><%= currentLang==='zh'?'参考':'REFERENCE' %></div>
+                <a href="#errors" class="nl"><i class="ri-error-warning-line"></i> <%= currentLang==='zh'?'错误码':'Error Codes' %></a>
+                <a href="#tips" class="nl"><i class="ri-lightbulb-line"></i> <%= currentLang==='zh'?'最佳实践':'Best Practices' %></a>
+            </div>
+        </nav>
+    </aside>
+
+    <main class="main">
+
+        <!-- INTRO -->
+        <section id="intro">
+            <% if(currentLang==='zh'){ %>
+            <h1>UPI 代付 API <small>通过 UPI 即时转账至收款人 VPA 地址</small></h1>
+            <p>UPI 代付接口允许您通过 API 直接向收款人的 UPI ID（VPA）发起即时转账，无需银行账号和 IFSC 代码。</p>
+            <% } else { %>
+            <h1>UPI Payout API <small>Send instant transfers to any UPI ID (VPA)</small></h1>
+            <p>The UPI Payout API enables you to send funds directly to a beneficiary's UPI ID (Virtual Payment Address) via API. No bank account number or IFSC code required.</p>
+            <% } %>
+            <div class="al al-i"><strong><%= currentLang==='zh'?'基础 URL：':'Base URL:' %></strong> <code>https://gaurpay.site</code><br><%= currentLang==='zh'?'所有请求须通过 HTTPS 发送，Content-Type 为':'All requests must use HTTPS with' %> <code>Content-Type: application/json</code></div>
+
+            <div class="feat-grid">
+                <div class="feat-card">
+                    <i class="ri-flashlight-line"></i>
+                    <div>
+                        <div class="fc-t"><%= currentLang==='zh'?'即时到账':'Instant Transfer' %></div>
+                        <div class="fc-d"><%= currentLang==='zh'?'资金通过 UPI 实时到达收款人':'Funds reach beneficiary in real-time via UPI' %></div>
+                    </div>
+                </div>
+                <div class="feat-card">
+                    <i class="ri-shield-check-line"></i>
+                    <div>
+                        <div class="fc-t"><%= currentLang==='zh'?'安全验证':'Secure Auth' %></div>
+                        <div class="fc-d"><%= currentLang==='zh'?'MD5 签名 + IP 白名单双重保障':'MD5 signature + IP whitelist protection' %></div>
+                    </div>
+                </div>
+                <div class="feat-card">
+                    <i class="ri-file-text-line"></i>
+                    <div>
+                        <div class="fc-t"><%= currentLang==='zh'?'仅需 VPA':'VPA Only' %></div>
+                        <div class="fc-d"><%= currentLang==='zh'?'无需银行账号 / IFSC，只需 UPI ID':'No bank account / IFSC needed — just UPI ID' %></div>
+                    </div>
+                </div>
+                <div class="feat-card">
+                    <i class="ri-notification-3-line"></i>
+                    <div>
+                        <div class="fc-t"><%= currentLang==='zh'?'实时回调':'Real-time Webhook' %></div>
+                        <div class="fc-d"><%= currentLang==='zh'?'订单状态变更自动推送':'Auto-push on order status change' %></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AUTH -->
+        <section id="auth">
+            <% if(currentLang==='zh'){ %>
+            <h2>签名认证</h2>
+            <p>所有 API 请求需要通过 HTTP Header 进行身份验证。请在商户后台获取 API Key 和 Secret。</p>
+            <% } else { %>
+            <h2>Authentication</h2>
+            <p>All API requests require header-based authentication. Obtain your API Key and Secret from the merchant dashboard.</p>
+            <% } %>
+            <table>
+                <thead><tr><th>Header</th><th><%= currentLang==='zh'?'说明':'Description' %></th></tr></thead>
+                <tbody>
+                    <tr><td><code>x-merchant-id</code></td><td><%= currentLang==='zh'?'商户 API Key':'Your Merchant API Key' %></td></tr>
+                    <tr><td><code>x-signature</code></td><td><%= currentLang==='zh'?'请求参数的 MD5 签名（大写）':'MD5 signature of request params (uppercase)' %></td></tr>
+                    <tr><td><code>Content-Type</code></td><td><code>application/json</code></td></tr>
+                </tbody>
+            </table>
+            <h3><%= currentLang==='zh'?'签名步骤':'Signature Steps' %></h3>
+            <ol class="steps">
+                <li><%= currentLang==='zh'?'将请求参数按键名 ASCII 升序排序（排除空值和 sign 字段）':'Sort all body params by key name (ASCII ascending). Exclude empty values and the sign field.' %></li>
+                <li><%= currentLang==='zh'?'拼接为 key1=value1&key2=value2 格式':'Concatenate as key1=value1&key2=value2' %></li>
+                <li><%= currentLang==='zh'?'末尾追加 &secret=YOUR_SECRET':'Append &secret=YOUR_SECRET' %></li>
+                <li><%= currentLang==='zh'?'计算 MD5 并转大写':'Compute MD5 hash and convert to UPPERCASE' %></li>
+            </ol>
+            <h3><%= currentLang==='zh'?'代码示例':'Code Example' %></h3>
+            <div class="cb"><button class="cp" onclick="copyCode(this)">Copy</button>
+<pre><code class="blk">const crypto = require('crypto');
+
+function sign(params, secret) {
+    const filtered = {};
+    Object.keys(params).forEach(k => {
+        if (k !== 'sign' && params[k] !== '' && params[k] != null)
+            filtered[k] = params[k];
+    });
+    const sorted = Object.keys(filtered).sort();
+    const qs = sorted.map(k => `${k}=${filtered[k]}`).join('&');
+    return crypto.createHash('md5').update(`${qs}&secret=${secret}`).digest('hex').toUpperCase();
+}
+
+// UPI Payout Example
+const params = {
+    orderId: 'UPI_PAY_001',
+    amount: 500,
+    upi: '9876543210@upi',
+    personName: 'Rajesh Kumar',
+    callbackUrl: 'https://yoursite.com/hook/payout'
+};
+const signature = sign(params, 'YOUR_SECRET');
+
+const res = await fetch('https://gaurpay.site/api/payout/upi', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'x-merchant-id': 'YOUR_KEY',
+        'x-signature': signature
+    },
+    body: JSON.stringify(params)
+});</code></pre></div>
+        </section>
+
+        <!-- UPI PAYOUT CREATE -->
+        <section id="upi-create">
+            <% if(currentLang==='zh'){ %>
+            <h2>创建 UPI 代付订单</h2>
+            <p>创建新的 UPI 代付订单，资金将通过 UPI 直接转入收款人的 VPA 地址。</p>
+            <% } else { %>
+            <h2>Create UPI Payout</h2>
+            <p>Create a new UPI payout order. Funds will be transferred directly to the beneficiary's UPI ID (VPA).</p>
+            <% } %>
+
+            <div class="tabs">
+                <button class="on" onclick="switchTab(this,'v1')">V1 API</button>
+                <button onclick="switchTab(this,'v3')">V3 API</button>
+            </div>
+
+            <!-- V1 Tab -->
+            <div class="tc on" id="tab-v1">
+                <div class="ep" style="margin-top:1rem"><span class="mt post">POST</span> /api/payout/upi</div>
+                <h3><%= currentLang==='zh'?'请求参数':'Request Parameters' %></h3>
+                <table>
+                    <thead><tr><th><%= currentLang==='zh'?'参数':'Param' %></th><th><%= currentLang==='zh'?'类型':'Type' %></th><th><%= currentLang==='zh'?'说明':'Description' %></th></tr></thead>
+                    <tbody>
+                        <tr><td><code>orderId</code></td><td>String<span class="rq"><%= currentLang==='zh'?'必填':'Required' %></span></td><td><%= currentLang==='zh'?'商户唯一订单号（最大64字符）':'Unique merchant order ID (max 64 chars)' %></td></tr>
+                        <tr><td><code>amount</code></td><td>Number<span class="rq"><%= currentLang==='zh'?'必填':'Required' %></span></td><td><%= currentLang==='zh'?'代付金额 INR（最低 ₹100）':'Amount in INR (min ₹100)' %></td></tr>
+                        <tr><td><code>upi</code></td><td>String<span class="rq"><%= currentLang==='zh'?'必填':'Required' %></span></td><td><%= currentLang==='zh'?'收款人 UPI ID (VPA)，如 9876543210@upi':'Beneficiary UPI ID (VPA), e.g. 9876543210@upi' %></td></tr>
+                        <tr><td><code>personName</code></td><td>String<span class="rq"><%= currentLang==='zh'?'必填':'Required' %></span></td><td><%= currentLang==='zh'?'收款人姓名':'Beneficiary full name' %></td></tr>
+                        <tr><td><code>callbackUrl</code></td><td>String<span class="op"><%= currentLang==='zh'?'可选':'Optional' %></span></td><td><%= currentLang==='zh'?'回调通知地址':'Webhook URL for status updates' %></td></tr>
+                        <tr><td><code>param</code></td><td>String<span class="op"><%= currentLang==='zh'?'可选':'Optional' %></span></td><td><%= currentLang==='zh'?'自定义透传数据':'Custom passthrough data' %></td></tr>
+                    </tbody>
+                </table>
+                <h3><%= currentLang==='zh'?'请求示例':'Example Request' %></h3>
+                <div class="cb"><button class="cp" onclick="copyCode(this)">Copy</button>
+<pre><code class="blk">curl -X POST https://gaurpay.site/api/payout/upi \
+  -H "Content-Type: application/json" \
+  -H "x-merchant-id: YOUR_KEY" \
+  -H "x-signature: A1B2C3D4..." \
+  -d '{
+    "orderId": "UPI_PAY_20260612_001",
+    "amount": 500,
+    "upi": "9876543210@upi",
+    "personName": "Rajesh Kumar",
+    "callbackUrl": "https://yoursite.com/hook/payout"
+  }'</code></pre></div>
+                <h3><%= currentLang==='zh'?'成功响应':'Success Response' %></h3>
+                <div class="cb"><button class="cp" onclick="copyCode(this)">Copy</button>
+<pre><code class="blk">{
+    "status": "success",
+    "message": "UPI Payout submitted successfully",
+    "timestamp": "2026-06-12T12:00:00.000Z",
+    "result": {
+        "merchantOrderId": "UPI_PAY_20260612_001",
+        "platformOrderId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "payoutAmount": 500.00,
+        "processingFee": 21.00,
+        "orderStatus": "processing"
+    }
+}</code></pre></div>
+            </div>
+
+            <!-- V3 Tab -->
+            <div class="tc" id="tab-v3">
+                <div class="ep" style="margin-top:1rem"><span class="mt post">POST</span> /v3/withdraw/upi</div>
+                <h3><%= currentLang==='zh'?'请求参数':'Request Parameters' %></h3>
+                <table>
+                    <thead><tr><th><%= currentLang==='zh'?'参数':'Param' %></th><th><%= currentLang==='zh'?'类型':'Type' %></th><th><%= currentLang==='zh'?'说明':'Description' %></th></tr></thead>
+                    <tbody>
+                        <tr><td><code>ref_id</code></td><td>String<span class="rq"><%= currentLang==='zh'?'必填':'Required' %></span></td><td><%= currentLang==='zh'?'商户唯一订单号（最大64字符）':'Unique merchant order ID (max 64 chars)' %></td></tr>
+                        <tr><td><code>txn_amount</code></td><td>Number<span class="rq"><%= currentLang==='zh'?'必填':'Required' %></span></td><td><%= currentLang==='zh'?'代付金额 INR（最低 ₹100）':'Amount in INR (min ₹100)' %></td></tr>
+                        <tr><td><code>upi_id</code></td><td>String<span class="rq"><%= currentLang==='zh'?'必填':'Required' %></span></td><td><%= currentLang==='zh'?'收款人 UPI ID (VPA)，如 9876543210@upi':'Beneficiary UPI ID (VPA), e.g. 9876543210@upi' %></td></tr>
+                        <tr><td><code>payee_name</code></td><td>String<span class="rq"><%= currentLang==='zh'?'必填':'Required' %></span></td><td><%= currentLang==='zh'?'收款人姓名':'Beneficiary full name' %></td></tr>
+                        <tr><td><code>webhook_url</code></td><td>String<span class="op"><%= currentLang==='zh'?'可选':'Optional' %></span></td><td><%= currentLang==='zh'?'回调通知地址':'Webhook URL for status updates' %></td></tr>
+                        <tr><td><code>metadata</code></td><td>String<span class="op"><%= currentLang==='zh'?'可选':'Optional' %></span></td><td><%= currentLang==='zh'?'自定义透传数据（回调原样返回）':'Custom passthrough data (returned in callback)' %></td></tr>
+                    </tbody>
+                </table>
+                <h3><%= currentLang==='zh'?'请求示例':'Example Request' %></h3>
+                <div class="cb"><button class="cp" onclick="copyCode(this)">Copy</button>
+<pre><code class="blk">curl -X POST https://gaurpay.site/v3/withdraw/upi \
+  -H "Content-Type: application/json" \
+  -H "x-merchant-id: YOUR_KEY" \
+  -H "x-signature: A1B2C3D4..." \
+  -d '{
+    "ref_id": "UPI_PAY_20260612_001",
+    "txn_amount": 500,
+    "upi_id": "9876543210@upi",
+    "payee_name": "Rajesh Kumar",
+    "webhook_url": "https://yoursite.com/hook/payout"
+  }'</code></pre></div>
+                <h3><%= currentLang==='zh'?'成功响应':'Success Response' %></h3>
+                <div class="cb"><button class="cp" onclick="copyCode(this)">Copy</button>
+<pre><code class="blk">{
+    "status": "success",
+    "message": "Withdrawal submitted",
+    "ts": "2026-06-12T12:00:00.000Z",
+    "data": {
+        "ref_id": "UPI_PAY_20260612_001",
+        "trace_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "txn_amount": 500.00,
+        "service_fee": 21.00,
+        "state": "processing"
+    }
+}</code></pre></div>
+            </div>
+
+            <h3><%= currentLang==='zh'?'响应字段':'Response Fields' %></h3>
+            <table>
+                <thead><tr><th><%= currentLang==='zh'?'字段':'Field' %></th><th><%= currentLang==='zh'?'说明':'Description' %></th></tr></thead>
+                <tbody>
+                    <tr><td><code>platformOrderId</code> / <code>trace_id</code></td><td><%= currentLang==='zh'?'平台内部订单号':'Platform internal order ID' %></td></tr>
+                    <tr><td><code>payoutAmount</code> / <code>txn_amount</code></td><td><%= currentLang==='zh'?'代付金额':'Payout amount' %></td></tr>
+                    <tr><td><code>processingFee</code> / <code>service_fee</code></td><td><%= currentLang==='zh'?'手续费（百分比 + 固定费用）':'Processing fee (percentage + fixed)' %></td></tr>
+                    <tr><td><code>orderStatus</code> / <code>state</code></td><td><%= currentLang==='zh'?'订单状态：processing / success / failed':'Order state: processing / success / failed' %></td></tr>
+                </tbody>
+            </table>
+            <div class="al al-i"><%= currentLang==='zh'?'<strong>UPI ID 格式：</strong>标准 VPA 格式为 <code>name@bank</code>，例如 <code>9876543210@upi</code>、<code>user@paytm</code>、<code>name@okicici</code>。':'<strong>UPI ID Format:</strong> Standard VPA format is <code>name@bank</code>, e.g. <code>9876543210@upi</code>, <code>user@paytm</code>, <code>name@okicici</code>.' %></div>
+        </section>
+
+        <!-- UPI QUERY -->
+        <section id="upi-query">
+            <% if(currentLang==='zh'){ %>
+            <h2>查询代付状态</h2>
+            <p>查询 UPI 代付订单的实时状态和 UTR 凭证号。</p>
+            <% } else { %>
+            <h2>Query Payout Status</h2>
+            <p>Check the real-time status and UTR reference of a UPI payout order.</p>
+            <% } %>
+
+            <div class="tabs">
+                <button class="on" onclick="switchTab(this,'q-v1')">V1 API</button>
+                <button onclick="switchTab(this,'q-v3')">V3 API</button>
+            </div>
+
+            <div class="tc on" id="tab-q-v1">
+                <div class="ep" style="margin-top:1rem"><span class="mt post">POST</span> /api/payout/query</div>
+                <table>
+                    <thead><tr><th><%= currentLang==='zh'?'参数':'Param' %></th><th><%= currentLang==='zh'?'类型':'Type' %></th><th><%= currentLang==='zh'?'说明':'Description' %></th></tr></thead>
+                    <tbody><tr><td><code>orderId</code></td><td>String<span class="rq"><%= currentLang==='zh'?'必填':'Required' %></span></td><td><%= currentLang==='zh'?'商户订单号':'Merchant order ID' %></td></tr></tbody>
+                </table>
+            </div>
+            <div class="tc" id="tab-q-v3">
+                <div class="ep" style="margin-top:1rem"><span class="mt post">POST</span> /v3/withdraw/query</div>
+                <table>
+                    <thead><tr><th><%= currentLang==='zh'?'参数':'Param' %></th><th><%= currentLang==='zh'?'类型':'Type' %></th><th><%= currentLang==='zh'?'说明':'Description' %></th></tr></thead>
+                    <tbody><tr><td><code>ref_id</code></td><td>String<span class="rq"><%= currentLang==='zh'?'必填':'Required' %></span></td><td><%= currentLang==='zh'?'商户订单号':'Merchant order ID' %></td></tr></tbody>
+                </table>
+            </div>
+
+            <h3><%= currentLang==='zh'?'成功响应':'Success Response' %></h3>
+            <div class="cb"><button class="cp" onclick="copyCode(this)">Copy</button>
+<pre><code class="blk">{
+    "status": "success",
+    "timestamp": "2026-06-12T12:05:00.000Z",
+    "result": {
+        "orderId": "UPI_PAY_20260612_001",
+        "platformOrderId": "a1b2c3d4-...",
+        "type": "upi",
+        "orderStatus": "success",
+        "amount": 500.00,
+        "processingFee": 21.00,
+        "utr": "UTR998877665544",
+        "createdAt": "2026-06-12T12:00:00.000Z"
+    }
+}</code></pre></div>
+            <h3><%= currentLang==='zh'?'订单状态':'Order States' %></h3>
+            <table>
+                <thead><tr><th><%= currentLang==='zh'?'状态':'State' %></th><th><%= currentLang==='zh'?'说明':'Description' %></th></tr></thead>
+                <tbody>
+                    <tr><td><span class="st p">pending</span></td><td><%= currentLang==='zh'?'订单已创建，等待处理':'Order created, awaiting processing' %></td></tr>
+                    <tr><td><span class="st pr">processing</span></td><td><%= currentLang==='zh'?'代付处理中':'Payout is being processed' %></td></tr>
+                    <tr><td><span class="st s">success</span></td><td><%= currentLang==='zh'?'转账成功':'Transfer completed successfully' %></td></tr>
+                    <tr><td><span class="st f">failed</span></td><td><%= currentLang==='zh'?'转账失败':'Transfer failed' %></td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- CALLBACK -->
+        <section id="upi-callback">
+            <% if(currentLang==='zh'){ %>
+            <h2>代付回调 (Webhook)</h2>
+            <p>代付完成或失败后，系统向 <code>callbackUrl</code> / <code>webhook_url</code> 推送结果。</p>
+            <h3>回调参数</h3>
+            <% } else { %>
+            <h2>Payout Callback (Webhook)</h2>
+            <p>When the UPI payout completes or fails, we POST to your <code>callbackUrl</code> / <code>webhook_url</code>.</p>
+            <h3>Callback Payload</h3>
+            <% } %>
+            <div class="cb"><button class="cp" onclick="copyCode(this)">Copy</button>
+<pre><code class="blk">{
+    "orderId": "UPI_PAY_20260612_001",
+    "amount": "500.00",
+    "status": "SUCCESS",
+    "utr": "UTR998877665544",
+    "param": "custom_data",
+    "sign": "A1B2C3D4E5F6..."
+}</code></pre></div>
+            <table>
+                <thead><tr><th><%= currentLang==='zh'?'字段':'Field' %></th><th><%= currentLang==='zh'?'说明':'Description' %></th></tr></thead>
+                <tbody>
+                    <tr><td><code>orderId</code></td><td><%= currentLang==='zh'?'商户订单号':'Merchant order ID' %></td></tr>
+                    <tr><td><code>amount</code></td><td><%= currentLang==='zh'?'代付金额':'Payout amount' %></td></tr>
+                    <tr><td><code>status</code></td><td><%= currentLang==='zh'?'SUCCESS 或 FAILED':'SUCCESS or FAILED' %></td></tr>
+                    <tr><td><code>utr</code></td><td><%= currentLang==='zh'?'银行交易凭证号（成功时返回）':'Bank UTR reference (returned on success)' %></td></tr>
+                    <tr><td><code>sign</code></td><td><%= currentLang==='zh'?'签名（用于验证回调真实性）':'Signature (verify callback authenticity)' %></td></tr>
+                </tbody>
+            </table>
+            <div class="al al-w"><%= currentLang==='zh'?'<strong>重要：</strong>收到回调后，先验证 <code>sign</code> 签名，确认无误后返回纯文本 <code>SUCCESS</code>。系统最多重试 3 次。':'<strong>Important:</strong> Verify the <code>sign</code> signature, then return plain text <code>SUCCESS</code> to acknowledge. System retries up to 3 times.' %></div>
+        </section>
+
+        <!-- ERRORS -->
+        <section id="errors">
+            <% if(currentLang==='zh'){ %>
+            <h2>错误码</h2>
+            <% } else { %>
+            <h2>Error Codes</h2>
+            <% } %>
+            <table>
+                <thead><tr><th>HTTP</th><th><%= currentLang==='zh'?'错误码':'Code' %></th><th><%= currentLang==='zh'?'说明':'Description' %></th></tr></thead>
+                <tbody>
+                    <tr><td>400</td><td><code>INVALID_PARAMS</code></td><td><%= currentLang==='zh'?'参数缺失或格式错误（UPI ID 必须包含 @）':'Missing or invalid params (UPI ID must contain @)' %></td></tr>
+                    <tr><td>401</td><td><code>INVALID_SIGNATURE</code></td><td><%= currentLang==='zh'?'签名验证失败':'Signature verification failed' %></td></tr>
+                    <tr><td>401</td><td><code>INVALID_MERCHANT</code></td><td><%= currentLang==='zh'?'商户 ID 无效':'Invalid merchant API Key' %></td></tr>
+                    <tr><td>403</td><td><code>IP_NOT_WHITELISTED</code></td><td><%= currentLang==='zh'?'请求 IP 不在白名单':'Request IP not whitelisted' %></td></tr>
+                    <tr><td>409</td><td><code>DUPLICATE_ORDER</code></td><td><%= currentLang==='zh'?'订单号重复':'Duplicate order ID' %></td></tr>
+                    <tr><td>402</td><td><code>INSUFFICIENT_BALANCE</code></td><td><%= currentLang==='zh'?'余额不足':'Insufficient balance' %></td></tr>
+                    <tr><td>500</td><td><code>CHANNEL_ERROR</code></td><td><%= currentLang==='zh'?'支付通道错误':'Payment channel error' %></td></tr>
+                    <tr><td>500</td><td><code>INTERNAL_ERROR</code></td><td><%= currentLang==='zh'?'服务器内部错误':'Internal server error' %></td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- BEST PRACTICES -->
+        <section id="tips">
+            <% if(currentLang==='zh'){ %>
+            <h2>最佳实践</h2>
+            <h3>UPI ID 验证</h3>
+            <p>发起代付前建议验证 UPI ID 的有效性。标准格式为 <code>name@bank</code>，例如 <code>9876543210@upi</code>。</p>
+            <h3>幂等性</h3>
+            <p>每笔交易使用唯一 <code>orderId</code> / <code>ref_id</code>，重复订单号返回 <code>DUPLICATE_ORDER</code>。</p>
+            <h3>Webhook 可靠性</h3>
+            <p>回调可能因网络延迟，建议主动轮询查询 API 确认最终状态。</p>
+            <h3>金额限制</h3>
+            <p>UPI 代付最低金额 ₹100，每笔最高限额取决于您的商户配置。手续费 = 金额 × 费率% + 固定费用。</p>
+            <h3>重试策略</h3>
+            <p>请求超时或 5xx 错误时，5-10 秒后重试，最多 3 次。</p>
+            <% } else { %>
+            <h2>Best Practices</h2>
+            <h3>UPI ID Validation</h3>
+            <p>Validate UPI IDs before initiating payouts. Standard format is <code>name@bank</code>, e.g. <code>9876543210@upi</code>.</p>
+            <h3>Idempotency</h3>
+            <p>Use a unique <code>orderId</code> / <code>ref_id</code> per transaction. Duplicates return <code>DUPLICATE_ORDER</code>.</p>
+            <h3>Webhook Reliability</h3>
+            <p>Callbacks may be delayed. Always poll the Query API for authoritative status.</p>
+            <h3>Amount Limits</h3>
+            <p>Minimum UPI payout is ₹100. Maximum per-transaction limit depends on your merchant configuration. Fee = Amount × Rate% + Fixed fee.</p>
+            <h3>Retry Strategy</h3>
+            <p>For timeouts or 5xx errors, retry after 5–10s with max 3 attempts.</p>
+            <% } %>
+        </section>
+
+    </main>
+
+    <script>
+        function copyCode(btn){
+            const code=btn.parentElement.querySelector('code').innerText;
+            navigator.clipboard.writeText(code).then(()=>{
+                const o=btn.textContent;btn.textContent='<%= currentLang==="zh"?"已复制！":"Copied!" %>';
+                setTimeout(()=>btn.textContent=o,2000);
+            });
+        }
+        function switchTab(btn, tabId) {
+            const parent = btn.closest('section');
+            parent.querySelectorAll('.tabs button').forEach(b => b.classList.remove('on'));
+            parent.querySelectorAll('.tc').forEach(t => t.classList.remove('on'));
+            btn.classList.add('on');
+            document.getElementById('tab-' + tabId).classList.add('on');
+        }
+        // Scrollspy
+        const secs=document.querySelectorAll('section');
+        const links=document.querySelectorAll('.sb a.nl');
+        document.querySelector('.main').addEventListener('scroll',()=>{
+            let cur='';secs.forEach(s=>{if(s.getBoundingClientRect().top<=180)cur=s.id;});
+            links.forEach(l=>{l.classList.toggle('on',l.getAttribute('href')==='#'+cur);});
+        });
+    </script>
+</body>
+</html>
