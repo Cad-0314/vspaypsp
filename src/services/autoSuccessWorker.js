@@ -17,10 +17,12 @@ async function processAutoSuccess() {
         // 1. Payout type
         // 2. Processing status
         // 3. Have autoSuccessAt time and it has passed
+        // 4. ONLY testpay channel (real channels must never be auto-succeeded)
         const orders = await Order.findAll({
             where: {
                 type: 'payout',
                 status: 'processing',
+                channelName: 'testpay',
                 autoSuccessAt: {
                     [Op.ne]: null,
                     [Op.lte]: now

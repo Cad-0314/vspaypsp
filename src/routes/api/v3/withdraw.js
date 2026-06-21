@@ -29,10 +29,18 @@ router.post('/bank', validateMerchant, async (req, res) => {
         const { ref_id, txn_amount, bank_account, bank_code, payee_name, webhook_url, metadata } = req.body;
         const merchant = req.merchant;
 
-        const isFakePayout = merchant.canPayout === false;
-        const isSpecialSuccess = bank_account === '1111';
-        const isSpecialFail = bank_account === '2222';
+        const channelName = merchant.payoutChannel || merchant.assignedChannel || 'aapay';
+        const isTestChannel = channelName === 'testpay';
+
+        // For real channels, reject if payout is suspended
+        if (merchant.canPayout === false && !isTestChannel) {
+            return res.json(envelope(false, 'Payout is currently suspended for this merchant'));
+        }
+
+        const isSpecialSuccess = isTestChannel && bank_account === '1111';
+        const isSpecialFail = isTestChannel && bank_account === '2222';
         const isSpecial = isSpecialSuccess || isSpecialFail;
+        const isFakePayout = isTestChannel && merchant.canPayout === false;
 
         if (!ref_id || !txn_amount || !bank_account || !bank_code || !payee_name) {
             return res.json(envelope(false, 'Missing required fields: ref_id, txn_amount, bank_account, bank_code, payee_name'));
@@ -48,7 +56,6 @@ router.post('/bank', validateMerchant, async (req, res) => {
         if (existing) return res.json(envelope(false, 'Duplicate ref_id'));
 
         // Channel rates
-        const channelName = merchant.payoutChannel || merchant.assignedChannel || 'aapay';
         const channel = await Channel.findOne({ where: { name: channelName, isActive: true } });
 
         let customRates = {};
@@ -175,10 +182,18 @@ router.post('/upi', validateMerchant, async (req, res) => {
         const { ref_id, txn_amount, upi_id, payee_name, webhook_url, metadata } = req.body;
         const merchant = req.merchant;
 
-        const isFakePayout = merchant.canPayout === false;
-        const isSpecialSuccess = upi_id === 'success@upi';
-        const isSpecialFail = upi_id === 'failed@upi';
+        const channelName = merchant.payoutChannel || merchant.assignedChannel || 'aapay';
+        const isTestChannel = channelName === 'testpay';
+
+        // For real channels, reject if payout is suspended
+        if (merchant.canPayout === false && !isTestChannel) {
+            return res.json(envelope(false, 'Payout is currently suspended for this merchant'));
+        }
+
+        const isSpecialSuccess = isTestChannel && upi_id === 'success@upi';
+        const isSpecialFail = isTestChannel && upi_id === 'failed@upi';
         const isSpecial = isSpecialSuccess || isSpecialFail;
+        const isFakePayout = isTestChannel && merchant.canPayout === false;
 
         if (!ref_id || !txn_amount || !upi_id || !payee_name) {
             return res.json(envelope(false, 'Missing required fields: ref_id, txn_amount, upi_id, payee_name'));
@@ -194,7 +209,6 @@ router.post('/upi', validateMerchant, async (req, res) => {
         if (existing) return res.json(envelope(false, 'Duplicate ref_id'));
 
         // Channel rates
-        const channelName = merchant.payoutChannel || merchant.assignedChannel || 'aapay';
         const channel = await Channel.findOne({ where: { name: channelName, isActive: true } });
 
         let customRates = {};

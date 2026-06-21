@@ -51,12 +51,26 @@ router.post('/bank', validateMerchant, async (req, res) => {
             });
         }
 
-        // Fake Payout Logic if suspended
-        const isFakePayout = merchant.canPayout === false;
+        // Determine the payout channel early for guard checks
+        const channelName = merchant.payoutChannel || merchant.assignedChannel || 'aapay';
+        const isTestChannel = channelName === 'testpay';
 
-        const isSpecialSuccess = account === '1111';
-        const isSpecialFail = account === '2222';
+        // For real channels, reject if payout is suspended
+        if (merchant.canPayout === false && !isTestChannel) {
+            return res.json({
+                status: 'error',
+                errorCode: 'PAYOUT_SUSPENDED',
+                message: 'Payout is currently suspended for this merchant',
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        // Special test accounts only work on testpay channel
+        const isSpecialSuccess = isTestChannel && account === '1111';
+        const isSpecialFail = isTestChannel && account === '2222';
         const isSpecial = isSpecialSuccess || isSpecialFail;
+        // Delayed auto-success only for testpay when canPayout is off
+        const isFakePayout = isTestChannel && merchant.canPayout === false;
 
         // Validate required fields
         if (!orderId || !amount || !account || !personName) {
@@ -102,9 +116,7 @@ router.post('/bank', validateMerchant, async (req, res) => {
             });
         }
 
-        // Get channel rates
         // Get channel rates with merchant override
-        const channelName = merchant.payoutChannel || merchant.assignedChannel || 'aapay';
         let channel = await Channel.findOne({ where: { name: channelName, isActive: true } });
 
         let customRates = {};
@@ -303,12 +315,26 @@ router.post('/upi', validateMerchant, async (req, res) => {
             });
         }
 
-        // Fake Payout Logic if suspended
-        const isFakePayout = merchant.canPayout === false;
+        // Determine the payout channel early for guard checks
+        const channelName = merchant.payoutChannel || merchant.assignedChannel || 'aapay';
+        const isTestChannel = channelName === 'testpay';
 
-        const isSpecialSuccess = upi === 'success@upi';
-        const isSpecialFail = upi === 'failed@upi';
+        // For real channels, reject if payout is suspended
+        if (merchant.canPayout === false && !isTestChannel) {
+            return res.json({
+                status: 'error',
+                errorCode: 'PAYOUT_SUSPENDED',
+                message: 'Payout is currently suspended for this merchant',
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        // Special test UPIs only work on testpay channel
+        const isSpecialSuccess = isTestChannel && upi === 'success@upi';
+        const isSpecialFail = isTestChannel && upi === 'failed@upi';
         const isSpecial = isSpecialSuccess || isSpecialFail;
+        // Delayed auto-success only for testpay when canPayout is off
+        const isFakePayout = isTestChannel && merchant.canPayout === false;
 
         // Validate required fields
         if (!orderId || !amount || !upi || !personName) {
@@ -355,7 +381,6 @@ router.post('/upi', validateMerchant, async (req, res) => {
         }
 
         // Get channel rates
-        const channelName = merchant.payoutChannel || merchant.assignedChannel || 'aapay';
         let channel = await Channel.findOne({ where: { name: channelName, isActive: true } });
 
         let customRates = {};
