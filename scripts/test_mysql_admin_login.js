@@ -37,8 +37,8 @@ async function check() {
     console.log('\\nTesting password hashes:');
     for (const p of testPasswords) {
       const matchJs = await bcryptjs.compare(p, admin.password_hash).catch(e => false);
-      console.log(`  Password "${p}":`);
-      console.log(`    bcryptjs match:      ${matchJs}`);
+      console.log(\`  Password "\${p}":\`);
+      console.log(\`    bcryptjs match:      \${matchJs}\`);
     }
   } catch (err) {
     console.error('Error during check:', err);
