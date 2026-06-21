@@ -12,9 +12,24 @@ const conn = new Client();
 conn.on('ready', () => {
   console.log('SSH connected. Starting deployment on remote server...\n');
   
+  // We check if .git directory exists. If not, we initialize git, set origin, and reset to origin/main.
+  // Otherwise, we just pull.
+  const setupGitCmd = `
+    cd /var/www/vspaypsp
+    if [ ! -d ".git" ]; then
+      echo "=== Git repo missing. Initializing git... ==="
+      git init
+      git remote add origin https://github.com/Cad-0314/vspaypsp.git
+    else
+      echo "=== Git repo already initialized ==="
+    fi
+  `.trim();
+
   const cmds = [
-    { label: 'Go to folder and get status', cmd: 'cd /var/www/vspaypsp && git status' },
-    { label: 'Pull latest code', cmd: 'cd /var/www/vspaypsp && git pull origin main' },
+    { label: 'Check/Setup Git repo', cmd: setupGitCmd },
+    { label: 'Fetch latest references', cmd: 'cd /var/www/vspaypsp && git fetch origin' },
+    { label: 'Reset to origin/main', cmd: 'cd /var/www/vspaypsp && git reset --hard origin/main' },
+    { label: 'Verify current commit', cmd: 'cd /var/www/vspaypsp && git log -n 1' },
     { label: 'Install dependencies', cmd: 'cd /var/www/vspaypsp && npm install --production' },
     { label: 'Reload PM2 service', cmd: 'cd /var/www/vspaypsp && pm2 reload gaurpay-api --update-env' },
     { label: 'Check PM2 status', cmd: 'pm2 status' },
@@ -31,7 +46,7 @@ conn.on('ready', () => {
       return;
     }
     const { label, cmd } = cmds[idx];
-    console.log(`>>> [${idx + 1}/${cmds.length}] ${label} (${cmd})`);
+    console.log(`>>> [${idx + 1}/${cmds.length}] ${label}`);
     let output = '';
     conn.exec(cmd, (err, stream) => {
       if (err) {
