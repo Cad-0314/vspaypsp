@@ -1,5 +1,5 @@
 const { User, sequelize } = require('./src/models');
-const bcrypt = require('bcrypt'); // Using native bcrypt
+const bcrypt = require('bcryptjs'); // Using bcryptjs for compatibility
 
 async function resetAdmin() {
     try {

@@ -9,7 +9,7 @@ const config = {
 };
 
 const scriptContent = `
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const hash = '$2b$10$QyIc5RME///Cdy43LWW19.XhTW7T.sLO1YN9MKvzhKDgLABEKUpbC';
 const passwordsToTest = ['admin', 'admin123', 'password', '123456', 'admin@123', 'admin777', 'admin@777', 'admin@777', 'admin@1234'];
 
