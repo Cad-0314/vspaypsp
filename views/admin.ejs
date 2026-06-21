@@ -1355,6 +1355,7 @@
                                     <option value="easypay">Easy Pay</option>
                                     <option value="ynpay">YN Pay</option>
                                     <option value="passpay">Pass Pay</option>
+                                    <option value="testpay">Test Pay (测试支付)</option>
                                 </select>
                             </div>
                             <div>
@@ -1913,6 +1914,7 @@
                     <option value="easypay">Easy Pay</option>
                     <option value="ynpay">YN Pay</option>
                     <option value="passpay">Pass Pay</option>
+                    <option value="testpay">Test Pay (测试支付)</option>
                     <option value="smart">Smart (智能支付)</option>
                 </select>
 
@@ -1938,6 +1940,7 @@
                     <option value="easypay">Easy Pay</option>
                     <option value="ynpay">YN Pay</option>
                     <option value="passpay">Pass Pay</option>
+                    <option value="testpay">Test Pay (测试支付)</option>
                 </select>
                 <input type="text" id="m-telegramGroup" placeholder="<%= t('telegram_group_placeholder') %>"
                     style="width:100%; margin-bottom:0.75rem; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
@@ -2852,7 +2855,8 @@
                 const channelNames = {
                     'aapay': 'AA Pay', 'gaurpay': 'GaurPay', 'yellow': 'Yellow',
                     'upi super': 'UPI Super', 'ckpay': 'CKPay', 'bharatpay': 'BharatPay',
-                    'cxpay': 'CX Pay', 'ipay': 'IPay', 'ynpay': 'YN Pay', 'passpay': 'Pass Pay'
+                    'cxpay': 'CX Pay', 'ipay': 'IPay', 'ynpay': 'YN Pay', 'passpay': 'Pass Pay',
+                    'testpay': 'Test Pay'
                 };
 
                 document.getElementById('smart-ranges-table').querySelector('tbody').innerHTML = data.ranges.map(r => `

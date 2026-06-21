@@ -1,0 +1,38 @@
+2026-06-17T16:33:17: Warning: connect.session() MemoryStore is not
+designed for a production environment, as it will leak
+memory, and will not scale past a single process.
+2026-06-17T16:37:00: Warning: connect.session() MemoryStore is not
+designed for a production environment, as it will leak
+memory, and will not scale past a single process.
+2026-06-17T16:38:20: Warning: connect.session() MemoryStore is not
+designed for a production environment, as it will leak
+memory, and will not scale past a single process.
+You have triggered an unhandledRejection, you may have forgotten to catch a Promise rejection:
+Error: ETELEGRAM: 400 Bad Request: can't parse entities: Can't find end of the entity starting at byte offset 243
+    at C:\Users\akhan\OneDrive\Desktop\vspaypsp\node_modules\node-telegram-bot-api\src\telegram.js:330:15
+    at tryCatcher (C:\Users\akhan\OneDrive\Desktop\vspaypsp\node_modules\bluebird\js\release\util.js:16:23)
+    at Promise._settlePromiseFromHandler (C:\Users\akhan\OneDrive\Desktop\vspaypsp\node_modules\bluebird\js\release\promise.js:547:31)
+    at Promise._settlePromise (C:\Users\akhan\OneDrive\Desktop\vspaypsp\node_modules\bluebird\js\release\promise.js:604:18)
+    at Promise._settlePromise0 (C:\Users\akhan\OneDrive\Desktop\vspaypsp\node_modules\bluebird\js\release\promise.js:649:10)
+    at Promise._settlePromises (C:\Users\akhan\OneDrive\Desktop\vspaypsp\node_modules\bluebird\js\release\promise.js:729:18)
+    at _drainQueueStep (C:\Users\akhan\OneDrive\Desktop\vspaypsp\node_modules\bluebird\js\release\async.js:93:12)
+    at _drainQueue (C:\Users\akhan\OneDrive\Desktop\vspaypsp\node_modules\bluebird\js\release\async.js:86:9)
+    at Async._drainQueues (C:\Users\akhan\OneDrive\Desktop\vspaypsp\node_modules\bluebird\js\release\async.js:102:5)
+    at Async.drainQueues (C:\Users\akhan\OneDrive\Desktop\vspaypsp\node_modules\bluebird\js\release\async.js:15:14)
+    at process.processImmediate (node:internal/timers:504:21)
+You have triggered an unhandledRejection, you may have forgotten to catch a Promise rejection:
+Error: ETELEGRAM: 400 Bad Request: can't parse entities: Can't find end of the entity starting at byte offset 242
+    at C:\Users\akhan\OneDrive\Desktop\vspaypsp\node_modules\node-telegram-bot-api\src\telegram.js:330:15
+    at tryCatcher (C:\Users\akhan\OneDrive\Desktop\vspaypsp\node_modules\bluebird\js\release\util.js:16:23)
+    at Promise._settlePromiseFromHandler (C:\Users\akhan\OneDrive\Desktop\vspaypsp\node_modules\bluebird\js\release\promise.js:547:31)
+    at Promise._settlePromise (C:\Users\akhan\OneDrive\Desktop\vspaypsp\node_modules\bluebird\js\release\promise.js:604:18)
+    at Promise._settlePromise0 (C:\Users\akhan\OneDrive\Desktop\vspaypsp\node_modules\bluebird\js\release\promise.js:649:10)
+    at Promise._settlePromises (C:\Users\akhan\OneDrive\Desktop\vspaypsp\node_modules\bluebird\js\release\promise.js:729:18)
+    at _drainQueueStep (C:\Users\akhan\OneDrive\Desktop\vspaypsp\node_modules\bluebird\js\release\async.js:93:12)
+    at _drainQueue (C:\Users\akhan\OneDrive\Desktop\vspaypsp\node_modules\bluebird\js\release\async.js:86:9)
+    at Async._drainQueues (C:\Users\akhan\OneDrive\Desktop\vspaypsp\node_modules\bluebird\js\release\async.js:102:5)
+    at Async.drainQueues (C:\Users\akhan\OneDrive\Desktop\vspaypsp\node_modules\bluebird\js\release\async.js:15:14)
+    at process.processImmediate (node:internal/timers:504:21)
+2026-06-17T16:39:47: Warning: connect.session() MemoryStore is not
+designed for a production environment, as it will leak
+memory, and will not scale past a single process.

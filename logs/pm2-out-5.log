@@ -1,0 +1,162 @@
+2026-06-17T16:33:22: [dotenv@17.2.3] injecting env (57) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+2026-06-17T16:33:23: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+2026-06-17T16:33:23: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔄 add secrets lifecycle management: https://dotenvx.com/ops
+2026-06-17T16:33:23: [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+2026-06-17T16:33:23: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+2026-06-17T16:33:23: [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+2026-06-17T16:33:23: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔄 add secrets lifecycle management: https://dotenvx.com/ops
+2026-06-17T16:33:23: [dotenv@17.2.3] injecting env (0) from .env -- tip: ✅ audit secrets and track compliance: https://dotenvx.com/ops
+2026-06-17T16:33:23: [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+2026-06-17T16:33:23: [dotenv@17.2.3] injecting env (0) from .env -- tip: ✅ audit secrets and track compliance: https://dotenvx.com/ops
+2026-06-17T16:33:23: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🗂️ backup and recover secrets: https://dotenvx.com/ops
+2026-06-17T16:33:23: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+2026-06-17T16:33:23: [dotenv@17.2.3] injecting env (0) from .env -- tip: 📡 add observability to secrets: https://dotenvx.com/ops
+2026-06-17T16:33:23: [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+2026-06-17T16:33:24: [Server] Initializing Telegram Bot...
+2026-06-17T16:33:24: [Telegram Proxy] Fetching new proxy list...
+2026-06-17T16:33:24: Database connected & synced
+2026-06-17T16:33:24: Starting database seed...
+2026-06-17T16:33:24: Updated channel: gaurpay (INR/IN)
+2026-06-17T16:33:24: Updated channel: bharatpay (INR/IN)
+2026-06-17T16:33:24: Updated channel: cxpay (INR/IN)
+2026-06-17T16:33:24: Updated channel: aapay (INR/IN)
+2026-06-17T16:33:24: Updated channel: ipay (INR/IN)
+2026-06-17T16:33:24: Updated channel: unitedpay (INR/IN)
+2026-06-17T16:33:24: Updated channel: yellow (INR/IN)
+2026-06-17T16:33:24: Updated channel: upi super (INR/IN)
+2026-06-17T16:33:24: Updated channel: ckpay (INR/IN)
+2026-06-17T16:33:25: Updated channel: firpay (INR/IN)
+2026-06-17T16:33:25: Updated channel: agpay (INR/IN)
+2026-06-17T16:33:25: Updated channel: easypay (INR/IN)
+2026-06-17T16:33:25: Updated channel: ynpay (INR/IN)
+2026-06-17T16:33:25: Updated channel: passpay (INR/IN)
+2026-06-17T16:33:25: Updated channel: smart (INR/IN)
+2026-06-17T16:33:25: Updated channel: pkr_channel_1 (PKR/PK)
+2026-06-17T16:33:25: Updated channel: bdt_channel_1 (BDT/BD)
+2026-06-17T16:33:25: Updated channel: idr_channel_1 (IDR/ID)
+2026-06-17T16:33:25: Database seed completed!
+2026-06-17T16:33:25: Server running on port 3000
+2026-06-17T16:33:25: API Base URL: http://localhost:3000
+2026-06-17T16:37:04: [dotenv@17.2.3] injecting env (57) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+2026-06-17T16:37:04: [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+2026-06-17T16:37:05: [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+2026-06-17T16:37:05: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+2026-06-17T16:37:05: [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+2026-06-17T16:37:05: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+2026-06-17T16:37:05: [dotenv@17.2.3] injecting env (0) from .env -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
+2026-06-17T16:37:05: [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+2026-06-17T16:37:05: [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+2026-06-17T16:37:05: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+2026-06-17T16:37:05: [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+2026-06-17T16:37:05: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+2026-06-17T16:37:05: [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+2026-06-17T16:37:05: [dotenv@17.2.3] injecting env (0) from .env -- tip: ✅ audit secrets and track compliance: https://dotenvx.com/ops
+2026-06-17T16:37:06: [Server] Initializing Telegram Bot...
+2026-06-17T16:37:06: [Telegram Proxy] Fetching new proxy list...
+2026-06-17T16:37:06: [Telegram Proxy] Testing batch 1 (15 proxies)...
+2026-06-17T16:37:06: Database connected & synced
+2026-06-17T16:37:06: Starting database seed...
+2026-06-17T16:37:06: Updated channel: gaurpay (INR/IN)
+2026-06-17T16:37:06: Updated channel: bharatpay (INR/IN)
+2026-06-17T16:37:06: Updated channel: cxpay (INR/IN)
+2026-06-17T16:37:06: Updated channel: aapay (INR/IN)
+2026-06-17T16:37:06: Updated channel: ipay (INR/IN)
+2026-06-17T16:37:06: Updated channel: unitedpay (INR/IN)
+2026-06-17T16:37:06: Updated channel: yellow (INR/IN)
+2026-06-17T16:37:06: Updated channel: upi super (INR/IN)
+2026-06-17T16:37:06: Updated channel: ckpay (INR/IN)
+2026-06-17T16:37:06: Updated channel: firpay (INR/IN)
+2026-06-17T16:37:06: Updated channel: agpay (INR/IN)
+2026-06-17T16:37:06: Updated channel: easypay (INR/IN)
+2026-06-17T16:37:06: Updated channel: ynpay (INR/IN)
+2026-06-17T16:37:06: Updated channel: passpay (INR/IN)
+2026-06-17T16:37:06: Updated channel: smart (INR/IN)
+2026-06-17T16:37:06: Updated channel: pkr_channel_1 (PKR/PK)
+2026-06-17T16:37:06: Updated channel: bdt_channel_1 (BDT/BD)
+2026-06-17T16:37:06: Updated channel: idr_channel_1 (IDR/ID)
+2026-06-17T16:37:06: Database seed completed!
+2026-06-17T16:37:06: Server running on port 3000
+2026-06-17T16:37:06: API Base URL: http://localhost:3000
+2026-06-17T16:38:24: [dotenv@17.2.3] injecting env (57) from .env -- tip: ⚙️  override existing env vars with { override: true }
+2026-06-17T16:38:25: [dotenv@17.2.3] injecting env (0) from .env -- tip: 📡 add observability to secrets: https://dotenvx.com/ops
+2026-06-17T16:38:25: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔑 add access controls to secrets: https://dotenvx.com/ops
+2026-06-17T16:38:25: [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+2026-06-17T16:38:25: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔑 add access controls to secrets: https://dotenvx.com/ops
+2026-06-17T16:38:25: [dotenv@17.2.3] injecting env (0) from .env -- tip: ✅ audit secrets and track compliance: https://dotenvx.com/ops
+2026-06-17T16:38:25: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🗂️ backup and recover secrets: https://dotenvx.com/ops
+2026-06-17T16:38:25: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+2026-06-17T16:38:25: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🗂️ backup and recover secrets: https://dotenvx.com/ops
+2026-06-17T16:38:25: [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+2026-06-17T16:38:25: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+2026-06-17T16:38:25: [dotenv@17.2.3] injecting env (0) from .env -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
+2026-06-17T16:38:25: [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+2026-06-17T16:38:25: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🗂️ backup and recover secrets: https://dotenvx.com/ops
+2026-06-17T16:38:26: [Server] Initializing Telegram Bot...
+2026-06-17T16:38:26: [Telegram Proxy] Fetching new proxy list...
+2026-06-17T16:38:26: Database connected & synced
+2026-06-17T16:38:26: Starting database seed...
+2026-06-17T16:38:26: [Telegram Proxy] Testing batch 1 (15 proxies)...
+2026-06-17T16:38:26: Updated channel: gaurpay (INR/IN)
+2026-06-17T16:38:26: Updated channel: bharatpay (INR/IN)
+2026-06-17T16:38:26: Updated channel: cxpay (INR/IN)
+2026-06-17T16:38:26: Updated channel: aapay (INR/IN)
+2026-06-17T16:38:26: Updated channel: ipay (INR/IN)
+2026-06-17T16:38:26: Updated channel: unitedpay (INR/IN)
+2026-06-17T16:38:26: Updated channel: yellow (INR/IN)
+2026-06-17T16:38:26: Updated channel: upi super (INR/IN)
+2026-06-17T16:38:26: Updated channel: ckpay (INR/IN)
+2026-06-17T16:38:26: Updated channel: firpay (INR/IN)
+2026-06-17T16:38:26: Updated channel: agpay (INR/IN)
+2026-06-17T16:38:26: Updated channel: easypay (INR/IN)
+2026-06-17T16:38:26: Updated channel: ynpay (INR/IN)
+2026-06-17T16:38:26: Updated channel: passpay (INR/IN)
+2026-06-17T16:38:26: Updated channel: smart (INR/IN)
+2026-06-17T16:38:26: Updated channel: pkr_channel_1 (PKR/PK)
+2026-06-17T16:38:26: Updated channel: bdt_channel_1 (BDT/BD)
+2026-06-17T16:38:26: Updated channel: idr_channel_1 (IDR/ID)
+2026-06-17T16:38:26: Database seed completed!
+2026-06-17T16:38:26: Server running on port 3000
+2026-06-17T16:38:26: API Base URL: http://localhost:3000
+2026-06-17T16:38:31: [Telegram Proxy] Testing batch 2 (15 proxies)...
+2026-06-17T16:39:52: [dotenv@17.2.3] injecting env (57) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+2026-06-17T16:39:52: [dotenv@17.2.3] injecting env (0) from .env -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
+2026-06-17T16:39:53: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+2026-06-17T16:39:53: [dotenv@17.2.3] injecting env (0) from .env -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
+2026-06-17T16:39:53: [dotenv@17.2.3] injecting env (0) from .env -- tip: ✅ audit secrets and track compliance: https://dotenvx.com/ops
+2026-06-17T16:39:53: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+2026-06-17T16:39:53: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+2026-06-17T16:39:53: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+2026-06-17T16:39:53: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔑 add access controls to secrets: https://dotenvx.com/ops
+2026-06-17T16:39:53: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔑 add access controls to secrets: https://dotenvx.com/ops
+2026-06-17T16:39:53: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔄 add secrets lifecycle management: https://dotenvx.com/ops
+2026-06-17T16:39:53: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+2026-06-17T16:39:53: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🗂️ backup and recover secrets: https://dotenvx.com/ops
+2026-06-17T16:39:53: [dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+2026-06-17T16:39:53: [Server] Initializing Telegram Bot...
+2026-06-17T16:39:53: [Telegram Proxy] Fetching new proxy list...
+2026-06-17T16:39:54: Database connected & synced
+2026-06-17T16:39:54: [Telegram Proxy] Testing batch 1 (15 proxies)...
+2026-06-17T16:39:54: Starting database seed...
+2026-06-17T16:39:54: Updated channel: gaurpay (INR/IN)
+2026-06-17T16:39:54: Updated channel: bharatpay (INR/IN)
+2026-06-17T16:39:54: Updated channel: cxpay (INR/IN)
+2026-06-17T16:39:54: Updated channel: aapay (INR/IN)
+2026-06-17T16:39:54: Updated channel: ipay (INR/IN)
+2026-06-17T16:39:54: Updated channel: unitedpay (INR/IN)
+2026-06-17T16:39:54: Updated channel: yellow (INR/IN)
+2026-06-17T16:39:54: Updated channel: upi super (INR/IN)
+2026-06-17T16:39:54: Updated channel: ckpay (INR/IN)
+2026-06-17T16:39:54: Updated channel: firpay (INR/IN)
+2026-06-17T16:39:54: Updated channel: agpay (INR/IN)
+2026-06-17T16:39:54: Updated channel: easypay (INR/IN)
+2026-06-17T16:39:54: Updated channel: ynpay (INR/IN)
+2026-06-17T16:39:54: Updated channel: passpay (INR/IN)
+2026-06-17T16:39:54: Updated channel: smart (INR/IN)
+2026-06-17T16:39:54: Updated channel: pkr_channel_1 (PKR/PK)
+2026-06-17T16:39:54: Updated channel: bdt_channel_1 (BDT/BD)
+2026-06-17T16:39:54: Updated channel: idr_channel_1 (IDR/ID)
+2026-06-17T16:39:54: Database seed completed!
+2026-06-17T16:39:54: Server running on port 3000
+2026-06-17T16:39:54: API Base URL: http://localhost:3000
+2026-06-17T16:39:59: [Telegram Proxy] Found working proxy: http://103.156.75.215:9980
+2026-06-17T16:39:59: [Telegram] Bot initialized successfully with proxy.
