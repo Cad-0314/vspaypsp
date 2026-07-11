@@ -1,5 +1,33 @@
-node_modules/  
+node_modules/
 .env
 *.ext
+
+# API documentation files (contain upstream credentials/secrets)
 *.txt
+*.doc
+*.docx
+
+# SQLite database (local dev only)
 database.sqlite
+
+# Logs
+logs/
+*.log
+
+# Temporary/extracted files
+easypay_extracted/
+easypay_temp.zip
+easypay_raw.txt
+easypay_text.txt
+payout-data/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Archives
+*.zip

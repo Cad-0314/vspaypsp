@@ -35,7 +35,7 @@ const init = async (token) => {
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         bot.onText(/\/start(?:@\w+)?(?:\s|$)/, (msg) => {
             const chatId = msg.chat.id;
-            const name = msg.from.first_name || 'there';
+            const name = (msg.from.first_name || 'there').replace(/[_*`[\]()]/g, '\\$&');
             bot.sendMessage(chatId, [
                 `━━━━━━━━━━━━━━━━━━━━━`,
                 `  🏦  *GaurPay Bot*`,
@@ -49,7 +49,7 @@ const init = async (token) => {
                 `Type /h for all commands.`,
                 ``,
                 `_⚡ Fast • Secure • Reliable_`,
-            ].join('\n'), { parse_mode: 'Markdown' });
+            ].join('\n'), { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /start send failed:', e.message));
         });
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -60,7 +60,7 @@ const init = async (token) => {
             const username = match[1].trim();
 
             if (!username) {
-                return bot.sendMessage(chatId, '⚠️ Usage: /bind `<username>`', { parse_mode: 'Markdown' });
+                return bot.sendMessage(chatId, '⚠️ Usage: /bind `<username>`', { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /bind usage send failed:', e.message));
             }
 
             try {
@@ -72,7 +72,7 @@ const init = async (token) => {
                         ``,
                         `No merchant with username \`${username}\`.`,
                         `Please check the username and try again.`,
-                    ].join('\n'), { parse_mode: 'Markdown' });
+                    ].join('\n'), { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /bind notfound send failed:', e.message));
                 }
 
                 // Check if already bound to another group
@@ -83,7 +83,7 @@ const init = async (token) => {
                         `Merchant \`${username}\` is already`,
                         `linked to another group.`,
                         `Contact admin to reassign.`,
-                    ].join('\n'), { parse_mode: 'Markdown' });
+                    ].join('\n'), { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /bind bound send failed:', e.message));
                 }
 
                 // Bind the group
@@ -100,19 +100,19 @@ const init = async (token) => {
                     ``,
                     `This group is now linked.`,
                     `Type /h to see all commands.`,
-                ].join('\n'), { parse_mode: 'Markdown' });
+                ].join('\n'), { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /bind success send failed:', e.message));
 
                 console.log(`[Telegram] /bind: ${username} → group ${chatId}`);
             } catch (error) {
                 console.error('[Telegram] /bind error:', error);
-                bot.sendMessage(chatId, `❌ Error binding: ${error.message}`);
+                bot.sendMessage(chatId, `❌ Error binding: ${error.message}`).catch(e => console.error('[Telegram] /bind error reply failed:', e.message));
             }
         });
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        //  /h — Help menu
+        //  /h or /help — Help menu
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        bot.onText(/\/h(?:@\w+)?$/, (msg) => {
+        bot.onText(/\/(?:h|help)(?:@\w+)?$/, (msg) => {
             const chatId = msg.chat.id;
             bot.sendMessage(chatId, [
                 `━━━━━━━━━━━━━━━━━━━━━`,
@@ -129,7 +129,7 @@ const init = async (token) => {
                 `🧪  /cbt \`<orderId>\` — Test success callback`,
                 `🆔  /id — Get chat ID`,
                 `❓  /h — This menu`,
-            ].join('\n'), { parse_mode: 'Markdown' });
+            ].join('\n'), { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /h send failed:', e.message));
         });
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -150,19 +150,19 @@ const init = async (token) => {
                 `Name ➜ ${title}`,
                 ``,
                 `_Use this ID for merchant binding._`,
-            ].join('\n'), { parse_mode: 'Markdown' });
+            ].join('\n'), { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /id send failed:', e.message));
             console.log(`[Telegram] /id requested in ${title} (${chatId})`);
         });
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        //  /details — Account data
+        //  /details or /data — Account data
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        bot.onText(/\/details(?:@\w+)?(?:\s|$)/, async (msg) => {
+        bot.onText(/\/(?:details|data)(?:@\w+)?(?:\s|$)/, async (msg) => {
             const chatId = msg.chat.id;
             const merchant = await getMerchant(chatId);
 
             if (!merchant) {
-                return bot.sendMessage(chatId, '❌ This group is not bound to any merchant.\nUse /bind `<username>` to link.', { parse_mode: 'Markdown' });
+                return bot.sendMessage(chatId, '❌ This group is not bound to any merchant.\nUse /bind `<username>` to link.', { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /details notbound send failed:', e.message));
             }
 
             const rates = JSON.parse(merchant.channel_rates || '{}');
@@ -191,21 +191,21 @@ const init = async (token) => {
                 `│  PayIn:   ${rates.payinRate || 0}%`,
                 `│  Payout:  ${rates.payoutRate || 0}%`,
                 `└──────────────`,
-            ].join('\n'), { parse_mode: 'Markdown' });
+            ].join('\n'), { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /details send failed:', e.message));
         });
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        //  /sr — Success rates
+        //  /sr or /stats — Success rates
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        bot.onText(/\/sr(?:@\w+)?(?:\s|$)/, async (msg) => {
+        bot.onText(/\/(?:sr|stats)(?:@\w+)?(?:\s|$)/, async (msg) => {
             const chatId = msg.chat.id;
             const merchant = await getMerchant(chatId);
 
             if (!merchant) {
-                return bot.sendMessage(chatId, '❌ This group is not bound to any merchant.\nUse /bind `<username>` to link.', { parse_mode: 'Markdown' });
+                return bot.sendMessage(chatId, '❌ This group is not bound to any merchant.\nUse /bind `<username>` to link.', { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /sr notbound send failed:', e.message));
             }
 
-            bot.sendMessage(chatId, '⏳ _Calculating success rates..._', { parse_mode: 'Markdown' });
+            bot.sendMessage(chatId, '⏳ _Calculating success rates..._', { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /sr calculating send failed:', e.message));
 
             const now = new Date();
 
@@ -256,7 +256,7 @@ const init = async (token) => {
                 `└──────────────────────`,
                 ``,
                 `_🕐 ${now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' })} IST_`,
-            ].join('\n'), { parse_mode: 'Markdown' });
+            ].join('\n'), { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /sr final send failed:', e.message));
         });
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -268,20 +268,20 @@ const init = async (token) => {
             const amount = parseFloat(amountStr);
 
             if (isNaN(amount) || amount <= 0) {
-                return bot.sendMessage(chatId, '⚠️ Invalid amount.\nUsage: /pl `200`', { parse_mode: 'Markdown' });
+                return bot.sendMessage(chatId, '⚠️ Invalid amount.\nUsage: /pl `200`', { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /pl invalid amount send failed:', e.message));
             }
 
             const merchant = await getMerchant(chatId);
             if (!merchant) {
-                return bot.sendMessage(chatId, '❌ This group is not bound to any merchant.\nUse /bind `<username>` to link.', { parse_mode: 'Markdown' });
+                return bot.sendMessage(chatId, '❌ This group is not bound to any merchant.\nUse /bind `<username>` to link.', { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /pl notbound send failed:', e.message));
             }
 
             if (!merchant.canPayin) {
-                return bot.sendMessage(chatId, '❌ PayIn is disabled for this merchant.');
+                return bot.sendMessage(chatId, '❌ PayIn is disabled for this merchant.').catch(e => console.error('[Telegram] /pl payin disabled send failed:', e.message));
             }
 
             if (!merchant.assignedChannel) {
-                return bot.sendMessage(chatId, '❌ No payment channel assigned.');
+                return bot.sendMessage(chatId, '❌ No payment channel assigned.').catch(e => console.error('[Telegram] /pl nochannel send failed:', e.message));
             }
 
             try {
@@ -322,12 +322,12 @@ const init = async (token) => {
                     `${paymentLink}`,
                     ``,
                     `⏳ _Expires in 30 minutes_`,
-                ].join('\n'), { parse_mode: 'Markdown' });
+                ].join('\n'), { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /pl success send failed:', e.message));
 
                 console.log(`[Telegram] /pl generated: ${orderId} for ₹${amount}`);
             } catch (error) {
                 console.error('[Telegram] /pl error:', error);
-                bot.sendMessage(chatId, `❌ Error: ${error.message}`);
+                bot.sendMessage(chatId, `❌ Error: ${error.message}`).catch(e => console.error('[Telegram] /pl error reply failed:', e.message));
             }
         });
 
@@ -339,7 +339,7 @@ const init = async (token) => {
             const orderId = match[1].trim();
 
             if (!orderId) {
-                return bot.sendMessage(chatId, '⚠️ Usage: /query `<orderId>`', { parse_mode: 'Markdown' });
+                return bot.sendMessage(chatId, '⚠️ Usage: /query `<orderId>`', { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /query usage send failed:', e.message));
             }
 
             try {
@@ -351,7 +351,7 @@ const init = async (token) => {
                         ``,
                         `No order matched \`${orderId}\``,
                         `Double-check and try again.`,
-                    ].join('\n'), { parse_mode: 'Markdown' });
+                    ].join('\n'), { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /query notfound send failed:', e.message));
                 }
 
                 const statusMap = {
@@ -386,12 +386,12 @@ const init = async (token) => {
                     `│  Created: ${createdAt}`,
                     `│  Updated: ${updatedAt}`,
                     `└──────────────`,
-                ].join('\n'), { parse_mode: 'Markdown' });
+                ].join('\n'), { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /query success send failed:', e.message));
 
                 console.log(`[Telegram] /query executed for order: ${orderId}`);
             } catch (error) {
                 console.error('[Telegram] /query error:', error);
-                bot.sendMessage(chatId, `❌ Error: ${error.message}`);
+                bot.sendMessage(chatId, `❌ Error: ${error.message}`).catch(e => console.error('[Telegram] /query error reply failed:', e.message));
             }
         });
 
@@ -403,7 +403,7 @@ const init = async (token) => {
             const orderId = match[1].trim();
 
             if (!orderId) {
-                return bot.sendMessage(chatId, '⚠️ Usage: /callback `<orderId>`', { parse_mode: 'Markdown' });
+                return bot.sendMessage(chatId, '⚠️ Usage: /callback `<orderId>`', { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /callback usage send failed:', e.message));
             }
 
             try {
@@ -421,12 +421,12 @@ const init = async (token) => {
                         `${ok ? '✅' : '⚠️'}  ${ok ? 'Acknowledged' : 'Not Acknowledged'}`,
                         `📡  HTTP ➜ ${result.httpCode}`,
                         `📝  Response ➜ \`${snippet}\``,
-                    ].join('\n'), { parse_mode: 'Markdown' });
+                    ].join('\n'), { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /callback result send failed:', e.message));
                 } else {
-                    bot.sendMessage(chatId, `❌ Callback Failed: ${result.message}`);
+                    bot.sendMessage(chatId, `❌ Callback Failed: ${result.message}`).catch(e => console.error('[Telegram] /callback failed reply send failed:', e.message));
                 }
             } catch (error) {
-                bot.sendMessage(chatId, `❌ Error: ${error.message}`);
+                bot.sendMessage(chatId, `❌ Error: ${error.message}`).catch(e => console.error('[Telegram] /callback error reply send failed:', e.message));
             }
         });
 
@@ -438,7 +438,7 @@ const init = async (token) => {
             const orderId = match[1].trim();
 
             if (!orderId) {
-                return bot.sendMessage(chatId, '⚠️ Usage: /cbt `<orderId>`', { parse_mode: 'Markdown' });
+                return bot.sendMessage(chatId, '⚠️ Usage: /cbt `<orderId>`', { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /cbt usage send failed:', e.message));
             }
 
             try {
@@ -450,11 +450,11 @@ const init = async (token) => {
                         ``,
                         `No order matched \`${orderId}\``,
                         `Double-check and try again.`,
-                    ].join('\n'), { parse_mode: 'Markdown' });
+                    ].join('\n'), { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /cbt notfound send failed:', e.message));
                 }
 
                 if (order.status === 'success') {
-                    return bot.sendMessage(chatId, `⚠️ Order \`${orderId}\` is already marked as success.`, { parse_mode: 'Markdown' });
+                    return bot.sendMessage(chatId, `⚠️ Order \`${orderId}\` is already marked as success.`, { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /cbt already success send failed:', e.message));
                 }
 
                 // Generate a DEMO UTR if none exists
@@ -492,14 +492,14 @@ const init = async (token) => {
                         `${ok ? '✅' : '⚠️'}  ${ok ? 'Acknowledged' : 'Not Acknowledged'}`,
                         `📡  HTTP ➜ ${result.httpCode}`,
                         `📝  Response ➜ \`${snippet}\``,
-                    ].join('\n'), { parse_mode: 'Markdown' });
+                    ].join('\n'), { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /cbt success send failed:', e.message));
                 } else {
-                    bot.sendMessage(chatId, `❌ Callback Failed: ${result.message}`);
+                    bot.sendMessage(chatId, `❌ Callback Failed: ${result.message}`).catch(e => console.error('[Telegram] /cbt failed reply send failed:', e.message));
                 }
 
             } catch (error) {
                 console.error('[Telegram] /cbt error:', error);
-                bot.sendMessage(chatId, `❌ Error: ${error.message}`);
+                bot.sendMessage(chatId, `❌ Error: ${error.message}`).catch(e => console.error('[Telegram] /cbt error reply send failed:', e.message));
             }
         });
 
@@ -511,7 +511,7 @@ const init = async (token) => {
             const orderId = match[1].trim();
 
             if (!orderId) {
-                return bot.sendMessage(chatId, '⚠️ Usage: /fetch `<orderId>`', { parse_mode: 'Markdown' });
+                return bot.sendMessage(chatId, '⚠️ Usage: /fetch `<orderId>`', { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /fetch usage send failed:', e.message));
             }
 
             try {
@@ -523,16 +523,16 @@ const init = async (token) => {
                         ``,
                         `No order matched \`${orderId}\``,
                         `Double-check and try again.`,
-                    ].join('\n'), { parse_mode: 'Markdown' });
+                    ].join('\n'), { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /fetch notfound send failed:', e.message));
                 }
 
                 // Check if it's a skipped order (status should be 'processing')
                 if (order.status !== 'processing' && order.status !== 'pending') {
-                    return bot.sendMessage(chatId, `⚠️ Order \`${orderId}\` is already \`${order.status}\` and cannot be fetched.`, { parse_mode: 'Markdown' });
+                    return bot.sendMessage(chatId, `⚠️ Order \`${orderId}\` is already \`${order.status}\` and cannot be fetched.`, { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /fetch status invalid send failed:', e.message));
                 }
 
                 if (!order.utr) {
-                    return bot.sendMessage(chatId, `⚠️ Order \`${orderId}\` does not have a UTR yet.`, { parse_mode: 'Markdown' });
+                    return bot.sendMessage(chatId, `⚠️ Order \`${orderId}\` does not have a UTR yet.`, { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /fetch no utr send failed:', e.message));
                 }
 
                 // Update order to success
@@ -566,14 +566,14 @@ const init = async (token) => {
                         `${ok ? '✅' : '⚠️'}  ${ok ? 'Acknowledged' : 'Not Acknowledged'}`,
                         `📡  HTTP ➜ ${result.httpCode}`,
                         `📝  Response ➜ \`${snippet}\``,
-                    ].join('\n'), { parse_mode: 'Markdown' });
+                    ].join('\n'), { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /fetch success send failed:', e.message));
                 } else {
-                    bot.sendMessage(chatId, `❌ Callback Failed: ${result.message}`);
+                    bot.sendMessage(chatId, `❌ Callback Failed: ${result.message}`).catch(e => console.error('[Telegram] /fetch callback failed send failed:', e.message));
                 }
 
             } catch (error) {
                 console.error('[Telegram] /fetch error:', error);
-                bot.sendMessage(chatId, `❌ Error: ${error.message}`);
+                bot.sendMessage(chatId, `❌ Error: ${error.message}`).catch(e => console.error('[Telegram] /fetch error reply send failed:', e.message));
             }
         });
 

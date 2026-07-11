@@ -15,6 +15,40 @@ async function fetchProxies() {
     }
 }
 
+async function testDirectConnection() {
+    return new Promise((resolve) => {
+        let isResolved = false;
+        const timeoutId = setTimeout(() => {
+            if (!isResolved) {
+                isResolved = true;
+                resolve(false);
+            }
+        }, 5000);
+
+        const req = https.get('https://api.telegram.org/bot' + process.env.TELEGRAM_BOT_TOKEN + '/getMe', (res) => {
+            if (!isResolved) {
+                isResolved = true;
+                clearTimeout(timeoutId);
+                // Status 200 is success, but 401/404 also means Telegram is reachable directly (e.g. wrong/unauthorized token)
+                if (res.statusCode === 200 || res.statusCode === 401 || res.statusCode === 404) {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                }
+            }
+            res.resume();
+        });
+        
+        req.on('error', () => {
+            if (!isResolved) {
+                isResolved = true;
+                clearTimeout(timeoutId);
+                resolve(false);
+            }
+        });
+    });
+}
+
 async function testProxy(proxyUrl) {
     return new Promise((resolve) => {
         let isResolved = false;
@@ -50,9 +84,19 @@ async function testProxy(proxyUrl) {
 }
 
 async function getWorkingAgent() {
-    if (currentAgent) return currentAgent;
+    if (currentAgent) {
+        return currentAgent === 'DIRECT' ? null : currentAgent;
+    }
     
-    console.log('[Telegram Proxy] Fetching new proxy list...');
+    console.log('[Telegram Proxy] Checking if direct connection to Telegram works...');
+    const directWorks = await testDirectConnection();
+    if (directWorks) {
+        console.log('[Telegram Proxy] Direct connection works. No proxy needed.');
+        currentAgent = 'DIRECT';
+        return null;
+    }
+    
+    console.log('[Telegram Proxy] Direct connection failed. Fetching new proxy list...');
     const proxies = await fetchProxies();
     
     const batchSize = 15;

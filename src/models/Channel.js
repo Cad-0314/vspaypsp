@@ -11,7 +11,7 @@ const Channel = sequelize.define('Channel', {
         type: DataTypes.STRING(50),
         allowNull: false,
         unique: true,
-        comment: 'Channel identifier: hdpay, x2, gaurpay'
+        comment: 'Channel identifier: gaurpay, yellow, aapay'
     },
     displayName: {
         type: DataTypes.STRING(100),
@@ -26,7 +26,7 @@ const Channel = sequelize.define('Channel', {
     provider: {
         type: DataTypes.STRING(50),
         allowNull: false,
-        comment: 'Backend provider: hdpay, f2pay, silkpay'
+        comment: 'Backend provider: silkpay, caipay, fendpay'
     },
     currency: {
         type: DataTypes.STRING(5),

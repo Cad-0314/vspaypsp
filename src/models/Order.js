@@ -20,7 +20,7 @@ const Order = sequelize.define('Order', {
     channelName: {
         type: DataTypes.STRING(50),
         allowNull: false,
-        comment: 'Channel: hdpay, x2, gaurpay'
+        comment: 'Channel: gaurpay, yellow, aapay'
     },
     currency: {
         type: DataTypes.STRING(5),

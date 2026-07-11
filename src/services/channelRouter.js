@@ -206,12 +206,7 @@ async function createPayin(channelName, params) {
 
     const service = config.service;
 
-    // For X2 (f2pay), try V2 first to get deeplinks
-    if (channelName === 'x2' && service.createPayinV2) {
-        result = await service.createPayinV2(params);
-    } else {
-        result = await service.createPayin(params);
-    }
+    result = await service.createPayin(params);
 
     if (result.success) {
         result.channelName = channelName;
