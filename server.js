@@ -80,12 +80,48 @@ app.use((req, res, next) => {
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Session
-app.use(session({
+// Session Store - Use MySQL in production for PM2 cluster compatibility
+const sessionConfig = {
     secret: process.env.SESSION_SECRET || 'secret_key_gaurpay_backend',
     resave: false,
-    saveUninitialized: false
-}));
+    saveUninitialized: false,
+    cookie: {
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
+    }
+};
+
+if (process.env.DB_DIALECT !== 'sqlite' && process.env.DB_HOST) {
+    // Production: Use MySQL session store (shared across PM2 cluster instances)
+    const MySQLStore = require('express-mysql-session')(session);
+    const sessionStore = new MySQLStore({
+        host: process.env.DB_HOST,
+        port: 3306,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_NAME,
+        clearExpired: true,
+        checkExpirationInterval: 900000, // 15 min
+        expiration: 86400000, // 24 hours
+        createDatabaseTable: true,
+        schema: {
+            tableName: 'sessions',
+            columnNames: {
+                session_id: 'session_id',
+                expires: 'expires',
+                data: 'data'
+            }
+        }
+    });
+    sessionConfig.store = sessionStore;
+    console.log('[Session] Using MySQL session store (cluster-safe)');
+} else {
+    console.log('[Session] Using MemoryStore (development only)');
+}
+
+app.use(session(sessionConfig));
 
 // Cookie Parser
 app.use(cookieParser());
