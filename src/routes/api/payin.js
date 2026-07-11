@@ -84,6 +84,16 @@ router.post('/create', validateMerchant, async (req, res) => {
         const channelName = merchant.payinChannel || merchant.assignedChannel || 'aapay';
         const channelConfig = channelRouter.getChannelConfig(channelName);
 
+        // strict currency check
+        if (channelConfig && !channelConfig.isSmartChannel && channelConfig.currency !== currency) {
+            return res.json({
+                status: 'error',
+                errorCode: 'CURRENCY_MISMATCH',
+                message: The assigned channel () supports , but order currency is .,
+                timestamp: new Date().toISOString()
+            });
+        }
+
         if (!channelConfig) {
             return res.json({
                 status: 'error',

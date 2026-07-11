@@ -55,6 +55,16 @@ router.post('/bank', validateMerchant, async (req, res) => {
         const channelName = merchant.payoutChannel || merchant.assignedChannel || 'aapay';
         const isTestChannel = channelName === 'testpay';
 
+        const channelConfig = channelRouter.getChannelConfig(channelName);
+        if (channelConfig && !channelConfig.isSmartChannel && channelConfig.currency !== currency) {
+            return res.json({
+                status: 'error',
+                errorCode: 'CURRENCY_MISMATCH',
+                message: The assigned channel () supports , but order currency is .,
+                timestamp: new Date().toISOString()
+            });
+        }
+
         // For real channels, reject if payout is suspended
         if (merchant.canPayout === false && !isTestChannel) {
             return res.json({
