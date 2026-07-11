@@ -14,11 +14,12 @@ const init = async (token) => {
 
     try {
         const agent = await getWorkingAgent();
+        const isPrimary = !process.env.NODE_APP_INSTANCE || process.env.NODE_APP_INSTANCE === '0';
         bot = new TelegramBot(token, {
-            polling: true,
+            polling: isPrimary,
             request: { agent }
         });
-        console.log('[Telegram] Bot initialized successfully with proxy.');
+        console.log(`[Telegram] Bot initialized successfully with proxy. Polling: ${isPrimary}`);
 
         // ─── Helper: Find merchant by Group ID ───
         const getMerchant = async (chatId) => {
