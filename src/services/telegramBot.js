@@ -1,6 +1,7 @@
 const TelegramBot = require('node-telegram-bot-api');
 const { User, Order } = require('../models');
 const { Op } = require('sequelize');
+const { getSymbol } = require('../config/currencies');
 
 let bot = null;
 
@@ -170,6 +171,7 @@ const init = async (token) => {
             const bal = parseFloat(merchant.balance).toFixed(2);
             const pending = parseFloat(merchant.pendingBalance).toFixed(2);
 
+            const sym = getSymbol(merchant.defaultCurrency) || '₹';
             bot.sendMessage(chatId, [
                 `━━━━━━━━━━━━━━━━━━━━━`,
                 `  📋  *Account Details*`,
@@ -178,8 +180,8 @@ const init = async (token) => {
                 `👤  Merchant ➜ \`${merchant.username}\``,
                 ``,
                 `┌─ 💰 Balance`,
-                `│  Available: ₹${bal}`,
-                `│  Pending:   ₹${pending}`,
+                `│  Available: ${sym}${bal}`,
+                `│  Pending:   ${sym}${pending}`,
                 `└──────────────`,
                 ``,
                 `┌─ ⚙️ Config`,
@@ -311,12 +313,13 @@ const init = async (token) => {
 
                 const paymentLink = `${APP_URL}/pay/${order.id}`;
 
+                const sym = getSymbol(merchant.defaultCurrency) || '₹';
                 bot.sendMessage(chatId, [
                     `━━━━━━━━━━━━━━━━━━━━━`,
                     `  🎫  *Payment Link*`,
                     `━━━━━━━━━━━━━━━━━━━━━`,
                     ``,
-                    `💵  Amount ➜ ₹${amount.toFixed(2)}`,
+                    `💵  Amount ➜ ${sym}${amount.toFixed(2)}`,
                     `🆔  Order  ➜ \`${orderId}\``,
                     ``,
                     `🔗 *Pay Now:*`,
@@ -325,7 +328,7 @@ const init = async (token) => {
                     `⏳ _Expires in 30 minutes_`,
                 ].join('\n'), { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /pl success send failed:', e.message));
 
-                console.log(`[Telegram] /pl generated: ${orderId} for ₹${amount}`);
+                console.log(`[Telegram] /pl generated: ${orderId} for ${sym}${amount}`);
             } catch (error) {
                 console.error('[Telegram] /pl error:', error);
                 bot.sendMessage(chatId, `❌ Error: ${error.message}`).catch(e => console.error('[Telegram] /pl error reply failed:', e.message));
@@ -369,6 +372,9 @@ const init = async (token) => {
                     ? new Date(order.updatedAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
                     : 'N/A';
 
+                const merchant = await User.findByPk(order.merchantId);
+                const sym = merchant ? getSymbol(merchant.defaultCurrency) : '₹';
+
                 bot.sendMessage(chatId, [
                     `━━━━━━━━━━━━━━━━━━━━━`,
                     `  🔍  *Order Lookup*`,
@@ -376,7 +382,7 @@ const init = async (token) => {
                     ``,
                     `🆔  ID ➜ \`${order.orderId}\``,
                     `${s.emoji}  Status ➜ *${s.label}*`,
-                    `💵  Amount ➜ ₹${parseFloat(order.amount).toFixed(2)}`,
+                    `💵  Amount ➜ ${sym}${parseFloat(order.amount).toFixed(2)}`,
                     `📦  Type ➜ ${order.type.toUpperCase()}`,
                     ``,
                     order.utr

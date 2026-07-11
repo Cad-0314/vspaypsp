@@ -855,6 +855,9 @@
 <body>
     <script id="translations-data" type="application/json"><%- JSON.stringify(allTranslations) %></script>
     <script>
+        // Currency Symbol
+        window.CS = '<%= (typeof currencies !== "undefined" ? (currencies[user.defaultCurrency || "INR"] || currencies["INR"]).symbol : "₹") %>';
+
         // Client-side translation system
         const __translations = JSON.parse(document.getElementById('translations-data').textContent);
         const __currentLang = '<%= currentLang %>';
@@ -2320,6 +2323,12 @@
 
             function closeOrderDetailModal() {
                 document.getElementById('order-detail-modal').classList.remove('active');
+            }
+
+            // Currency helper for frontend
+            window.CURRENCY_SYMBOLS = { INR: '₹', PKR: 'Rs', BDT: '৳', IDR: 'Rp' };
+            function getCurrencySymbol(code) {
+                return window.CURRENCY_SYMBOLS[(code || 'INR').toUpperCase()] || '₹';
             }
 
             async function loadSettlements(page = 1) {
