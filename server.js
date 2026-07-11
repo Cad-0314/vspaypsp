@@ -223,11 +223,22 @@ app.get('/merchant', ensureAuthenticated, async (req, res) => {
 });
 
 app.get('/apidocument', (req, res) => {
-    res.render('apidocs', { currentLang: req.query.lang || 'en' });
+    const { CURRENCIES, getCurrency } = require('./src/config/currencies');
+    let code = req.query.currency || 'INR';
+    if (req.session && req.session.user && req.session.user.defaultCurrency) {
+        code = req.query.currency || req.session.user.defaultCurrency;
+    }
+    const cConf = getCurrency(code) || CURRENCIES['INR'];
+    
+    res.render('apidocs', { 
+        currentLang: req.query.lang || 'en',
+        currency: cConf
+    });
 });
 
 app.get('/docs', (req, res) => {
-    res.redirect('/apidocument');
+    const q = req.url.split('?')[1];
+    res.redirect('/apidocument' + (q ? '?' + q : ''));
 });
 
 app.get('/upipayout', (req, res) => {

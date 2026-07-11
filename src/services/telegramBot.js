@@ -129,6 +129,7 @@ const init = async (token) => {
                 `🔄  /callback \`<orderId>\` — Retry callback`,
                 `🔍  /fetch \`<orderId>\` — Process skipped order`,
                 `🧪  /cbt \`<orderId>\` — Test success callback`,
+                `📚  /docs — API Documentation`,
                 `🆔  /id — Get chat ID`,
                 `❓  /h — This menu`,
             ].join('\n'), { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /h send failed:', e.message));
@@ -154,6 +155,31 @@ const init = async (token) => {
                 `_Use this ID for merchant binding._`,
             ].join('\n'), { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /id send failed:', e.message));
             console.log(`[Telegram] /id requested in ${title} (${chatId})`);
+        });
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  /docs or /api — API Documentation
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        bot.onText(/\/(?:docs|api)(?:@\w+)?(?:\s|$)/, async (msg) => {
+            const chatId = msg.chat.id;
+            const merchant = await getMerchant(chatId);
+
+            if (!merchant) {
+                return bot.sendMessage(chatId, '❌ This group is not bound to any merchant.\nUse /bind `<username>` to link.', { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /docs notbound send failed:', e.message));
+            }
+
+            const APP_URL = process.env.APP_URL || 'https://gaurpay.site';
+            const docsUrl = `${APP_URL}/apidocument?currency=${merchant.defaultCurrency || 'INR'}`;
+
+            bot.sendMessage(chatId, [
+                `━━━━━━━━━━━━━━━━━━━━━`,
+                `  📚  *API Documentation*`,
+                `━━━━━━━━━━━━━━━━━━━━━`,
+                ``,
+                `Here is the integration guide tailored for your default currency (*${merchant.defaultCurrency || 'INR'}*):`,
+                ``,
+                `🔗 [View API Docs](${docsUrl})`,
+            ].join('\n'), { parse_mode: 'Markdown' }).catch(e => console.error('[Telegram] /docs send failed:', e.message));
         });
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

@@ -252,7 +252,7 @@ const res = await fetch('https://gaurpay.site/v3/deposit/create', {
                 <thead><tr><th><%= currentLang==='zh'?'参数':'Param' %></th><th><%= currentLang==='zh'?'类型':'Type' %></th><th><%= currentLang==='zh'?'说明':'Description' %></th></tr></thead>
                 <tbody>
                     <tr><td><code>ref_id</code></td><td>String<span class="rq"><%= currentLang==='zh'?'必填':'Required' %></span></td><td><%= currentLang==='zh'?'商户唯一订单号（最大64字符）':'Unique merchant order ID (max 64 chars)' %></td></tr>
-                    <tr><td><code>txn_amount</code></td><td>Number<span class="rq"><%= currentLang==='zh'?'必填':'Required' %></span></td><td><%= currentLang==='zh'?'充值金额 INR（最低 ₹100）':'Amount in INR (min ₹100)' %></td></tr>
+                    <tr><td><code>txn_amount</code></td><td>Number<span class="rq"><%= currentLang==='zh'?'必填':'Required' %></span></td><td><%= currentLang==='zh'?`充值金额 ${currency.code}（最低 ${currency.symbol}${currency.minPayin}）`:`Amount in ${currency.code} (min ${currency.symbol}${currency.minPayin})` %></td></tr>
                     <tr><td><code>webhook_url</code></td><td>String<span class="rq"><%= currentLang==='zh'?'必填':'Required' %></span></td><td><%= currentLang==='zh'?'异步回调通知地址':'Async webhook URL for notifications' %></td></tr>
                     <tr><td><code>return_url</code></td><td>String<span class="op"><%= currentLang==='zh'?'可选':'Optional' %></span></td><td><%= currentLang==='zh'?'支付成功跳转地址':'Redirect URL after payment' %></td></tr>
                     <tr><td><code>payer_name</code></td><td>String<span class="op"><%= currentLang==='zh'?'可选':'Optional' %></span></td><td><%= currentLang==='zh'?'付款人姓名':'Payer name' %></td></tr>
@@ -443,9 +443,9 @@ const res = await fetch('https://gaurpay.site/v3/deposit/create', {
                 <thead><tr><th><%= currentLang==='zh'?'参数':'Param' %></th><th><%= currentLang==='zh'?'类型':'Type' %></th><th><%= currentLang==='zh'?'说明':'Description' %></th></tr></thead>
                 <tbody>
                     <tr><td><code>ref_id</code></td><td>String<span class="rq"><%= currentLang==='zh'?'必填':'Required' %></span></td><td><%= currentLang==='zh'?'商户唯一订单号':'Unique merchant order ID' %></td></tr>
-                    <tr><td><code>txn_amount</code></td><td>Number<span class="rq"><%= currentLang==='zh'?'必填':'Required' %></span></td><td><%= currentLang==='zh'?'提现金额 INR（最低 ₹100）':'Amount in INR (min ₹100)' %></td></tr>
+                    <tr><td><code>txn_amount</code></td><td>Number<span class="rq"><%= currentLang==='zh'?'必填':'Required' %></span></td><td><%= currentLang==='zh'?`提现金额 ${currency.code}（最低 ${currency.symbol}${currency.minPayout}）`:`Amount in ${currency.code} (min ${currency.symbol}${currency.minPayout})` %></td></tr>
                     <tr><td><code>bank_account</code></td><td>String<span class="rq"><%= currentLang==='zh'?'必填':'Required' %></span></td><td><%= currentLang==='zh'?'收款人银行账号':'Beneficiary bank account' %></td></tr>
-                    <tr><td><code>bank_code</code></td><td>String<span class="rq"><%= currentLang==='zh'?'必填':'Required' %></span></td><td><%= currentLang==='zh'?'银行 IFSC 代码':'Bank IFSC code' %></td></tr>
+                    <tr><td><code>bank_code</code></td><td>String<span class="rq"><%= currentLang==='zh'?'必填':'Required' %></span></td><td><%= currentLang==='zh'?`银行代码 (${currency.payoutLabels.bankCodeZh || currency.payoutLabels.ifscZh})`:`Bank code (${currency.payoutLabels.bankCode || currency.payoutLabels.ifsc})` %></td></tr>
                     <tr><td><code>payee_name</code></td><td>String<span class="rq"><%= currentLang==='zh'?'必填':'Required' %></span></td><td><%= currentLang==='zh'?'收款人姓名':'Payee full name' %></td></tr>
                     <tr><td><code>webhook_url</code></td><td>String<span class="op"><%= currentLang==='zh'?'可选':'Optional' %></span></td><td><%= currentLang==='zh'?'回调通知地址':'Webhook URL for status updates' %></td></tr>
                     <tr><td><code>metadata</code></td><td>String<span class="op"><%= currentLang==='zh'?'可选':'Optional' %></span></td><td><%= currentLang==='zh'?'自定义透传数据':'Custom passthrough data' %></td></tr>
@@ -481,7 +481,7 @@ const res = await fetch('https://gaurpay.site/v3/deposit/create', {
                 <thead><tr><th><%= currentLang==='zh'?'参数':'Param' %></th><th><%= currentLang==='zh'?'类型':'Type' %></th><th><%= currentLang==='zh'?'说明':'Description' %></th></tr></thead>
                 <tbody>
                     <tr><td><code>ref_id</code></td><td>String<span class="rq"><%= currentLang==='zh'?'必填':'Required' %></span></td><td><%= currentLang==='zh'?'商户唯一订单号':'Unique merchant order ID' %></td></tr>
-                    <tr><td><code>txn_amount</code></td><td>Number<span class="rq"><%= currentLang==='zh'?'必填':'Required' %></span></td><td><%= currentLang==='zh'?'提现金额 INR（最低 ₹100）':'Amount in INR (min ₹100)' %></td></tr>
+                    <tr><td><code>txn_amount</code></td><td>Number<span class="rq"><%= currentLang==='zh'?'必填':'Required' %></span></td><td><%= currentLang==='zh'?`提现金额 ${currency.code}（最低 ${currency.symbol}${currency.minPayout}）`:`Amount in ${currency.code} (min ${currency.symbol}${currency.minPayout})` %></td></tr>
                     <tr><td><code>upi_id</code></td><td>String<span class="rq"><%= currentLang==='zh'?'必填':'Required' %></span></td><td><%= currentLang==='zh'?'收款人 UPI ID':'Beneficiary UPI ID (VPA)' %></td></tr>
                     <tr><td><code>payee_name</code></td><td>String<span class="rq"><%= currentLang==='zh'?'必填':'Required' %></span></td><td><%= currentLang==='zh'?'收款人姓名':'Payee full name' %></td></tr>
                     <tr><td><code>webhook_url</code></td><td>String<span class="op"><%= currentLang==='zh'?'可选':'Optional' %></span></td><td><%= currentLang==='zh'?'回调通知地址':'Webhook URL for status updates' %></td></tr>
@@ -575,7 +575,7 @@ const res = await fetch('https://gaurpay.site/v3/deposit/create', {
         "available_balance": 50000.00,
         "pending_balance": 2000.00,
         "total_balance": 52000.00,
-        "currency": "INR"
+        "currency": "<%= currency.code %>"
     }
 }</code></pre></div>
         </section>
