@@ -285,7 +285,7 @@ async function checkEndpoints() {
   }
 
   // Test callback endpoints (simulate upstream provider hitting our callback)
-  const callbackChannels = ['gaurpay', 'fendpay', 'caipay', 'ckpay', 'bharatpay', 'cxpay', 'aapay', 'ipay', 'unitedpay', 'firpay', 'agpay', 'easypay', 'ynpay', 'passpay'];
+  const callbackChannels = ['gaurpay', 'fendpay', 'caipay', 'ckpay', 'bharatpay', 'cxpay', 'aapay', 'ipay', 'unitedpay', 'firpay', 'agpay', 'easypay', 'ynpay', 'passpay', 'bcatpay'];
 
   console.log('\n--- Callback Route Availability ---');
   for (const ch of callbackChannels) {

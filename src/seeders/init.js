@@ -304,18 +304,18 @@ async function seedDatabase() {
                 maxPayout: 500000.00,
                 usesCustomPayPage: false
             },
-            // ---- BDT Channels (Placeholder) ----
+            // ---- BDT Channels ----
             {
-                name: 'bdt_channel_1',
-                displayName: 'BDT Gateway',
-                displayNameZh: 'BDT通道',
-                provider: 'bdt_provider',
+                name: 'bcatpay',
+                displayName: 'BDTPay',
+                displayNameZh: '孟加拉通道 (BDTPay)',
+                provider: 'bcatpay',
                 currency: 'BDT',
                 country: 'BD',
                 payinRate: 5.00,
                 payoutRate: 3.00,
                 payoutFixedFee: 50.00,
-                isActive: false,
+                isActive: true,
                 minPayin: 500.00,
                 maxPayin: 500000.00,
                 minPayout: 500.00,

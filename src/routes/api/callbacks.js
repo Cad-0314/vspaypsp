@@ -276,6 +276,21 @@ router.post('/:channel/payin', async (req, res) => {
             utr = req.body.utr || '';
             actualAmount = parseFloat(req.body.realAmount || req.body.amount);
             providerOrderId = req.body.platformOrderId;
+        } else if (channelName === 'bcatpay') {
+            // bcatpay: status 1=success, 3=failed, 0=pending
+            const bcatpayService = require('../../services/bcatpay');
+            if (bcatpayService.verifySign(req.body)) {
+                orderId = req.body.orderno;
+                const statusVal = parseInt(req.body.status);
+                status = statusVal === 1 ? 'success' :
+                    statusVal === 3 ? 'failed' : 'pending';
+                utr = req.body.utr || '';
+                actualAmount = parseFloat(req.body.price);
+                providerOrderId = req.body.ordersn;
+            } else {
+                console.error('[BCATPAY] Payin callback signature verification failed');
+                return res.send('fail');
+            }
         }
 
         if (!orderId) {
@@ -536,6 +551,20 @@ router.post('/:channel/payout', async (req, res) => {
                 req.body.status === 'FAIL' ? 'failed' : 'processing';
             utr = req.body.utr || '';
             providerOrderId = req.body.platformOrderId;
+        } else if (channelName === 'bcatpay') {
+            // bcatpay payout: status 1=success, 2=failed, 0=processing
+            const bcatpayService = require('../../services/bcatpay');
+            if (bcatpayService.verifySign(req.body)) {
+                orderId = req.body.orderno;
+                const statusVal = parseInt(req.body.status);
+                status = statusVal === 1 ? 'success' :
+                    statusVal === 2 ? 'failed' : 'processing';
+                utr = ''; // No UTR in payout callback
+                providerOrderId = req.body.ordersn;
+            } else {
+                console.error('[BCATPAY] Payout callback signature verification failed');
+                return res.send('fail');
+            }
         }
 
         if (!orderId) return res.send(successResponse);

@@ -45,6 +45,7 @@ const filesToSync = [
   'src/services/ipay.js',
   'src/services/passpay.js',
   'src/services/testpay.js',
+  'src/services/bcatpay.js',
   'src/services/silkpay.js',
   'src/services/stats.js',
   'src/services/telegramBot.js',
