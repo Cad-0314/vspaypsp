@@ -86,7 +86,6 @@ async function createPayin({ orderId, amount, notifyUrl, returnUrl, param }) {
             orderno: orderId,
             price: parseFloat(amount).toFixed(2),
             tdid: PAYIN_CHANNEL_ID,
-            type: (param && param.toLowerCase().includes('nagad') ? 2 : (param && param.toLowerCase().includes('rocket') ? 3 : (param && param.toLowerCase().includes('upay') ? 4 : 1))),
             callback_url: notifyUrl,
             returnUrl: returnUrl || notifyUrl
         };
