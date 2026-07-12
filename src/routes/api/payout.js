@@ -60,7 +60,7 @@ router.post('/bank', validateMerchant, async (req, res) => {
             return res.json({
                 status: 'error',
                 errorCode: 'CURRENCY_MISMATCH',
-                message: The assigned channel () supports , but order currency is .,
+                message: `The assigned channel (${channelName}) supports ${channelConfig.currency}, but order currency is ${currency}.`,
                 timestamp: new Date().toISOString()
             });
         }
