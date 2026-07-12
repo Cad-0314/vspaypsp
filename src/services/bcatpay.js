@@ -21,7 +21,7 @@ require('dotenv').config();
 const httpAgent = new http.Agent({ keepAlive: true, maxSockets: 100 });
 const httpsAgent = new https.Agent({ keepAlive: true, maxSockets: 100 });
 
-const BASE_URL = process.env.BCATPAY_BASE_URL;
+console.log('BASEURL= >'+process.env.BCATPAY_BASE_URL+'<'); const BASE_URL = process.env.BCATPAY_BASE_URL;
 const MCH_ID = process.env.BCATPAY_MCH_ID;
 const SIGN_KEY = process.env.BCATPAY_SIGN_KEY;
 const PAYIN_CHANNEL_ID = process.env.BCATPAY_PAYIN_CHANNEL_ID || '1';
@@ -72,20 +72,21 @@ async function postForm(endpoint, params) {
             searchParams.append(key, value);
         }
     }
-    return httpClient.post(endpoint, searchParams.toString());
+    return httpClient.post(BASE_URL + endpoint, searchParams.toString()).catch(e => { console.log('AXIOS ERR RESPONSE=', e.response && e.response.data); throw e; });
 }
 
 /**
  * Create payin order (collection)
  * POST /api/receiveOrder
  */
-async function createPayin({ orderId, amount, notifyUrl, returnUrl }) {
+async function createPayin({ orderId, amount, notifyUrl, returnUrl, param }) {
     try {
         const params = {
             mcid: MCH_ID,
             orderno: orderId,
             price: parseFloat(amount).toFixed(2),
             tdid: PAYIN_CHANNEL_ID,
+            type: (param && param.toLowerCase().includes('nagad') ? 2 : (param && param.toLowerCase().includes('rocket') ? 3 : (param && param.toLowerCase().includes('upay') ? 4 : 1))),
             callback_url: notifyUrl,
             returnUrl: returnUrl || notifyUrl
         };
@@ -125,13 +126,13 @@ async function createPayin({ orderId, amount, notifyUrl, returnUrl }) {
  * Query payin order status
  * POST /api/queryorder
  */
-async function queryPayin(orderId) {
+async function queryPayin(orderId) {\n    const { Order } = require('../models');\n    const order = await Order.findOne({ where: { orderId: orderId } });\n    const ordersn = order && order.providerResponse ? JSON.parse(order.providerResponse).providerOrderId : orderId;
     // The query requires ordersn, so we expect the platform's order number or we just use orderId if mapped
     // Note: bcatpay requires the platform's ordersn. We should try to query.
     try {
         const params = {
             mcid: MCH_ID,
-            ordersn: orderId // Assuming orderId passed here is the providerOrderId
+            ordersn: ordersn
         };
         params.sign = generateSign(params);
 
@@ -161,11 +162,14 @@ async function queryPayin(orderId) {
  * POST /api/backUtr
  */
 async function submitUtr(orderId, utr) {
+    const { Order } = require('../models');
+    const order = await Order.findOne({ where: { orderId: orderId } });
+    const ordersn = order && order.providerResponse ? JSON.parse(order.providerResponse).providerOrderId : orderId;
     try {
         const params = {
             mcid: MCH_ID,
             utr: utr,
-            ordersn: orderId // Expecting the platform's ordersn
+            ordersn: ordersn // Expecting the platform's ordersn
         };
         params.sign = generateSign(params);
 
@@ -195,7 +199,7 @@ async function createPayout({ orderId, amount, name, accountNo, ifsc, notifyUrl,
         const params = {
             mcid: MCH_ID,
             orderno: orderId,
-            type: 1, // 1: Bank card payment
+            type: (bankName && bankName.toLowerCase().includes('nagad') ? 2 : (bankName && bankName.toLowerCase().includes('rocket') ? 3 : (bankName && bankName.toLowerCase().includes('upay') ? 4 : 1))), // 1:bkash, 2:nagad, 3:rocket, 4:upay
             price: Math.floor(parseFloat(amount)), // Must be an integer
             tdid: PAYOUT_CHANNEL_ID,
             zh: accountNo || '',
@@ -232,7 +236,7 @@ async function createPayout({ orderId, amount, name, accountNo, ifsc, notifyUrl,
  * Query payout order status
  * POST /api/querypayment
  */
-async function queryPayout(orderId) {
+async function queryPayout(orderId) {\n    const { Order } = require('../models');\n    const order = await Order.findOne({ where: { orderId: orderId } });\n    const ordersn = order && order.providerResponse ? JSON.parse(order.providerResponse).providerOrderId : orderId;
     try {
         const params = {
             mcid: MCH_ID,
