@@ -126,7 +126,10 @@ async function createPayin({ orderId, amount, notifyUrl, returnUrl, param }) {
  * Query payin order status
  * POST /api/queryorder
  */
-async function queryPayin(orderId) {\n    const { Order } = require('../models');\n    const order = await Order.findOne({ where: { orderId: orderId } });\n    const ordersn = order && order.providerResponse ? JSON.parse(order.providerResponse).providerOrderId : orderId;
+async function queryPayin(orderId) {
+    const { Order } = require('../models');
+    const order = await Order.findOne({ where: { orderId: orderId } });
+    const ordersn = order && order.providerResponse ? JSON.parse(order.providerResponse).providerOrderId : orderId;
     // The query requires ordersn, so we expect the platform's order number or we just use orderId if mapped
     // Note: bcatpay requires the platform's ordersn. We should try to query.
     try {
@@ -236,7 +239,10 @@ async function createPayout({ orderId, amount, name, accountNo, ifsc, notifyUrl,
  * Query payout order status
  * POST /api/querypayment
  */
-async function queryPayout(orderId) {\n    const { Order } = require('../models');\n    const order = await Order.findOne({ where: { orderId: orderId } });\n    const ordersn = order && order.providerResponse ? JSON.parse(order.providerResponse).providerOrderId : orderId;
+async function queryPayout(orderId) {
+    const { Order } = require('../models');
+    const order = await Order.findOne({ where: { orderId: orderId } });
+    const ordersn = order && order.providerResponse ? JSON.parse(order.providerResponse).providerOrderId : orderId;
     try {
         const params = {
             mcid: MCH_ID,
