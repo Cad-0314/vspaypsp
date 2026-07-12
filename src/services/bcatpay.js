@@ -21,11 +21,20 @@ require('dotenv').config();
 const httpAgent = new http.Agent({ keepAlive: true, maxSockets: 100 });
 const httpsAgent = new https.Agent({ keepAlive: true, maxSockets: 100 });
 
-console.log('BASEURL= >'+process.env.BCATPAY_BASE_URL+'<'); const BASE_URL = process.env.BCATPAY_BASE_URL;
+const BASE_URL = process.env.BCATPAY_BASE_URL;
 const MCH_ID = process.env.BCATPAY_MCH_ID;
 const SIGN_KEY = process.env.BCATPAY_SIGN_KEY;
-const PAYIN_CHANNEL_ID = process.env.BCATPAY_PAYIN_CHANNEL_ID || '1';
-const PAYOUT_CHANNEL_ID = process.env.BCATPAY_PAYOUT_CHANNEL_ID || '1';
+const PAYIN_CHANNEL_ID = process.env.BCATPAY_PAYIN_CHANNEL_ID || '3885';
+const PAYOUT_CHANNEL_ID = process.env.BCATPAY_PAYOUT_CHANNEL_ID || '3886';
+
+// Per-wallet channel IDs from BCAT dashboard
+// bKash: Collect=3883, Pay=3884 | Nagad: Collect=3885, Pay=3886
+const WALLET_CHANNELS = {
+    bkash:  { payin: '3883', payout: '3884' },
+    nagad:  { payin: '3885', payout: '3886' },
+    rocket: { payin: PAYIN_CHANNEL_ID, payout: PAYOUT_CHANNEL_ID },  // fallback to default
+    upay:   { payin: PAYIN_CHANNEL_ID, payout: PAYOUT_CHANNEL_ID }   // fallback to default
+};
 
 const httpClient = axios.create({
     baseURL: BASE_URL,
@@ -79,13 +88,17 @@ async function postForm(endpoint, params) {
  * Create payin order (collection)
  * POST /api/receiveOrder
  */
-async function createPayin({ orderId, amount, notifyUrl, returnUrl, param }) {
+async function createPayin({ orderId, amount, notifyUrl, returnUrl, param, bankCode }) {
     try {
+        // Auto-route payin channel by wallet provider (defaults to Nagad)
+        const wallet = (bankCode || '').toLowerCase();
+        const tdid = (WALLET_CHANNELS[wallet] && WALLET_CHANNELS[wallet].payin) || PAYIN_CHANNEL_ID;
+
         const params = {
             mcid: MCH_ID,
             orderno: orderId,
             price: parseFloat(amount).toFixed(2),
-            tdid: PAYIN_CHANNEL_ID,
+            tdid: tdid,
             callback_url: notifyUrl,
             returnUrl: returnUrl || notifyUrl
         };
@@ -198,16 +211,24 @@ async function submitUtr(orderId, utr) {
  */
 async function createPayout({ orderId, amount, name, accountNo, ifsc, notifyUrl, bankName }) {
     try {
+        // Normalize wallet provider name (bkash, nagad, rocket, upay)
+        const walletProvider = (bankName || ifsc || 'nagad').toLowerCase();
+        const validProviders = ['bkash', 'nagad', 'rocket', 'upay'];
+        const normalizedProvider = validProviders.includes(walletProvider) ? walletProvider : 'nagad';
+
+        // Auto-route payout channel by wallet provider
+        const tdid = (WALLET_CHANNELS[normalizedProvider] && WALLET_CHANNELS[normalizedProvider].payout) || PAYOUT_CHANNEL_ID;
+
         const params = {
             mcid: MCH_ID,
             orderno: orderId,
-            type: (bankName && bankName.toLowerCase().includes('nagad') ? 2 : (bankName && bankName.toLowerCase().includes('rocket') ? 3 : (bankName && bankName.toLowerCase().includes('upay') ? 4 : 1))), // 1:bkash, 2:nagad, 3:rocket, 4:upay
+            type: 1, // 1: bank card/MFS payment, 2: cryptocurrency payment
             price: Math.floor(parseFloat(amount)), // Must be an integer
-            tdid: PAYOUT_CHANNEL_ID,
+            tdid: tdid,
             zh: accountNo || '',
             mc: name || 'User',
-            bankName: bankName || 'bkash', // Important for Bangladesh: nagad, bkash, rocket, or upay
-            bankCode: ifsc || 'bankCode',
+            bankName: normalizedProvider, // BCAT API requires exact: nagad, bkash, rocket, or upay
+            bankCode: normalizedProvider, // Use same as bankName for Bangladesh
             callback_url: notifyUrl
         };
         params.sign = generateSign(params);

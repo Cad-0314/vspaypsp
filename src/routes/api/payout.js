@@ -102,6 +102,20 @@ router.post('/bank', validateMerchant, async (req, res) => {
             });
         }
 
+        // For BDT, bankCode (wallet provider) is required
+        if (currency === 'BDT') {
+            const walletProvider = (bankCode || ifsc || '').toLowerCase();
+            const validProviders = currencyConfig.validBankCodes || ['bkash', 'nagad', 'rocket', 'upay'];
+            if (!walletProvider || !validProviders.includes(walletProvider)) {
+                return res.json({
+                    status: 'error',
+                    errorCode: 'INVALID_PARAMS',
+                    message: `Missing or invalid bankCode. Must be one of: ${validProviders.join(', ')}`,
+                    timestamp: new Date().toISOString()
+                });
+            }
+        }
+
         const payoutAmount = parseFloat(amount);
         if (isNaN(payoutAmount) || payoutAmount < currencyConfig.minPayout) {
             return res.json({
@@ -146,7 +160,7 @@ router.post('/bank', validateMerchant, async (req, res) => {
             return res.json({
                 status: 'error',
                 errorCode: 'INSUFFICIENT_BALANCE',
-                message: `Insufficient balance. Required: ₹${totalDeduction.toFixed(2)}, Available: ₹${currentBalance.toFixed(2)}`,
+                message: `Insufficient balance. Required: ${currencyConfig.symbol}${totalDeduction.toFixed(2)}, Available: ${currencyConfig.symbol}${currentBalance.toFixed(2)}`,
                 timestamp: new Date().toISOString()
             });
         }

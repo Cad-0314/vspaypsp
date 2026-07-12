@@ -127,6 +127,10 @@
                 <a href="#wallet" class="nl"><i class="ri-wallet-3-line"></i> <%= currentLang==='zh'?'查询余额':'Balance' %></a>
             </div>
             <div class="sb-section">
+                <div class="sb-title"><%= currentLang==='zh'?'孟加拉通道 (BDT)':'BANGLADESH (BDT)' %></div>
+                <a href="#bdt-guide" class="nl"><i class="ri-global-line"></i> <%= currentLang==='zh'?'BDT 集成指南':'BDT Integration Guide' %></a>
+            </div>
+            <div class="sb-section">
                 <div class="sb-title"><%= currentLang==='zh'?'参考':'REFERENCE' %></div>
                 <a href="#errors" class="nl"><i class="ri-error-warning-line"></i> <%= currentLang==='zh'?'错误码':'Error Codes' %></a>
                 <a href="#ip" class="nl"><i class="ri-shield-check-line"></i> <%= currentLang==='zh'?'IP 白名单':'IP Whitelist' %></a>
@@ -578,6 +582,87 @@ const res = await fetch('https://gaurpay.site/v3/deposit/create', {
         "currency": "<%= currency.code %>"
     }
 }</code></pre></div>
+        </section>
+
+        <!-- BANGLADESH BDT GUIDE -->
+        <section id="bdt-guide">
+            <% if(currentLang==='zh'){ %>
+            <h2>孟加拉通道 (BDT) 集成指南</h2>
+            <p>GaurPay API 完全支持孟加拉塔卡 (BDT) 的充值与提现，专为 bKash、Nagad、Rocket 和 Upay 等移动钱包设计。接口结构与 INR 相同，但参数有所区别。</p>
+            
+            <h3>1. BDT 充值 (Pay-in)</h3>
+            <p>调用 <code>/api/payin/create</code> 时，只需指定 <code>"currency": "BDT"</code>。您可以选择传入 <code>bankCode</code> 来指定钱包：</p>
+            <ul>
+                <li><code>"bkash"</code> — bKash (TDID: 3883)</li>
+                <li><code>"nagad"</code> — Nagad (TDID: 3885) <strong>(默认)</strong></li>
+                <li><code>"rocket"</code> — Rocket</li>
+                <li><code>"upay"</code> — Upay</li>
+            </ul>
+            <div class="cb"><pre><code>{
+    "orderId": "BDT_IN_001",
+    "orderAmount": 5000,
+    "currency": "BDT",
+    "bankCode": "bkash",
+    "customerName": "John Doe",
+    "callbackUrl": "https://your-site.com/webhook"
+}</code></pre></div>
+
+            <h3>2. BDT 提现 (Pay-out)</h3>
+            <p>调用 <code>/api/payout/bank</code> 进行提现。<strong>注意：</strong>BDT 提现不需要 IFSC 代码，但必须通过 <code>bankCode</code> 指定移动钱包提供商。</p>
+            <table style="margin-top:1rem">
+                <tr><th>字段</th><th>描述</th></tr>
+                <tr><td><code>currency</code></td><td>必须为 <code>"BDT"</code></td></tr>
+                <tr><td><code>account</code></td><td>11位移动钱包号码，例如 <code>"01712345678"</code></td></tr>
+                <tr><td><code>bankCode</code></td><td>必须为 <code>"bkash"</code>, <code>"nagad"</code>, <code>"rocket"</code>, 或 <code>"upay"</code></td></tr>
+            </table>
+            <div class="cb"><pre><code>{
+    "orderId": "BDT_OUT_001",
+    "amount": 25000,
+    "currency": "BDT",
+    "account": "01712345678",
+    "bankCode": "nagad",
+    "personName": "Jane Doe",
+    "callbackUrl": "https://your-site.com/webhook"
+}</code></pre></div>
+            <% } else { %>
+            <h2>Bangladesh (BDT) Integration Guide</h2>
+            <p>GaurPay API fully supports Bangladesh Taka (BDT) deposits and withdrawals, designed specifically for mobile wallets like bKash, Nagad, Rocket, and Upay. The API structure is identical to INR, with slight parameter variations.</p>
+            
+            <h3>1. BDT Deposit (Pay-in)</h3>
+            <p>When calling <code>/api/payin/create</code>, specify <code>"currency": "BDT"</code>. You can optionally provide <code>bankCode</code> to specify the wallet:</p>
+            <ul>
+                <li><code>"bkash"</code> — bKash (TDID: 3883)</li>
+                <li><code>"nagad"</code> — Nagad (TDID: 3885) <strong>(Default)</strong></li>
+                <li><code>"rocket"</code> — Rocket</li>
+                <li><code>"upay"</code> — Upay</li>
+            </ul>
+            <div class="cb"><pre><code>{
+    "orderId": "BDT_IN_001",
+    "orderAmount": 5000,
+    "currency": "BDT",
+    "bankCode": "bkash",
+    "customerName": "John Doe",
+    "callbackUrl": "https://your-site.com/webhook"
+}</code></pre></div>
+
+            <h3>2. BDT Withdrawal (Pay-out)</h3>
+            <p>Call <code>/api/payout/bank</code> for withdrawals. <strong>Note:</strong> BDT withdrawals do NOT require an IFSC code, but you MUST specify the mobile wallet provider via <code>bankCode</code>.</p>
+            <table style="margin-top:1rem">
+                <tr><th>Field</th><th>Description</th></tr>
+                <tr><td><code>currency</code></td><td>Must be <code>"BDT"</code></td></tr>
+                <tr><td><code>account</code></td><td>11-digit mobile wallet number, e.g. <code>"01712345678"</code></td></tr>
+                <tr><td><code>bankCode</code></td><td>Must be exactly <code>"bkash"</code>, <code>"nagad"</code>, <code>"rocket"</code>, or <code>"upay"</code></td></tr>
+            </table>
+            <div class="cb"><pre><code>{
+    "orderId": "BDT_OUT_001",
+    "amount": 25000,
+    "currency": "BDT",
+    "account": "01712345678",
+    "bankCode": "nagad",
+    "personName": "Jane Doe",
+    "callbackUrl": "https://your-site.com/webhook"
+}</code></pre></div>
+            <% } %>
         </section>
 
         <!-- ERRORS -->

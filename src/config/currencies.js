@@ -66,21 +66,23 @@ const CURRENCIES = {
         countryNameZh: '孟加拉国',
         flag: '🇧🇩',
         decimals: 2,
-        minPayin: 500,
-        maxPayin: 500000,
-        minPayout: 500,
-        maxPayout: 500000,
+        minPayin: 100,
+        maxPayin: 25000,
+        minPayout: 100,
+        maxPayout: 25000,
         usdtRate: 110,            // 1 USDT = 110 BDT
         minUsdtSettlement: 50000,  // Min ৳50,000 for USDT settlement
         payoutFields: ['account', 'bankCode', 'personName'],
         payoutLabels: {
-            account: 'Account Number',
-            accountZh: '账号',
-            bankCode: 'Bank / Branch Code',
-            bankCodeZh: '银行/分行代码',
+            account: 'Mobile Wallet Number',
+            accountZh: '手机钱包号码',
+            bankCode: 'Wallet Provider (bkash / nagad / rocket / upay)',
+            bankCodeZh: '钱包服务商 (bkash / nagad / rocket / upay)',
             personName: 'Account Holder Name',
             personNameZh: '收款人姓名'
-        }
+        },
+        // Bangladesh-specific: valid wallet providers for payout
+        validBankCodes: ['bkash', 'nagad', 'rocket', 'upay']
     },
     IDR: {
         code: 'IDR',
