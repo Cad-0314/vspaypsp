@@ -61,6 +61,27 @@ async function ensureUpstreamOrder(order, userIp) {
 }
 
 /**
+ * GET /pay/test
+ * Mock endpoint for testpay channel
+ */
+router.get('/test', (req, res) => {
+    res.send(`
+        <html>
+            <head><title>Test Payment</title></head>
+            <body style="font-family: sans-serif; padding: 2rem; text-align: center;">
+                <h2>Mock Payment Page</h2>
+                <p>Order ID: ${req.query.orderId}</p>
+                <p>Amount: ${req.query.amount}</p>
+                <p>Channel: ${req.query.channel}</p>
+                <p style="color: green; font-weight: bold;">Status: PENDING</p>
+                <p>This is a test channel, so no real payment will be processed.</p>
+                <a href="/" style="display: inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px;">Return to Dashboard</a>
+            </body>
+        </html>
+    `);
+});
+
+/**
  * GET /pay/:orderId
  * Render payment page for an order
  */
