@@ -2011,8 +2011,12 @@
             function switchTab(tab) {
                 document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
                 document.getElementById('tab-' + tab).classList.add('active');
-                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-                if (event && event.currentTarget) event.currentTarget.classList.add('active');
+                document.querySelectorAll('.nav-item').forEach(el => {
+                    el.classList.remove('active');
+                    if(el.getAttribute('onclick') && el.getAttribute('onclick').includes("switchTab('" + tab + "')")) {
+                        el.classList.add('active');
+                    }
+                });
 
                 if (tab === 'payin') loadOrders('payin');
                 if (tab === 'payout') loadOrders('payout');
