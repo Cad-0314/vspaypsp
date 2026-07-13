@@ -47,15 +47,20 @@ router.post('/login', (req, res, next) => {
 
         if (user.two_fa_enabled) {
             req.session.is2faPending = true;
-            return isJsonRequest
-                ? res.json({ success: true, requires2FA: true, message: 'Enter your 2FA code' })
-                : res.redirect('/auth/2fa-verify');
-        } else {
-            // 2FA not setup - redirect to setup
-            return isJsonRequest
-                ? res.json({ success: true, redirect: '/auth/2fa-setup' })
-                : res.redirect('/auth/2fa-setup');
         }
+
+        req.session.save((err) => {
+            if (user.two_fa_enabled) {
+                return isJsonRequest
+                    ? res.json({ success: true, requires2FA: true, message: 'Enter your 2FA code' })
+                    : res.redirect('/auth/2fa-verify');
+            } else {
+                // 2FA not setup - redirect to setup
+                return isJsonRequest
+                    ? res.json({ success: true, redirect: '/auth/2fa-setup' })
+                    : res.redirect('/auth/2fa-setup');
+            }
+        });
     })(req, res, next);
 });
 
