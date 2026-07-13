@@ -2701,7 +2701,41 @@
                 isActive: document.getElementById('m-isActive').checked,
                 canPayin: document.getElementById('m-canPayin').checked,
                 canPayout: document.getElementById('m-canPayout').checked,
-                defaultCurrency: document.getElementById('m-defaultCurrency') ? document.getElementById('m-defaultCurrency').value : 'INR',
+                defaultCurrency: document.getElementById('m-defaultCurrency') ? document.getElementById('m-defaultCurrency').value : 'INR'
+            };
+
+            const totp = document.getElementById('m-totp').value;
+            if (id && !totp) {
+                return showToast(_t('2fa_totp_required'), 'error');
+            }
+            if (id) body.totp = totp;
+
+            const url = id ? `/admin/api/merchants/${id}` : '/admin/api/merchants';
+            const method = id ? 'PUT' : 'POST';
+
+            try {
+                const res = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast(id ? _t('merchant_updated') : _t('merchant_created'));
+                    document.getElementById('merchantModal').style.display = 'none';
+                    loadMerchants();
+                } else {
+                    showToast(data.error || _t('failed_save_merchant'), 'error');
+                }
+            } catch (e) {
+                showToast(_t('error_save_merchant'), 'error');
+            }
+        }
+
+        async function loadSmartRanges() {
+            try {
+                const res = await fetch('/admin/api/smart-ranges');
+                const data = await res.json();
 
                 if (!data.success || !data.ranges || data.ranges.length === 0) {
                     document.getElementById('smart-ranges-table').querySelector('tbody').innerHTML = `
