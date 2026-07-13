@@ -532,5 +532,7 @@
     "payout_bank_code": "银行代码",
     "payout_iban": "账号 / IBAN",
     "currency_not_allowed": "该商户未启用此货币",
-    "unsupported_currency": "不支持的货币"
+    "unsupported_currency": "不支持的货币",
+    "err_incorrect_username": "用户名不正确。",
+    "err_incorrect_password": "密码不正确。"
 }

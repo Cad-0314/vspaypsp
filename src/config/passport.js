@@ -8,12 +8,12 @@ module.exports = function (passport) {
             const cleanUsername = username ? username.trim() : '';
             const user = await User.findOne({ where: { username: cleanUsername } });
             if (!user) {
-                return done(null, false, { message: 'Incorrect username.' });
+                return done(null, false, { message: 'err_incorrect_username' });
             }
 
             const isMatch = await bcrypt.compare(password, user.password_hash);
             if (!isMatch) {
-                return done(null, false, { message: 'Incorrect password.' });
+                return done(null, false, { message: 'err_incorrect_password' });
             }
 
             return done(null, user);

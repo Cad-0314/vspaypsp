@@ -528,7 +528,7 @@
             <% if (message && message.length> 0) { %>
                 <div class="error-alert">
                     <i class="ri-error-warning-line"></i>
-                    <%= message %>
+                    <%= t(message) %>
                 </div>
             <% } %>
 
@@ -652,14 +652,14 @@
                     credentialsSection.style.opacity = '0.6';
 
                     successMsg.style.display = 'flex';
-                    successText.textContent = data.message || _t('enter_auth_code');
+                    successText.textContent = data.message ? _t(data.message) : _t('enter_auth_code');
 
                 } else if (data.success) {
                     successMsg.style.display = 'flex';
                     successText.textContent = _t('login_success');
                     window.location.href = data.redirect || '/';
                 } else {
-                    showError(data.message || _t('login_failed'));
+                    showError(data.message ? _t(data.message) : _t('login_failed'));
                 }
             } catch (error) {
                 showError(_t('connection_error'));

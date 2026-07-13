@@ -532,5 +532,7 @@
     "payout_bank_code": "Bank Code",
     "payout_iban": "Account / IBAN",
     "currency_not_allowed": "Currency not enabled for this merchant",
-    "unsupported_currency": "Unsupported currency"
+    "unsupported_currency": "Unsupported currency",
+    "err_incorrect_username": "Incorrect username.",
+    "err_incorrect_password": "Incorrect password."
 }
