@@ -6,11 +6,10 @@ clean light themed ui and ux  and professional and smooth
 scalable and best practise
 secure
 evrything on frontend should be bilangual enlish and chinese 
-no expose of upstram api name anywhere on the ui so merchent or admin dosent know hat am i using
-chenall name and its provider 
-{hdpay - hday api-hdpay.txt, yellow - caipay api-caipay.txt payable - silpay  api-silpay.txt, x2 - f2pay api-f2pay.txt, upi super -fendpay - fendpay.txt , ckpay - ckapay  api- ckpay.txt , bharatpay bharatpay api-bharapay.txt , cxpay - cxpay - api- cxpay.txt ,aapay aapay api-aapay.txt ipay ipay api- ipay.txt, unitedpay , unitepay - unitepay.txt firpay firpay - firpayapi.txt , agpay agpay agpayapi.txt , easypay - easypay easypay.txt/easypay.docx , ynpay - ynpay ynpay.txt , passpay passpay api- paspay.txt}
+
 all api details   and creds in .env 
 evry change that effect apidocs ui or db or anything sync accordingly 
 use best practise and room for updates
 use main db for everything and migrate data and sync after evry change config in .env 
  push to github after everychange
+whatever issue you face make sure you write and remember them to learn in future make the system so you learn from it 

@@ -1241,29 +1241,22 @@
                     </div>
                 </div>
 
-                <!-- Broadcast -->
-                <div id="tab-broadcast" class="tab-content">
+                <!-- Settlements -->
+                <div id="tab-settlements" class="tab-content">
                     <h1>
-                        <%= t('broadcast_message') %>
+                        <%= t('settlements') %>
                     </h1>
-                    <div class="subtitle">
-                        <%= t('broadcast_subtitle') %>
+                    <div class="subtitle" style="margin-bottom:0">
+                        <%= t('manage_settlements') %>
                     </div>
-                    <div class="card" style="padding: 2rem; max-width: 700px;">
-                        <!-- Target Selector -->
-                        <div style="margin-bottom: 1.25rem;">
-                            <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.875rem; color:#374151;">
-                                <%= t('broadcast_target') %>
-                            </label>
-                            <select id="broadcast-target" onchange="onBroadcastTargetChange()"
-                                style="width:100%; padding:0.75rem; border:1px solid #E5E7EB; border-radius:0.5rem; background:#F9FAFB; font-size:0.875rem;">
-                                <option value="all"><%= t('broadcast_all') %></option>
-                                <option value="selected"><%= t('broadcast_select_merchants') %></option>
-                                <option value="channel"><%= t('broadcast_filter_channel') %></option>
-                            </select>
-                        </div>
-
-                        <!-- Merchant Selection (hidden by default) -->
+                    <div class="card">
+                        <div style="padding: 1rem; border-bottom: 1px solid #F3F4F6; display:flex; gap:1rem;">
+                            <select id="settle-filter-status" class="form-control"
+                                style="max-width:150px; padding:0.5rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
+                                <option value=""><%= t('all_status') %></option>
+                                <option value="pending"><%= t('status_pending') %></option>
+                                <option value="completed"><%= t('status_completed') %></option>
+                                <option value="failed"><%= t('status_failed') %></option>
                             </select>
                             <select id="settle-filter-type" class="form-control"
                                 style="max-width:120px; padding:0.5rem; border:1px solid #E5E7EB; border-radius:0.5rem;">
@@ -1902,11 +1895,7 @@
                     </table>
                 </div>
             </div>
-
-
-    </div>
     </main>
-    </div>
 
     <!-- Smart Channel Range Modal -->
     <div id="rangeModal"
@@ -2022,7 +2011,7 @@
                 </button>
             </div>
             <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #F3F4F6;">
-                style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.875rem; color:var(--danger);">
+                <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:0.875rem; color:var(--danger);">
                 <%= t('2fa_totp_required') %></label>
                     <input type="text" id="settle-totp" placeholder="Enter 6-digit code"
                         style="width: 100%; padding: 0.75rem; border: 2px solid #FEE2E2; border-radius:0.5rem; text-align:center; font-weight:bold; letter-spacing:4px;">

@@ -1,36 +1,27 @@
 const { Client } = require('ssh2');
-
-const config = {
-  host: '66.23.233.13',
-  port: 22,
-  username: 'root',
-  password: 'wgMVh6@eb256@LJ'
-};
-
 const conn = new Client();
-
 conn.on('ready', () => {
-  const envContent = `APP_URL=https://gaurpay.site
-NODE_ENV=production
-DB_DIALECT=mysql
-DB_HOST=localhost
-DB_USER=vspay_user
-DB_PASSWORD=vspay_pass_789_secure
-DB_NAME=vspay
-PORT=3000
-JWT_SECRET=supersecret123
-`;
-
-  // Write env and restart PM2
-  conn.exec(`cat << 'EOF' > /var/www/vspaypsp/.env\n${envContent}EOF\ncd /var/www/vspaypsp && pm2 restart ecosystem.config.js --update-env`, (err, stream) => {
-    if (err) throw err;
-    stream.on('data', d => process.stdout.write(d.toString()));
-    stream.on('close', () => {
-      console.log('Fixed remote .env and restarted PM2.');
-      conn.end();
+    const cmds = `
+        cd /www/wwwroot/gaurpay.site
+        sed -i 's/NODE_ENV=development/NODE_ENV=production/g' .env
+        sed -i 's/DB_DIALECT=sqlite/DB_DIALECT=mysql/g' .env
+        
+        # Remove any existing DB configuration to avoid duplicates
+        sed -i '/^DB_HOST=/d' .env
+        sed -i '/^DB_USER=/d' .env
+        sed -i '/^DB_PASSWORD=/d' .env
+        sed -i '/^DB_NAME=/d' .env
+        
+        echo 'DB_HOST=127.0.0.1' >> .env
+        echo 'DB_USER=gaurpay' >> .env
+        echo 'DB_PASSWORD=Gp_Db_70baec85e4fc5ebe' >> .env
+        echo 'DB_NAME=gaurpay' >> .env
+        
+        pm2 reload gaurpay-api --update-env
+    `;
+    conn.exec(cmds, (err, stream) => {
+        stream.on('data', d => process.stdout.write(d.toString()));
+        stream.stderr.on('data', d => process.stderr.write(d.toString()));
+        stream.on('close', () => conn.end());
     });
-  });
-}).on('error', err => {
-  console.error('SSH Error:', err);
-  process.exit(1);
-}).connect(config);
+}).connect({ host: '139.180.135.210', port: 22, username: 'root', password: 'o9)A_5G%Xtf,QyAe' });
