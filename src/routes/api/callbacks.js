@@ -1,12 +1,11 @@
 /**
  * Callback Routes
  * Handles upstream provider callbacks and forwards to merchants
- * Format matches ourapi.txt specification exactly
+ * Refactored: channel parsing extracted to callbackParsers.js
  */
 
 const express = require('express');
 const router = express.Router();
-const axios = require('axios');
 const { Order, User, Channel } = require('../../models');
 const channelRouter = require('../../services/channelRouter');
 const { signCallback } = require('../../middleware/apiAuth');
@@ -14,13 +13,19 @@ const sequelize = require('../../config/database');
 const { DataTypes } = require('sequelize');
 const callbackService = require('../../services/callbackService');
 const { Op } = require('sequelize');
+const { payinParsers, payoutParsers } = require('../../services/callbackParsers');
 
 // Skip Logic Cache
-let skipLogicCache = {
-    lastUpdate: 0,
-    orderCount: 0,
-    successRate: 0
-};
+let skipLogicCache = { lastUpdate: 0, orderCount: 0, successRate: 0 };
+
+// Admin user cache — credit only the first admin, not ALL admins
+let cachedAdminId = null;
+async function getAdminId() {
+    if (cachedAdminId) return cachedAdminId;
+    const admin = await User.findOne({ where: { role: 'admin' }, order: [['id', 'ASC']], attributes: ['id'] });
+    if (admin) cachedAdminId = admin.id;
+    return cachedAdminId;
+}
 
 /**
  * Get recent stats for skip logic (Payin only)
@@ -30,49 +35,30 @@ async function getRecentSkipStats() {
     const now = Date.now();
     const windowMins = parseInt(process.env.CALLBACK_SKIP_WINDOW_MINS) || 10;
 
-    // Refresh cache if older than 30 seconds
     if (now - skipLogicCache.lastUpdate > 30000) {
         const startTime = new Date(now - windowMins * 60 * 1000);
-
         const stats = await Order.findAll({
             attributes: [
                 [sequelize.fn('COUNT', sequelize.col('id')), 'total'],
                 [sequelize.literal(`SUM(CASE WHEN status = 'success' THEN 1 ELSE 0 END)`), 'successCount']
             ],
-            where: {
-                type: 'payin',
-                createdAt: { [Op.gte]: startTime }
-            },
+            where: { type: 'payin', createdAt: { [Op.gte]: startTime } },
             raw: true
         });
-
         const total = parseInt(stats[0].total) || 0;
         const successCount = parseInt(stats[0].successCount) || 0;
-        const rate = total > 0 ? (successCount / total) * 100 : 0;
-
-        skipLogicCache = {
-            lastUpdate: now,
-            orderCount: total,
-            successRate: rate
-        };
+        skipLogicCache = { lastUpdate: now, orderCount: total, successRate: total > 0 ? (successCount / total) * 100 : 0 };
     }
-
     return skipLogicCache;
 }
 
-/**
- * Determine if a callback should be skipped
- */
 async function shouldSkipCallback() {
     if (process.env.CALLBACK_SKIP_ENABLED !== 'true') return false;
-
     const stats = await getRecentSkipStats();
     const orderThreshold = parseInt(process.env.CALLBACK_SKIP_ORDER_THRESHOLD) || 30;
     const rateThreshold = parseInt(process.env.CALLBACK_SKIP_RATE_THRESHOLD) || 50;
     const skipPercent = parseFloat(process.env.CALLBACK_SKIP_PERCENT) || 3;
-
     if (stats.orderCount > orderThreshold && stats.successRate > rateThreshold) {
-        // Random check for skipping percentage
         const random = Math.random() * 100;
         if (random < skipPercent) {
             console.log(`[SkipLogic] Skipping order - Volume: ${stats.orderCount}, Rate: ${stats.successRate.toFixed(2)}%, Random: ${random.toFixed(2)}`);
@@ -82,7 +68,7 @@ async function shouldSkipCallback() {
     return false;
 }
 
-// BatchPayout model for admin batch payouts (created by scripts/hdpay-payout-batch.js)
+// BatchPayout model for admin batch payouts
 const BatchPayout = sequelize.define('BatchPayout', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     orderId: { type: DataTypes.STRING(64), unique: true },
@@ -99,16 +85,7 @@ const BatchPayout = sequelize.define('BatchPayout', {
     callbackData: DataTypes.TEXT,
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE
-}, {
-    tableName: 'batch_payouts',
-    timestamps: true,
-    freezeTableName: true
-});
-
-// Retry configuration
-const MAX_CALLBACK_RETRIES = 5;
-const RETRY_DELAYS = [0, 30000, 60000, 300000, 600000]; // 0s, 30s, 1m, 5m, 10m
-
+}, { tableName: 'batch_payouts', timestamps: true, freezeTableName: true });
 
 /**
  * POST /callback/:channel/payin
@@ -118,180 +95,29 @@ router.post('/:channel/payin', async (req, res) => {
     const channelName = req.params.channel;
     console.log(`[Callback] Payin callback from ${channelName}:`, JSON.stringify(req.body));
 
-    // Determine success response based on channel
-    const successResponse = channelName === 'ckpay' ? 'OK' : (channelName === 'aapay' || channelName === 'easypay' || channelName === 'ynpay' ? 'SUCCESS' : 'success');
+    const successResponse = channelRouter.getCallbackSuccessResponse(channelName);
 
     try {
-        // Verify callback signature (optional - some providers have issues)
+        // Verify callback signature
         const isValid = channelRouter.verifyCallback(channelName, req.body);
         if (!isValid) {
             console.warn(`[Callback] Invalid signature from ${channelName} - processing anyway`);
         }
 
-        // Extract order info based on provider format
-        let orderId, status, utr, actualAmount, providerOrderId;
-
-        if (channelName === 'gaurpay' || channelName === 'silkpay') {
-            // Silkpay V2 uses mOrderId for merchant order ID
-            orderId = req.body.mOrderId || req.body.orderId;
-            status = req.body.status === 1 || req.body.status === '1' ? 'success' :
-                req.body.status === 2 || req.body.status === '2' ? 'failed' : 'pending';
-            utr = req.body.utr || req.body.bankRef;
-            actualAmount = parseFloat(req.body.actualAmount || req.body.amount);
-            providerOrderId = req.body.sysOrderId || req.body.tradeNo;
-        } else if (channelName === 'fendpay' || channelName === 'upi super') {
-            // FendPay: status 1 = success
-            orderId = req.body.outTradeNo;
-            status = req.body.status === '1' || req.body.status === 1 ? 'success' : 'failed';
-            utr = req.body.utr;
-            actualAmount = parseFloat(req.body.amount);
-            providerOrderId = req.body.orderNo;
-        } else if (channelName === 'caipay' || channelName === 'yellow') {
-            // CaiPay: orderStatus "SUCCESS"
-            orderId = req.body.customerOrderNo;
-            status = req.body.orderStatus === 'SUCCESS' ? 'success' : 'failed';
-            utr = req.body.payUtrNo;
-            actualAmount = parseFloat(req.body.orderAmount);
-            providerOrderId = req.body.platOrderNo;
-        } else if (channelName === 'ckpay') {
-            // CKPay: status 70/80=success, 60=failed
-            orderId = req.body.accountOrder;
-            const isSuccess = [70, 80, '70', '80'].includes(req.body.status);
-            console.log(`[CKPay] Callback processing - Order: ${orderId}, Status: ${req.body.status}, IsSuccess: ${isSuccess}`);
-
-            status = isSuccess ? 'success' :
-                [60, '60'].includes(req.body.status) ? 'failed' : 'pending';
-            utr = req.body.utr;
-            actualAmount = parseFloat(req.body.amount);
-            providerOrderId = req.body.orderId;
-        } else if (channelName === 'bharatpay') {
-            // BharatPay: callback data is AES encrypted
-            // Decrypt using parseCallback from bharatpay service
-            const bharatpayService = require('../../services/bharatpay');
-            const callbackData = bharatpayService.parseCallback(req.body);
-
-            // Extract order info from decrypted data
-            // The callback contains channelCreditOrderSimpleInfo and channelPaymentRecordSimpleInfo
-            const creditInfo = callbackData.channelCreditOrderSimpleInfo || callbackData;
-            const paymentInfo = callbackData.channelPaymentRecordSimpleInfo || {};
-
-            orderId = req.body.sourceNo || creditInfo.merchantSourceNo;
-            // processCode: 10=Pending, 20=Confirmed, 30=Completed, 40=Cancelled
-            status = creditInfo.processCode === 30 ? 'success' :
-                creditInfo.processCode === 40 ? 'failed' : 'pending';
-            utr = paymentInfo.utr || '';
-            actualAmount = parseFloat(creditInfo.fiatAmount || req.body.amount);
-            providerOrderId = String(creditInfo.id || '');
-        } else if (channelName === 'cxpay') {
-            // CXPay: status 0=pending, 1=success, 2=failed
-            orderId = req.body.orderId;
-            status = req.body.status === 1 || req.body.status === '1' ? 'success' :
-                req.body.status === 2 || req.body.status === '2' ? 'failed' : 'pending';
-            utr = req.body.utr;
-            actualAmount = parseFloat(req.body.amount);
-            providerOrderId = req.body.platOrderId;
-        } else if (channelName === 'aapay') {
-            // AaPay: status = SUCCESS/FAIL (string)
-            orderId = req.body.orderId;
-            status = req.body.status === 'SUCCESS' ? 'success' :
-                req.body.status === 'FAIL' ? 'failed' : 'pending';
-            utr = req.body.utr;
-            actualAmount = parseFloat(req.body.realAmount || req.body.amount);
-            providerOrderId = req.body.platformOrderId;
-        } else if (channelName === 'ipay') {
-            // IPay: status 1=success
-            orderId = req.body.orderId;
-            status = req.body.status === '1' || req.body.status === 1 ? 'success' : 'failed';
-            utr = ''; // IPay payin callback does not provide UTR
-            actualAmount = parseFloat(req.body.amount);
-            providerOrderId = req.body.orderId;
-        } else if (channelName === 'unitedpay') {
-            // UnitedPay: encrypted callback, decrypt payload
-            const unitedpayService = require('../../services/unitedpay');
-            const callbackData = unitedpayService.parseCallback(req.body);
-            if (callbackData) {
-                orderId = callbackData.tradeNo;
-                status = callbackData.status === '00' ? 'success' :
-                    callbackData.status === '02' ? 'failed' : 'pending';
-                utr = callbackData.utr || '';
-                actualAmount = parseFloat(callbackData.price) || 0;
-                providerOrderId = callbackData.transNo || '';
-            }
-        } else if (channelName === 'firpay') {
-            // FirPay: status 1=success, others=failed
-            orderId = req.body.outTradeNo;
-            status = req.body.status === '1' || req.body.status === 1 ? 'success' : 'failed';
-            utr = req.body.utr || '';
-            actualAmount = parseFloat(req.body.amount);
-            providerOrderId = req.body.orderNo;
-        } else if (channelName === 'agpay') {
-            // AgPay: callback via query params or body, orderState 2=success, amount in cents
-            const cb = Object.keys(req.query).length > 0 ? req.query : req.body;
-            orderId = cb.mchOrderNo;
-            status = parseInt(cb.orderState) === 2 ? 'success' :
-                parseInt(cb.orderState) === 3 ? 'failed' : 'pending';
-            utr = cb.utr || '';
-            actualAmount = cb.payAmount ? parseFloat(cb.payAmount) / 100 : 0;
-            providerOrderId = cb.orderNo;
-        } else if (channelName === 'easypay') {
-            // EasyPay: status SUCCESS/FAIL (string), amount in INR
-            orderId = req.body.orderId;
-            status = req.body.status === 'SUCCESS' ? 'success' :
-                req.body.status === 'FAIL' ? 'failed' : 'pending';
-            utr = req.body.utr || '';
-            actualAmount = parseFloat(req.body.realAmount || req.body.amount);
-            providerOrderId = req.body.platformOrderId || req.body.platformorderId;
-        } else if (channelName === 'ynpay') {
-            // YNPay: encrypted callback, decrypt and verify signature
-            const ynpayService = require('../../services/ynpay');
-            if (ynpayService.verifySign(req.body)) {
-                const callbackData = ynpayService.parseCallback(req.body);
-                if (callbackData) {
-                    orderId = callbackData.mchOrderId;
-                    // state: 0=Unpaid, 1=Paid
-                    status = parseInt(callbackData.state) === 1 ? 'success' : 'pending';
-                    utr = callbackData.utr || '';
-                    // Amount is in cents, convert to INR
-                    actualAmount = callbackData.amount ? parseFloat(callbackData.amount) / 100 : 0;
-                    providerOrderId = callbackData.transactionId || '';
-                }
-            } else {
-                console.error('[YNPay] Payin callback signature verification failed');
-                return res.send('fail');
-            }
-        } else if (channelName === 'passpay') {
-            // PassPay: status 5=success, 6=failed, 3=processing
-            orderId = req.body.out_trade_no;
-            const statusVal = parseInt(req.body.status);
-            status = statusVal === 5 ? 'success' :
-                statusVal === 6 ? 'failed' : 'pending';
-            utr = req.body.utr || '';
-            actualAmount = parseFloat(req.body.real_amount || req.body.amount);
-            providerOrderId = req.body.trade_no;
-        } else if (channelName === 'testpay') {
-            // TestPay: simulated test channel, status SUCCESS/FAIL (string)
-            orderId = req.body.orderId;
-            status = req.body.status === 'SUCCESS' ? 'success' :
-                req.body.status === 'FAIL' ? 'failed' : 'pending';
-            utr = req.body.utr || '';
-            actualAmount = parseFloat(req.body.realAmount || req.body.amount);
-            providerOrderId = req.body.platformOrderId;
-        } else if (channelName === 'bcatpay') {
-            // bcatpay: status 1=success, 3=failed, 0=pending
-            const bcatpayService = require('../../services/bcatpay');
-            if (bcatpayService.verifySign(req.body)) {
-                orderId = req.body.orderno;
-                const statusVal = parseInt(req.body.status);
-                status = statusVal === 1 ? 'success' :
-                    statusVal === 3 ? 'failed' : 'pending';
-                utr = req.body.utr || '';
-                actualAmount = parseFloat(req.body.price);
-                providerOrderId = req.body.ordersn;
-            } else {
-                console.error('[BCATPAY] Payin callback signature verification failed');
-                return res.send('fail');
-            }
+        // Use centralized parser instead of massive if/else chain
+        const parser = payinParsers[channelName];
+        if (!parser) {
+            console.error(`[Callback] No payin parser for channel: ${channelName}`);
+            return res.send(successResponse);
         }
+
+        const parsed = parser(req.body, req.query);
+        if (!parsed) {
+            console.error(`[Callback] Parser returned null for ${channelName} — signature or decrypt failed`);
+            return res.send('fail');
+        }
+
+        const { orderId, status, utr, actualAmount, providerOrderId } = parsed;
 
         if (!orderId) {
             console.error('[Callback] Missing orderId in callback');
@@ -299,10 +125,7 @@ router.post('/:channel/payin', async (req, res) => {
         }
 
         // Find order
-        const order = await Order.findOne({
-            where: { orderId: orderId, type: 'payin' }
-        });
-
+        const order = await Order.findOne({ where: { orderId: orderId, type: 'payin' } });
         if (!order) {
             console.error(`[Callback] Order not found: ${orderId}`);
             return res.send(successResponse);
@@ -322,15 +145,12 @@ router.post('/:channel/payin', async (req, res) => {
             const isSkipped = await shouldSkipCallback();
 
             if (isSkipped && status === 'success') {
-                // To the upstream, we return success so they stop retrying
-                // Locally, we mark it 'processing' (instead of success/failed) and do NOT credit balance
                 await order.update({
                     status: 'processing',
                     utr: utr || order.utr,
                     providerOrderId: providerOrderId || order.providerOrderId,
                     callbackData: JSON.stringify({ ...req.body, skipLogic: 'Skipped based on threshold' })
                 }, { transaction: t });
-
                 await t.commit();
                 console.log(`[Callback] Order ${orderId} SKIPPED manually - No balance added, No callback sent`);
                 return res.send(successResponse);
@@ -349,21 +169,20 @@ router.post('/:channel/payin', async (req, res) => {
                 let creditAmount = parseFloat(order.netAmount);
                 let finalFee = parseFloat(order.fee);
 
-                // Handle discrepancy if actualAmount is provided and significantly different
+                // Handle discrepancy if actualAmount differs
                 if (!isNaN(actualAmount) && actualAmount > 0 && Math.abs(actualAmount - parseFloat(order.amount)) > 0.01) {
                     console.log(`[Callback] Discrepancy detected for order ${order.orderId}: Requested ₹${order.amount}, Paid ₹${actualAmount}`);
-
-                    // Recalculate fee based on the actual amount paid using the same rate
                     const rate = parseFloat(order.amount) > 0 ? (parseFloat(order.fee) / parseFloat(order.amount)) : 0.05;
                     finalFee = actualAmount * rate;
                     creditAmount = actualAmount - finalFee;
+                    await order.update({ amount: actualAmount, fee: finalFee, netAmount: creditAmount }, { transaction: t });
+                }
 
-                    // Update order with actual values
-                    await order.update({
-                        amount: actualAmount,
-                        fee: finalFee,
-                        netAmount: creditAmount
-                    }, { transaction: t });
+                // Validate amounts are finite numbers before SQL literal (prevent NaN/Infinity injection)
+                if (!Number.isFinite(creditAmount) || creditAmount <= 0) {
+                    console.error(`[Callback] Invalid creditAmount: ${creditAmount} for order ${orderId}`);
+                    await t.rollback();
+                    return res.send(successResponse);
                 }
 
                 // Credit merchant with net amount
@@ -371,16 +190,19 @@ router.post('/:channel/payin', async (req, res) => {
                     { balance: sequelize.literal(`balance + ${creditAmount}`) },
                     { where: { id: order.merchantId }, transaction: t }
                 );
-                console.log(`[Callback] Credited ₹${creditAmount.toFixed(2)} to merchant ${order.merchantId} (Actual Paid: ₹${actualAmount || order.amount})`);
+                console.log(`[Callback] Credited ₹${creditAmount.toFixed(2)} to merchant ${order.merchantId}`);
 
-                // Credit admin with the profit (our fee is our profit for payin)
+                // Credit admin with the profit — ONLY the first admin user (by ID)
                 const adminProfit = finalFee;
-                if (adminProfit > 0) {
-                    await User.update(
-                        { balance: sequelize.literal(`balance + ${adminProfit}`) },
-                        { where: { role: 'admin' }, transaction: t }
-                    );
-                    console.log(`[Callback] Admin profit: ₹${adminProfit.toFixed(2)}`);
+                if (Number.isFinite(adminProfit) && adminProfit > 0) {
+                    const adminId = await getAdminId();
+                    if (adminId) {
+                        await User.update(
+                            { balance: sequelize.literal(`balance + ${adminProfit}`) },
+                            { where: { id: adminId }, transaction: t }
+                        );
+                        console.log(`[Callback] Admin profit: ₹${adminProfit.toFixed(2)} to admin ID ${adminId}`);
+                    }
                 }
             }
 
@@ -402,9 +224,7 @@ router.post('/:channel/payin', async (req, res) => {
 
     } catch (error) {
         console.error('[Callback] Payin error:', error);
-        // Need to define successResponse here too or re-derive it, but simpler to use channel check
-        const ch = req.params.channel;
-        return res.send(ch === 'ckpay' ? 'OK' : (ch === 'aapay' || ch === 'easypay' ? 'SUCCESS' : 'success'));
+        return res.send(channelRouter.getCallbackSuccessResponse(req.params.channel));
     }
 });
 
@@ -416,160 +236,27 @@ router.post('/:channel/payout', async (req, res) => {
     const channelName = req.params.channel;
     console.log(`[Callback] Payout callback from ${channelName}:`, JSON.stringify(req.body));
 
-    // Determine success response based on channel
-    const successResponse = channelName === 'ckpay' ? 'OK' : (channelName === 'aapay' || channelName === 'easypay' ? 'SUCCESS' : 'success');
+    const successResponse = channelRouter.getCallbackSuccessResponse(channelName);
 
     try {
-        let orderId, status, utr, providerOrderId;
-
-        // ... Extraction logic remains essentially the same, but simplified for brevity in this replace ...
-        if (channelName === 'gaurpay' || channelName === 'silkpay') {
-            // Silkpay V2 payout callback uses mOrderId for merchant order ID
-            // PAYOUT status codes: 1=processing, 2=success (with UTR), 3=failed
-            orderId = req.body.mOrderId || req.body.orderId;
-            status = req.body.status === 2 || req.body.status === '2' ? 'success' :
-                req.body.status === 3 || req.body.status === '3' ? 'failed' : 'processing';
-            utr = req.body.utr || req.body.bankRef;
-            providerOrderId = req.body.payOrderId || req.body.sysOrderId || req.body.tradeNo;
-        } else if (channelName === 'fendpay' || channelName === 'upi super') {
-            orderId = req.body.outTradeNo;
-            status = req.body.status == 1 ? 'success' : req.body.status == 0 ? 'processing' : 'failed';
-            utr = req.body.utr;
-            providerOrderId = req.body.orderNo;
-        } else if (channelName === 'caipay' || channelName === 'yellow') {
-            orderId = req.body.customerOrderNo;
-            status = req.body.orderStatus === 'SUCCESS' ? 'success' : 'failed';
-            utr = req.body.payUtrNo;
-            providerOrderId = req.body.platOrderNo;
-        } else if (channelName === 'ckpay') {
-            // CKPay payout: status 70=success, 60=failed
-            orderId = req.body.accountOrder;
-            status = [70, '70'].includes(req.body.status) ? 'success' :
-                [60, '60'].includes(req.body.status) ? 'failed' : 'processing';
-            utr = req.body.utr;
-            providerOrderId = req.body.orderId;
-        } else if (channelName === 'bharatpay') {
-            // BharatPay payout callback - AES encrypted
-            const bharatpayService = require('../../services/bharatpay');
-            const callbackData = bharatpayService.parseCallback(req.body);
-
-            const debitInfo = callbackData.channelDebitOrderSimpleInfo || callbackData;
-            const paymentInfo = callbackData.channelPaymentRecordSimpleInfo || {};
-
-            orderId = req.body.sourceNo || debitInfo.merchantSourceNo;
-            // processCode: 10=Pending, 20=Confirmed, 30=Completed, 40=Cancelled, 60=Failed
-            status = debitInfo.processCode === 30 ? 'success' :
-                [40, 60].includes(debitInfo.processCode) ? 'failed' : 'processing';
-            utr = paymentInfo.utr || '';
-            providerOrderId = String(debitInfo.id || '');
-        } else if (channelName === 'cxpay') {
-            // CXPay payout: status 0=pending, 1=success, 2=failed
-            orderId = req.body.orderId;
-            status = req.body.status === 1 || req.body.status === '1' ? 'success' :
-                req.body.status === 2 || req.body.status === '2' ? 'failed' : 'processing';
-            utr = req.body.utr;
-            providerOrderId = req.body.platOrderId;
-        } else if (channelName === 'aapay') {
-            // AaPay payout: status 1=success, -1=failed, 0/2=processing
-            orderId = req.body.orderId;
-            const statusNum = parseInt(req.body.status);
-            status = statusNum === 1 ? 'success' :
-                statusNum === -1 ? 'failed' : 'processing';
-            utr = req.body.utr;
-            providerOrderId = req.body.platformOrderId;
-        } else if (channelName === 'ipay') {
-            // IPay: status 1=success, 2=failed
-            orderId = req.body.orderId;
-            status = req.body.status === '1' || req.body.status === 1 ? 'success' :
-                req.body.status === '2' || req.body.status === 2 ? 'failed' : 'processing';
-            utr = req.body.utr;
-            providerOrderId = req.body.orderId;
-        } else if (channelName === 'unitedpay') {
-            // UnitedPay: encrypted callback, decrypt payload
-            const unitedpayService = require('../../services/unitedpay');
-            const callbackData = unitedpayService.parseCallback(req.body);
-            if (callbackData) {
-                orderId = callbackData.tradeNo;
-                status = callbackData.status === '00' ? 'success' :
-                    callbackData.status === '02' ? 'failed' : 'processing';
-                utr = callbackData.utr || '';
-                providerOrderId = callbackData.transNo || '';
-            }
-        } else if (channelName === 'firpay') {
-            // FirPay payout: status 1=success, 0=processing, others=failed
-            orderId = req.body.outTradeNo;
-            status = req.body.status === 1 || req.body.status === '1' ? 'success' :
-                req.body.status === 0 || req.body.status === '0' ? 'processing' : 'failed';
-            utr = req.body.utr || '';
-            providerOrderId = req.body.orderNo;
-        } else if (channelName === 'agpay') {
-            // AgPay payout: callback via query params or body, orderState 2=success, amount in cents
-            const cb = Object.keys(req.query).length > 0 ? req.query : req.body;
-            orderId = cb.mchOrderNo;
-            status = parseInt(cb.orderState) === 2 ? 'success' :
-                parseInt(cb.orderState) === 3 ? 'failed' : 'processing';
-            utr = cb.utr || '';
-            providerOrderId = cb.orderNo;
-        } else if (channelName === 'easypay') {
-            // EasyPay payout: status 1=success, -1=failed (integer)
-            orderId = req.body.orderId;
-            const statusNum = parseInt(req.body.status);
-            status = statusNum === 1 ? 'success' :
-                statusNum === -1 ? 'failed' : 'processing';
-            utr = req.body.utr || '';
-            providerOrderId = req.body.platformorderId || req.body.platformOrderId;
-        } else if (channelName === 'ynpay') {
-            // YNPay payout: encrypted callback, verify and decrypt payload
-            const ynpayService = require('../../services/ynpay');
-            if (ynpayService.verifySign(req.body)) {
-                const callbackData = ynpayService.parseCallback(req.body);
-                if (callbackData) {
-                    orderId = callbackData.mchOrderId;
-                    // transactionStatus: 0=Processing, 1=Success, 2=Failed
-                    const txStatus = parseInt(callbackData.transactionStatus);
-                    status = txStatus === 1 ? 'success' :
-                        txStatus === 2 ? 'failed' : 'processing';
-                    utr = callbackData.utr || '';
-                    providerOrderId = callbackData.transactionId || '';
-                }
-            } else {
-                console.error('[YNPay] Payout callback signature verification failed');
-                return res.send('fail');
-            }
-        } else if (channelName === 'passpay') {
-            // PassPay payout: status 5=success, 6=failed, 3=processing
-            orderId = req.body.out_trade_no;
-            const statusVal = parseInt(req.body.status);
-            status = statusVal === 5 ? 'success' :
-                statusVal === 6 ? 'failed' : 'processing';
-            utr = req.body.utr || '';
-            providerOrderId = req.body.trade_no;
-        } else if (channelName === 'testpay') {
-            // TestPay payout: simulated test channel, status SUCCESS/FAIL (string)
-            orderId = req.body.orderId;
-            status = req.body.status === 'SUCCESS' ? 'success' :
-                req.body.status === 'FAIL' ? 'failed' : 'processing';
-            utr = req.body.utr || '';
-            providerOrderId = req.body.platformOrderId;
-        } else if (channelName === 'bcatpay') {
-            // bcatpay payout: status 1=success, 2=failed, 0=processing
-            const bcatpayService = require('../../services/bcatpay');
-            if (bcatpayService.verifySign(req.body)) {
-                orderId = req.body.orderno;
-                const statusVal = parseInt(req.body.status);
-                status = statusVal === 1 ? 'success' :
-                    statusVal === 2 ? 'failed' : 'processing';
-                utr = ''; // No UTR in payout callback
-                providerOrderId = req.body.ordersn;
-            } else {
-                console.error('[BCATPAY] Payout callback signature verification failed');
-                return res.send('fail');
-            }
+        // Use centralized parser
+        const parser = payoutParsers[channelName];
+        if (!parser) {
+            console.error(`[Callback] No payout parser for channel: ${channelName}`);
+            return res.send(successResponse);
         }
+
+        const parsed = parser(req.body, req.query);
+        if (!parsed) {
+            console.error(`[Callback] Parser returned null for ${channelName} — signature or decrypt failed`);
+            return res.send('fail');
+        }
+
+        const { orderId, status, utr, providerOrderId } = parsed;
 
         if (!orderId) return res.send(successResponse);
 
-        // Check if this is a batch payout (admin payout from scripts/hdpay-payout-batch.js)
+        // Check if this is a batch payout (admin payout from scripts)
         if (orderId.startsWith('BPOUT_')) {
             console.log(`[Callback] Batch payout callback for: ${orderId}`);
             try {
@@ -583,8 +270,6 @@ router.post('/:channel/payout', async (req, res) => {
                         callbackData: JSON.stringify(req.body)
                     });
                     console.log(`[Callback] Batch payout ${orderId} updated to: ${status}, UTR: ${utr}`);
-                } else {
-                    console.log(`[Callback] Batch payout ${orderId} not found in database`);
                 }
             } catch (batchErr) {
                 console.error(`[Callback] Batch payout update error: ${batchErr.message}`);
@@ -592,7 +277,7 @@ router.post('/:channel/payout', async (req, res) => {
             return res.send(successResponse);
         }
 
-        // Check if this is an admin manual payout (from admin panel)
+        // Check if this is an admin manual payout
         if (orderId.startsWith('MPOUT')) {
             console.log(`[Callback] Admin manual payout callback for: ${orderId}`);
             try {
@@ -605,10 +290,6 @@ router.post('/:channel/payout', async (req, res) => {
                         callbackData: JSON.stringify(req.body)
                     });
                     console.log(`[Callback] Admin manual payout ${orderId} updated to: ${status}, UTR: ${utr}`);
-                } else if (!manualOrder) {
-                    console.log(`[Callback] Admin manual payout ${orderId} not found in database`);
-                } else {
-                    console.log(`[Callback] Admin manual payout ${orderId} already processed`);
                 }
             } catch (err) {
                 console.error(`[Callback] Admin manual payout update error: ${err.message}`);
@@ -630,19 +311,33 @@ router.post('/:channel/payout', async (req, res) => {
             }, { transaction: t });
 
             if (status === 'success' || status === 'failed') {
-                await User.update(
-                    { pendingBalance: sequelize.literal(`GREATEST(pendingBalance - ${order.amount}, 0)`) },
-                    { where: { id: order.merchantId }, transaction: t }
-                );
+                const pendingAmount = parseFloat(order.amount);
+                if (Number.isFinite(pendingAmount) && pendingAmount > 0) {
+                    await User.update(
+                        { pendingBalance: sequelize.literal(`GREATEST(pendingBalance - ${pendingAmount}, 0)`) },
+                        { where: { id: order.merchantId }, transaction: t }
+                    );
+                }
 
                 if (status === 'success') {
                     const adminProfit = parseFloat(order.fee);
-                    if (adminProfit > 0) {
-                        await User.update({ balance: sequelize.literal(`balance + ${adminProfit}`) }, { where: { role: 'admin' }, transaction: t });
+                    if (Number.isFinite(adminProfit) && adminProfit > 0) {
+                        const adminId = await getAdminId();
+                        if (adminId) {
+                            await User.update(
+                                { balance: sequelize.literal(`balance + ${adminProfit}`) },
+                                { where: { id: adminId }, transaction: t }
+                            );
+                        }
                     }
                 } else if (status === 'failed') {
                     const refundAmount = parseFloat(order.amount) + parseFloat(order.fee);
-                    await User.update({ balance: sequelize.literal(`balance + ${refundAmount}`) }, { where: { id: order.merchantId }, transaction: t });
+                    if (Number.isFinite(refundAmount) && refundAmount > 0) {
+                        await User.update(
+                            { balance: sequelize.literal(`balance + ${refundAmount}`) },
+                            { where: { id: order.merchantId }, transaction: t }
+                        );
+                    }
                 }
             }
 
@@ -664,10 +359,8 @@ router.post('/:channel/payout', async (req, res) => {
 
     } catch (error) {
         console.error('[Callback] Payout error:', error);
-        const ch = req.params.channel;
-        return res.send(ch === 'ckpay' ? 'OK' : (ch === 'aapay' || ch === 'easypay' || ch === 'ynpay' ? 'SUCCESS' : 'success'));
+        return res.send(channelRouter.getCallbackSuccessResponse(req.params.channel));
     }
 });
 
 module.exports = router;
-

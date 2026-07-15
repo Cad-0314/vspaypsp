@@ -8,6 +8,10 @@ require('dotenv').config();
 const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
 
+// Middleware
+const { apiLimiter, callbackLimiter, adminLimiter } = require('./src/middleware/rateLimiter');
+const requestLogger = require('./src/middleware/requestLogger');
+
 // Database and Models
 const { sequelize, User, Channel, Order } = require('./src/models');
 
@@ -39,10 +43,14 @@ const telegramBot = require('./src/services/telegramBot');
 console.log('[Server] Initializing Telegram Bot...');
 telegramBot.init(process.env.TELEGRAM_BOT_TOKEN);
 
-// Auto Success Worker for Payouts
+// Auto Success Worker for Payouts + Callback Retry Worker
 const autoSuccessWorker = require('./src/services/autoSuccessWorker');
+const callbackService = require('./src/services/callbackService');
 if (!process.env.NODE_APP_INSTANCE || process.env.NODE_APP_INSTANCE === '0') {
     autoSuccessWorker.init();
+    // Start DB-backed callback retry processor (every 30s)
+    setInterval(() => callbackService.processRetries(), 30000);
+    console.log('[Server] Callback retry worker initialized');
 }
 
 // Passport Config
@@ -79,6 +87,9 @@ app.use((req, res, next) => {
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+// Request logger (structured logging with timing)
+app.use(requestLogger);
 
 // Session Store - Use MySQL in production for PM2 cluster compatibility
 const sessionConfig = {
@@ -135,30 +146,30 @@ app.use(passport.session());
 app.use(flash());
 
 // ============================================
-// API Routes (GaurPay Merchant API)
+// API Routes (GaurPay Merchant API) — rate limited
 // ============================================
-app.use('/api/payin', payinRoutes);
-app.use('/api/payout', payoutRoutes);
-app.use('/api/balance', balanceRoutes);
+app.use('/api/payin', apiLimiter, payinRoutes);
+app.use('/api/payout', apiLimiter, payoutRoutes);
+app.use('/api/balance', apiLimiter, balanceRoutes);
 
 // ============================================
 // V2 API Routes (New Format)
 // ============================================
-app.use('/v2/collection', v2CollectionRoutes);
-app.use('/v2/transfer', v2TransferRoutes);
-app.use('/v2/account', v2AccountRoutes);
+app.use('/v2/collection', apiLimiter, v2CollectionRoutes);
+app.use('/v2/transfer', apiLimiter, v2TransferRoutes);
+app.use('/v2/account', apiLimiter, v2AccountRoutes);
 
 // ============================================
 // V3 API Routes (Latest)
 // ============================================
-app.use('/v3/deposit', v3DepositRoutes);
-app.use('/v3/withdraw', v3WithdrawRoutes);
-app.use('/v3/wallet', v3WalletRoutes);
+app.use('/v3/deposit', apiLimiter, v3DepositRoutes);
+app.use('/v3/withdraw', apiLimiter, v3WithdrawRoutes);
+app.use('/v3/wallet', apiLimiter, v3WalletRoutes);
 
 // ============================================
 // Callback Routes (from upstream providers)
 // ============================================
-app.use('/callback', callbackRoutes);
+app.use('/callback', callbackLimiter, callbackRoutes);
 
 // ============================================
 // Payment Page Routes
@@ -399,8 +410,10 @@ app.get('/bharattest', async (req, res) => {
 // ============================================
 const PORT = process.env.PORT || 3000;
 
-sequelize.sync().then(async () => {
-    console.log('Database connected & synced');
+// Safe DB sync: only use alter in development
+const syncOptions = process.env.NODE_ENV === 'development' ? { alter: true } : {};
+sequelize.sync(syncOptions).then(async () => {
+    console.log(`Database connected & synced (mode: ${process.env.NODE_ENV || 'production'})`);
 
     // Backfill credentials
     try {

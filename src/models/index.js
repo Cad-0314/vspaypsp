@@ -4,6 +4,7 @@ const Channel = require('./Channel');
 const Order = require('./Order');
 const Settlement = require('./Settlement');
 const CustomChannelRange = require('./CustomChannelRange');
+const CallbackRetry = require('./CallbackRetry');
 
 // Define associations
 User.hasMany(Order, { foreignKey: 'merchantId', as: 'orders' });
@@ -19,5 +20,6 @@ module.exports = {
     Channel,
     Order,
     Settlement,
-    CustomChannelRange
+    CustomChannelRange,
+    CallbackRetry
 };
