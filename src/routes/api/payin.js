@@ -22,7 +22,7 @@ const APP_URL = process.env.APP_URL || 'https://gaurpay.site';
  */
 router.post('/create', validateMerchant, async (req, res) => {
     try {
-        const { orderId, orderAmount, callbackUrl, skipUrl, param, customerName, customerPhone, customerEmail, currency: reqCurrency } = req.body;
+        const { orderId, orderAmount, callbackUrl, skipUrl, param, customerName, customerPhone, customerEmail, currency: reqCurrency, channelCode } = req.body;
         const merchant = req.merchant;
 
         // Check if payin is suspended
@@ -174,7 +174,9 @@ router.post('/create', validateMerchant, async (req, res) => {
             customerName: customerName,
             customerPhone: customerPhone,
             customerEmail: customerEmail,
-            customerIp: req.ip || '127.0.0.1'
+            customerIp: req.ip || '127.0.0.1',
+            channelCode: channelCode || undefined,
+            bankCode: channelCode || undefined
         });
 
         if (!providerResult.success) {
@@ -227,6 +229,9 @@ router.post('/create', validateMerchant, async (req, res) => {
             }
         }
 
+        // Extract BCAT-compatible extra fields (BD wallet channels)
+        const bdExtra = providerResult.extra || {};
+
         return res.json({
             status: 'success',
             message: 'Order created successfully',
@@ -240,6 +245,12 @@ router.post('/create', validateMerchant, async (req, res) => {
                 paymentUrl: paymentUrl,
                 appLinks: Object.keys(deepLinks).length > 0 ? deepLinks : undefined,
                 upiId: upiId || undefined,
+                channelCode: providerResult.channelCode || channelCode || undefined,
+                account_number: bdExtra.account_number || undefined,
+                account_name: bdExtra.account_name || undefined,
+                qrcode: bdExtra.qrcode || undefined,
+                bankName: bdExtra.bankName || undefined,
+                bankCode: bdExtra.bankCode || undefined,
                 expiresIn: 1800
             }
         });

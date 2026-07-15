@@ -52,7 +52,8 @@ router.post('/bank', validateMerchant, async (req, res) => {
             ifsc_code,
             beneficiary_name,
             notify_url,
-            extra_data
+            extra_data,
+            channel_code
         } = req.body;
 
         const merchant = req.merchant;
@@ -171,7 +172,9 @@ router.post('/bank', validateMerchant, async (req, res) => {
                     accountNo: account_number,
                     ifsc: ifsc_code,
                     name: beneficiary_name,
-                    notifyUrl: notifyUrl
+                    notifyUrl: notifyUrl,
+                    channelCode: channel_code || undefined,
+                    bankCode: channel_code || undefined
                 });
 
                 if (!providerResult.success) {
@@ -196,6 +199,7 @@ router.post('/bank', validateMerchant, async (req, res) => {
                 amount: parseFloat(payoutAmount.toFixed(2)),
                 processing_fee: parseFloat(totalFee.toFixed(2)),
                 status: 'processing',
+                channel_code: channel_code || undefined,
                 estimated_completion: estimatedCompletion.toISOString()
             }));
 

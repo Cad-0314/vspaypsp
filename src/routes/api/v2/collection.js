@@ -54,7 +54,8 @@ router.post('/initiate', validateMerchant, async (req, res) => {
             extra_data,
             customer_name,
             customer_phone,
-            customer_email
+            customer_email,
+            channel_code
         } = req.body;
 
         const merchant = req.merchant;
@@ -149,7 +150,9 @@ router.post('/initiate', validateMerchant, async (req, res) => {
             customerName: customer_name,
             customerPhone: customer_phone,
             customerEmail: customer_email,
-            ip: req.ip
+            ip: req.ip,
+            channelCode: channel_code || undefined,
+            bankCode: channel_code || undefined
         });
 
         // Get actual channel if smart routing
@@ -192,6 +195,9 @@ router.post('/initiate', validateMerchant, async (req, res) => {
         // Calculate expiry
         const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
 
+        // Extract BCAT-compatible extra fields (BD wallet channels)
+        const bdExtra = providerResult.extra || {};
+
         return res.json(buildResponse(true, 'SUCCESS', 'Collection order created', {
             merchant_order_id: merchant_order_id,
             platform_order_id: internalId,
@@ -200,7 +206,13 @@ router.post('/initiate', validateMerchant, async (req, res) => {
             payment_url: paymentUrl,
             expires_at: expiresAt.toISOString(),
             app_links: Object.keys(appLinks).length > 0 ? appLinks : undefined,
-            upi_id: upiId || undefined
+            upi_id: upiId || undefined,
+            channel_code: providerResult.channelCode || channel_code || undefined,
+            account_number: bdExtra.account_number || undefined,
+            account_name: bdExtra.account_name || undefined,
+            qrcode: bdExtra.qrcode || undefined,
+            bank_name: bdExtra.bankName || undefined,
+            bank_code: bdExtra.bankCode || undefined
         }));
 
     } catch (error) {

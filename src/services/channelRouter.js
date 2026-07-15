@@ -68,13 +68,27 @@ async function createPayin(channelName, params) {
         }
         return result;
     }
-    const result = await config.service.createPayin(params);
+    // Pass channelCode/bankCode through for wallet routing (BD channels)
+    const result = await config.service.createPayin({
+        ...params,
+        channelCode: params.channelCode || params.bankCode || undefined
+    });
     if (result.success) { result.channelName = channelName; result.usesCustomPayPage = config.usesCustomPayPage; result.provider = config.provider; }
     return result;
 }
 
 async function queryPayin(channelName, orderId) { const s = getService(channelName); return s ? s.queryPayin(orderId) : { success: false, error: 'Invalid channel' }; }
-async function createPayout(channelName, params) { const s = getService(channelName); if (!s) return { success: false, error: 'Invalid channel' }; const r = await s.createPayout(params); if (r.success) r.channelName = channelName; return r; }
+async function createPayout(channelName, params) {
+    const s = getService(channelName);
+    if (!s) return { success: false, error: 'Invalid channel' };
+    // Pass channelCode through for wallet routing (BD channels)
+    const r = await s.createPayout({
+        ...params,
+        channelCode: params.channelCode || params.bankCode || undefined
+    });
+    if (r.success) r.channelName = channelName;
+    return r;
+}
 async function queryPayout(channelName, orderId) { const s = getService(channelName); return s ? s.queryPayout(orderId) : { success: false, error: 'Invalid channel' }; }
 async function getBalance(channelName) { const s = getService(channelName); return s ? s.getBalance() : { success: false, error: 'Invalid channel' }; }
 async function submitUtr(channelName, orderId, utr) { const s = getService(channelName); return s ? s.submitUtr(orderId, utr) : { success: false, error: 'Invalid channel' }; }

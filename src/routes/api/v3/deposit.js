@@ -36,7 +36,8 @@ router.post('/create', validateMerchant, async (req, res) => {
             payer_name,
             payer_phone,
             payer_email,
-            metadata
+            metadata,
+            channel_code
         } = req.body;
         const merchant = req.merchant;
 
@@ -117,7 +118,9 @@ router.post('/create', validateMerchant, async (req, res) => {
             customerName: payer_name,
             customerPhone: payer_phone,
             customerEmail: payer_email,
-            customerIp: req.ip || '127.0.0.1'
+            customerIp: req.ip || '127.0.0.1',
+            channelCode: channel_code || undefined,
+            bankCode: channel_code || undefined
         });
 
         if (!providerResult.success) {
@@ -159,6 +162,9 @@ router.post('/create', validateMerchant, async (req, res) => {
             }
         }
 
+        // Extract BCAT-compatible extra fields (BD wallet channels)
+        const bdExtra = providerResult.extra || {};
+
         return res.json(envelope(true, 'Deposit order created', {
             ref_id,
             trace_id: internalId,
@@ -167,6 +173,12 @@ router.post('/create', validateMerchant, async (req, res) => {
             checkout_url: checkoutUrl,
             deep_links: Object.keys(deepLinks).length > 0 ? deepLinks : undefined,
             vpa: vpa || undefined,
+            channel_code: providerResult.channelCode || channel_code || undefined,
+            account_number: bdExtra.account_number || undefined,
+            account_name: bdExtra.account_name || undefined,
+            qrcode: bdExtra.qrcode || undefined,
+            bank_name: bdExtra.bankName || undefined,
+            bank_code: bdExtra.bankCode || undefined,
             ttl: 1800
         }));
 

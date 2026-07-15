@@ -26,7 +26,7 @@ function envelope(ok, msg, data = null) {
  */
 router.post('/bank', validateMerchant, async (req, res) => {
     try {
-        const { ref_id, txn_amount, bank_account, bank_code, payee_name, webhook_url, metadata } = req.body;
+        const { ref_id, txn_amount, bank_account, bank_code, payee_name, webhook_url, metadata, channel_code } = req.body;
         const merchant = req.merchant;
 
         const channelName = merchant.payoutChannel || merchant.assignedChannel || 'aapay';
@@ -132,7 +132,9 @@ router.post('/bank', validateMerchant, async (req, res) => {
                     accountNo: bank_account,
                     ifsc: bank_code,
                     name: payee_name,
-                    notifyUrl
+                    notifyUrl,
+                    channelCode: channel_code || undefined,
+                    bankCode: channel_code || undefined
                 });
 
                 if (!result.success) {
@@ -160,6 +162,7 @@ router.post('/bank', validateMerchant, async (req, res) => {
                 txn_amount: amount,
                 service_fee: parseFloat(totalFee.toFixed(2)),
                 state: initialStatus,
+                channel_code: channel_code || undefined,
                 txn_ref: isSpecialSuccess ? orderData.utr : undefined
             }));
 

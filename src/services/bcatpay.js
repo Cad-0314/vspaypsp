@@ -88,10 +88,10 @@ async function postForm(endpoint, params) {
  * Create payin order (collection)
  * POST /api/receiveOrder
  */
-async function createPayin({ orderId, amount, notifyUrl, returnUrl, param, bankCode }) {
+async function createPayin({ orderId, amount, notifyUrl, returnUrl, param, bankCode, channelCode }) {
     try {
-        // Auto-route payin channel by wallet provider (defaults to Nagad)
-        const wallet = (bankCode || '').toLowerCase();
+        // channelCode is the preferred alias; bankCode is fallback
+        const wallet = (channelCode || bankCode || '').toLowerCase();
         const tdid = (WALLET_CHANNELS[wallet] && WALLET_CHANNELS[wallet].payin) || PAYIN_CHANNEL_ID;
 
         const params = {
@@ -104,7 +104,7 @@ async function createPayin({ orderId, amount, notifyUrl, returnUrl, param, bankC
         };
         params.sign = generateSign(params);
 
-        console.log('[BCATPAY] Creating payin:', { orderId, amount: params.price });
+        console.log('[BCATPAY] Creating payin:', { orderId, amount: params.price, wallet, tdid });
         const response = await postForm('/api/receiveOrder', params);
 
         if (response.data && response.data.code === 200) {
@@ -113,6 +113,7 @@ async function createPayin({ orderId, amount, notifyUrl, returnUrl, param, bankC
                 success: true,
                 payUrl: data.data || '', // Data field contains the payment link
                 providerOrderId: data.ordersn || orderId,
+                channelCode: wallet || undefined,
                 extra: {
                     account_number: data.account_number,
                     account_name: data.account_name,
@@ -209,10 +210,10 @@ async function submitUtr(orderId, utr) {
  * Create payout order (payment agent)
  * POST /api/payment
  */
-async function createPayout({ orderId, amount, name, accountNo, ifsc, notifyUrl, bankName }) {
+async function createPayout({ orderId, amount, name, accountNo, ifsc, notifyUrl, bankName, channelCode }) {
     try {
-        // Normalize wallet provider name (bkash, nagad, rocket, upay)
-        const walletProvider = (bankName || ifsc || 'nagad').toLowerCase();
+        // channelCode is the preferred alias; bankName/ifsc are fallbacks
+        const walletProvider = (channelCode || bankName || ifsc || 'nagad').toLowerCase();
         const validProviders = ['bkash', 'nagad', 'rocket', 'upay'];
         const normalizedProvider = validProviders.includes(walletProvider) ? walletProvider : 'nagad';
 
@@ -233,13 +234,14 @@ async function createPayout({ orderId, amount, name, accountNo, ifsc, notifyUrl,
         };
         params.sign = generateSign(params);
 
-        console.log('[BCATPAY] Creating payout:', { orderId, amount: params.price });
+        console.log('[BCATPAY] Creating payout:', { orderId, amount: params.price, wallet: normalizedProvider, tdid });
         const response = await postForm('/api/payment', params);
 
         if (response.data && response.data.code === 200) {
             return {
                 success: true,
                 providerOrderId: response.data.ordersn || orderId,
+                channelCode: normalizedProvider,
                 status: 'processing'
             };
         } else {

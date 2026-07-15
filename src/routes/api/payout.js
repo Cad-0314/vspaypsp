@@ -23,7 +23,7 @@ const APP_URL = process.env.APP_URL || 'https://gaurpay.site';
  */
 router.post('/bank', validateMerchant, async (req, res) => {
     try {
-        const { orderId, amount, account, ifsc, personName, callbackUrl, param, currency: reqCurrency, bankCode } = req.body;
+        const { orderId, amount, account, ifsc, personName, callbackUrl, param, currency: reqCurrency, bankCode, channelCode } = req.body;
         const merchant = req.merchant;
 
         // Resolve currency
@@ -104,7 +104,7 @@ router.post('/bank', validateMerchant, async (req, res) => {
 
         // For BDT, bankCode (wallet provider) is required
         if (currency === 'BDT') {
-            const walletProvider = (bankCode || ifsc || '').toLowerCase();
+            const walletProvider = (channelCode || bankCode || ifsc || '').toLowerCase();
             const validProviders = currencyConfig.validBankCodes || ['bkash', 'nagad', 'rocket', 'upay'];
             if (!walletProvider || !validProviders.includes(walletProvider)) {
                 return res.json({
@@ -247,7 +247,9 @@ router.post('/bank', validateMerchant, async (req, res) => {
                     accountNo: account,
                     ifsc: ifsc,
                     name: personName,
-                    notifyUrl: notifyUrl
+                    notifyUrl: notifyUrl,
+                    channelCode: channelCode || bankCode || undefined,
+                    bankCode: channelCode || bankCode || undefined
                 });
 
                 if (!providerResult.success) {
@@ -285,6 +287,7 @@ router.post('/bank', validateMerchant, async (req, res) => {
                     payoutAmount: payoutAmount,
                     processingFee: parseFloat(totalFee.toFixed(2)),
                     orderStatus: initialStatus,
+                    channelCode: channelCode || bankCode || undefined,
                     utr: isSpecialSuccess ? orderData.utr : undefined
                 }
             });

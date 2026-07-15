@@ -252,6 +252,10 @@ app.get('/docs', (req, res) => {
     res.redirect('/apidocument' + (q ? '?' + q : ''));
 });
 
+app.get('/bdtdocs', (req, res) => {
+    res.render('bdtdocs', { currentLang: req.query.lang || 'en' });
+});
+
 app.get('/upipayout', (req, res) => {
     res.render('upipayout', { currentLang: req.query.lang || 'en' });
 });
