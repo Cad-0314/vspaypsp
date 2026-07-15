@@ -1,13 +1,12 @@
-require('dotenv').config();
 const { Client } = require('ssh2');
 const fs = require('fs');
 const path = require('path');
 
 const config = {
-  host: process.env.DEPLOY_HOST || '139.180.135.210',
+  host: '66.23.233.13',
   port: 22,
-  username: process.env.DEPLOY_USER || 'root',
-  password: process.env.DEPLOY_PASSWORD
+  username: 'root',
+  password: 'wgMVh6@eb256@LJ'
 };
 
 const baseDir = path.join(__dirname, '..');
