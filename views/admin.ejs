@@ -2689,8 +2689,11 @@
 
         async function saveMerchant() {
             const id = document.getElementById('m-id').value;
+            const allowedCurrencies = Array.from(document.querySelectorAll('#m-allowedCurrencies input[type=checkbox]:checked')).map(cb => cb.value);
+            
             const body = {
                 username: document.getElementById('m-username').value,
+                password: document.getElementById('m-password').value,
                 payinChannel: document.getElementById('m-payin-channel').value,
                 payoutChannel: document.getElementById('m-payout-channel').value,
                 telegramGroupId: document.getElementById('m-telegramGroup').value,
@@ -2701,14 +2704,14 @@
                 isActive: document.getElementById('m-isActive').checked,
                 canPayin: document.getElementById('m-canPayin').checked,
                 canPayout: document.getElementById('m-canPayout').checked,
-                defaultCurrency: document.getElementById('m-defaultCurrency') ? document.getElementById('m-defaultCurrency').value : 'INR'
+                defaultCurrency: document.getElementById('m-defaultCurrency') ? document.getElementById('m-defaultCurrency').value : 'INR',
+                allowedCurrencies: allowedCurrencies
             };
 
             const totp = document.getElementById('m-totp').value;
-            if (id && !totp) {
-                return showToast(_t('2fa_totp_required'), 'error');
+            if (id && totp) {
+                body.totp = totp;
             }
-            if (id) body.totp = totp;
 
             const url = id ? `/admin/api/merchants/${id}` : '/admin/api/merchants';
             const method = id ? 'PUT' : 'POST';

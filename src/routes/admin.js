@@ -315,6 +315,7 @@ _Please change your password after first login!_
 
         res.json({ success: true, message: 'Updated' });
     } catch (error) {
+        console.error('[Admin] Error updating merchant:', error);
         res.status(500).json({ success: false, error: 'Failed' });
     }
 });
