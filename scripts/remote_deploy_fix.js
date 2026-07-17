@@ -21,6 +21,7 @@ conn.on('ready', () => {
         `cd ${PROJECT_DIR}`,
         // Update the telegram token in the remote .env
         `sed -i "s/^TELEGRAM_BOT_TOKEN=.*/TELEGRAM_BOT_TOKEN=${NEW_TOKEN}/" .env`,
+        `git clean -fd`,
         `git reset --hard HEAD`,
         // Run the deploy script which pulls git, runs npm install, and pm2 reload
         `bash ./deploy.sh`
