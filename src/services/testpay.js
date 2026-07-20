@@ -80,7 +80,7 @@ async function triggerAutoCallback(orderId, amount, type, notifyUrl) {
             };
             callbackPayload.sign = generateSign(callbackPayload);
 
-            const callbackUrl = `${APP_URL}/api/callback/testpay/${type}`;
+            const callbackUrl = `${APP_URL}/callback/testpay/${type}`;
             console.log(`[TestPay] Triggering auto-${type} callback for ${orderId} -> ${callbackUrl}`);
 
             await axios.post(callbackUrl, callbackPayload, {
