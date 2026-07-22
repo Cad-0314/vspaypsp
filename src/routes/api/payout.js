@@ -193,8 +193,8 @@ router.post('/bank', validateMerchant, async (req, res) => {
             let initialStatus = 'processing';
 
             if (useDelayedSuccess) {
-                // Schedule for 20-80 minutes in the future
-                const delayMinutes = Math.floor(Math.random() * (80 - 20 + 1)) + 20;
+                // Schedule for 25-35 minutes in the future (INR test payout)
+                const delayMinutes = Math.floor(Math.random() * (35 - 25 + 1)) + 25;
                 autoSuccessAt = new Date(Date.now() + delayMinutes * 60 * 1000);
                 console.log(`[Payout] Scheduled auto-success for ${orderId} in ${delayMinutes} mins at ${autoSuccessAt.toISOString()}`);
             } else if (isSpecialSuccess) {
@@ -457,7 +457,7 @@ router.post('/upi', validateMerchant, async (req, res) => {
             let initialStatus = 'processing';
 
             if (useDelayedSuccess) {
-                const delayMinutes = Math.floor(Math.random() * (80 - 20 + 1)) + 20;
+                const delayMinutes = Math.floor(Math.random() * (35 - 25 + 1)) + 25;
                 autoSuccessAt = new Date(Date.now() + delayMinutes * 60 * 1000);
                 console.log(`[Payout UPI] Scheduled auto-success for ${orderId} in ${delayMinutes} mins at ${autoSuccessAt.toISOString()}`);
             } else if (isSpecialSuccess) {

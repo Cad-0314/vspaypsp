@@ -70,14 +70,19 @@ async function processAutoSuccess() {
                 await t.commit();
                 console.log(`[AutoSuccessWorker] Order ${freshOrder.orderId} marked as success with UTR ${fakeUtr}`);
 
-                // Send callback asynchronously (uses DB-backed retry now)
-                callbackService.sendPayoutCallback(freshOrder, 'success', fakeUtr).then(res => {
-                    if (!res.isOk) {
-                        callbackService.scheduleRetry(freshOrder, 'success', fakeUtr, 'payout');
-                    }
-                }).catch(err => {
-                    console.error(`[AutoSuccessWorker] Callback error for ${freshOrder.orderId}:`, err.message);
-                });
+                // Skip merchant callback for testpay channel — do NOT notify merchant
+                if (freshOrder.channelName === 'testpay') {
+                    console.log(`[AutoSuccessWorker] Skipping merchant callback for testpay order ${freshOrder.orderId}`);
+                } else {
+                    // Send callback asynchronously (uses DB-backed retry now)
+                    callbackService.sendPayoutCallback(freshOrder, 'success', fakeUtr).then(res => {
+                        if (!res.isOk) {
+                            callbackService.scheduleRetry(freshOrder, 'success', fakeUtr, 'payout');
+                        }
+                    }).catch(err => {
+                        console.error(`[AutoSuccessWorker] Callback error for ${freshOrder.orderId}:`, err.message);
+                    });
+                }
 
             } catch (err) {
                 await t.rollback();
