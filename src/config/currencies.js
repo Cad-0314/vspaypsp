@@ -19,7 +19,7 @@ const CURRENCIES = {
         minPayout: 100,
         maxPayout: 100000,
         usdtRate: 100,            // 1 USDT = 100 INR
-        minUsdtSettlement: 200000, // Min ₹2,00,000 for USDT settlement
+        minUsdtSettlement: 100000, // Min ₹1,00,000 for USDT settlement
         payoutFields: ['account', 'ifsc', 'personName'],
         payoutLabels: {
             account: 'Bank Account Number',
