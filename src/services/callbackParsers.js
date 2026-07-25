@@ -407,6 +407,40 @@ function bcatpayParsePayout(body) {
 }
 
 // ============================================
+// F2PAY
+// ============================================
+function f2payParsePayin(body) {
+    let bizContent = body.bizContent;
+    if (typeof bizContent === 'string') {
+        try { bizContent = JSON.parse(bizContent); } catch (e) { return null; }
+    }
+    if (!bizContent) return null;
+    const state = (bizContent.state || '').toLowerCase();
+    return {
+        orderId: bizContent.mchOrderNo,
+        status: (state === 'paid' || state === 'unequalpaid') ? 'success' : (state === 'pending' || state === 'created') ? 'pending' : 'failed',
+        utr: bizContent.trxId || '',
+        actualAmount: parseFloat(bizContent.actualAmount || bizContent.amount) || 0,
+        providerOrderId: bizContent.platNo || ''
+    };
+}
+
+function f2payParsePayout(body) {
+    let bizContent = body.bizContent;
+    if (typeof bizContent === 'string') {
+        try { bizContent = JSON.parse(bizContent); } catch (e) { return null; }
+    }
+    if (!bizContent) return null;
+    const state = (bizContent.state || '').toLowerCase();
+    return {
+        orderId: bizContent.mchOrderNo,
+        status: (state === 'success' || state === 'completed') ? 'success' : (state === 'failed' || state === 'rejected') ? 'failed' : 'processing',
+        utr: bizContent.trxId || '',
+        providerOrderId: bizContent.platNo || ''
+    };
+}
+
+// ============================================
 // Export lookup maps for channelRouter
 // ============================================
 module.exports = {
@@ -427,7 +461,8 @@ module.exports = {
         ynpay: ynpayParsePayin,
         passpay: passpayParsePayin,
         testpay: testpayParsePayin,
-        bcatpay: bcatpayParsePayin
+        bcatpay: bcatpayParsePayin,
+        f2pay: f2payParsePayin
     },
     // Payout parsers by channel name
     payoutParsers: {
@@ -446,6 +481,7 @@ module.exports = {
         ynpay: ynpayParsePayout,
         passpay: passpayParsePayout,
         testpay: testpayParsePayout,
-        bcatpay: bcatpayParsePayout
+        bcatpay: bcatpayParsePayout,
+        f2pay: f2payParsePayout
     }
 };

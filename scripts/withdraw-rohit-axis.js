@@ -9,6 +9,7 @@
  * Channels:
  * - AgPay: ₹673
  * - FirPay (FirePay): ₹4,618
+ * - F2Pay: ₹443
  * - CKPay: ₹189
  * 
  * Withdraw Fee: 3% + ₹6 per channel
@@ -21,6 +22,7 @@ require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') }
 const agpay = require('../src/services/agpay');
 const firpay = require('../src/services/firpay');
 const ckpay = require('../src/services/ckpay');
+const f2pay = require('../src/services/f2pay');
 
 // Target bank account details
 const ACCOUNT = {
@@ -52,6 +54,12 @@ const PAYOUTS = [
         channelName: 'CK Pay',
         amount: 189,
         service: ckpay
+    },
+    {
+        provider: 'f2pay',
+        channelName: 'F2 Pay',
+        amount: 443,
+        service: f2pay
     }
 ];
 
@@ -123,6 +131,17 @@ async function executePayout(config) {
                 accountNo: ACCOUNT.accountNo,
                 ifsc: ACCOUNT.ifsc,
                 name: ACCOUNT.name,
+                notifyUrl
+            });
+        } else if (provider === 'f2pay') {
+            result = await service.createPayout({
+                orderId,
+                amount,
+                accountNo: ACCOUNT.accountNo,
+                ifsc: ACCOUNT.ifsc,
+                name: ACCOUNT.name,
+                mobile: ACCOUNT.phone,
+                email: ACCOUNT.email,
                 notifyUrl
             });
         }
@@ -219,8 +238,6 @@ async function main() {
     console.log(`║  Total Fees      : ₹${totalFee.toFixed(2).padStart(10).padEnd(37)}║`);
     console.log(`║  Total Net       : ₹${totalNet.toFixed(2).padStart(10).padEnd(37)}║`);
     console.log(`║  Success Amount  : ₹${totalSuccess.toFixed(2).padStart(10).padEnd(37)}║`);
-    console.log('╠════════════════════════════════════════════════════════════╣');
-    console.log(`║  ⚠ F2Pay (₹443) NOT withdrawn - channel not integrated   ║`);
     console.log('╚════════════════════════════════════════════════════════════╝');
 
     return results;

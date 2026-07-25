@@ -20,6 +20,7 @@ const ynpayService = require('./ynpay');
 const passpayService = require('./passpay');
 const testpayService = require('./testpay');
 const bcatpayService = require('./bcatpay');
+const f2payService = require('./f2pay');
 
 // Lazy load customChannel to avoid circular dependency
 let customChannelService = null;
@@ -48,6 +49,7 @@ const channelConfig = {
     passpay: { service: passpayService, displayName: 'Pass Pay', displayNameZh: 'Pass Pay', usesCustomPayPage: false, provider: 'passpay', currency: 'INR' },
     testpay: { service: testpayService, displayName: 'Test Pay', displayNameZh: '测试支付', usesCustomPayPage: false, provider: 'testpay', currency: 'INR' },
     bcatpay: { service: bcatpayService, displayName: 'BDTPay', displayNameZh: '孟加拉通道 (BDTPay)', usesCustomPayPage: false, provider: 'bcatpay', currency: 'BDT' },
+    f2pay: { service: f2payService, displayName: 'F2 Pay', displayNameZh: 'F2 Pay', usesCustomPayPage: false, provider: 'f2pay', currency: 'INR' },
     smart: { service: null, displayName: 'Smart', displayNameZh: '智能支付', usesCustomPayPage: false, provider: 'smart', isSmartChannel: true, currency: 'INR' }
 };
 

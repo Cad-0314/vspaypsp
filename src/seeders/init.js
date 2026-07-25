@@ -286,6 +286,24 @@ async function seedDatabase() {
                 usesCustomPayPage: false,
                 config: JSON.stringify({ isSmartChannel: true, payinOnly: true })
             },
+            // ---- F2Pay Channel ----
+            {
+                name: 'f2pay',
+                displayName: 'F2 Pay',
+                displayNameZh: 'F2 Pay',
+                provider: 'f2pay',
+                currency: 'INR',
+                country: 'IN',
+                payinRate: 5.00,
+                payoutRate: 3.00,
+                payoutFixedFee: 6.00,
+                isActive: true,
+                minPayin: 100.00,
+                maxPayin: 100000.00,
+                minPayout: 100.00,
+                maxPayout: 100000.00,
+                usesCustomPayPage: false
+            },
             // ---- PKR Channels (Placeholder) ----
             {
                 name: 'pkr_channel_1',
