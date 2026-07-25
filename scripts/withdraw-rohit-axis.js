@@ -46,7 +46,7 @@ const PAYOUTS = [
     {
         provider: 'firpay',
         channelName: 'Fire Pay',
-        amount: 4618,
+        amount: 4468,
         service: firpay
     },
     {
