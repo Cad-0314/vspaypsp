@@ -38,24 +38,6 @@ const APP_URL = process.env.APP_URL || 'https://gaurpay.site';
 // Payout configuration — full balance from each channel
 const PAYOUTS = [
     {
-        provider: 'agpay',
-        channelName: 'AG Pay',
-        amount: 673,
-        service: agpay
-    },
-    {
-        provider: 'firpay',
-        channelName: 'Fire Pay',
-        amount: 4468,
-        service: firpay
-    },
-    {
-        provider: 'ckpay',
-        channelName: 'CK Pay',
-        amount: 189,
-        service: ckpay
-    },
-    {
         provider: 'f2pay',
         channelName: 'F2 Pay',
         amount: 443,
